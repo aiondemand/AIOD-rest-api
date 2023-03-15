@@ -20,7 +20,7 @@ from sqlalchemy.orm import Session
 import connectors
 import schemas
 from connectors import NodeName
-from database.models import DatasetDescription, Publication
+from database.models import CodeArtifactDescription, DatasetDescription, Publication
 from database.setup import connect_to_database, populate_database
 
 
@@ -134,6 +134,17 @@ def _retrieve_publication(session, identifier) -> Publication:
             detail=f"Publication '{identifier}' not found in the database.",
         )
     return publication
+
+def _retrieve_codeartifact(session, identifier) -> CodeArtifactDescription:
+    query = select(CodeArtifactDescription).where(CodeArtifactDescription.id == identifier)
+    codeartifact = session.scalars(query).first()
+    if not codeartifact:
+        raise HTTPException(
+            status_code=404,
+            detail=f"CodeArtifact '{identifier}' not found in the database.",
+        )
+    return codeartifact
+
 
 
 def _wrap_as_http_exception(exception: Exception) -> HTTPException:
@@ -421,6 +432,17 @@ def add_routes(app: FastAPI, engine: Engine, url_prefix=""):
                     )
                 dataset.publications = [p for p in dataset.publications if p != publication]
                 session.commit()
+        except Exception as e:
+            raise _wrap_as_http_exception(e)
+
+
+    @app.get(url_prefix + "/codeartifact/{identifier}")
+    def get_codeartifact(identifier: str) -> dict:
+        """Retrieves all information for a specific codeartifact registered with AIoD."""
+        try:
+            with Session(engine) as session:
+                codeartifact = _retrieve_codeartifact(session, identifier)
+                return codeartifact
         except Exception as e:
             raise _wrap_as_http_exception(e)
 
