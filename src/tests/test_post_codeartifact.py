@@ -36,10 +36,10 @@ def test_happy_path(client: TestClient, engine: Engine):
 
     response = client.post(
         "/codeartifacts",
-        json={"name": "code2","doi":"doi2", "node": "zenodo", "node_specific_identifier": "2"},
+        json={"name": "code2", "doi": "doi2", "node": "zenodo", "node_specific_identifier": "2"},
     )
     assert response.status_code == 200
-    
+
     response_json = response.json()
     assert response_json["name"] == "code2"
     assert response_json["doi"] == "doi2"
@@ -49,14 +49,14 @@ def test_happy_path(client: TestClient, engine: Engine):
     assert len(response_json) == 5
 
 
-
 @pytest.mark.parametrize(
     "name",
     ["\"'é:?", "!@#$%^&*()`~", "Ω≈ç√∫˜µ≤≥÷", "田中さんにあげて下さい", " أي بعد, ", "𝑻𝒉𝒆 𝐪𝐮𝐢𝐜𝐤", "گچپژ"],
 )
 def test_unicode(client: TestClient, engine: Engine, name):
     response = client.post(
-        "/codeartifacts", json={"name": name,"doi":"doi2", "node": "zenodo", "node_specific_identifier": "2"},
+        "/codeartifacts",
+        json={"name": name, "doi": "doi2", "node": "zenodo", "node_specific_identifier": "2"},
     )
     assert response.status_code == 200
     response_json = response.json()
@@ -64,14 +64,18 @@ def test_unicode(client: TestClient, engine: Engine, name):
 
 
 def test_duplicated_codeartifact(client: TestClient, engine: Engine):
-    codeartifacts = [CodeArtifactDescription(name="code1", doi="doi1", node="zenodo", node_specific_identifier="1")]
+    codeartifacts = [
+        CodeArtifactDescription(
+            name="code1", doi="doi1", node="zenodo", node_specific_identifier="1"
+        )
+    ]
     with Session(engine) as session:
         # Populate database
         session.add_all(codeartifacts)
         session.commit()
     response = client.post(
         "/codeartifacts",
-        json={"name": "code1","doi":"doi1", "node": "zenodo", "node_specific_identifier": "1"},
+        json={"name": "code1", "doi": "doi1", "node": "zenodo", "node_specific_identifier": "1"},
     )
     assert response.status_code == 409
     assert (
@@ -79,13 +83,15 @@ def test_duplicated_codeartifact(client: TestClient, engine: Engine):
         "and name, with id=1."
     )
 
-#Test if the api allows creating publications with not all fields
-@pytest.mark.parametrize("field", ["name", "node","doi", "node_specific_identifier"])
+
+# Test if the api allows creating publications with not all fields
+@pytest.mark.parametrize("field", ["name", "node", "doi", "node_specific_identifier"])
 def test_missing_value(client: TestClient, engine: Engine, field: str):
-    data = {"name": "code2",
-    "doi":"doi2",
-    "node": "zenodo",
-    "node_specific_identifier": "2"
+    data = {
+        "name": "code2",
+        "doi": "doi2",
+        "node": "zenodo",
+        "node_specific_identifier": "2",
     }  # type: typing.Dict[str, typing.Any]
     del data[field]
     response = client.post("/codeartifacts", json=data)
@@ -95,12 +101,13 @@ def test_missing_value(client: TestClient, engine: Engine, field: str):
     ]
 
 
-@pytest.mark.parametrize("field", ["name","doi", "node", "node_specific_identifier"])
+@pytest.mark.parametrize("field", ["name", "doi", "node", "node_specific_identifier"])
 def test_null_value(client: TestClient, engine: Engine, field: str):
-    data = {"name": "code2",
-    "doi":"doi2",
-    "node": "zenodo",
-    "node_specific_identifier": "2"
+    data = {
+        "name": "code2",
+        "doi": "doi2",
+        "node": "zenodo",
+        "node_specific_identifier": "2",
     }  # type: typing.Dict[str, typing.Any]
     data[field] = None
     response = client.post("/codeartifacts", json=data)
@@ -112,4 +119,3 @@ def test_null_value(client: TestClient, engine: Engine, field: str):
             "type": "type_error.none.not_allowed",
         }
     ]
-

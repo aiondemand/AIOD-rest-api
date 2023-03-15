@@ -135,6 +135,7 @@ def _retrieve_publication(session, identifier) -> Publication:
         )
     return publication
 
+
 def _retrieve_codeartifact(session, identifier) -> CodeArtifactDescription:
     query = select(CodeArtifactDescription).where(CodeArtifactDescription.id == identifier)
     codeartifact = session.scalars(query).first()
@@ -144,7 +145,6 @@ def _retrieve_codeartifact(session, identifier) -> CodeArtifactDescription:
             detail=f"CodeArtifact '{identifier}' not found in the database.",
         )
     return codeartifact
-
 
 
 def _wrap_as_http_exception(exception: Exception) -> HTTPException:
@@ -435,7 +435,6 @@ def add_routes(app: FastAPI, engine: Engine, url_prefix=""):
         except Exception as e:
             raise _wrap_as_http_exception(e)
 
-
     @app.get(url_prefix + "/codeartifacts/{identifier}")
     def get_codeartifact(identifier: str) -> dict:
         """Retrieves all information for a specific codeartifact registered with AIoD."""
@@ -464,7 +463,8 @@ def add_routes(app: FastAPI, engine: Engine, url_prefix=""):
                     session.rollback()
                     query = select(CodeArtifactDescription).where(
                         and_(
-                            CodeArtifactDescription.node_specific_identifier == codeartifact.node_specific_identifier,
+                            CodeArtifactDescription.node_specific_identifier
+                            == codeartifact.node_specific_identifier,
                             CodeArtifactDescription.node == codeartifact.node,
                         )
                     )
@@ -477,7 +477,6 @@ def add_routes(app: FastAPI, engine: Engine, url_prefix=""):
                 return new_codeartifact.to_dict(depth=1)
         except Exception as e:
             raise _wrap_as_http_exception(e)
-
 
 
 def create_app() -> FastAPI:
