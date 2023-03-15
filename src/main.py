@@ -446,6 +446,39 @@ def add_routes(app: FastAPI, engine: Engine, url_prefix=""):
         except Exception as e:
             raise _wrap_as_http_exception(e)
 
+    @app.post(url_prefix + "/codeartifacts")
+    def register_codeartifact(codeartifact: schemas.CodeArtifact) -> dict:
+        """Add a codeartifact."""
+        try:
+            with Session(engine) as session:
+                new_codeartifact = CodeArtifactDescription(
+                    name=codeartifact.name,
+                    doi=codeartifact.doi,
+                    node=codeartifact.node,
+                    node_specific_identifier=codeartifact.node_specific_identifier,
+                )
+                session.add(new_codeartifact)
+                try:
+                    session.commit()
+                except IntegrityError:
+                    session.rollback()
+                    query = select(CodeArtifactDescription).where(
+                        and_(
+                            CodeArtifactDescription.node_specific_identifier == codeartifact.node_specific_identifier,
+                            CodeArtifactDescription.node == codeartifact.node,
+                        )
+                    )
+                    existing_codeartifact = session.scalars(query).first()
+                    raise HTTPException(
+                        status_code=409,
+                        detail="There already exists a codeartifact with the same "
+                        f"node and name, with id={existing_codeartifact.id}.",
+                    )
+                return new_codeartifact.to_dict(depth=1)
+        except Exception as e:
+            raise _wrap_as_http_exception(e)
+
+
 
 def create_app() -> FastAPI:
     """Create the FastAPI application, complete with routes."""
