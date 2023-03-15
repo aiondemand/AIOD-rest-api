@@ -102,3 +102,21 @@ class Publication(Base):
         back_populates="publications",
         secondary=dataset_publication_relationship,
     )
+
+
+class CodeArtifactDescription(Base):
+    """Any code artifact."""
+
+    __tablename__ = "codeartifacts"
+    __table_args__ = (
+        UniqueConstraint(
+            "node",
+            "node_specific_identifier",
+            name="publications_unique_node_node_specific_identifier",
+        ),
+    )
+    name: Mapped[str] = mapped_column(String(250), nullable=False)
+    doi: Mapped[str] = mapped_column(String(250), nullable=False)
+    node: Mapped[str] = mapped_column(String(30), nullable=False)
+    node_specific_identifier: Mapped[str] = mapped_column(String(250), nullable=False)
+    id: Mapped[int] = mapped_column(init=False, primary_key=True)
