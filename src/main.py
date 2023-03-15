@@ -436,7 +436,7 @@ def add_routes(app: FastAPI, engine: Engine, url_prefix=""):
             raise _wrap_as_http_exception(e)
 
 
-    @app.get(url_prefix + "/codeartifact/{identifier}")
+    @app.get(url_prefix + "/codeartifacts/{identifier}")
     def get_codeartifact(identifier: str) -> dict:
         """Retrieves all information for a specific codeartifact registered with AIoD."""
         try:
