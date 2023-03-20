@@ -478,6 +478,27 @@ def add_routes(app: FastAPI, engine: Engine, url_prefix=""):
         except Exception as e:
             raise _wrap_as_http_exception(e)
 
+    @app.put(url_prefix + "/codeartifacts/{identifier}")
+    def put_codeartifacts(identifier: str, codeartifact: schemas.CodeArtifact) -> dict:
+        """Update an existing dataset."""
+        try:
+            with Session(engine) as session:
+                _retrieve_codeartifact(session, identifier)  # Raise error if dataset does not exist
+                statement = (
+                    update(CodeArtifactDescription)
+                    .values(
+                        node=codeartifact.node,
+                        name=codeartifact.name,
+                        node_specific_identifier=codeartifact.node_specific_identifier,
+                    )
+                    .where(CodeArtifactDescription.id == identifier)
+                )
+                session.execute(statement)
+                session.commit()
+                return _retrieve_codeartifact(session, identifier).to_dict(depth=1)
+        except Exception as e:
+            raise _wrap_as_http_exception(e)
+
     @app.delete(url_prefix + "/codeartifacts/{identifier}")
     def delete_codeartifacts(identifier: str):
         try:
