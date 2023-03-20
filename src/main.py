@@ -435,6 +435,31 @@ def add_routes(app: FastAPI, engine: Engine, url_prefix=""):
         except Exception as e:
             raise _wrap_as_http_exception(e)
 
+    @app.get(url_prefix + "/codeartifacts")
+    def list_codeartifacts(
+        pagination: Pagination = Depends(Pagination),
+    ) -> list[dict]:
+        """Lists all datasets registered with AIoD.
+
+        Query Parameter
+        ------
+         * nodes, list[str], optional: if provided, list only datasets from the given node.
+        """
+        # For additional information on querying through SQLAlchemy's ORM:
+        # https://docs.sqlalchemy.org/en/20/orm/queryguide/index.html
+        try:
+            with Session(engine) as session:
+                query = (
+                    select(CodeArtifactDescription)
+                    .offset(pagination.offset)
+                    .limit(pagination.limit)
+                )
+                return [
+                    codeartifact.to_dict(depth=0) for codeartifact in session.scalars(query).all()
+                ]
+        except Exception as e:
+            raise _wrap_as_http_exception(e)
+
     @app.get(url_prefix + "/codeartifacts/{identifier}")
     def get_codeartifact(identifier: str) -> dict:
         """Retrieves all information for a specific codeartifact registered with AIoD."""
