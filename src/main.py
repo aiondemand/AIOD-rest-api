@@ -478,6 +478,20 @@ def add_routes(app: FastAPI, engine: Engine, url_prefix=""):
         except Exception as e:
             raise _wrap_as_http_exception(e)
 
+    @app.delete(url_prefix + "/codeartifacts/{identifier}")
+    def delete_codeartifacts(identifier: str):
+        try:
+            with Session(engine) as session:
+                _retrieve_codeartifact(session, identifier)  # Raise error if it does not exist
+
+                statement = delete(CodeArtifactDescription).where(
+                    CodeArtifactDescription.id == identifier
+                )
+                session.execute(statement)
+                session.commit()
+        except Exception as e:
+            raise _wrap_as_http_exception(e)
+
 
 def create_app() -> FastAPI:
     """Create the FastAPI application, complete with routes."""
