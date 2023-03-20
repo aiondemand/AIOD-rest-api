@@ -7,7 +7,7 @@ from typing import List
 from sqlalchemy import Engine, text, create_engine, select
 from sqlalchemy.orm import Session
 
-from connectors import DatasetConnector, PublicationConnector
+from connectors import DatasetConnector, PublicationConnector, CodeArtifactConnector
 from .models import Base, DatasetDescription, Publication
 
 
@@ -57,8 +57,10 @@ def populate_database(
     only_if_empty: bool = True,
     dataset_connectors: List[DatasetConnector] | None = None,
     publications_connectors: List[PublicationConnector] | None = None,
+    codeartifact_connectors: List[CodeArtifactConnector] | None = None,
     limit_datasets: int | None = None,
     limit_publications: int | None = None,
+    limit_codeartifacts: int | None = None,
 ):
     """Add some data to the Dataset and Publication tables."""
 
@@ -75,8 +77,16 @@ def populate_database(
             *[c.fetch_all(limit=limit_publications) for c in publications_connectors]
         )
 
+    if codeartifact_connectors is None:
+        codeartifact_iterable = iter(())
+    else:
+        codeartifact_iterable = itertools.chain(
+            *[c.fetch_all(limit=limit_codeartifacts) for c in codeartifact_connectors]
+        )
+
     datasets = list(datasets_iterable)
     publications = list(publications_iterable)
+    codeartifacts = list(codeartifact_iterable)
     # For now, we cannot make use of generators, because we have to link the datasets with the
     # publications. This is a temporary setup though, so it makes sense to let the fetch_all()
     # return an iterator for future benefits.
@@ -91,6 +101,7 @@ def populate_database(
 
         session.add_all(datasets)
         session.add_all(publications)
+        session.add_all(codeartifacts)
         session.commit()
 
 

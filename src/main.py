@@ -61,6 +61,13 @@ def _parse_args() -> argparse.Namespace:
         "per node.",
     )
     parser.add_argument(
+        "--limit-number-of-codeartifacts",
+        default=None,
+        type=int,
+        help="Limit the number of initial codeartifacts with which the database is populated, "
+        "per node.",
+    )
+    parser.add_argument(
         "--reload",
         action="store_true",
         help="Use `--reload` for FastAPI.",
@@ -561,6 +568,7 @@ def create_app() -> FastAPI:
             only_if_empty=True,
             limit_datasets=args.limit_number_of_datasets,
             limit_publications=args.limit_number_of_publications,
+            limit_codeartifacts=args.limit_number_of_codeartifacts,
         )
     add_routes(app, engine, url_prefix=args.url_prefix)
     return app

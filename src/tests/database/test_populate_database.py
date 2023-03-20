@@ -9,8 +9,11 @@ from connectors import (
     ExamplePublicationConnector,
     OpenMlDatasetConnector,
     HuggingFaceDatasetConnector,
+    ExampleCodeArtifactConnector,
 )
-from database.models import Publication, DatasetDescription
+
+
+from database.models import CodeArtifactDescription, Publication, DatasetDescription
 from database.setup import populate_database
 from tests.testutils.paths import path_test_resources
 
@@ -23,12 +26,15 @@ def test_example_happy_path(engine: Engine):
         engine,
         dataset_connectors=[ExampleDatasetConnector()],
         publications_connectors=[ExamplePublicationConnector()],
+        codeartifact_connectors=[ExampleCodeArtifactConnector()],
     )
     with Session(engine) as session:
         datasets = session.scalars(select(DatasetDescription)).all()
         publications = session.scalars(select(Publication)).all()
+        codeartifacts = session.scalars(select(CodeArtifactDescription)).all()
         assert len(datasets) == 5
         assert len(publications) == 2
+        assert len(codeartifacts) == 5
         assert {len(d.publications) for d in datasets} == {0, 1, 2}
         assert {len(p.datasets) for p in publications} == {1, 2}
 
