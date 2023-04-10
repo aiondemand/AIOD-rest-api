@@ -19,7 +19,6 @@ class CodeArtifactConverter(ResourceConverter[AIoDCodeArtifact, OrmCodeArtifact]
         return OrmCodeArtifact.create_or_get(
             session=session,
             create=not return_existing_if_present,
-            identifier=aiod.identifier,
             platform=aiod.platform,
             platform_identifier=aiod.platform_identifier,
             doi=aiod.doi,
