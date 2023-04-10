@@ -62,6 +62,14 @@ class AIoDPublication(AIoDAIResource):
     )
 
 
+class AIoDCodeArtifact(AIoDAIResource):
+    """The complete metadata of a code artifact. For now, only a couple of fields are shown,
+    we have to decide which fields to use."""
+
+    name: str = Field(max_length=250)
+    doi: str | None = Field(max_length=150)
+
+
 class AIoDDataset(AIoDAIResource):
     """
     The complete metadata of a dataset in AIoD format.
