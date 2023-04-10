@@ -1,4 +1,8 @@
-import typing  # noqa:F401 (flake8 raises incorrect 'Module imported but unused' error)
+import typing  # noqa:F401
+
+from routers.codeartifact_router import (
+    CodeArtifactRouter,
+)  # noqa:F401 (flake8 raises incorrect 'Module imported but unused' error)
 
 from .abstract_router import ResourceRouter  # noqa:F401
 from .dataset_router import DatasetRouter
@@ -11,4 +15,5 @@ routers = [
     PublicationRouter(),
     NewsRouter(),
     EducationalResourceRouter(),
+    CodeArtifactRouter(),
 ]  # type: typing.List[ResourceRouter]

@@ -1,4 +1,5 @@
 from typing import Type  # noqa:F401
+from converters.codeArtifact_converter import CodeArtifactConverter  # noqa:F401
 
 from schemas import AIoDDataset, AIoDNews, AIoDPublication, AIoDEducationalResource
 from .abstract_converter import ResourceConverter  # noqa:F401
@@ -11,6 +12,7 @@ dataset_converter_instance = DatasetConverter()
 news_converter_instance = NewsConverter()
 publication_converter_instance = PublicationConverter()
 educational_resource_converter_instance = EducationalResourceConverter()
+codeartifact_converter_instance = CodeArtifactConverter()
 
 
 converters = {
