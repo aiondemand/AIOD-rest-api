@@ -5,7 +5,7 @@ from sqlalchemy import Engine
 from sqlalchemy.orm import Session
 from starlette.testclient import TestClient
 
-from database.model.codeArtifact import OrmCodeArtifact
+from database.model.code_artifact import OrmCodeArtifact
 
 
 @pytest.mark.parametrize(
@@ -28,7 +28,7 @@ def test_happy_path(
 ):
     _setup(engine)
     response = client.put(
-        f"/codeartifacts/{identifier}",
+        f"/code_artifacts/{identifier}",
         json={
             "name": name,
             "platform": platform,
@@ -50,18 +50,18 @@ def test_non_existent(client: TestClient, engine: Engine):
     _setup(engine)
 
     response = client.put(
-        "/codeartifacts/4",
+        "/code_artifacts/4",
         json={"name": "name", "platform": "platform", "doi": "doi", "platform_identifier": "id"},
     )
     assert response.status_code == 404
     response_json = response.json()
-    assert response_json["detail"] == "Codeartifact '4' not found in the database."
+    assert response_json["detail"] == "Code_artifact '4' not found in the database."
 
 
 def test_partial_update(client: TestClient, engine: Engine):
     _setup(engine)
 
-    response = client.put("/codeartifacts/4", json={"doi": "doi"})
+    response = client.put("/code_artifacts/4", json={"doi": "doi"})
     # Partial update: node and node_specific_identifier omitted. This is not supported,
     # and should be a PATCH request if we supported it.
 
@@ -77,7 +77,7 @@ def test_too_long_name(client: TestClient, engine: Engine):
 
     name = "a" * 300
     response = client.put(
-        "/codeartifacts/2",
+        "/code_artifacts/2",
         json={"name": name, "doi": "doi", "platform": "platform", "platform_identifier": "id"},
     )
     assert response.status_code == 422

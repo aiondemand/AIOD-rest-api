@@ -2,7 +2,7 @@ from sqlalchemy import Engine
 from sqlalchemy.orm import Session
 from starlette.testclient import TestClient
 
-from database.model.codeArtifact import OrmCodeArtifact
+from database.model.code_artifact import OrmCodeArtifact
 
 
 def test_happy_path(client: TestClient, engine: Engine):
@@ -16,7 +16,7 @@ def test_happy_path(client: TestClient, engine: Engine):
         session.add_all(codeartifacts)
         session.commit()
 
-    response = client.get("/codeartifacts")
+    response = client.get("/code_artifacts")
     assert response.status_code == 200
     response_json = response.json()
     assert len(response_json) == 3

@@ -12,7 +12,7 @@ dataset_converter_instance = DatasetConverter()
 news_converter_instance = NewsConverter()
 publication_converter_instance = PublicationConverter()
 educational_resource_converter_instance = EducationalResourceConverter()
-codeartifact_converter_instance = CodeArtifactConverter()
+code_artifact_converter_instance = CodeArtifactConverter()
 
 
 converters = {

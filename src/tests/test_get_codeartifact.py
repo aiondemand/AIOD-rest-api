@@ -5,7 +5,7 @@ from sqlalchemy import Engine
 from sqlalchemy.orm import Session
 from starlette.testclient import TestClient
 
-from database.model.codeArtifact import OrmCodeArtifact
+from database.model.code_artifact import OrmCodeArtifact
 
 
 @pytest.mark.parametrize("codeartifact_id", [1, 2])
@@ -32,7 +32,7 @@ def test_happy_path(client: TestClient, engine: Engine, codeartifact_id: int):
         session.add_all(copy.deepcopy(codeartifact))
         session.commit()
 
-    response = client.get(f"/codeartifacts/{codeartifact_id}")
+    response = client.get(f"/code_artifacts/{codeartifact_id}")
     assert response.status_code == 200
 
     response_json = response.json()

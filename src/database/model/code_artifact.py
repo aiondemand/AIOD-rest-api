@@ -7,7 +7,7 @@ from database.model.ai_resource import OrmAIResource
 class OrmCodeArtifact(OrmAIResource):
     """Any publication."""
 
-    __tablename__ = "codeArtifacts"
+    __tablename__ = "code_artifacts"
     __table_args__ = (
         UniqueConstraint(
             "platform",

@@ -5,7 +5,7 @@ from sqlalchemy import Engine, select, func
 from sqlalchemy.orm import Session
 from starlette.testclient import TestClient
 
-from database.model.codeArtifact import OrmCodeArtifact
+from database.model.code_artifact import OrmCodeArtifact
 
 
 @pytest.mark.parametrize("identifier", ["1", "2", "3"])
@@ -21,7 +21,7 @@ def test_happy_path(client: TestClient, engine: Engine, identifier: str):
         session.commit()
 
     assert _n_datasets(engine) == 3
-    response = client.delete(f"/codeartifacts/{identifier}")
+    response = client.delete(f"/code_artifacts/{identifier}")
     assert response.status_code == 200
     assert _n_datasets(engine) == 2
 
@@ -39,9 +39,9 @@ def test_nonexistent_dataset(client: TestClient, engine: Engine, identifier: str
         session.commit()
 
     assert _n_datasets(engine) == 3
-    response = client.delete(f"/codeartifacts/{identifier}")
+    response = client.delete(f"/code_artifacts/{identifier}")
     assert response.status_code == 404
-    assert response.json()["detail"] == f"Codeartifact '{identifier}' not found in the database."
+    assert response.json()["detail"] == f"Code_artifact '{identifier}' not found in the database."
     assert _n_datasets(engine) == 3
 
 

@@ -4,7 +4,7 @@ import pytest
 from sqlalchemy import Engine
 from sqlalchemy.orm import Session
 from starlette.testclient import TestClient
-from database.model.codeArtifact import OrmCodeArtifact
+from database.model.code_artifact import OrmCodeArtifact
 
 
 def test_happy_path(client: TestClient, engine: Engine):
@@ -34,7 +34,7 @@ def test_happy_path(client: TestClient, engine: Engine):
         session.commit()
 
     response = client.post(
-        "/codeartifacts",
+        "/code_artifacts",
         json={"name": "code2", "doi": "doi2", "platform": "zenodo", "platform_identifier": "2"},
     )
     assert response.status_code == 200
@@ -54,7 +54,7 @@ def test_happy_path(client: TestClient, engine: Engine):
 )
 def test_unicode(client: TestClient, engine: Engine, name):
     response = client.post(
-        "/codeartifacts",
+        "/code_artifacts",
         json={"name": name, "doi": "doi2", "platform": "zenodo", "platform_identifier": "2"},
     )
     assert response.status_code == 200
@@ -71,12 +71,12 @@ def test_duplicated_codeartifact(client: TestClient, engine: Engine):
         session.add_all(codeartifacts)
         session.commit()
     response = client.post(
-        "/codeartifacts",
+        "/code_artifacts",
         json={"name": "code1", "doi": "doi1", "platform": "zenodo", "platform_identifier": "1"},
     )
     assert response.status_code == 409
     assert (
-        response.json()["detail"] == "There already exists a codeartifact with the same platform "
+        response.json()["detail"] == "There already exists a code_artifact with the same platform "
         "and name, with identifier=1."
     )
 
@@ -91,7 +91,7 @@ def test_missing_value(client: TestClient, engine: Engine, field: str):
         "platform_identifier": "2",
     }  # type: typing.Dict[str, typing.Any]
     del data[field]
-    response = client.post("/codeartifacts", json=data)
+    response = client.post("/code_artifacts", json=data)
     assert response.status_code == 422
     assert response.json()["detail"] == [
         {"loc": ["body", field], "msg": "field required", "type": "value_error.missing"}
@@ -107,7 +107,7 @@ def test_null_value(client: TestClient, engine: Engine, field: str):
         "platform_identifier": "2",
     }  # type: typing.Dict[str, typing.Any]
     data[field] = None
-    response = client.post("/codeartifacts", json=data)
+    response = client.post("/code_artifacts", json=data)
     assert response.status_code == 422
     assert response.json()["detail"] == [
         {

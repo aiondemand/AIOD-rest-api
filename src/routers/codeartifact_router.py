@@ -1,8 +1,8 @@
 from typing import Type
 
-from converters import codeartifact_converter_instance
+from converters import code_artifact_converter_instance
 from converters.abstract_converter import ResourceConverter
-from database.model.codeArtifact import OrmCodeArtifact
+from database.model.code_artifact import OrmCodeArtifact
 from routers.abstract_router import ResourceRouter, AIOD_CLASS, ORM_CLASS
 from schemas import AIoDCodeArtifact
 
@@ -10,11 +10,11 @@ from schemas import AIoDCodeArtifact
 class CodeArtifactRouter(ResourceRouter[OrmCodeArtifact, AIoDCodeArtifact]):
     @property
     def resource_name(self) -> str:
-        return "codeartifact"
+        return "code_artifact"
 
     @property
     def resource_name_plural(self) -> str:
-        return "codeartifacts"
+        return "code_artifacts"
 
     @property
     def aiod_class(self) -> Type[AIOD_CLASS]:
@@ -26,4 +26,4 @@ class CodeArtifactRouter(ResourceRouter[OrmCodeArtifact, AIoDCodeArtifact]):
 
     @property
     def converter(self) -> ResourceConverter[AIOD_CLASS, ORM_CLASS]:
-        return codeartifact_converter_instance
+        return code_artifact_converter_instance

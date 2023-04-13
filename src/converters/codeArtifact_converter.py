@@ -4,7 +4,7 @@ Converting between different dataset representations
 from sqlalchemy.orm import Session
 
 from converters.abstract_converter import ResourceConverter
-from database.model.codeArtifact import OrmCodeArtifact
+from database.model.code_artifact import OrmCodeArtifact
 from schemas import AIoDCodeArtifact
 
 
