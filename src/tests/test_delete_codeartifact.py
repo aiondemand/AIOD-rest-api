@@ -11,9 +11,9 @@ from database.model.code_artifact import OrmCodeArtifact
 @pytest.mark.parametrize("identifier", ["1", "2", "3"])
 def test_happy_path(client: TestClient, engine: Engine, identifier: str):
     codeartifacts = [
-        OrmCodeArtifact(name="code1", doi="doi1", platform="zenodo", platform_identifier="1"),
-        OrmCodeArtifact(name="code1", doi="doi1", platform="other_node", platform_identifier="1"),
-        OrmCodeArtifact(name="code2", doi="doi2", platform="other_node", platform_identifier="2"),
+        OrmCodeArtifact(name="code1", platform="zenodo", platform_identifier="1"),
+        OrmCodeArtifact(name="code1", platform="other_node", platform_identifier="1"),
+        OrmCodeArtifact(name="code2", platform="other_node", platform_identifier="2"),
     ]
     with Session(engine) as session:
         # Populate database

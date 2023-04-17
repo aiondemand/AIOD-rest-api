@@ -66,8 +66,28 @@ class AIoDCodeArtifact(AIoDAIResource):
     """The complete metadata of a code artifact. For now, only a couple of fields are shown,
     we have to decide which fields to use."""
 
+    # Artifact identification
     name: str = Field(max_length=250)
-    doi: str | None = Field(max_length=150)
+    doi: Optional[str] = Field(max_length=150)
+    abstarct: Optional[str]
+
+    # Artifact identification
+    hardware_resources_description: Optional[str]
+    os_description: Optional[str]
+    software_dependecies: Optional[str]
+    other_dependencies: Optional[str]
+    # Artifact installation
+    compilation_process: Optional[str]
+    compilation_time_seconds: Optional[int]
+    deployment_process: Optional[str]
+    deployment_time_seconds: Optional[int]
+    # Reproducibility of experiment
+    experiment_worklow: Optional[str]
+    experiment_estimation_time_seconds: Optional[int]
+    results_description: Optional[str]
+    publication_results_experiment: Optional[str]
+    # Other notes
+    other_notes: Optional[str]
 
 
 class AIoDDataset(AIoDAIResource):
