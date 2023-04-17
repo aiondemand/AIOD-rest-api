@@ -18,7 +18,6 @@ class PublicationConverter(ResourceConverter[AIoDPublication, OrmPublication]):
         Converting between publication representations: the AIoD schema towards the database variant
         """
         datasets = retrieve_related_objects_by_ids(session, aiod.datasets, OrmDataset)
-
         return OrmPublication.create_or_get(
             session=session,
             create=not return_existing_if_present,

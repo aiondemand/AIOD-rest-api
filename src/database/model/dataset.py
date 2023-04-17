@@ -3,6 +3,7 @@ from datetime import datetime
 from sqlalchemy import UniqueConstraint, String, DateTime, Boolean, and_
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+
 from database.model.ai_resource import OrmAIResource
 from database.model.dataset_relationships import (
     dataset_alternateName_relationship,
@@ -13,10 +14,11 @@ from database.model.dataset_relationships import (
     dataset_publication_relationship,
     dataset_measuredValue_relationship,
 )
-from database.model.general import OrmLicense, OrmKeyword
+from database.model.general import OrmKeyword, OrmLicense
 from database.model.base import Base
 from database.model.publication import OrmPublication
 from database.model.unique_model import UniqueMixin
+from sqlalchemy import ForeignKey
 
 
 class OrmDataset(OrmAIResource):
@@ -25,18 +27,15 @@ class OrmDataset(OrmAIResource):
     __tablename__ = "datasets"
     __table_args__ = (
         UniqueConstraint(
-            "platform",
-            "platform_identifier",
-            name="dataset_unique_platform_platform_identifier",
-        ),
-        UniqueConstraint(
-            "platform",
             "name",
             "version",
-            name="dataset_unique_platform_name_version",
+            name="dataset_name_version_unique",
         ),
     )
-    identifier: Mapped[int] = mapped_column(init=False, primary_key=True)
+
+    identifier: Mapped[int] = mapped_column(
+        ForeignKey("ai_resources.identifier"), init=False, primary_key=True
+    )
     # Defined on AIResource as well, but without this attribute here, SQLAlchemy does not
     # understand the self-referential relationship in has_part and is_part
 
@@ -103,6 +102,11 @@ class OrmDataset(OrmAIResource):
         back_populates="datasets",
         secondary=dataset_measuredValue_relationship,
     )
+
+    __mapper_args__ = {
+        "polymorphic_identity": "dataset",
+        "inherit_condition": identifier == OrmAIResource.identifier,
+    }
 
 
 class OrmDataDownload(Base):

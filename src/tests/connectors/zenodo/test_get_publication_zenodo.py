@@ -16,6 +16,7 @@ ZENODO_URL = "https://zenodo.org/api"
 @pytest.mark.skip(reason="TODO[arejula27]: implement, similar to the dataset connector test?")
 def test_happy_path(client: TestClient, engine: Engine):
     publication_description = OrmPublication(
+        identifier=1,
         title="Student-Centred Studio Environments: A Deep Dive into Architecture Students' Needs",
         doi="10.5281/zenodo.7712947",
         platform="zenodo",
@@ -37,6 +38,7 @@ def test_happy_path(client: TestClient, engine: Engine):
 def test_publication_not_found_in_local_db(client: TestClient, engine: Engine):
 
     publication_description = OrmPublication(
+        identifier=1,
         title="Student-Centred Studio Environments: A Deep Dive into Architecture Students' Needs",
         doi="10.5281/zenodo.7712947",
         platform="zenodo",
@@ -54,6 +56,7 @@ def test_publication_not_found_in_local_db(client: TestClient, engine: Engine):
 @pytest.mark.skip(reason="TODO[arejula27]: implement, similar to the dataset connector test?")
 def test_publication_not_found_in_zenodo(client: TestClient, engine: Engine):
     publication_description = OrmPublication(
+        identifier=1,
         title="Student-Centred Studio Environments: A Deep Dive into Architecture Students' Needs",
         doi="10.5281/zenodo.7712947",
         platform="zenodo",

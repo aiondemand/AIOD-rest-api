@@ -30,12 +30,16 @@ from database.model.educational_resource_relationships import (
     educational_resource_keyword_relationship,
     educational_resource_technical_category_relationship,
 )
+
+from database.model.event_relationships import event_business_category_relationship
+
 from database.model.unique_model import UniqueMixin
 
 if TYPE_CHECKING:  # avoid circular imports; only import while type checking
     from database.model.dataset import OrmDataset
     from database.model.news import OrmNews
     from database.model.educational_resource import OrmEducationalResource
+    from database.model.event import OrmEvent
 
 
 class OrmLicense(UniqueMixin, Base):
@@ -117,6 +121,11 @@ class OrmBusinessCategory(UniqueMixin, Base):
         default_factory=list,
         back_populates="business_categories",
         secondary=educational_resource_business_category_relationship,
+    )
+    events: Mapped[list["OrmEvent"]] = relationship(
+        default_factory=list,
+        back_populates="business_categories",
+        secondary=event_business_category_relationship,
     )
 
 

@@ -25,7 +25,10 @@ class OrmResource(UniqueMixin, Base):
         cls, query, *args, platform: str = "", platform_identifier: str = "", **kwargs
     ):
         return query.filter(
-            and_(cls.platform == platform, cls.platform_identifier == platform_identifier)
+            and_(
+                cls.platform == platform,
+                cls.platform_identifier == platform_identifier,
+            )
         )
 
     @classmethod

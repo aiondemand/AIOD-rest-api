@@ -212,3 +212,55 @@ class AIoDEducationalResource(AIoDAIResource):
         description="Keywords or tags categories related with an educational resource",
         default_factory=list,
     )
+
+
+class AIoDEvent(AIoDResource):
+    """The complete metadata for events"""
+
+    name: str = Field(max_length=150)
+    description: str = Field(max_length=5000)
+    registration_url: str = Field(max_length=150)
+    location: str = Field(max_length=500)
+
+    start_date: datetime | None
+    end_date: datetime | None
+    duration: str | int | None
+    status: str | None
+    attendance_mode: str | None
+    type: str
+
+    sub_events: Set[int] = Field(
+        description="Identifiers of events that are sub events of this " "event.",
+        default_factory=set,
+    )
+
+    super_events: Set[int] = Field(
+        description="Identifiers of events that are super events of this " "event.",
+        default_factory=set,
+    )
+
+    research_areas: List[str] = Field(
+        description="Research areas related with an event",
+        default_factory=list,
+    )
+
+    application_areas: List[str] = Field(
+        description="Application areas related with an event",
+        default_factory=list,
+    )
+
+    relevant_resources: Set[int] = Field(
+        description="Identifiers of AiResources that are connected to this event",
+        default_factory=set,
+    )
+
+    used_resources: Set[int] = Field(
+        description="Identifiers of AiResources that are used by this event",
+        default_factory=set,
+    )
+
+    business_categories: List[str] = Field(
+        description="Business categories related with this event", default_factory=list
+    )
+
+    media: List[str] = Field(description="Media used in  this event", default_factory=list)

@@ -31,7 +31,7 @@ def test_aiod_to_orm_happy_path(
 ):
     has_parts = {1, 2, 3}
     is_part = {4, 5, 6}
-    citations = {1, 2, 3}
+    citations = {7, 8, 9}
 
     related_datasets = []
     for related_dataset_id in has_parts | is_part:
@@ -53,7 +53,7 @@ def test_aiod_to_orm_happy_path(
         session.commit()
 
     aiod = copy.deepcopy(aiod_dataset)
-    aiod.platform_identifier = "7"
+    aiod.platform_identifier = "10"
     aiod.has_parts = has_parts
     aiod.is_part = is_part
     aiod.citations = citations
@@ -63,7 +63,7 @@ def test_aiod_to_orm_happy_path(
         session.add(orm)
         session.commit()
         for field, expected_value in aiod.__dict__.items():
-            if field not in DATASET_RELATION_FIELDS:
+            if field not in DATASET_RELATION_FIELDS and field != "identifier":
                 assert orm.__getattribute__(field) == expected_value, f"Error for field {field}"
 
         assert orm.license.name == aiod.license

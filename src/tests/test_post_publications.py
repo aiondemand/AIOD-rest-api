@@ -11,13 +11,25 @@ from database.model.publication import OrmPublication
 def test_happy_path(client: TestClient, engine: Engine):
     publications = [
         OrmPublication(
-            title="pub1", doi="doi1", url="url1", platform="zenodo", platform_identifier="1"
+            title="pub1",
+            doi="doi1",
+            url="url1",
+            platform="zenodo",
+            platform_identifier="1",
         ),
         OrmPublication(
-            title="pub1", doi="doi1", url="url1", platform="other_platform", platform_identifier="1"
+            title="pub1",
+            doi="doi1",
+            url="url1",
+            platform="other_platform",
+            platform_identifier="1",
         ),
         OrmPublication(
-            title="pub2", doi="doi2", url="url2", platform="other_platform", platform_identifier="2"
+            title="pub2",
+            doi="doi2",
+            url="url2",
+            platform="other_platform",
+            platform_identifier="2",
         ),
     ]
     with Session(engine) as session:
