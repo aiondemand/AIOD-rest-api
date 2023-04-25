@@ -76,7 +76,7 @@ class AIoDCodeArtifact(AIoDAIResource):
     # Artifact identification
     name: str = Field(max_length=250)
     doi: Optional[str] = Field(max_length=150)
-    abstarct: Optional[str]
+    abstract: Optional[str]
 
     # Artifact identification
     hardware_resources_description: Optional[str]

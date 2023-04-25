@@ -17,7 +17,7 @@ class OrmCodeArtifact(OrmAIResource):
     name: Mapped[str] = mapped_column(String(250), nullable=False)
     # Recommended fields
     doi: Mapped[str] = mapped_column(String(150), nullable=True, default=None)
-    abstarct: Mapped[str] = mapped_column(String(5000), nullable=True, default=None)
+    abstract: Mapped[str] = mapped_column(String(5000), nullable=True, default=None)
     hardware_resources_description: Mapped[str] = mapped_column(
         String(5000), nullable=True, default=None
     )
