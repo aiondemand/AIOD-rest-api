@@ -1,4 +1,4 @@
-from sqlalchemy import String, UniqueConstraint, Numeric
+from sqlalchemy import String, Numeric, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
 
 from database.model.ai_resource import OrmAIResource
@@ -8,13 +8,11 @@ class OrmCodeArtifact(OrmAIResource):
     """Any code artifact."""
 
     __tablename__ = "code_artifacts"
-    __table_args__ = (
-        UniqueConstraint(
-            "platform",
-            "platform_identifier",
-            name="publication_unique_platform_platform_identifier",
-        ),
+
+    identifier: Mapped[int] = mapped_column(
+        ForeignKey("ai_resources.identifier"), init=False, primary_key=True
     )
+
     # Required fields
     name: Mapped[str] = mapped_column(String(250), nullable=False)
     # Recommended fields
@@ -39,3 +37,8 @@ class OrmCodeArtifact(OrmAIResource):
         String(5000), nullable=True, default=None
     )
     other_notes: Mapped[str] = mapped_column(String(5000), nullable=True, default=None)
+
+    __mapper_args__ = {
+        "polymorphic_identity": "publication",
+        "inherit_condition": identifier == OrmAIResource.identifier,
+    }
