@@ -9,6 +9,10 @@ from schemas import AIoDEvent
 
 class EventRouter(ResourceRouter[OrmEvent, AIoDEvent]):
     @property
+    def version(self) -> int:
+        return 0
+
+    @property
     def resource_name(self) -> str:
         return "event"
 

@@ -123,7 +123,7 @@ def add_routes(app: FastAPI, engine: Engine, url_prefix=""):
         """
         return {"msg": "success", "user": user}
 
-    @app.get(url_prefix + "/platforms")
+    @app.get(url_prefix + "/platforms/v0")
     def get_platforms() -> list:
         """Retrieve information about all known platforms"""
         return list(PlatformName)

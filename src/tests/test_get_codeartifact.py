@@ -32,7 +32,7 @@ def test_happy_path(client: TestClient, engine: Engine, codeartifact_id: int):
         session.add_all(copy.deepcopy(codeartifact))
         session.commit()
 
-    response = client.get(f"/code_artifacts/{codeartifact_id}")
+    response = client.get(f"/code_artifacts/v0/{codeartifact_id}")
     assert response.status_code == 200
 
     response_json = response.json()

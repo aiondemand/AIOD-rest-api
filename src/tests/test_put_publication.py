@@ -29,7 +29,7 @@ def test_happy_path(
 ):
     _setup(engine)
     response = client.put(
-        f"/publications/{identifier}",
+        f"/publications/v0/{identifier}",
         json={
             "title": title,
             "url": url,
@@ -54,7 +54,7 @@ def test_non_existent(client: TestClient, engine: Engine):
     _setup(engine)
 
     response = client.put(
-        "/publications/4",
+        "/publications/v0/4",
         json={"title": "pub2", "doi": "doi2", "platform": "zenodo", "platform_identifier": "2"},
     )
     assert response.status_code == 404
@@ -65,7 +65,7 @@ def test_non_existent(client: TestClient, engine: Engine):
 def test_partial_update(client: TestClient, engine: Engine):
     _setup(engine)
 
-    response = client.put("/publications/4", json={"doi": "doi"})
+    response = client.put("/publications/v0/4", json={"doi": "doi"})
     # Partial update: title omitted. This is not supported,
     # and should be a PATCH request if we supported it.
 
@@ -81,7 +81,7 @@ def test_too_long_name(client: TestClient, engine: Engine):
 
     title = "a" * 300
     response = client.put(
-        "/publications/3",
+        "/publications/v0/3",
         json={"title": title, "doi": "doi2", "platform": "platform", "platform_identifier": "id"},
     )
     assert response.status_code == 422

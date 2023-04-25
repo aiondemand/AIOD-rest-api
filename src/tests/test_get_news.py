@@ -59,7 +59,7 @@ def test_happy_path_for_all(client: TestClient, engine: Engine):
         session.add_all(news)
         session.commit()
 
-    response = client.get("/news")
+    response = client.get("/news/v0")
     assert response.status_code == 200
     response_json = response.json()
     assert len(response_json) == 3
@@ -128,7 +128,7 @@ def test_happy_path_for_one(client: TestClient, engine: Engine, news_id: int):
         session.add_all(news)
         session.commit()
 
-    response = client.get(f"/news/{news_id}")
+    response = client.get(f"/news/v0/{news_id}")
     assert response.status_code == 200
     response_json = response.json()
 
@@ -146,7 +146,7 @@ def test_happy_path_for_one(client: TestClient, engine: Engine, news_id: int):
 
 @pytest.mark.parametrize("news_id", [-1, 2, 3])
 def test_empty_db(client: TestClient, engine: Engine, news_id):
-    response = client.get(f"/news/{news_id}")
+    response = client.get(f"/news/v0/{news_id}")
     assert response.status_code == 404
     assert response.json()["detail"] == f"News '{news_id}' not found in the database."
 
@@ -172,6 +172,6 @@ def test_news_not_found(client: TestClient, engine: Engine, news_id):
         # Populate database
         session.add_all(news)
         session.commit()
-    response = client.get(f"/news/{news_id}")
+    response = client.get(f"/news/v0/{news_id}")
     assert response.status_code == 404
     assert response.json()["detail"] == f"News '{news_id}' not found in the database."

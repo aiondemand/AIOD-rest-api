@@ -14,7 +14,7 @@ from database.model.publication import OrmPublication
 from schemas import AIoDDataset, AIoDDistribution, AIoDMeasurementValue
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def aiod_dataset() -> AIoDDataset:
     return AIoDDataset(
         identifier=7,
@@ -53,7 +53,7 @@ def aiod_dataset() -> AIoDDataset:
     )
 
 
-@pytest.fixture()
+@pytest.fixture(scope="session")
 def orm_dataset() -> OrmDataset:
     return OrmDataset(
         description="description",
@@ -83,7 +83,7 @@ def orm_dataset() -> OrmDataset:
     )
 
 
-@pytest.fixture()
+@pytest.fixture(scope="session")
 def orm_data_download() -> OrmDataDownload:
     return OrmDataDownload(
         content_url="url",
@@ -94,7 +94,7 @@ def orm_data_download() -> OrmDataDownload:
     )
 
 
-@pytest.fixture()
+@pytest.fixture(scope="session")
 def orm_publication() -> OrmPublication:
     return OrmPublication(
         title="Title",

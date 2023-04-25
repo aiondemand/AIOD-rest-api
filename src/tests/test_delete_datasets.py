@@ -39,7 +39,7 @@ def test_happy_path(client: TestClient, engine: Engine, identifier: str):
         session.commit()
 
     assert _n_datasets(engine) == 3
-    response = client.delete(f"/datasets/{identifier}")
+    response = client.delete(f"/datasets/v0/{identifier}")
     assert response.status_code == 200
     assert _n_datasets(engine) == 2
 
@@ -75,7 +75,7 @@ def test_nonexistent_dataset(client: TestClient, engine: Engine, identifier: str
         session.commit()
 
     assert _n_datasets(engine) == 3
-    response = client.delete(f"/datasets/{identifier}")
+    response = client.delete(f"/datasets/v0/{identifier}")
     assert response.status_code == 404
     assert response.json()["detail"] == f"Dataset '{identifier}' not found in the database."
     assert _n_datasets(engine) == 3

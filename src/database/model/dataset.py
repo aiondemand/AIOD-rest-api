@@ -46,11 +46,11 @@ class OrmDataset(OrmAIResource):
 
     # Recommended fields
     creator: Mapped[str] = mapped_column(String(150), default=None, nullable=True)
-    # TODO(issue 9): creator repeated organization/person
+    # TODO(issue 9): creator repeated organisation/person
     date_modified: Mapped[datetime] = mapped_column(DateTime, nullable=True, default=None)
     date_published: Mapped[datetime] = mapped_column(DateTime, nullable=True, default=None)
     funder: Mapped[str] = mapped_column(String(150), default=None, nullable=True)
-    # TODO(issue 9): funder repeated organization/person
+    # TODO(issue 9): funder repeated organisation/person
     is_accessible_for_free: Mapped[bool] = mapped_column(Boolean, default=None, nullable=True)
     issn: Mapped[str] = mapped_column(String(8), default=None, nullable=True)
     size: Mapped[int] = mapped_column(default=None, nullable=True)

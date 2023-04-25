@@ -9,6 +9,10 @@ from schemas import AIoDCodeArtifact
 
 class CodeArtifactRouter(ResourceRouter[OrmCodeArtifact, AIoDCodeArtifact]):
     @property
+    def version(self) -> int:
+        return 0
+
+    @property
     def resource_name(self) -> str:
         return "code_artifact"
 

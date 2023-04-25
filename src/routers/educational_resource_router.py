@@ -9,6 +9,10 @@ from schemas import AIoDEducationalResource
 
 class EducationalResourceRouter(ResourceRouter[OrmEducationalResource, AIoDEducationalResource]):
     @property
+    def version(self) -> int:
+        return 0
+
+    @property
     def resource_name(self) -> str:
         return "educational_resources"
 

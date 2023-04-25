@@ -1,12 +1,16 @@
 import abc
+import datetime
 import traceback
 from typing import Generic, TypeVar, Type, List
+from wsgiref.handlers import format_date_time
 
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
 from sqlalchemy import Engine, select, and_, delete
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
+from starlette.responses import JSONResponse
 
 from converters.abstract_converter import ResourceConverter
 from database.model.resource import OrmResource
@@ -39,6 +43,25 @@ class ResourceRouter(abc.ABC, Generic[ORM_CLASS, AIOD_CLASS]):
 
     @property
     @abc.abstractmethod
+    def version(self) -> int:
+        """
+        The API version.
+
+        When introducing a breaking change, the current version should be deprecated, any previous
+        versions removed, and a new version should be created. The breaking changes should only
+        be implemented in the new version.
+        """
+
+    @property
+    def deprecated_from(self) -> datetime.date | None:
+        """
+        The deprecation date. This should be the date of the release in which the resource has
+        been deprecated.
+        """
+        return None
+
+    @property
+    @abc.abstractmethod
     def resource_name(self) -> str:
         pass
 
@@ -64,57 +87,63 @@ class ResourceRouter(abc.ABC, Generic[ORM_CLASS, AIOD_CLASS]):
 
     def create(self, engine: Engine, url_prefix: str) -> APIRouter:
         router = APIRouter()
+        version = f"v{self.version}"
+        default_kwargs = {
+            "response_model_exclude_none": True,
+            "deprecated": self.deprecated_from is not None,
+        }
 
         router.add_api_route(
-            path=url_prefix + f"/{self.resource_name_plural}/",
+            path=f"{url_prefix}/{self.resource_name_plural}/{version}",
             endpoint=self.list_resources_func(engine),
             response_model=List[self.aiod_class],  # type: ignore
-            response_model_exclude_none=True,
             name=f"List {self.resource_name_plural}",
+            **default_kwargs,
         )
         router.add_api_route(
-            path=url_prefix + f"/platforms/{{platform}}/{self.resource_name_plural}",
-            endpoint=self.list_platform_resources_func(engine),
-            response_model=List[self.aiod_class],  # type: ignore
-            response_model_exclude_none=True,
-            name=f"List {self.resource_name_plural}",
-        )
-
-        router.add_api_route(
-            path=url_prefix + f"/{self.resource_name_plural}/{{identifier}}",
-            endpoint=self.get_resource_func(engine),
-            response_model=self.aiod_class,  # type: ignore
-            response_model_exclude_none=True,
-            name=self.resource_name,
-        )
-        router.add_api_route(
-            path=url_prefix + f"/platforms/{{platform}}/{self.resource_name_plural}/{{identifier}}",
-            endpoint=self.get_platform_resource_func(engine),
-            response_model=self.aiod_class,  # type: ignore
-            response_model_exclude_none=True,
-            name=self.resource_name,
-        )
-        router.add_api_route(
-            path=url_prefix + f"/{self.resource_name_plural}/",
+            path=f"{url_prefix}/{self.resource_name_plural}/{version}",
             methods={"POST"},
             endpoint=self.register_resource_func(engine),
             response_model=self.aiod_class,  # type: ignore
-            response_model_exclude_none=True,
             name=self.resource_name,
+            **default_kwargs,
         )
         router.add_api_route(
-            path=url_prefix + f"/{self.resource_name_plural}/{{identifier}}",
+            path=url_prefix + f"/{self.resource_name_plural}/{version}/{{identifier}}",
+            endpoint=self.get_resource_func(engine),
+            response_model=self.aiod_class,  # type: ignore
+            name=self.resource_name,
+            **default_kwargs,
+        )
+        router.add_api_route(
+            path=f"{url_prefix}/{self.resource_name_plural}/{version}/{{identifier}}",
             methods={"PUT"},
             endpoint=self.put_resource_func(engine),
             response_model=self.aiod_class,  # type: ignore
-            response_model_exclude_none=True,
             name=self.resource_name,
+            **default_kwargs,
         )
         router.add_api_route(
-            path=f"{url_prefix}/{self.resource_name_plural}/{{identifier}}",
+            path=f"{url_prefix}/{self.resource_name_plural}/{version}/{{identifier}}",
             methods={"DELETE"},
             endpoint=self.delete_resource_func(engine),
             name=self.resource_name,
+            **default_kwargs,
+        )
+        router.add_api_route(
+            path=f"{url_prefix}/platforms/{{platform}}/{self.resource_name_plural}/{version}",
+            endpoint=self.list_platform_resources_func(engine),
+            response_model=List[self.aiod_class],  # type: ignore
+            name=f"List {self.resource_name_plural}",
+            **default_kwargs,
+        )
+        router.add_api_route(
+            path=f"{url_prefix}/platforms/{{platform}}/{self.resource_name_plural}/{version}"
+            f"/{{identifier}}",
+            endpoint=self.get_platform_resource_func(engine),
+            response_model=self.aiod_class,  # type: ignore
+            name=self.resource_name,
+            **default_kwargs,
         )
         return router
 
@@ -131,10 +160,12 @@ class ResourceRouter(abc.ABC, Generic[ORM_CLASS, AIOD_CLASS]):
             try:
                 with Session(engine) as session:
                     query = select(self.orm_class).offset(pagination.offset).limit(pagination.limit)
-                    return [
-                        self.converter.orm_to_aiod(resource)
-                        for resource in session.scalars(query).all()
-                    ]
+                    return self._wrap_with_headers(
+                        [
+                            self.converter.orm_to_aiod(resource)
+                            for resource in session.scalars(query).all()
+                        ]
+                    )
             except Exception as e:
                 raise _wrap_as_http_exception(e)
 
@@ -151,10 +182,12 @@ class ResourceRouter(abc.ABC, Generic[ORM_CLASS, AIOD_CLASS]):
                         .offset(pagination.offset)
                         .limit(pagination.limit)
                     )
-                    return [
-                        self.converter.orm_to_aiod(resource)
-                        for resource in session.scalars(query).all()
-                    ]
+                    return self._wrap_with_headers(
+                        [
+                            self.converter.orm_to_aiod(resource)
+                            for resource in session.scalars(query).all()
+                        ]
+                    )
             except Exception as e:
                 raise _wrap_as_http_exception(e)
 
@@ -166,7 +199,8 @@ class ResourceRouter(abc.ABC, Generic[ORM_CLASS, AIOD_CLASS]):
             try:
                 with Session(engine) as session:
                     resource = self._retrieve_resource(session, identifier)
-                    return self.converter.orm_to_aiod(resource)
+                    aiod_resource = self.converter.orm_to_aiod(resource)
+                    return self._wrap_with_headers(aiod_resource)
             except Exception as e:
                 raise _wrap_as_http_exception(e)
 
@@ -179,7 +213,8 @@ class ResourceRouter(abc.ABC, Generic[ORM_CLASS, AIOD_CLASS]):
             try:
                 with Session(engine) as session:
                     resource = self._retrieve_resource(session, identifier, platform=platform)
-                    return self.converter.orm_to_aiod(resource)
+                    aiod_resource = self.converter.orm_to_aiod(resource)
+                    return self._wrap_with_headers(aiod_resource)
             except Exception as e:
                 raise _wrap_as_http_exception(e)
 
@@ -213,7 +248,8 @@ class ResourceRouter(abc.ABC, Generic[ORM_CLASS, AIOD_CLASS]):
                             f"platform and name, with identifier={existing_resource.identifier}.",
                         )
 
-                    return self.converter.orm_to_aiod(resource)
+                    aiod_resource = self.converter.orm_to_aiod(resource)
+                    return self._wrap_with_headers(aiod_resource)
             except Exception as e:
                 raise _wrap_as_http_exception(e)
 
@@ -234,7 +270,8 @@ class ResourceRouter(abc.ABC, Generic[ORM_CLASS, AIOD_CLASS]):
                     session.merge(resource_orm)
                     session.commit()
                     new_resource = self._retrieve_resource(session, identifier)
-                    return self.converter.orm_to_aiod(new_resource)
+                    converted = self.converter.orm_to_aiod(new_resource)
+                    return self._wrap_with_headers(converted)
             except Exception as e:
                 raise _wrap_as_http_exception(e)
 
@@ -250,6 +287,7 @@ class ResourceRouter(abc.ABC, Generic[ORM_CLASS, AIOD_CLASS]):
                     )
                     session.execute(statement)
                     session.commit()
+                return self._wrap_with_headers(None)
             except Exception as e:
                 raise _wrap_as_http_exception(e)
 
@@ -280,6 +318,15 @@ class ResourceRouter(abc.ABC, Generic[ORM_CLASS, AIOD_CLASS]):
                 )
             raise HTTPException(status_code=404, detail=msg)
         return resource
+
+    def _wrap_with_headers(self, resource):
+        if self.deprecated_from is None:
+            return resource
+        timestamp = datetime.datetime.combine(
+            self.deprecated_from, datetime.time.min, tzinfo=datetime.timezone.utc
+        ).timestamp()
+        headers = {"Deprecated": format_date_time(timestamp)}
+        return JSONResponse(content=jsonable_encoder(resource, exclude_none=True), headers=headers)
 
 
 def _wrap_as_http_exception(exception: Exception) -> HTTPException:

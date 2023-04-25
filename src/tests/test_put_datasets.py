@@ -29,7 +29,7 @@ def test_happy_path(
 ):
     _setup(engine)
     response = client.put(
-        f"/datasets/{identifier}",
+        f"/datasets/v0/{identifier}",
         json={
             "name": name,
             "platform": platform,
@@ -53,7 +53,7 @@ def test_non_existent(client: TestClient, engine: Engine):
     _setup(engine)
 
     response = client.put(
-        "/datasets/4",
+        "/datasets/v0/4",
         json={
             "name": "name",
             "platform": "platform",
@@ -70,7 +70,7 @@ def test_non_existent(client: TestClient, engine: Engine):
 def test_partial_update(client: TestClient, engine: Engine):
     _setup(engine)
 
-    response = client.put("/datasets/4", json={"name": "name"})
+    response = client.put("/datasets/v0/4", json={"name": "name"})
     # Partial update: platform and platform_identifier omitted. This is not supported,
     # and should be a PATCH request if we supported it.
 
@@ -87,7 +87,7 @@ def test_too_long_name(client: TestClient, engine: Engine):
 
     name = "a" * 200
     response = client.put(
-        "/datasets/4",
+        "/datasets/v0/4",
         json={
             "name": name,
             "platform": "platform",

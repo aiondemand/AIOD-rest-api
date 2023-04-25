@@ -9,6 +9,10 @@ from schemas import AIoDDataset
 
 class DatasetRouter(ResourceRouter[OrmDataset, AIoDDataset]):
     @property
+    def version(self) -> int:
+        return 0
+
+    @property
     def resource_name(self) -> str:
         return "dataset"
 

@@ -9,6 +9,10 @@ from schemas import AIoDNews
 
 class NewsRouter(ResourceRouter[OrmNews, AIoDNews]):
     @property
+    def version(self) -> int:
+        return 0
+
+    @property
     def resource_name(self) -> str:
         return "news"
 

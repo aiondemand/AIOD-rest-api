@@ -38,7 +38,7 @@ def test_happy_path(client: TestClient, engine: Engine):
         session.commit()
 
     response = client.post(
-        "/datasets",
+        "/datasets/v0",
         json={
             "name": "dset2",
             "platform": "openml",
@@ -64,7 +64,7 @@ def test_happy_path(client: TestClient, engine: Engine):
 )
 def test_unicode(client: TestClient, engine: Engine, name):
     response = client.post(
-        "/datasets",
+        "/datasets/v0",
         json={
             "name": name,
             "platform": "openml",
@@ -93,7 +93,7 @@ def test_duplicated_dataset(client: TestClient, engine: Engine):
         session.add_all(datasets)
         session.commit()
     response = client.post(
-        "/datasets",
+        "/datasets/v0",
         json={
             "name": "dset1",
             "description": "description",
@@ -119,7 +119,7 @@ def test_missing_value(client: TestClient, engine: Engine, field: str):
         "description": "description",
     }  # type: typing.Dict[str, typing.Any]
     del data[field]
-    response = client.post("/datasets", json=data)
+    response = client.post("/datasets/v0", json=data)
     assert response.status_code == 422
     assert response.json()["detail"] == [
         {"loc": ["body", field], "msg": "field required", "type": "value_error.missing"}
@@ -136,7 +136,7 @@ def test_null_value(client: TestClient, engine: Engine, field: str):
         "description": "description",
     }  # type: typing.Dict[str, typing.Any]
     data[field] = None
-    response = client.post("/datasets", json=data)
+    response = client.post("/datasets/v0", json=data)
     assert response.status_code == 422
     assert response.json()["detail"] == [
         {

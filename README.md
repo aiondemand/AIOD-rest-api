@@ -221,3 +221,43 @@ The Python classes that define the database tables are found in [src/database/mo
 The structure is based on the 
 [metadata schema](https://docs.google.com/spreadsheets/d/1n2DdSmzyljvTFzQzTLMAmuo3IVNx8yposdPLItBta68/edit?usp=sharing).
 
+
+## Releases
+
+### Breaking changes
+Breaking changes of a resource include deleting a field, changing the name of an existing field, 
+or changing the datatype of a field. Adding new fields is not a breaking change.
+
+On a breaking change for a resource (e.g. for Dataset), a new router with a new version should 
+be created. The existing router should be deprecated, and rewritten so that it can handle the 
+new metadata of the database. This deprecation of a router will be visible in the Swagger 
+documentation. Calls to a deprecated router will still work, but a response header "Deprecated" 
+will be added with the deprecation date. The deprecated router will then be deleted on the next 
+release.
+
+On non-breaking changes of a resource, a new version is not needed for the corresponding router.
+
+Example:
+- Start www.aiod.eu/api/datasets/v0
+- Release 1: www.aiod.eu/api/datasets/v0 (no breaking changes)
+- Release 2:
+  - www.aiod.eu/api/datasets/v0 (deprecated)
+  - www.aiod.eu/api/datasets/v1
+- Release 3: www.aiod.eu/api/datasets/v1
+
+### Database migration
+
+The database should always be up-to-date with the latest version of the metadata. As database 
+migration tool, [Alembic](https://alembic.sqlalchemy.org/en/latest/) is the default choice for
+SQLAlchemy. The setup of this db migration for AIOD remains a TODO for now. 
+
+### Changelog
+
+As changelog we use the Github tags. For each release, a release branch should be created with a 
+bumped version in the pyproject.toml, and merged with the master. The tag should contain a 
+message detailing all the breaking and non-breaking changes. This message should adhere to the 
+guiding principles as described in https://keepachangelog.com/. 
+
+To get an overview of the complete changelog, the Github API can be used:
+ - Get all tags: https://api.github.com/repos/aiondemand/AIOD-rest-api/git/refs/tags
+ - Get all information for a single tag: https://api.github.com/repos/aiondemand/AIOD-rest-api/git/tags/080e9afa5a1fe84316d4e39d8bc669a1fce9f24d

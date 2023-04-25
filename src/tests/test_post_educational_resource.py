@@ -89,7 +89,7 @@ def test_happy_path(client: TestClient, engine: Engine):
         session.commit()
 
     response = client.post(
-        "/educational_resources",
+        "/educational_resources/v0",
         json={
             "title": "string",
             "body": "string",
@@ -143,7 +143,7 @@ def test_unicode(client: TestClient, engine: Engine, title):
         session.commit()
 
     response = client.post(
-        "/educational_resources",
+        "/educational_resources/v0",
         json={
             "title": title,
             "body": "string",
@@ -224,7 +224,7 @@ def test_missing_value(client: TestClient, engine: Engine, field: str):
         "time_required": 0,
     }
     del data[field]
-    response = client.post("/educational_resources", json=data)
+    response = client.post("/educational_resources/v0", json=data)
 
     assert response.status_code == 422
     assert response.json()["detail"] == [
@@ -274,7 +274,7 @@ def test_null_value(client: TestClient, engine: Engine, field: str):
         "time_required": 0,
     }
     data[field] = None
-    response = client.post("/educational_resources", json=data)
+    response = client.post("/educational_resources/v0", json=data)
 
     assert response.status_code == 422
     assert response.json()["detail"] == [

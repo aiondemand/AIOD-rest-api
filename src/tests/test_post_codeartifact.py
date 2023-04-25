@@ -34,7 +34,7 @@ def test_happy_path(client: TestClient, engine: Engine):
         session.commit()
 
     response = client.post(
-        "/code_artifacts",
+        "/code_artifacts/v0",
         json={"name": "code2", "doi": "doi2", "platform": "zenodo", "platform_identifier": "2"},
     )
     assert response.status_code == 200
@@ -54,7 +54,7 @@ def test_happy_path(client: TestClient, engine: Engine):
 )
 def test_unicode(client: TestClient, engine: Engine, name):
     response = client.post(
-        "/code_artifacts",
+        "/code_artifacts/v0",
         json={"name": name, "doi": "doi2", "platform": "zenodo", "platform_identifier": "2"},
     )
     assert response.status_code == 200
@@ -71,7 +71,7 @@ def test_duplicated_codeartifact(client: TestClient, engine: Engine):
         session.add_all(codeartifacts)
         session.commit()
     response = client.post(
-        "/code_artifacts",
+        "/code_artifacts/v0",
         json={"name": "code1", "doi": "doi1", "platform": "zenodo", "platform_identifier": "1"},
     )
     assert response.status_code == 409
@@ -91,7 +91,7 @@ def test_missing_value(client: TestClient, engine: Engine, field: str):
         "platform_identifier": "2",
     }  # type: typing.Dict[str, typing.Any]
     del data[field]
-    response = client.post("/code_artifacts", json=data)
+    response = client.post("/code_artifacts/v0", json=data)
     assert response.status_code == 422
     assert response.json()["detail"] == [
         {"loc": ["body", field], "msg": "field required", "type": "value_error.missing"}
@@ -107,7 +107,7 @@ def test_null_value(client: TestClient, engine: Engine, field: str):
         "platform_identifier": "2",
     }  # type: typing.Dict[str, typing.Any]
     data[field] = None
-    response = client.post("/code_artifacts", json=data)
+    response = client.post("/code_artifacts/v0", json=data)
     assert response.status_code == 422
     assert response.json()["detail"] == [
         {
