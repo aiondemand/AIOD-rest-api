@@ -77,7 +77,6 @@ class AIoDCodeArtifact(AIoDAIResource):
     name: str = Field(max_length=250)
     doi: Optional[str] = Field(max_length=150)
     abstract: Optional[str]
-
     # Artifact identification
     hardware_resources_description: Optional[str]
     os_description: Optional[str]
@@ -95,6 +94,13 @@ class AIoDCodeArtifact(AIoDAIResource):
     publication_results_experiment: Optional[str]
     # Other notes
     other_notes: Optional[str]
+
+    contentUrl: Optional[str]
+    machineRunnable: Optional[bool]
+    type: Optional[str]
+    installationScript: Optional[str]
+    runScrpit: Optional[str]
+    output: Optional[str]
 
 
 class AIoDProject(AIoDAIResource):

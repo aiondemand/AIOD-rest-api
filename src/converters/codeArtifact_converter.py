@@ -37,6 +37,12 @@ class CodeArtifactConverter(ResourceConverter[AIoDCodeArtifact, OrmCodeArtifact]
             results_description=aiod.results_description,
             publication_results_experiment=aiod.publication_results_experiment,
             other_notes=aiod.other_notes,
+            contentUrl=aiod.contentUrl,
+            machineRunnable=aiod.machineRunnable,
+            type=aiod.type,
+            installationScript=aiod.installationScript,
+            runScrpit=aiod.runScrpit,
+            output=aiod.output,
         )
 
     def orm_to_aiod(self, orm: OrmCodeArtifact) -> AIoDCodeArtifact:
@@ -64,4 +70,10 @@ class CodeArtifactConverter(ResourceConverter[AIoDCodeArtifact, OrmCodeArtifact]
             results_description=orm.results_description,
             publication_results_experiment=orm.publication_results_experiment,
             other_notes=orm.other_notes,
+            contentUrl=orm.contentUrl,
+            machineRunnable=orm.machineRunnable,
+            type=orm.type,
+            installationScript=orm.installationScript,
+            runScrpit=orm.runScrpit,
+            output=orm.output,
         )

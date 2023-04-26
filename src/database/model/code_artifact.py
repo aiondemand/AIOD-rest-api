@@ -1,4 +1,4 @@
-from sqlalchemy import String, Numeric, ForeignKey
+from sqlalchemy import Boolean, String, Numeric, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
 
 from database.model.ai_resource import OrmAIResource
@@ -37,6 +37,13 @@ class OrmCodeArtifact(OrmAIResource):
         String(5000), nullable=True, default=None
     )
     other_notes: Mapped[str] = mapped_column(String(5000), nullable=True, default=None)
+
+    contentUrl: Mapped[str] = mapped_column(String(250), nullable=True, default=None)
+    machineRunnable: Mapped[bool] = mapped_column(Boolean, nullable=True, default=None)
+    type: Mapped[str] = mapped_column(String(250), nullable=True, default=None)
+    installationScript: Mapped[str] = mapped_column(String(250), nullable=True, default=None)
+    runScrpit: Mapped[str] = mapped_column(String(250), nullable=True, default=None)
+    output: Mapped[str] = mapped_column(String(650), nullable=True, default=None)
 
     __mapper_args__ = {
         "polymorphic_identity": "publication",
