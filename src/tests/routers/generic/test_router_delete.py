@@ -2,7 +2,7 @@ import pytest
 from sqlmodel import Session
 from starlette.testclient import TestClient
 
-from tests.testutils.test_resource import TestResource
+from tests.testutils.utils_resource import ResourceTest
 
 
 @pytest.mark.parametrize("identifier", [1, 2])
@@ -10,8 +10,8 @@ def test_happy_path(client_test_resource: TestClient, engine_test_resource, iden
     with Session(engine_test_resource) as session:
         session.add_all(
             [
-                TestResource(title="my_test_resource", platform="example", platform_identifier=1),
-                TestResource(
+                ResourceTest(title="my_test_resource", platform="example", platform_identifier=1),
+                ResourceTest(
                     title="second_test_resource", platform="example", platform_identifier=2
                 ),
             ]
@@ -31,8 +31,8 @@ def test_non_existent(client_test_resource: TestClient, engine_test_resource, id
     with Session(engine_test_resource) as session:
         session.add_all(
             [
-                TestResource(title="my_test_resource", platform="example", platform_identifier=1),
-                TestResource(
+                ResourceTest(title="my_test_resource", platform="example", platform_identifier=1),
+                ResourceTest(
                     title="second_test_resource", platform="example", platform_identifier=2
                 ),
             ]

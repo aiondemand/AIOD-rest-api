@@ -7,37 +7,37 @@ from sqlalchemy.engine import Engine
 from starlette.testclient import TestClient
 
 from converters.schema_converters.schema_converter import SchemaConverter
-from tests.testutils.test_resource import RouterTestResource, TestResource
+from tests.testutils.utils_resource import RouterResourceTest, ResourceTest
 
 
 class SchemaClass(BaseModel):
-    """Alternative schema for the AIoDTestResource, only used for unittests"""
+    """Alternative schema for the AIoDResourceTest, only used for unittests"""
 
     title_with_alternative_name: str = Field(max_length=250)
 
 
-class SchemaConverterTestResource(SchemaConverter[TestResource, SchemaClass]):
-    """Converting the AIoDTestResource into SchemaClass, only used for unittests"""
+class SchemaConverterResourceTest(SchemaConverter[ResourceTest, SchemaClass]):
+    """Converting the AIoDResourceTest into SchemaClass, only used for unittests"""
 
     @property
     def to_class(self) -> Type[SchemaClass]:
         return SchemaClass
 
-    def convert(self, aiod: TestResource) -> SchemaClass:
+    def convert(self, aiod: ResourceTest) -> SchemaClass:
         return SchemaClass(title_with_alternative_name=aiod.title)
 
 
-class RouterWithOtherSchema(RouterTestResource):
+class RouterWithOtherSchema(RouterResourceTest):
     """Router with "aiod" and "other-schema" as possible output format, used only for unittests"""
 
     @property
-    def schema_converters(self) -> dict[str, SchemaConverter[TestResource, Any]]:
-        return {"other-schema": SchemaConverterTestResource()}
+    def schema_converters(self) -> dict[str, SchemaConverter[ResourceTest, Any]]:
+        return {"other-schema": SchemaConverterResourceTest()}
 
 
 @pytest.fixture(scope="module")
 def client_test_resource_other_schema(engine_test_resource: Engine) -> TestClient:
-    """A Startlette TestClient including routes to the TestResource, using schemas "aiod" and
+    """A Startlette TestClient including routes to the ResourceTest, using schemas "aiod" and
     "other-schema" """
     app = FastAPI()
     app.include_router(RouterWithOtherSchema().create(engine_test_resource, ""))

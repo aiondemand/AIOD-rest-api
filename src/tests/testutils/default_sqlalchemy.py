@@ -9,7 +9,7 @@ from starlette.testclient import TestClient
 
 from database.model import AIAsset
 from main import add_routes
-from tests.testutils.test_resource import RouterTestResource, TestResource
+from tests.testutils.utils_resource import RouterResourceTest, ResourceTest
 from unittest.mock import Mock
 
 
@@ -45,7 +45,7 @@ def clear_db(request):
                     session.add_all(
                         [
                             AIAsset(type="test_resource"),
-                            TestResource(
+                            ResourceTest(
                                 title="A title",
                                 platform="example",
                                 platform_identifier="1",
@@ -58,7 +58,7 @@ def clear_db(request):
 
 @pytest.fixture(scope="session")
 def engine_test_resource() -> Iterator[Engine]:
-    """Create a SqlAlchemy Engine populated with an instance of the TestResource"""
+    """Create a SqlAlchemy Engine populated with an instance of the ResourceTest"""
     temporary_file = tempfile.NamedTemporaryFile()
     engine = create_engine(f"sqlite:///{temporary_file.name}")
     SQLModel.metadata.create_all(engine)
@@ -85,9 +85,9 @@ def client(engine: Engine) -> TestClient:
 
 @pytest.fixture(scope="session")
 def client_test_resource(engine_test_resource) -> TestClient:
-    """A Startlette TestClient including routes to the TestResource, only in "aiod" schema"""
+    """A Startlette TestClient including routes to the ResourceTest, only in "aiod" schema"""
     app = FastAPI()
-    app.include_router(RouterTestResource().create(engine_test_resource, ""))
+    app.include_router(RouterResourceTest().create(engine_test_resource, ""))
     return TestClient(app)
 
 

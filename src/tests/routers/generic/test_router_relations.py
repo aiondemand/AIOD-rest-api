@@ -15,15 +15,15 @@ from serialization import AttributeSerializer, FindByNameDeserializer, CastDeser
 from routers import ResourceRouter
 
 
-class TestEnum(NamedRelation, table=True):  # type: ignore [call-arg]
+class EnumTest(NamedRelation, table=True):  # type: ignore [call-arg]
     """An "enum" that is located in an external table."""
 
     __tablename__ = "test_enum"
 
-    objects: List["TestObject"] = Relationship(back_populates="named_string")
+    objects: List["ObjectTest"] = Relationship(back_populates="named_string")
 
 
-class TestObjectEnum2ListLink(SQLModel, table=True):  # type: ignore [call-arg]
+class ObjectEnum2ListLinkTest(SQLModel, table=True):  # type: ignore [call-arg]
     __tablename__ = "test_enum_2_link"
     test_object_identifier: Optional[int] = Field(
         default=None, foreign_key="test_object.identifier", primary_key=True
@@ -33,16 +33,16 @@ class TestObjectEnum2ListLink(SQLModel, table=True):  # type: ignore [call-arg]
     )
 
 
-class TestEnum2(NamedRelation, table=True):  # type: ignore [call-arg]
-    """An "enum" located in an external table, with a many-to-many relationship to TestObject."""
+class EnumTest2(NamedRelation, table=True):  # type: ignore [call-arg]
+    """An "enum" located in an external table, with a many-to-many relationship to ObjectTest."""
 
     __tablename__ = "test_enum2"
-    objects: List["TestObject"] = Relationship(
-        back_populates="named_string_list", link_model=TestObjectEnum2ListLink
+    objects: List["ObjectTest"] = Relationship(
+        back_populates="named_string_list", link_model=ObjectEnum2ListLinkTest
     )
 
 
-class TestObjectRelatedObjectLink(SQLModel, table=True):  # type: ignore [call-arg]
+class ObjectRelatedObjectLinkTest(SQLModel, table=True):  # type: ignore [call-arg]
     __tablename__ = "test_object_related_object_link"
 
     test_object_identifier: Optional[int] = Field(
@@ -53,37 +53,37 @@ class TestObjectRelatedObjectLink(SQLModel, table=True):  # type: ignore [call-a
     )
 
 
-class TestRelatedObject(SQLModel):
+class RelatedObjectTest(SQLModel):
     field1: str = Field(max_length=150)
     field2: str = Field(max_length=150)
 
 
-class TestRelatedObjectOrm(TestRelatedObject, table=True):  # type: ignore [call-arg]
+class RelatedObjectTestOrm(RelatedObjectTest, table=True):  # type: ignore [call-arg]
     """A related object that should be shown completely"""
 
     __tablename__ = "test_related_object"
 
     identifier: int | None = Field(primary_key=True)
-    test_objects: List["TestObject"] = Relationship(
-        back_populates="related_objects", link_model=TestObjectRelatedObjectLink
+    test_objects: List["ObjectTest"] = Relationship(
+        back_populates="related_objects", link_model=ObjectRelatedObjectLinkTest
     )
 
 
-class TestObjectBase(Resource):
+class ObjectBaseTest(Resource):
     title: str = Field(max_length=100, description="title description")
 
 
-class TestObject(TestObjectBase, table=True):  # type: ignore [call-arg]
+class ObjectTest(ObjectBaseTest, table=True):  # type: ignore [call-arg]
     __tablename__ = "test_object"
 
     identifier: str = Field(primary_key=True, foreign_key="ai_asset.identifier")
     named_string_identifier: Optional[int] = Field(default=None, foreign_key="test_enum.identifier")
-    named_string: Optional[TestEnum] = Relationship(back_populates="objects")
-    named_string_list: List[TestEnum2] = Relationship(
-        back_populates="objects", link_model=TestObjectEnum2ListLink
+    named_string: Optional[EnumTest] = Relationship(back_populates="objects")
+    named_string_list: List[EnumTest2] = Relationship(
+        back_populates="objects", link_model=ObjectEnum2ListLinkTest
     )
-    related_objects: List[TestRelatedObjectOrm] = Relationship(
-        back_populates="test_objects", link_model=TestObjectRelatedObjectLink
+    related_objects: List[RelatedObjectTestOrm] = Relationship(
+        back_populates="test_objects", link_model=ObjectRelatedObjectLinkTest
     )
 
     class RelationshipConfig:
@@ -91,22 +91,22 @@ class TestObject(TestObjectBase, table=True):  # type: ignore [call-arg]
             description="this is a test for a string stored in a separate table",
             identifier_name="named_string_identifier",
             serializer=AttributeSerializer("name"),
-            deserializer=FindByNameDeserializer(TestEnum),
+            deserializer=FindByNameDeserializer(EnumTest),
             example="test",
         )
         named_string_list: List[str] = ResourceRelationshipList(
             description="this is a test for a list of strings",
             serializer=AttributeSerializer("name"),
-            deserializer=FindByNameDeserializer(TestEnum2),
+            deserializer=FindByNameDeserializer(EnumTest2),
             example=["test1", "test2"],
         )
-        related_objects: List[TestRelatedObject] = ResourceRelationshipList(
+        related_objects: List[RelatedObjectTest] = ResourceRelationshipList(
             description="this is a test for a list of objects",
-            deserializer=CastDeserializer(TestRelatedObjectOrm),
+            deserializer=CastDeserializer(RelatedObjectTestOrm),
         )
 
 
-class RouterTestObject(ResourceRouter):
+class RouterObjectTest(ResourceRouter):
     @property
     def version(self) -> int:
         return 0
@@ -120,15 +120,15 @@ class RouterTestObject(ResourceRouter):
         return "test_resources"
 
     @property
-    def resource_class(self) -> Type[TestObject]:
-        return TestObject
+    def resource_class(self) -> Type[ObjectTest]:
+        return ObjectTest
 
 
 @pytest.fixture
-def client_with_testobject(engine_test_resource) -> TestClient:
+def client_with_ObjectTest(engine_test_resource) -> TestClient:
     with Session(engine_test_resource) as session:
-        named1, named2 = TestEnum(name="named_string1"), TestEnum(name="named_string2")
-        enum1, enum2, enum3 = TestEnum2(name="1"), TestEnum2(name="2"), TestEnum2(name="3")
+        named1, named2 = EnumTest(name="named_string1"), EnumTest(name="named_string2")
+        enum1, enum2, enum3 = EnumTest2(name="1"), EnumTest2(name="2"), EnumTest2(name="3")
         session.add_all(
             [
                 AIAsset(type="test_object"),
@@ -140,30 +140,30 @@ def client_with_testobject(engine_test_resource) -> TestClient:
                 enum1,
                 enum2,
                 enum3,
-                TestObject(
+                ObjectTest(
                     identifier=1,
                     title="object 1",
                     named_string=named1,
                     named_string_list=[enum1, enum2],
                 ),
-                TestObject(identifier=2, title="object 2", named_string=named1),
-                TestObject(
+                ObjectTest(identifier=2, title="object 2", named_string=named1),
+                ObjectTest(
                     identifier=3,
                     title="object 3",
                     named_string=named2,
                     named_string_list=[enum2, enum3],
                 ),
-                TestObject(identifier=4, title="object 4"),
+                ObjectTest(identifier=4, title="object 4"),
             ]
         )
         session.commit()
     app = FastAPI()
-    app.include_router(RouterTestObject().create(engine_test_resource, ""))
+    app.include_router(RouterObjectTest().create(engine_test_resource, ""))
     return TestClient(app)
 
 
-def test_get_happy_path(client_with_testobject: TestClient):
-    response = client_with_testobject.get("/test_resources/v0/1")
+def test_get_happy_path(client_with_ObjectTest: TestClient):
+    response = client_with_ObjectTest.get("/test_resources/v0/1")
     assert response.status_code == 200
     response_json = response.json()
 
@@ -174,8 +174,8 @@ def test_get_happy_path(client_with_testobject: TestClient):
     assert "deprecated" not in response.headers
 
 
-def test_get_all_happy_path(client_with_testobject: TestClient):
-    response = client_with_testobject.get("/test_resources/v0")
+def test_get_all_happy_path(client_with_ObjectTest: TestClient):
+    response = client_with_ObjectTest.get("/test_resources/v0")
     assert response.status_code == 200
     response_json = response.json()
     assert "deprecated" not in response.headers
@@ -191,9 +191,9 @@ def test_get_all_happy_path(client_with_testobject: TestClient):
     assert "named_string" not in r4
 
 
-def test_post_happy_path(client_with_testobject: TestClient, mocked_privileged_token: Mock):
+def test_post_happy_path(client_with_ObjectTest: TestClient, mocked_privileged_token: Mock):
     keycloak_openid.decode_token = mocked_privileged_token
-    response = client_with_testobject.post(
+    response = client_with_ObjectTest.post(
         "/test_resources/v0",
         json={
             "title": "title",
@@ -207,7 +207,7 @@ def test_post_happy_path(client_with_testobject: TestClient, mocked_privileged_t
         headers={"Authorization": "Fake token"},
     )
     assert response.status_code == 200
-    objects = client_with_testobject.get("/test_resources/v0").json()
+    objects = client_with_ObjectTest.get("/test_resources/v0").json()
     obj = objects[-1]
     assert obj["identifier"] == 5
     assert obj["title"] == "title"
@@ -222,9 +222,9 @@ def test_post_happy_path(client_with_testobject: TestClient, mocked_privileged_t
     assert related_objects[1]["field2"] == "val2.2"
 
 
-def test_put_happy_path(client_with_testobject: TestClient, mocked_privileged_token: Mock):
+def test_put_happy_path(client_with_ObjectTest: TestClient, mocked_privileged_token: Mock):
     keycloak_openid.decode_token = mocked_privileged_token
-    response = client_with_testobject.put(
+    response = client_with_ObjectTest.put(
         "/test_resources/v0/4",
         json={
             "title": "new title",
@@ -238,7 +238,7 @@ def test_put_happy_path(client_with_testobject: TestClient, mocked_privileged_to
         headers={"Authorization": "Fake token"},
     )
     assert response.status_code == 200
-    changed_resource = client_with_testobject.get("/test_resources/v0/4").json()
+    changed_resource = client_with_ObjectTest.get("/test_resources/v0/4").json()
     assert changed_resource["title"] == "new title"
     assert changed_resource["named_string"] == "new_string"
     assert sorted(changed_resource["named_string_list"]) == ["1", "4", "9"]

@@ -2,17 +2,17 @@ from sqlalchemy.future import Engine
 from sqlmodel import Session
 from starlette.testclient import TestClient
 
-from tests.testutils.test_resource import TestResource
+from tests.testutils.utils_resource import ResourceTest
 
 
 def test_get_all_happy_path(client_test_resource: TestClient, engine_test_resource: Engine):
     with Session(engine_test_resource) as session:
         session.add_all(
             [
-                TestResource(
+                ResourceTest(
                     title="my_test_resource_1", platform="example", platform_identifier="1"
                 ),
-                TestResource(
+                ResourceTest(
                     title="My second test resource", platform="example", platform_identifier="2"
                 ),
             ]

@@ -10,15 +10,15 @@ from database.model.resource import Resource
 from routers import ResourceRouter
 
 
-class TestResourceBase(Resource):
+class ResourceBaseTest(Resource):
     title: str = Field(max_length=250, nullable=False)
 
 
-class TestResource(TestResourceBase, table=True):  # type: ignore [call-arg]
+class ResourceTest(ResourceBaseTest, table=True):  # type: ignore [call-arg]
     identifier: int = Field(default=None, primary_key=True)
 
 
-class RouterTestResource(ResourceRouter):
+class RouterResourceTest(ResourceRouter):
     """Router with only "aiod" as possible output format, used only for unittests"""
 
     @property
@@ -34,5 +34,5 @@ class RouterTestResource(ResourceRouter):
         return "test_resources"
 
     @property
-    def resource_class(self) -> Type[TestResource]:
-        return TestResource
+    def resource_class(self) -> Type[ResourceTest]:
+        return ResourceTest

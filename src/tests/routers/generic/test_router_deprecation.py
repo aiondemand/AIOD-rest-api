@@ -6,11 +6,11 @@ from fastapi import FastAPI
 from sqlalchemy.engine import Engine
 from starlette.testclient import TestClient
 
-from tests.testutils.test_resource import TestResource, RouterTestResource
+from tests.testutils.utils_resource import ResourceTest, RouterResourceTest
 from authentication import keycloak_openid
 
 
-class DeprecatedRouter(RouterTestResource):
+class DeprecatedRouter(RouterResourceTest):
     """A deprecated router, just used for testing."""
 
     @property
@@ -45,7 +45,7 @@ def test_deprecated_router(
     kwargs = {}
     if verb in ("post", "put"):
         kwargs = {
-            "json": TestResource(
+            "json": ResourceTest(
                 title="Another title", platform="example", platform_identifier="2"
             ).dict(),
             "headers": {"Authorization": "fake-token"},
