@@ -5,6 +5,7 @@ import bibtexparser as bibtexparser
 import datasets
 import dateutil.parser
 import requests
+import itertools
 
 from connectors import ResourceConnector
 from connectors.resource_with_relations import ResourceWithRelations
@@ -38,7 +39,7 @@ class HuggingFaceDatasetConnector(ResourceConnector[AIoDDataset]):
     def fetch_all(
         self, limit: int | None = None
     ) -> typing.Iterator[ResourceWithRelations[AIoDDataset]]:
-        for dataset in datasets.list_datasets(with_details=True)[:limit]:
+        for dataset in itertools.islice(datasets.list_datasets(with_details=True), limit):
             try:
                 citations = []
                 if dataset.citation is not None:
