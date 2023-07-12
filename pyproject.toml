@@ -44,6 +44,9 @@ dev = [
     "starlette==0.27.0"
 ]
 
+[tool.setuptools]
+py-modules = []
+
 [tool.black]
 line-length = 100
 
