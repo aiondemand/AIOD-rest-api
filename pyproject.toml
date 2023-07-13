@@ -1,6 +1,6 @@
 [project]
 name = "ai4eu_server_demo"
-description = "A containerized demo application for AI on demand (previously AI4EU) "
+description = "Test - A containerized demo application for AI on demand (previously AI4EU) "
 version = "0.4.20230627"
 requires-python = ">=3.11"
 authors = [
