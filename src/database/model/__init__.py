@@ -1,1 +1,1 @@
-from database.model.ai_asset_table import AIAssetOldTable  # noqa
+from database.model.ai_asset_table_old import AIAssetOldTable  # noqa

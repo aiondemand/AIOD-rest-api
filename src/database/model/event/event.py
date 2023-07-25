@@ -1,7 +1,7 @@
 from datetime import datetime
 from sqlmodel import Field, Relationship, SQLModel
 from typing import List
-from database.model.ai_asset_table import AIAssetOldTable
+from database.model.ai_asset_table_old import AIAssetOldTable
 from database.model.event.application_area_link import EventApplicationAreaLink
 from database.model.event.business_category_link import EventBusinessCategoriesLink
 from database.model.event.relevant_resources_link import EventRelevantResourcesLink

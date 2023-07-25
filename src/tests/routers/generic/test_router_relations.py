@@ -7,8 +7,8 @@ from sqlmodel import Session, Field, Relationship, SQLModel
 from starlette.testclient import TestClient
 
 from authentication import keycloak_openid
-from database.model.ai_asset import AIAssetOld
-from database.model.ai_asset_table import AIAssetOldTable
+from database.model.ai_asset_old import AIAssetOld
+from database.model.ai_asset_table_old import AIAssetOldTable
 from database.model.named_relation import NamedRelation
 from database.model.relationships import ResourceRelationshipSingle, ResourceRelationshipList
 from routers import ResourceRouter

@@ -18,8 +18,8 @@ from config import KEYCLOAK_CONFIG
 from converters.schema_converters.schema_converter import SchemaConverter
 from database.model.agent import Agent
 from database.model.agent_table import AgentTable
-from database.model.ai_asset import AIAssetOld
-from database.model.ai_asset_table import AIAssetOldTable
+from database.model.ai_asset_old import AIAssetOld
+from database.model.ai_asset_table_old import AIAssetOldTable
 from database.model.platform.platform import Platform
 from database.model.platform.platform_names import PlatformName
 from database.model.resource import (

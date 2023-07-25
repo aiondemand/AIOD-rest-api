@@ -16,7 +16,7 @@ from serialization import (
 if TYPE_CHECKING:
     from database.model.dataset.dataset import Dataset
 
-from database.model.ai_asset import AIAssetOld
+from database.model.ai_asset_old import AIAssetOld
 
 
 class PublicationBase(AIAssetOld):

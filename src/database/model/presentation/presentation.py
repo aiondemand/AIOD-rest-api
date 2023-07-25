@@ -1,7 +1,7 @@
 from sqlmodel import Field
 from datetime import datetime
 
-from database.model.ai_asset import AIAssetOld
+from database.model.ai_asset_old import AIAssetOld
 
 
 class PresentationBase(AIAssetOld):

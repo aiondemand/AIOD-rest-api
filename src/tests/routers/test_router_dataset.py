@@ -10,7 +10,7 @@ from sqlmodel import select
 from starlette.testclient import TestClient
 
 from authentication import keycloak_openid
-from database.model.ai_asset_table import AIAssetOldTable
+from database.model.ai_asset_table_old import AIAssetOldTable
 from database.model.dataset.alternate_name import DatasetAlternateName
 from database.model.dataset.checksum import ChecksumORM
 from database.model.dataset.checksum_algorithm import ChecksumAlgorithm

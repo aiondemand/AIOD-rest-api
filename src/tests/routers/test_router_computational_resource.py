@@ -6,7 +6,7 @@ from starlette.testclient import TestClient
 
 from authentication import keycloak_openid
 from database.model.agent_table import AgentTable
-from database.model.ai_asset_table import AIAssetOldTable
+from database.model.ai_asset_table_old import AIAssetOldTable
 
 
 from database.model.computational_resource.computational_resource import ComputationalResource

@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from starlette.testclient import TestClient
 
 from authentication import keycloak_openid
-from database.model.ai_asset_table import AIAssetOldTable
+from database.model.ai_asset_table_old import AIAssetOldTable
 from database.model.dataset.dataset import Dataset
 from database.model.event.event import Event
 

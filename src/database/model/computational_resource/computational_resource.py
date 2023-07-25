@@ -3,7 +3,7 @@ from datetime import datetime
 from sqlmodel import Field, Relationship, SQLModel
 
 from database.model.agent_table import AgentTable
-from database.model.ai_asset import AIAssetOld
+from database.model.ai_asset_old import AIAssetOld
 from database.model.computational_resource.alternate_name import (
     ComputationalResourceAlternateNameLink,
     ComputationalResourceAlternateName,

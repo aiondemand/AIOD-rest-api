@@ -4,7 +4,7 @@ from typing import Optional, List
 from sqlalchemy import UniqueConstraint, Column, Integer, ForeignKey
 from sqlmodel import Field, Relationship, SQLModel
 
-from database.model.ai_asset import AIAssetOld
+from database.model.ai_asset_old import AIAssetOld
 from database.model.dataset.alternate_name import DatasetAlternateNameLink, DatasetAlternateName
 from database.model.dataset.data_download import DataDownloadORM, DataDownload
 from database.model.dataset.keyword_link import DatasetKeywordLink
