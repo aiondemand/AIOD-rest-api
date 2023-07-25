@@ -30,7 +30,7 @@ def test_happy_path(client: TestClient, engine: Engine, mocked_privileged_token:
     with Session(engine) as session:
         # It should be possible to add the event and dataset in the same session, but it leads to
         # a weird IntegrityError. This problem is avoided by removing the foreign key constraint
-        # dataset.identfier to ai_asset.identifier, or by removing the event.relevant_resources
+        # dataset.identfier to ai_asset_old.identifier, or by removing the event.relevant_resources
         # and event.used_resources. After some debugging the cause of this error was still
         # unclear.
         session.add_all(

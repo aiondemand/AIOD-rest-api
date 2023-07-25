@@ -11,6 +11,6 @@ class EventUsedResourcesLink(SQLModel, table=True):  # type: ignore [call-arg]
     )
     used_resources_identifier: int = Field(
         sa_column=Column(
-            Integer, ForeignKey("ai_asset.identifier", ondelete="CASCADE"), primary_key=True
+            Integer, ForeignKey("ai_asset_old.identifier", ondelete="CASCADE"), primary_key=True
         )
     )

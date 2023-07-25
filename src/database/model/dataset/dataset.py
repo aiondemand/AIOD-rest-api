@@ -92,7 +92,7 @@ class Dataset(DatasetBase, table=True):  # type: ignore [call-arg]
         ),
     )
 
-    identifier: int = Field(primary_key=True, foreign_key="ai_asset.identifier")
+    identifier: int = Field(primary_key=True, foreign_key="ai_asset_old.identifier")
 
     license_identifier: int | None = Field(foreign_key="license.identifier")
     license: Optional[License] = Relationship(back_populates="datasets")

@@ -2,7 +2,7 @@ from sqlmodel import SQLModel, Field
 
 
 class AIAssetOldTable(SQLModel, table=True):  # type: ignore [call-arg]
-    __tablename__ = "ai_asset"
+    __tablename__ = "ai_asset_old"
 
     """
     Many resources, such as dataset and publication, are a type of AIAsset

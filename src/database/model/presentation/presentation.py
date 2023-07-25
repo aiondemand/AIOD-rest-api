@@ -33,4 +33,4 @@ class PresentationBase(AIAssetOld):
 class Presentation(PresentationBase, table=True):  # type: ignore [call-arg]
     __tablename__ = "presentations"
 
-    identifier: int = Field(primary_key=True, foreign_key="ai_asset.identifier")
+    identifier: int = Field(primary_key=True, foreign_key="ai_asset_old.identifier")

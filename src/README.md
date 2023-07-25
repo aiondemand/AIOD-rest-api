@@ -90,7 +90,7 @@ from serialization import (
 class Example(ExampleBase, table=True):  # type: ignore [call-arg]
     __tablename__ = "example"
 
-    identifier: int = Field(primary_key=True, foreign_key="ai_asset.identifier")
+    identifier: int = Field(primary_key=True, foreign_key="ai_asset_old.identifier")
 
     example_enum_identifier: int | None = Field(foreign_key="example_enum.identifier")
     example_enum: ExampleEnum | None = Relationship(back_populates="examples")

@@ -76,7 +76,7 @@ class TestObjectBase(AIAssetOld):
 class TestObject(TestObjectBase, table=True):  # type: ignore [call-arg]
     __tablename__ = "test_object"
 
-    identifier: str = Field(primary_key=True, foreign_key="ai_asset.identifier")
+    identifier: str = Field(primary_key=True, foreign_key="ai_asset_old.identifier")
     named_string_identifier: Optional[int] = Field(default=None, foreign_key="test_enum.identifier")
     named_string: Optional[TestEnum] = Relationship(back_populates="objects")
     named_string_list: List[TestEnum2] = Relationship(
