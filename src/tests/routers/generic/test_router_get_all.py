@@ -2,7 +2,7 @@ from sqlalchemy.future import Engine
 from sqlmodel import Session
 from starlette.testclient import TestClient
 
-from database.model import AIAssetTable
+from database.model import AIAssetOldTable
 from tests.testutils.test_resource import TestResource
 
 
@@ -10,8 +10,8 @@ def test_get_all_happy_path(client_test_resource: TestClient, engine_test_resour
     with Session(engine_test_resource) as session:
         session.add_all(
             [
-                AIAssetTable(type="test_resource"),
-                AIAssetTable(type="test_resource"),
+                AIAssetOldTable(type="test_resource"),
+                AIAssetOldTable(type="test_resource"),
                 TestResource(title="my_test_resource_1"),
                 TestResource(title="My second test resource"),
             ]

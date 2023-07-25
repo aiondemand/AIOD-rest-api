@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from starlette.testclient import TestClient
 
 from authentication import keycloak_openid
-from database.model.ai_asset_table import AIAssetTable
+from database.model.ai_asset_table import AIAssetOldTable
 from database.model.dataset.dataset import Dataset
 from database.model.event.event import Event
 
@@ -15,7 +15,7 @@ def test_happy_path(client: TestClient, engine: Engine, mocked_privileged_token:
     with Session(engine) as session:
         session.add_all(
             [
-                AIAssetTable(type="dataset"),
+                AIAssetOldTable(type="dataset"),
                 Dataset(
                     identifier=1,
                     name="Parent",

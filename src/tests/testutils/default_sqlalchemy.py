@@ -9,7 +9,7 @@ from sqlalchemy.engine import Engine
 from sqlmodel import create_engine, SQLModel, Session
 from starlette.testclient import TestClient
 
-from database.model import AIAssetTable
+from database.model import AIAssetOldTable
 from database.model.platform.platform import Platform
 from database.model.platform.platform_names import PlatformName
 from main import add_routes
@@ -51,7 +51,7 @@ def clear_db(request):
                 if "filled" in engine_name:
                     session.add_all(
                         [
-                            AIAssetTable(type="test_resource"),
+                            AIAssetOldTable(type="test_resource"),
                             TestResource(
                                 title="A title",
                                 platform="example",

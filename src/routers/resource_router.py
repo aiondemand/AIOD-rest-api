@@ -18,8 +18,8 @@ from config import KEYCLOAK_CONFIG
 from converters.schema_converters.schema_converter import SchemaConverter
 from database.model.agent import Agent
 from database.model.agent_table import AgentTable
-from database.model.ai_asset import AIAsset
-from database.model.ai_asset_table import AIAssetTable
+from database.model.ai_asset import AIAssetOld
+from database.model.ai_asset_table import AIAssetOldTable
 from database.model.platform.platform import Platform
 from database.model.platform.platform_names import PlatformName
 from database.model.resource import (
@@ -353,9 +353,9 @@ class ResourceRouter(abc.ABC):
     def create_resource(self, session: Session, resource_create_instance: SQLModel):
         # Store a resource in the database
         parent = None
-        if issubclass(self.resource_class, AIAsset):
+        if issubclass(self.resource_class, AIAssetOld):
             # example - datasets, publications, etc.
-            parent = AIAssetTable(type=self.resource_class.__tablename__)
+            parent = AIAssetOldTable(type=self.resource_class.__tablename__)
         elif issubclass(self.resource_class, Agent):
             # example - organisations
             parent = AgentTable(type=self.resource_class.__tablename__)

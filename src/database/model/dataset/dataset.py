@@ -4,7 +4,7 @@ from typing import Optional, List
 from sqlalchemy import UniqueConstraint, Column, Integer, ForeignKey
 from sqlmodel import Field, Relationship, SQLModel
 
-from database.model.ai_asset import AIAsset
+from database.model.ai_asset import AIAssetOld
 from database.model.dataset.alternate_name import DatasetAlternateNameLink, DatasetAlternateName
 from database.model.dataset.data_download import DataDownloadORM, DataDownload
 from database.model.dataset.keyword_link import DatasetKeywordLink
@@ -41,7 +41,7 @@ class DatasetParentChildLink(SQLModel, table=True):  # type: ignore [call-arg]
     )
 
 
-class DatasetBase(AIAsset):
+class DatasetBase(AIAssetOld):
     # Required fields
     description: str = Field(max_length=5000, schema_extra={"example": "A description."})
     name: str = Field(max_length=150, schema_extra={"example": "Example Dataset"})

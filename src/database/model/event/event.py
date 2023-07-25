@@ -1,7 +1,7 @@
 from datetime import datetime
 from sqlmodel import Field, Relationship, SQLModel
 from typing import List
-from database.model.ai_asset_table import AIAssetTable
+from database.model.ai_asset_table import AIAssetOldTable
 from database.model.event.application_area_link import EventApplicationAreaLink
 from database.model.event.business_category_link import EventBusinessCategoriesLink
 from database.model.event.relevant_resources_link import EventRelevantResourcesLink
@@ -80,8 +80,10 @@ class Event(EventBase, table=True):  # type: ignore [call-arg]
             cascade="all, delete",
         ),
     )
-    relevant_resources: List["AIAssetTable"] = Relationship(link_model=EventRelevantResourcesLink)
-    used_resources: List["AIAssetTable"] = Relationship(link_model=EventUsedResourcesLink)
+    relevant_resources: List["AIAssetOldTable"] = Relationship(
+        link_model=EventRelevantResourcesLink
+    )
+    used_resources: List["AIAssetOldTable"] = Relationship(link_model=EventUsedResourcesLink)
 
     class RelationshipConfig:
         business_categories: List[str] = ResourceRelationshipList(
@@ -110,12 +112,12 @@ class Event(EventBase, table=True):  # type: ignore [call-arg]
         relevant_resources: List[int] = ResourceRelationshipList(
             example=[],
             serializer=AttributeSerializer("identifier"),
-            deserializer=FindByIdentifierDeserializer(AIAssetTable),
+            deserializer=FindByIdentifierDeserializer(AIAssetOldTable),
         )
         used_resources: List[int] = ResourceRelationshipList(
             example=[],
             serializer=AttributeSerializer("identifier"),
-            deserializer=FindByIdentifierDeserializer(AIAssetTable),
+            deserializer=FindByIdentifierDeserializer(AIAssetOldTable),
         )
 
 

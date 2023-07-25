@@ -20,10 +20,10 @@ from database.model.general.technical_category import TechnicalCategory
 from database.model.relationships import ResourceRelationshipList
 from serialization import AttributeSerializer, FindByNameDeserializer
 
-from database.model.ai_asset import AIAsset
+from database.model.ai_asset import AIAssetOld
 
 
-class EducationalResourceBase(AIAsset):
+class EducationalResourceBase(AIAssetOld):
     # Required fields
     title: str = Field(max_length=150, schema_extra={"example": "Example News"})
     date_modified: datetime | None = Field(

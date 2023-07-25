@@ -16,10 +16,10 @@ from serialization import (
 if TYPE_CHECKING:
     from database.model.dataset.dataset import Dataset
 
-from database.model.ai_asset import AIAsset
+from database.model.ai_asset import AIAssetOld
 
 
-class PublicationBase(AIAsset):
+class PublicationBase(AIAssetOld):
     # Required fields
     title: str = Field(max_length=250, schema_extra={"example": "A publication"})
 

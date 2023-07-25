@@ -6,7 +6,7 @@ from starlette.testclient import TestClient
 
 from authentication import keycloak_openid
 from database.model.agent_table import AgentTable
-from database.model.ai_asset_table import AIAssetTable
+from database.model.ai_asset_table import AIAssetOldTable
 
 
 from database.model.computational_resource.computational_resource import ComputationalResource
@@ -17,7 +17,7 @@ def test_happy_path(client: TestClient, engine: Engine, mocked_privileged_token:
     with Session(engine) as session:
         session.add_all(
             [
-                AIAssetTable(type="computational_resource"),
+                AIAssetOldTable(type="computational_resource"),
                 ComputationalResource(
                     identifier="1",
                     name="Parent",
@@ -25,7 +25,7 @@ def test_happy_path(client: TestClient, engine: Engine, mocked_privileged_token:
                     platform_identifier="1",
                     description="description text",
                 ),
-                AIAssetTable(type="computational_resource"),
+                AIAssetOldTable(type="computational_resource"),
                 ComputationalResource(
                     identifier="2",
                     name="Child",

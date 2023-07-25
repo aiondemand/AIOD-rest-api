@@ -3,7 +3,7 @@ from sqlmodel import Session
 from starlette.testclient import TestClient
 from sqlalchemy.future import Engine
 
-from database.model import AIAssetTable
+from database.model import AIAssetOldTable
 from tests.testutils.test_resource import TestResource
 from authentication import keycloak_openid
 from unittest.mock import Mock
@@ -21,8 +21,8 @@ def test_happy_path(
     with Session(engine_test_resource) as session:
         session.add_all(
             [
-                AIAssetTable(type="test_resource"),
-                AIAssetTable(type="test_resource"),
+                AIAssetOldTable(type="test_resource"),
+                AIAssetOldTable(type="test_resource"),
                 TestResource(title="my_test_resource", platform="example", platform_identifier=1),
                 TestResource(
                     title="second_test_resource", platform="example", platform_identifier=2
@@ -52,8 +52,8 @@ def test_non_existent(
     with Session(engine_test_resource) as session:
         session.add_all(
             [
-                AIAssetTable(type="test_resource"),
-                AIAssetTable(type="test_resource"),
+                AIAssetOldTable(type="test_resource"),
+                AIAssetOldTable(type="test_resource"),
                 TestResource(title="my_test_resource", platform="example", platform_identifier=1),
                 TestResource(
                     title="second_test_resource", platform="example", platform_identifier=2

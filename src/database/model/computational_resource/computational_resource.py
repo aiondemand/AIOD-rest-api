@@ -3,7 +3,7 @@ from datetime import datetime
 from sqlmodel import Field, Relationship, SQLModel
 
 from database.model.agent_table import AgentTable
-from database.model.ai_asset import AIAsset
+from database.model.ai_asset import AIAssetOld
 from database.model.computational_resource.alternate_name import (
     ComputationalResourceAlternateNameLink,
     ComputationalResourceAlternateName,
@@ -70,7 +70,7 @@ class ComputationalResourceParentChildLink(SQLModel, table=True):  # type: ignor
     child_identifier: int = Field(foreign_key="computational_resource.identifier", primary_key=True)
 
 
-class ComputationalResourceBase(AIAsset):
+class ComputationalResourceBase(AIAssetOld):
     # Required fields
     name: str = Field(max_length=150, schema_extra={"example": "Human-readable name"})
 

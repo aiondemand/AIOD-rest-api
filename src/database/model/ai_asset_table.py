@@ -1,7 +1,7 @@
 from sqlmodel import SQLModel, Field
 
 
-class AIAssetTable(SQLModel, table=True):  # type: ignore [call-arg]
+class AIAssetOldTable(SQLModel, table=True):  # type: ignore [call-arg]
     __tablename__ = "ai_asset"
 
     """
@@ -9,7 +9,7 @@ class AIAssetTable(SQLModel, table=True):  # type: ignore [call-arg]
     and should therefore inherit from this AIAsset class.
     Shared fields can be defined on this class.
 
-    Notice the difference between AIAsset and AIAssetTable.
+    Notice the difference between AIAsset and AIAssetOldTable.
     The latter enables defining a relationship to "any AI Asset",
     by making sure that the identifiers of all resources that
     are AIAssets, are unique over the AIAssets.

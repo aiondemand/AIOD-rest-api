@@ -10,7 +10,7 @@ from sqlmodel import select
 from starlette.testclient import TestClient
 
 from authentication import keycloak_openid
-from database.model.ai_asset_table import AIAssetTable
+from database.model.ai_asset_table import AIAssetOldTable
 from database.model.dataset.alternate_name import DatasetAlternateName
 from database.model.dataset.checksum import ChecksumORM
 from database.model.dataset.checksum_algorithm import ChecksumAlgorithm
@@ -25,8 +25,8 @@ def test_happy_path(client: TestClient, engine: Engine, mocked_privileged_token:
     with Session(engine) as session:
         session.add_all(
             [
-                AIAssetTable(type="dataset"),
-                AIAssetTable(type="publication"),
+                AIAssetOldTable(type="dataset"),
+                AIAssetOldTable(type="publication"),
                 Dataset(
                     identifier=1,
                     name="Parent",
@@ -127,8 +127,8 @@ def test_delete(client: TestClient, engine: Engine, mocked_privileged_token: Moc
         alias1 = DatasetAlternateName(name="alias1")
         session.add_all(
             [
-                AIAssetTable(type="dataset"),
-                AIAssetTable(type="dataset"),
+                AIAssetOldTable(type="dataset"),
+                AIAssetOldTable(type="dataset"),
                 Dataset(
                     identifier="1",
                     name="1",
@@ -178,7 +178,7 @@ def test_delete(client: TestClient, engine: Engine, mocked_privileged_token: Moc
         # TODOs will be fixed in https://github.com/aiondemand/AIOD-rest-api/issues/72
         for n_expected, clz in [
             (1, Dataset),
-            (2, AIAssetTable),  # TODO: delete AIAsset. This should be 1
+            (2, AIAssetOldTable),  # TODO: delete AIAssetOld. This should be 1
             (1, DataDownloadORM),
             (1, ChecksumORM),
             (2, ChecksumAlgorithm),

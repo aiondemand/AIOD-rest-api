@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from starlette.testclient import TestClient
 
 from authentication import keycloak_openid
-from database.model import AIAssetTable
+from database.model import AIAssetOldTable
 from database.model.dataset.dataset import Dataset
 from tests.testutils.paths import path_test_resources
 
@@ -20,7 +20,7 @@ def test_happy_path_new_repository(
     with Session(engine) as session:
         session.add_all(
             [
-                AIAssetTable(type="dataset"),
+                AIAssetOldTable(type="dataset"),
                 Dataset(
                     identifier=dataset_id,
                     name="Parent",
@@ -67,7 +67,7 @@ def test_repo_already_exists(client: TestClient, engine: Engine, mocked_privileg
     with Session(engine) as session:
         session.add_all(
             [
-                AIAssetTable(type="dataset"),
+                AIAssetOldTable(type="dataset"),
                 Dataset(
                     identifier=dataset_id,
                     name="Parent",

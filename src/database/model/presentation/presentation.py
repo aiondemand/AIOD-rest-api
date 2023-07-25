@@ -1,10 +1,10 @@
 from sqlmodel import Field
 from datetime import datetime
 
-from database.model.ai_asset import AIAsset
+from database.model.ai_asset import AIAssetOld
 
 
-class PresentationBase(AIAsset):
+class PresentationBase(AIAssetOld):
     # Required fields
     name: str = Field(max_length=150, schema_extra={"example": "Example Presentation"})
 
