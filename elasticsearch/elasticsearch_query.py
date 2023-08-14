@@ -4,33 +4,32 @@
 import json
 from elasticsearch import Elasticsearch
 
+# Global parameters
 ELASTIC_USER = "elastic"
-
 SIZE = 2
-INDEX = "publication"
-QUERY = {'match': {'platform': "example"}}
-QUERY = {'match': {'title': "in"}}
-SEARCH_AFTER = None
 SORT = {'identifier': 'asc'}
 
-def main():
-    
-    global SEARCH_AFTER
+def main(index, search_concept, platforms):
     
     # Get elasticsearch password
     with open('../.env', 'r') as f:
         for line in f:
             if "ES_PASSWORD" in line:
-                ELASTIC_PASSWORD = line.split('=')[1][:-1]
+                elastic_password = line.split('=')[1][:-1]
                 break
     
     # Generate client
     es_client = Elasticsearch("http://localhost:9200",
-                              basic_auth=(ELASTIC_USER, ELASTIC_PASSWORD))
+                              basic_auth=(ELASTIC_USER, elastic_password))
     
-    # Search
-    result = es_client.search(index=INDEX, query=QUERY, size=SIZE,
-                              search_after=SEARCH_AFTER, sort=SORT)
+    #Prepare query
+    platform_identifiers = [{'match': {'platform_identifier': p}}
+                            for p in platforms]
+    query = {'bool': {'must': {'match': {'title': search_concept}},
+                      'must': {'bool': {'should': platform_identifiers}}}}
+    
+    # Perform first search
+    result = es_client.search(index=index, query=query, size=SIZE, sort=SORT)
     
     # Print total number of results
     print(f"TOTAL RESULTS: {result['hits']['total']['value']}")
@@ -42,39 +41,16 @@ def main():
         print(f"QUERY RESULT: {query_result}")
         print(json.dumps(dict(result)['hits']['hits'], indent=4))
         
-        # Actualise search_after for the next search
-        SEARCH_AFTER = result['hits']['hits'][-1]['sort']
+        # Actualise search_after and query_result for the next search
+        search_after = result['hits']['hits'][-1]['sort']
         query_result += 1
         
-        # Search
-        result = es_client.search(index=INDEX, query=QUERY, size=SIZE,
-                                  search_after=SEARCH_AFTER, sort=SORT)
+        # Perform next search
+        result = es_client.search(index=index, query=query, size=SIZE,
+                                  search_after=search_after, sort=SORT)
 
 if __name__ == "__main__":
-    main()
-
-
-
-#ELASTIC_USER = "elastic"
-#QUERY = {'bool': {'must': [{'match': {'title': "Advances"}},
-#                           {'match': {'platform_identifier': "4"}}]}}
-#
-#def main():
-#
-#    # Get elasticsearch password
-#    with open('../.env', 'r') as f:
-#        for line in f:
-#            if "ES_PASSWORD" in line:
-#                ELASTIC_PASSWORD = line.split('=')[1][:-1]
-#                break
-#
-#    # Generate client
-#    es_client = Elasticsearch("http://localhost:9200",
-#                              basic_auth=(ELASTIC_USER, ELASTIC_PASSWORD))
-#
-#    # Search
-#    result = es_client.search(index="publication", query=QUERY)
-#    print(result['hits']['hits'])
-#
-#if __name__ == "__main__":
-#    main()
+    index = ["publication"] # List of assets
+    search_concept = "in" # Search concept
+    platforms = ['2', '4', '9'] # List of platforms
+    main(index, search_concept, platforms)
