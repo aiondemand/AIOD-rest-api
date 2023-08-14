@@ -73,3 +73,76 @@ services:
     depends_on:
       app:
         condition: service_healthy
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.8.2
+    container_name: elasticsearch
+    env_file: .env
+    environment:
+      - ES_JAVA_OPTS=$ES_JAVA_OPTS
+      - ELASTIC_PASSWORD=$ES_PASSWORD
+      - discovery.type=$ES_DISCOVERY_TYPE
+    ports:
+      - 9200:9200
+      - 9300:9300
+    volumes:
+      - type: bind
+        source: ./elasticsearch/elasticsearch.yml
+        target: /usr/share/elasticsearch/config/elasticsearch.yml
+        read_only: true
+      - ./data/elasticsearch:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -u elastic:changeme http://localhost:9200/_cat/health | grep -q -E 'green|yellow'"]
+      interval: 30s
+      timeout: 30s
+      retries: 30
+
+  elasticsearch_setup:
+    image: curlimages/curl
+    env_file: .env
+    volumes:
+      - type: bind
+        source: ./elasticsearch/publication.json
+        target: /publication.json
+        read_only: true
+    restart: "no"
+    entrypoint: ["curl", "-u", "elastic:${ES_PASSWORD}", "-X", "PUT", "elasticsearch:9200/publication?pretty", "-H", "${ES_CONTENT_TYPE}", "-d", "@/publication.json"]
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+
+  logstash:
+    build:
+      context: logstash/
+      dockerfile: Dockerfile
+    container_name: logstash
+    env_file: .env
+    environment:
+      - LS_JAVA_OPTS=$LS_JAVA_OPTS
+    ports:
+      - 5044:5044
+      - 5000:5000/tcp
+      - 5000:5000/udp
+      - 9600:9600
+    volumes:
+      - type: bind
+        source: ./logstash/config/logstash.yml
+        target: /usr/share/logstash/config/logstash.yml
+        read_only: true
+      - type: bind
+        source: ./logstash/pipeline/pipelines.yml
+        target: /usr/share/logstash/config/pipelines.yml
+        read_only: true
+      - type: bind
+        source: ./logstash/pipeline/conf
+        target: /usr/share/logstash/pipeline
+        read_only: true
+      - type: bind
+        source: ./logstash/pipeline/sql
+        target: /usr/share/logstash/sql
+        read_only: true
+    depends_on:
+      app:
+        condition: service_healthy
+      elasticsearch_setup:
+        condition: service_completed_successfully
