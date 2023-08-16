@@ -1,3 +1,4 @@
 scripts
 venv
 data
+**.DS_Store
