@@ -1,0 +1,10 @@
+FROM ubuntu:22.04
+
+RUN apt-get update && apt-get install -y curl
+
+COPY publication.json /publication.json
+COPY dataset.json /dataset.json
+COPY curl.sh /curl.sh
+
+ENTRYPOINT ["/bin/bash", "/curl.sh"]
+

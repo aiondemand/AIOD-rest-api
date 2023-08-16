@@ -2,10 +2,12 @@
     "mappings" : {
         "properties" : {
             "@timestamp" : {
-                "type" : "date"
+                "type" : "date",
+                "index" : false
             },
             "@version" : {
                 "type" : "text",
+                "index" : false,
                 "fields" : {
                     "keyword" : {
                         "type" : "keyword",
@@ -15,6 +17,7 @@
             },
             "access_right" : {
                 "type" : "text",
+                "index" : false,
                 "fields" : {
                     "keyword" : {
                         "type" : "keyword",
@@ -24,6 +27,7 @@
             },
             "creators" : {
                 "type" : "text",
+                "index" : false,
                 "fields" : {
                     "keyword" : {
                         "type" : "keyword",
@@ -32,29 +36,34 @@
                 }
             },
             "date_created" : {
-                "type" : "date"
+                "type" : "date",
+                "index" : false
             },
             "date_published" : {
-                "type" : "date"
+                "type" : "date",
+                "index" : false
             },
             "doi" : {
                 "type" : "text",
+                "index" : false,
                 "fields" : {
                     "keyword" : {
                         "type" : "keyword",
                         "ignore_above" : 256
                     }
-                },
-                "index" : false
+                }
             },
             "identifier" : {
-                "type" : "long"
+                "type" : "long",
+                "index" : false
             },
             "license_identifier" : {
-                "type" : "long"
+                "type" : "long",
+                "index" : false
             },
             "platform" : {
                 "type" : "text",
+                "index" : false,
                 "fields" : {
                     "keyword" : {
                         "type" : "keyword",
@@ -72,7 +81,8 @@
                 }
             },
             "resource_type_identifier" : {
-                "type" : "long"
+                "type" : "long",
+                "index" : false
             },
             "title" : {
                 "type" : "text",
@@ -85,6 +95,7 @@
             },
             "type" : {
                 "type" : "text",
+                "index" : false,
                 "fields" : {
                     "keyword" : {
                         "type" : "keyword",
@@ -94,6 +105,7 @@
             },
             "url" : {
                 "type" : "text",
+                "index" : false,
                 "fields" : {
                     "keyword" : {
                         "type" : "keyword",

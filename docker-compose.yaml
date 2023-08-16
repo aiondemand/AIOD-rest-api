@@ -98,15 +98,13 @@ services:
       retries: 30
 
   elasticsearch_setup:
-    image: curlimages/curl
+    build:
+      context: elasticsearch/setup/
+      dockerfile: curl_dockerfile
     env_file: .env
-    volumes:
-      - type: bind
-        source: ./elasticsearch/publication.json
-        target: /publication.json
-        read_only: true
+    environment:
+      - ES_PASSWORD=$ES_PASSWORD
     restart: "no"
-    entrypoint: ["curl", "-u", "elastic:${ES_PASSWORD}", "-X", "PUT", "elasticsearch:9200/publication?pretty", "-H", "${ES_CONTENT_TYPE}", "-d", "@/publication.json"]
     depends_on:
       elasticsearch:
         condition: service_healthy
