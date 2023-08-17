@@ -15,9 +15,9 @@ authors = [
 dependencies = [
     "urllib3== 2.0.4",
     "bibtexparser==1.4.0",
-    "datasets==2.14.1",
-    "fastapi==0.100.1",
-    "uvicorn==0.23.1",
+    "datasets==2.14.4",
+    "fastapi==0.101.1",
+    "uvicorn==0.23.2",
     "requests==2.31.0",
     "mysqlclient==2.2.0",
     "oic==1.6.0",
@@ -41,7 +41,7 @@ dev = [
     "pytest-dotenv==0.5.2",
     "pytest-xdist==3.3.1",
     "pre-commit==3.3.3",
-    "responses==0.23.2",
+    "responses==0.23.3",
     "starlette==0.27.0"
 ]
 
