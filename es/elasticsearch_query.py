@@ -1,5 +1,3 @@
-# TODO: remove this file once the search router works
-
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 

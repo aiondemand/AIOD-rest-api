@@ -14,7 +14,7 @@ services:
     volumes:
       - ./src:/app
     command: >
-      --rebuild-db always 
+      --rebuild-db only-if-empty
       --fill-with-examples datasets experiments ml_models organisations persons publications services
       --reload
       --limit 10
