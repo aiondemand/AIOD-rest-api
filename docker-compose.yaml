@@ -20,7 +20,7 @@ services:
       --limit 10
     healthcheck:
       test: ["CMD", "python", "-c",  "import requests; requests.get('http://localhost:8000')"]
-      interval: 30s
+      interval: 5s
       timeout: 30s
       retries: 30
     depends_on:
@@ -37,7 +37,7 @@ services:
       - ./data/mysql:/var/lib/mysql
     healthcheck:
       test: ["CMD", "mysqladmin", "-uroot", "-p$MYSQL_ROOT_PASSWORD", "ping", "-h", "localhost", "--protocol","tcp"]
-      interval: 30s
+      interval: 5s
       timeout: 30s
       retries: 30
 
@@ -86,19 +86,19 @@ services:
       - 9300:9300
     volumes:
       - type: bind
-        source: ./elasticsearch/elasticsearch.yml
+        source: ./es/elasticsearch.yml
         target: /usr/share/elasticsearch/config/elasticsearch.yml
         read_only: true
       - ./data/elasticsearch:/usr/share/elasticsearch/data
     healthcheck:
       test: ["CMD-SHELL", "curl -u elastic:changeme http://localhost:9200/_cat/health | grep -q -E 'green|yellow'"]
-      interval: 30s
+      interval: 5s
       timeout: 30s
       retries: 30
 
   elasticsearch_setup:
     build:
-      context: elasticsearch/setup/
+      context: es/setup/
       dockerfile: curl_dockerfile
     env_file: .env
     environment:

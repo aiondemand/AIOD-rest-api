@@ -1,14 +1,14 @@
-import typing  # noqa:F401
-
-from .dataset_router import DatasetRouter
-from .experiment_router import ExperimentRouter
-from .ml_model_router import MLModelRouter
-from .organisation_router import OrganisationRouter
-from .person_router import PersonRouter
-from .platform_router import PlatformRouter
-from .publication_router import PublicationRouter
+from routers.resources.dataset_router import DatasetRouter
+from routers.resources.experiment_router import ExperimentRouter
+from routers.resources.ml_model_router import MLModelRouter
+from routers.resources.organisation_router import OrganisationRouter
+from routers.resources.person_router import PersonRouter
+from routers.resources.platform_router import PlatformRouter
+from routers.resources.publication_router import PublicationRouter
 from .resource_router import ResourceRouter  # noqa:F401
-from .service_router import ServiceRouter
+from routers.resources.service_router import ServiceRouter
+from .router import AIoDRouter  # noqa:F401
+from .search_router import SearchRouter
 from .upload_router_huggingface import UploadRouterHuggingface
 
 resource_routers = [
@@ -27,6 +27,6 @@ resource_routers = [
     # ProjectRouter(),
     # PresentationRouter(),
     ServiceRouter(),
-]  # type: typing.List[ResourceRouter]
+]  # type: list[ResourceRouter]
 
-other_routers = [UploadRouterHuggingface()]
+other_routers = [UploadRouterHuggingface(), SearchRouter()]  # type: list[AIoDRouter]

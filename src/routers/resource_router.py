@@ -23,6 +23,7 @@ from database.model.resource_read_and_create import (
     resource_read,
 )
 from database.model.serializers import deserialize_resource_relationships
+from routers.router import AIoDRouter
 
 
 class Pagination(BaseModel):
@@ -35,7 +36,7 @@ RESOURCE_CREATE = TypeVar("RESOURCE_CREATE", bound=SQLModel)
 RESOURCE_READ = TypeVar("RESOURCE_READ", bound=SQLModel)
 
 
-class ResourceRouter(abc.ABC):
+class ResourceRouter(AIoDRouter, abc.ABC):
     """
     Abstract class for FastAPI resource router.
 
@@ -329,7 +330,7 @@ class ResourceRouter(abc.ABC):
             user: dict = Depends(get_current_user),
         ):
             f"""Register a {self.resource_name} with AIoD."""
-            if "groups" in user and KEYCLOAK_CONFIG.get("role") not in user["groups"]:
+            if "groups" not in user or KEYCLOAK_CONFIG.get("role") not in user["groups"]:
                 raise HTTPException(
                     status_code=status.HTTP_403_FORBIDDEN,
                     detail="You do not have permission to edit Aiod resources.",
@@ -371,7 +372,7 @@ class ResourceRouter(abc.ABC):
             user: dict = Depends(get_current_user),
         ):
             f"""Update an existing {self.resource_name}."""
-            if "groups" in user and KEYCLOAK_CONFIG.get("role") not in user["groups"]:
+            if "groups" not in user or KEYCLOAK_CONFIG.get("role") not in user["groups"]:
                 raise HTTPException(
                     status_code=status.HTTP_403_FORBIDDEN,
                     detail="You do not have permission to edit Aiod resources.",
@@ -410,7 +411,7 @@ class ResourceRouter(abc.ABC):
         """
 
         def delete_resource(identifier: str, user: dict = Depends(get_current_user)):
-            if "groups" in user and KEYCLOAK_CONFIG.get("role") not in user["groups"]:
+            if "groups" not in user or KEYCLOAK_CONFIG.get("role") not in user["groups"]:
                 raise HTTPException(
                     status_code=status.HTTP_403_FORBIDDEN,
                     detail="You do not have permission to edit Aiod resources.",
