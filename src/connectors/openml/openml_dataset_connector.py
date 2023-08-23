@@ -11,9 +11,9 @@ from fastapi import HTTPException
 from sqlmodel import SQLModel
 
 from connectors.abstract.resource_connector import ResourceConnector
-from database.model.dataset.data_download import DataDownload
+from database.model.ai_asset.distribution import Distribution
 from database.model.dataset.dataset import Dataset
-from database.model.resource import resource_create
+from database.model.resource_read_and_create import resource_create
 from database.model.platform.platform_names import PlatformName
 
 
@@ -65,7 +65,7 @@ class OpenMlDatasetConnector(ResourceConnector[Dataset]):
             date_published=dateutil.parser.parse(dataset_json["upload_date"]),
             date_modified=dateutil.parser.parse(dataset_json["processing_date"]),
             distributions=[
-                DataDownload(
+                Distribution(
                     content_url=dataset_json["url"], encoding_format=dataset_json["format"]
                 )
             ],

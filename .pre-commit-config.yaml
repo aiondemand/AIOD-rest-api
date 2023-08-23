@@ -13,6 +13,7 @@ repos:
         additional_dependencies:
           - types-requests
           - types-python-dateutil
+          - types-pytz
   - repo: https://github.com/PyCQA/flake8
     rev: 6.0.0
     hooks:

@@ -16,18 +16,13 @@ from starlette.responses import JSONResponse
 from authentication import get_current_user
 from config import KEYCLOAK_CONFIG
 from converters.schema_converters.schema_converter import SchemaConverter
-from database.model.agent import Agent
-from database.model.agent_table import AgentTable
-from database.model.ai_asset import AIAsset
-from database.model.ai_asset_table import AIAssetTable
+from database.model.ai_resource.resource import AIResource
 from database.model.platform.platform import Platform
-from database.model.platform.platform_names import PlatformName
-from database.model.resource import (
-    Resource,
+from database.model.resource_read_and_create import (
     resource_create,
     resource_read,
 )
-from serialization import deserialize_resource_relationships
+from database.model.serializers import deserialize_resource_relationships
 
 
 class Pagination(BaseModel):
@@ -35,7 +30,7 @@ class Pagination(BaseModel):
     limit: int = 100
 
 
-RESOURCE = TypeVar("RESOURCE", bound=Resource)
+RESOURCE = TypeVar("RESOURCE", bound=AIResource)
 RESOURCE_CREATE = TypeVar("RESOURCE_CREATE", bound=SQLModel)
 RESOURCE_READ = TypeVar("RESOURCE_READ", bound=SQLModel)
 
@@ -127,7 +122,7 @@ class ResourceRouter(abc.ABC):
             **default_kwargs,
         )
         router.add_api_route(
-            path=f"{url_prefix}/counts/{self.resource_name_plural}/v0",
+            path=f"{url_prefix}/counts/{self.resource_name_plural}/v1",
             endpoint=self.get_resource_count_func(engine),
             response_model=int,  # type: ignore
             name=f"Count of {self.resource_name_plural}",
@@ -161,22 +156,22 @@ class ResourceRouter(abc.ABC):
             name=self.resource_name,
             **default_kwargs,
         )
-        if issubclass(self.resource_class, Resource):
-            router.add_api_route(
-                path=f"{url_prefix}/platforms/{{platform}}/{self.resource_name_plural}/{version}",
-                endpoint=self.get_platform_resources_func(engine),
-                response_model=response_model_plural,  # type: ignore
-                name=f"List {self.resource_name_plural}",
-                **default_kwargs,
-            )
-            router.add_api_route(
-                path=f"{url_prefix}/platforms/{{platform}}/{self.resource_name_plural}/{version}"
-                f"/{{identifier}}",
-                endpoint=self.get_platform_resource_func(engine),
-                response_model=response_model,  # type: ignore
-                name=self.resource_name,
-                **default_kwargs,
-            )
+        # TODO(jos): this doesn't work since we moved platform to AIoDEntry
+        # router.add_api_route(
+        #     path=f"{url_prefix}/platforms/{{platform}}/{self.resource_name_plural}/{version}",
+        #     endpoint=self.get_platform_resources_func(engine),
+        #     response_model=response_model_plural,  # type: ignore
+        #     name=f"List {self.resource_name_plural}",
+        #     **default_kwargs,
+        # )
+        # router.add_api_route(
+        #     path=f"{url_prefix}/platforms/{{platform}}/{self.resource_name_plural}/{version}"
+        #     f"/{{identifier}}",
+        #     endpoint=self.get_platform_resource_func(engine),
+        #     response_model=response_model,  # type: ignore
+        #     name=self.resource_name,
+        #     **default_kwargs,
+        # )
         return router
 
     def get_resources(
@@ -191,14 +186,15 @@ class ResourceRouter(abc.ABC):
         )
         try:
             with Session(engine) as session:
-                where_clause = (
-                    (self.resource_class.platform == platform) if platform is not None else True
-                )
+                # TODO(jos) "This doesn't work since platform is moved to AIoDEntry")
+                # where_clause = (
+                #     (self.resource_class.aiod_entry.platform == platform)
+                #     if platform is not None else True
+                # )
                 query = (
                     select(self.resource_class)
-                    .where(where_clause)
-                    .offset(pagination.offset)
-                    .limit(pagination.limit)
+                    # .where(where_clause)
+                    .offset(pagination.offset).limit(pagination.limit)
                 )
 
                 return self._wrap_with_headers(
@@ -352,21 +348,7 @@ class ResourceRouter(abc.ABC):
 
     def create_resource(self, session: Session, resource_create_instance: SQLModel):
         # Store a resource in the database
-        parent = None
-        if issubclass(self.resource_class, AIAsset):
-            # example - datasets, publications, etc.
-            parent = AIAssetTable(type=self.resource_class.__tablename__)
-        elif issubclass(self.resource_class, Agent):
-            # example - organisations
-            parent = AgentTable(type=self.resource_class.__tablename__)
-        if parent:
-            session.add(parent)
-            session.flush()
-            resource = self.resource_class.from_orm(
-                resource_create_instance, update={"identifier": parent.identifier}
-            )
-        else:
-            resource = self.resource_class.from_orm(resource_create_instance)
+        resource = self.resource_class.from_orm(resource_create_instance)
 
         deserialize_resource_relationships(
             session, self.resource_class, resource, resource_create_instance
@@ -398,6 +380,8 @@ class ResourceRouter(abc.ABC):
             try:
                 with Session(engine) as session:
                     resource = self._retrieve_resource(session, identifier)
+                    if hasattr(resource, "aiod_entry"):
+                        datetime_created = resource.aiod_entry.date_created  # TODO(jos): clean up
                     for attribute_name in resource.schema()["properties"]:
                         if hasattr(resource_create_instance, attribute_name):
                             new_value = getattr(resource_create_instance, attribute_name)
@@ -405,6 +389,8 @@ class ResourceRouter(abc.ABC):
                     deserialize_resource_relationships(
                         session, self.resource_class, resource, resource_create_instance
                     )
+                    if hasattr(resource, "aiod_entry"):
+                        resource.aiod_entry.date_created = datetime_created
                     try:
                         session.merge(resource)
                         session.commit()
@@ -454,17 +440,18 @@ class ResourceRouter(abc.ABC):
         if platform is None:
             query = select(self.resource_class).where(self.resource_class.identifier == identifier)
         else:
-            if platform not in {n.name for n in PlatformName}:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail=f"platform '{platform}' not recognized.",
-                )
-            query = select(self.resource_class).where(
-                and_(
-                    self.resource_class.platform_identifier == identifier,
-                    self.resource_class.platform == platform,
-                )
-            )
+            raise NotImplementedError("This doesn't work since platform is moved to AIoDEntry")
+            # if platform not in {n.name for n in PlatformName}:
+            #     raise HTTPException(
+            #         status_code=status.HTTP_400_BAD_REQUEST,
+            #         detail=f"platform '{platform}' not recognized.",
+            #     )
+            # query = select(self.resource_class).where(
+            #     and_(
+            #         self.resource_class.aiod_entry.platform_identifier == identifier,
+            #         self.resource_class.aiod_entry.platform == platform,
+            #     )
+            # )
         resource = session.scalars(query).first()
         if not resource:
             if platform is None:
@@ -541,16 +528,12 @@ class ResourceRouter(abc.ABC):
                 f"{field1} and {field2}, with "
                 f"identifier={existing_resource.identifier}.",
             ) from e
-        if (
-            "FOREIGN KEY" in error
-            and issubclass(self.resource_class, Resource)
-            and resource_create.platform is not None
-        ):
-            query = select(Platform).where(Platform.name == resource_create.platform)
+        if "FOREIGN KEY" in error and resource_create.aiod_entry.platform is not None:
+            query = select(Platform).where(Platform.name == resource_create.aiod_entry.platform)
             if session.scalars(query).first() is None:
                 raise HTTPException(
                     status_code=status.HTTP_412_PRECONDITION_FAILED,
-                    detail=f"Platform {resource_create.platform} does not exist. "
+                    detail=f"Platform {resource_create.aiod_entry.platform} does not exist. "
                     f"You can register it using the POST platforms "
                     f"endpoint.",
                 )
@@ -558,9 +541,15 @@ class ResourceRouter(abc.ABC):
             error_msg = (
                 "If platform is NULL, platform_identifier should also be NULL, and vice versa."
             )
-        else:
+            status_code = status.HTTP_400_BAD_REQUEST
+        elif "constraint failed" in error:
             error_msg = error.split("constraint failed: ")[-1]
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=error_msg) from e
+            status_code = status.HTTP_400_BAD_REQUEST
+        else:
+            raise e
+            # error_msg = "Unexpected exception."
+            # status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+        raise HTTPException(status_code=status_code, detail=error_msg) from e
 
 
 def _wrap_as_http_exception(exception: Exception) -> HTTPException:

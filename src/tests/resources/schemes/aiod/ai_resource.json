@@ -1,0 +1,25 @@
+{
+    "name": "The name",
+    "description": "A description.",
+    "same_as": "https://www.example.com/resource",
+    "alternate_name": ["alias1", "alias2"],
+    "keyword": ["tag1", "tag2"],
+
+    "application_area": ["Voice Assistance"],
+    "industrial_sector": ["eCommerce"],
+    "research_area": ["Explainable AI"],
+    "scientific_domain": ["Voice Recognition"],
+
+    "contact": [],
+
+    "media": [
+        {
+            "name": "Resource logo",
+            "content_url": "https://www.example.com/resource.png"
+        }
+    ],
+    "note": [
+        "A note",
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+    ]
+}

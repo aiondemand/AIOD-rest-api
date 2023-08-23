@@ -2,22 +2,22 @@ from sqlalchemy.future import Engine
 from sqlmodel import Session
 from starlette.testclient import TestClient
 
-from database.model import AIAssetTable
-from tests.testutils.test_resource import TestResource
+from database.model.concept.status import Status
+from tests.testutils.test_resource import test_resource_factory
 
 
-def test_get_count_happy_path(client_test_resource: TestClient, engine_test_resource: Engine):
+def test_get_count_happy_path(
+    client_test_resource: TestClient, engine_test_resource: Engine, draft: Status
+):
     with Session(engine_test_resource) as session:
         session.add_all(
             [
-                AIAssetTable(type="test_resource"),
-                AIAssetTable(type="test_resource"),
-                TestResource(title="my_test_resource_1"),
-                TestResource(title="My second test resource"),
+                test_resource_factory(title="my_test_resource_1", status=draft),
+                test_resource_factory(title="My second test resource", status=draft),
             ]
         )
         session.commit()
-    response = client_test_resource.get("/counts/test_resources/v0")
+    response = client_test_resource.get("/counts/test_resources/v1")
     assert response.status_code == 200, response.json()
     response_json = response.json()
 

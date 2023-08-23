@@ -23,7 +23,7 @@ datasets, we will for instance support schema.org and DCAT-AP.
 
 Requesting a dataset will therefore be simply:
 
-![asdf](media/GetDatasetUML.png)
+![Get dataset UML](media/GetDatasetUML.png)
 
 To fill the database, a synchronization process must be running continuously for every platform 
 (e.g. HuggingFace or OpenML). This synchronization service of a platform will be deployed at a 
@@ -33,6 +33,20 @@ to the AIoD format and updates the database.
 Note that this synchronization process between the platform and the database, is different from 
 the synchronization between database instances. The latter is under discussion in the AIoD 
 Synchronization Meetings. 
+
+### AIoD Metadata
+
+The models are found in `src/database/model`. The AIoD Metadata team is responsible for 
+determining the fields of the metadata, whereafter the classes are implemented in this metadata 
+catalogue. To check the existing fields, the easiest way it to start this application (see 
+"Using Docker Compose") and check the automatically generated swagger documentation 
+(http://localhost:8000/docs).
+
+We use inheritance to make sure that generic fields, such as name and description, are present 
+and consistent over all resources. A partial overview of the metadata model can be found in the 
+following figure:
+
+![AIoD Metadata model](media/AIoD_Metadata_Model.drawio.png)
 
 ## Prerequisites
 - Linux/MacOS/Windows (should all work)

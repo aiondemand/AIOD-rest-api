@@ -7,12 +7,10 @@ from sqlmodel import Session, Field, Relationship, SQLModel
 from starlette.testclient import TestClient
 
 from authentication import keycloak_openid
-from database.model.ai_asset import AIAsset
-from database.model.ai_asset_table import AIAssetTable
 from database.model.named_relation import NamedRelation
 from database.model.relationships import ResourceRelationshipSingle, ResourceRelationshipList
 from routers import ResourceRouter
-from serialization import AttributeSerializer, FindByNameDeserializer, CastDeserializer
+from database.model.serializers import AttributeSerializer, FindByNameDeserializer, CastDeserializer
 
 
 class TestEnum(NamedRelation, table=True):  # type: ignore [call-arg]
@@ -69,14 +67,14 @@ class TestRelatedObjectOrm(TestRelatedObject, table=True):  # type: ignore [call
     )
 
 
-class TestObjectBase(AIAsset):
+class TestObjectBase(SQLModel):
     title: str = Field(max_length=100, description="title description")
 
 
 class TestObject(TestObjectBase, table=True):  # type: ignore [call-arg]
     __tablename__ = "test_object"
 
-    identifier: str = Field(primary_key=True, foreign_key="ai_asset.identifier")
+    identifier: int = Field(default=None, primary_key=True)
     named_string_identifier: Optional[int] = Field(default=None, foreign_key="test_enum.identifier")
     named_string: Optional[TestEnum] = Relationship(back_populates="objects")
     named_string_list: List[TestEnum2] = Relationship(
@@ -131,10 +129,6 @@ def client_with_testobject(engine_test_resource) -> TestClient:
         enum1, enum2, enum3 = TestEnum2(name="1"), TestEnum2(name="2"), TestEnum2(name="3")
         session.add_all(
             [
-                AIAssetTable(type="test_object"),
-                AIAssetTable(type="test_object"),
-                AIAssetTable(type="test_object"),
-                AIAssetTable(type="test_object"),
                 TestObject(
                     identifier=1,
                     title="object 1",

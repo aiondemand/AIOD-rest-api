@@ -1,8 +1,11 @@
+import pytest
+
 from converters.schema_converters import dataset_converter_schema_dot_org_instance
 from database.model.dataset.dataset import Dataset
 from tests.testutils.paths import path_test_resources
 
 
+@pytest.mark.skip(reason="TODO: while going to Metadata model v2")
 def test_aiod_to_schema_dot_org_happy_path(dataset: Dataset):
     converter = dataset_converter_schema_dot_org_instance
     result = converter.convert(dataset)

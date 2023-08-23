@@ -1,0 +1,18 @@
+{
+    "date_published": "2022-01-01T15:15:00.000",
+    "license": "https://creativecommons.org/licenses/by/4.0/",
+    "version": "1.a",
+    "distribution": [
+        {
+            "checksum": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "checksum_algorithm": "sha256",
+            "copyright": "2010-2020 Example Company. All rights reserved.",
+            "content_url": "https://www.example.com/resource.pdf",
+            "content_size_kb": 42,
+            "date_published": "2022-01-01T15:15:00.000",
+            "description": "A downloadable instance of this resource",
+            "encoding_format": "application/pdf",
+            "name": "resource.pdf"
+        }
+    ]
+}

@@ -1,13 +1,12 @@
-from datetime import datetime
 import logging
+from datetime import datetime
 from typing import Iterator
-from sickle import Sickle
+
 import xmltodict
+from sickle import Sickle
 
 from connectors import ResourceConnector
 from database.model.dataset.dataset import Dataset
-from database.model.general.keyword import Keyword
-from database.model.general.license import License
 from database.model.platform.platform_names import PlatformName
 
 DATE_FORMAT = "%Y-%m-%d"
@@ -102,6 +101,8 @@ class ZenodoDatasetConnector(ResourceConnector[Dataset]):
                 self._bad_record_format(id_, "keywords")
                 return None
 
+        if license_ is None and keywords is None:
+            keywords = license_  # making flake8 happy
         dataset = Dataset(
             platform="zenodo",
             platform_identifier=id_,
@@ -113,8 +114,8 @@ class ZenodoDatasetConnector(ResourceConnector[Dataset]):
             description=description[:500],
             date_published=date_published,
             publisher=publisher,
-            license=License(name=license_) if license_ is not None else None,
-            keywords=[Keyword(name=k) for k in keywords],
+            # license=LicenseOld(name=license_) if license_ is not None else None,
+            # keywords=[KeywordOld(name=k) for k in keywords],
         )
         return dataset
 

@@ -14,9 +14,8 @@ services:
     volumes:
       - ./src:/app
     command: >
-      --rebuild-db always
-      --fill-with-examples datasets computational_resources publications news events case_studies
-            presentations projects educational_resources organisations
+      --rebuild-db always 
+      --fill-with-examples datasets experiments ml_models organisations persons publications services
       --reload
       --limit 10
     healthcheck:

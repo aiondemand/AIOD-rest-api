@@ -9,11 +9,11 @@ import requests
 
 from connectors import ResourceConnector
 from connectors.resource_with_relations import ResourceWithRelations
-from database.model.dataset.data_download import DataDownload
+from database.model.ai_asset.distribution import Distribution
 from database.model.dataset.dataset import Dataset
-from database.model.publication.publication import Publication
-from database.model.resource import resource_create
+from database.model.knowledge_asset.publication import Publication
 from database.model.platform.platform_names import PlatformName
+from database.model.resource_read_and_create import resource_create
 
 
 class HuggingFaceDatasetConnector(ResourceConnector[Dataset]):
@@ -81,7 +81,7 @@ class HuggingFaceDatasetConnector(ResourceConnector[Dataset]):
                     dataset_id=dataset.id,
                 )
                 distributions = [
-                    DataDownload(
+                    Distribution(
                         name=pq_file["filename"],
                         description=f"{pq_file['dataset']}. Config: {pq_file['config']}. Split: "
                         f"{pq_file['split']}",

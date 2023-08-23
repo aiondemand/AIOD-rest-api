@@ -39,7 +39,7 @@ the fields that are not dependant on a separate table:
 
 ```python
 from sqlmodel import Field
-from database.model.resource import Resource
+from database.model.resource_read_and_create import Resource
 
 class ExampleBase(Resource):
     # Required fields
@@ -81,7 +81,7 @@ Next we create the `Example` in `src/database/model/example/example.py`, inherit
 from sqlalchemy import UniqueConstraint
 from database.model.relationships import ResourceRelationshipSingle
 from sqlmodel import Field, Relationship
-from serialization import (
+from database.model.serializers import (
     AttributeSerializer,
     FindByNameDeserializer
 )

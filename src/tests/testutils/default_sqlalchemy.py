@@ -1,6 +1,7 @@
 import sqlite3
 import tempfile
 from typing import Iterator
+from unittest.mock import Mock
 
 import pytest
 from fastapi import FastAPI
@@ -9,12 +10,10 @@ from sqlalchemy.engine import Engine
 from sqlmodel import create_engine, SQLModel, Session
 from starlette.testclient import TestClient
 
-from database.model import AIAssetTable
 from database.model.platform.platform import Platform
 from database.model.platform.platform_names import PlatformName
 from main import add_routes
-from tests.testutils.test_resource import RouterTestResource, TestResource
-from unittest.mock import Mock
+from tests.testutils.test_resource import RouterTestResource, test_resource_factory
 
 
 @pytest.fixture(scope="session")
@@ -49,16 +48,12 @@ def clear_db(request):
             with Session(engine) as session:
                 session.add_all([Platform(name=name) for name in PlatformName])
                 if "filled" in engine_name:
-                    session.add_all(
-                        [
-                            AIAssetTable(type="test_resource"),
-                            TestResource(
-                                title="A title",
-                                platform="example",
-                                platform_identifier="1",
-                                identifier=1,
-                            ),
-                        ]
+                    session.add(
+                        test_resource_factory(
+                            title="A title",
+                            platform="example",
+                            platform_identifier="1",
+                        )
                     )
                 session.commit()
 

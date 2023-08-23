@@ -1,80 +1,70 @@
+import copy
 from unittest.mock import Mock
 
-from starlette.testclient import TestClient
-from sqlalchemy.orm import Session
 from sqlalchemy.engine import Engine
+from sqlalchemy.orm import Session
+from starlette.testclient import TestClient
+
 from authentication import keycloak_openid
-from database.model.agent_table import AgentTable
-from database.model.organisation.organisation import Organisation
+from database.model.agent.organisation import Organisation
 
 
-def test_happy_path(client: TestClient, engine: Engine, mocked_privileged_token: Mock):
+def test_happy_path(
+    client: TestClient,
+    engine: Engine,
+    mocked_privileged_token: Mock,
+    organisation: Organisation,
+    body_agent: dict,
+):
     keycloak_openid.userinfo = mocked_privileged_token
 
     with Session(engine) as session:
-        session.add_all(
-            [
-                AgentTable(type="organisation"),
-                Organisation(
-                    identifier="1",
-                    platform="example",
-                    platform_identifier="2",
-                    type="Research Institution ",
-                ),
-            ]
-        )
+        session.add(organisation)  # The new organisation will be a member of this organisation
         session.commit()
 
-    body = {
-        "platform": "zenodo",
-        "platform_identifier": "2",
-        "type": "Research Insititution",
-        "connection_to_ai": "Example positioning in European AI ecosystem.",
-        "logo_url": "aiod.eu/project/0/logo",
-        "same_as": "https://www.example.com/organisation/example",
-        "founding_date": "2022-01-01T15:15:00.000Z",
-        "dissolution_date": "2023-01-01T15:15:00.000Z",
-        "legal_name": "Example official name",
-        "alternate_name": "Example alternate name",
-        "address": "Example address",
-        "telephone": "Example telephone number",
-        "parent_organisation": 1,
-        "business_categories": ["business category 1", "business category 2"],
-        "technical_categories": ["technical category 1", "technical category 2"],
-        "emails": ["email@org.com", "ceo@org.com"],
-        "members": [1],
-        "departments": [1],
-    }
+    body = copy.copy(body_agent)
+    body["aiod_entry"]["platform_identifier"] = "2"
+    body["date_founded"] = "2023-01-01"
+    body["legal_name"] = "A name for the organisation"
+    body["ai_relevance"] = "Part of CLAIRE"
+    body["type"] = "Research Institute"
+    body["member"] = [1]
 
-    response = client.post("/organisations/v0", json=body, headers={"Authorization": "Fake token"})
+    body["telephone"] = ["0031612345678"]
+    body["email"] = ["a@b.com"]
+
+    response = client.post("/organisations/v1", json=body, headers={"Authorization": "Fake token"})
     assert response.status_code == 200, response.json()
 
-    response = client.get("/organisations/v0/2")
+    response = client.get("/organisations/v1/2")
     assert response.status_code == 200, response.json()
 
     response_json = response.json()
     assert response_json["identifier"] == 2
-    assert response_json["platform"] == "zenodo"
-    assert "parent_organisation_id" not in response_json
-    assert response_json["parent_organisation"] == 1
-    assert set(response_json["business_categories"]) == {
-        "business category 1",
-        "business category 2",
-    }
-    assert set(response_json["technical_categories"]) == {
-        "technical category 1",
-        "technical category 2",
-    }
-    assert set(response_json["emails"]) == {"email@org.com", "ceo@org.com"}
-    assert set(response_json["members"]) == {1}
-    assert set(response_json["departments"]) == {1}
+    assert response_json["resource_identifier"] == 2
+    assert response_json["agent_identifier"] == 2
 
-    response = client.delete("/organisations/v0/2", headers={"Authorization": "Fake token"})
-    assert (
-        response.status_code == 400
-    ), response.json()  # you cannot delete the parent of other resources
-    body["departments"] = []
-    response = client.put("organisations/v0/2", json=body, headers={"Authorization": "Fake token"})
+    assert response_json["date_founded"] == "2023-01-01"
+    assert response_json["legal_name"] == "A name for the organisation"
+    assert response_json["ai_relevance"] == "Part of CLAIRE"
+    assert response_json["type"] == "Research Institute"
+    assert response_json["member"] == [1]
+
+    assert response_json["telephone"] == ["0031612345678"]
+    assert response_json["email"] == ["a@b.com"]
+
+    # response = client.delete("/organisations/v1/1", headers={"Authorization": "Fake token"})
+    # assert response.status_code == 200
+    # response = client.get("/organisations/v1/2")
+    # assert response.status_code == 200, response.json()
+    # response_json = response.json()
+    # TODO(jos): make sure Agent is deleted on CASCADE
+
+    body["type"] = "Association"
+    response = client.put("organisations/v1/2", json=body, headers={"Authorization": "Fake token"})
     assert response.status_code == 200, response.json()
-    response = client.delete("/organisations/v0/2", headers={"Authorization": "Fake token"})
+    response = client.get("organisations/v1/2")
+    assert response.json()["type"] == "Association"
+
+    response = client.delete("/organisations/v1/2", headers={"Authorization": "Fake token"})
     assert response.status_code == 200, response.json()

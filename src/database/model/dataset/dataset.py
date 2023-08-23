@@ -1,174 +1,79 @@
-from datetime import datetime
-from typing import Optional, List
+from typing import Optional
 
-from sqlalchemy import UniqueConstraint, Column, Integer, ForeignKey
-from sqlmodel import Field, Relationship, SQLModel
+from sqlmodel import Field, Relationship
 
-from database.model.ai_asset import AIAsset
-from database.model.dataset.alternate_name import DatasetAlternateNameLink, DatasetAlternateName
-from database.model.dataset.data_download import DataDownloadORM, DataDownload
-from database.model.dataset.keyword_link import DatasetKeywordLink
-from database.model.dataset.measured_value import (
-    DatasetMeasuredValueNameLink,
-    MeasuredValueORM,
-    MeasuredValue,
-)
-from database.model.dataset.publication_link import DatasetPublicationLink
-from database.model.general.keyword import Keyword
-from database.model.general.license import License
-from database.model.publication.publication import Publication
+from database.model.agent.agent_table import AgentTable
+from database.model.ai_asset.ai_asset import AIAssetBase, AIAsset
+from database.model.ai_resource.location import LocationORM, Location
+from database.model.dataset.size import Size, SizeORM
+from database.model.field_length import NORMAL, SHORT
+from database.model.helper_functions import link_factory
 from database.model.relationships import ResourceRelationshipList, ResourceRelationshipSingle
-from database.model.resource import Resource
-from serialization import (
+from database.model.serializers import (
     AttributeSerializer,
-    FindByNameDeserializer,
-    CastDeserializer,
     FindByIdentifierDeserializer,
+    CastDeserializer,
 )
 
 
-class DatasetParentChildLink(SQLModel, table=True):  # type: ignore [call-arg]
-    __tablename__ = "dataset_parent_child_link"
-    parent_identifier: int = Field(
-        sa_column=Column(
-            Integer, ForeignKey("dataset.identifier", ondelete="CASCADE"), primary_key=True
-        )
+class DatasetBase(AIAssetBase):
+    issn: str | None = Field(
+        description="The International Standard Serial Number, ISSN, an identifier for serial "
+        "publications.",
+        min_length=8,
+        max_length=8,
+        default=None,
+        schema_extra={"example": "20493630"},
     )
-    child_identifier: int = Field(
-        sa_column=Column(
-            Integer, ForeignKey("dataset.identifier", ondelete="CASCADE"), primary_key=True
-        )
+    measurement_technique: str | None = Field(
+        description="The technique, technology, or methodology used in a dataset, corresponding to "
+        "the method used for measuring the corresponding variable(s).",
+        max_length=NORMAL,
+        schema_extra={"example": "mass spectrometry"},
+        default=None,
+    )
+    temporal_coverage: str | None = Field(
+        description="The temporalCoverage of a CreativeWork indicates the period that the content "
+        "applies to, i.e. that it describes, a textual string indicating a time period "
+        "in ISO 8601 time interval format. In the case of a Dataset it will typically "
+        "indicate the relevant time period in a precise notation (e.g. for a 2011 "
+        "census dataset, the year 2011 would be written '2011/2012').",
+        max_length=SHORT,
+        schema_extra={"example": "2011/2012"},
+        default=None,
     )
 
 
-class DatasetBase(AIAsset):
-    # Required fields
-    description: str = Field(max_length=5000, schema_extra={"example": "A description."})
-    name: str = Field(max_length=150, schema_extra={"example": "Example Dataset"})
-    same_as: str = Field(
-        max_length=150,
-        unique=True,
-        schema_extra={"example": "https://www.example.com/dataset/example"},
-    )
-
-    # Recommended fields
-    contact: str | None = Field(max_length=150, default=None, schema_extra={"example": "John Doe"})
-    creator: str | None = Field(max_length=150, default=None, schema_extra={"example": "John Doe"})
-    publisher: str | None = Field(
-        max_length=150, default=None, schema_extra={"example": "John Doe"}
-    )
-    # TODO(issue 9): contact + creator + publisher repeated organization/person
-    date_modified: datetime | None = Field(
-        default=None, schema_extra={"example": "2023-01-01T15:15:00.000Z"}
-    )
-    date_published: datetime | None = Field(
-        default=None, schema_extra={"example": "2022-01-01T15:15:00.000Z"}
-    )
-    funder: str | None = Field(max_length=150, default=None, schema_extra={"example": "John Doe"})
-    # TODO(issue 9): funder repeated organization/person
-    is_accessible_for_free: bool = Field(default=True)
-    issn: str | None = Field(max_length=8, default=None, schema_extra={"example": "12345679"})
-    size: int | None = Field(schema_extra={"example": 100})
-    spatial_coverage: str | None = Field(
-        max_length=500, default=None, schema_extra={"example": "New York"}
-    )
-    temporal_coverage_from: datetime | None = Field(
-        default=None, schema_extra={"example": "2020-01-01T00:00:00.000Z"}
-    )
-    temporal_coverage_to: datetime | None = Field(
-        default=None, schema_extra={"example": "2021-01-01T00:00:00.000Z"}
-    )
-    version: str | None = Field(max_length=150, default=None, schema_extra={"example": "1.1.0"})
-
-
-class Dataset(DatasetBase, table=True):  # type: ignore [call-arg]
+class Dataset(DatasetBase, AIAsset, table=True):  # type: ignore [call-arg]
     __tablename__ = "dataset"
 
-    __table_args__ = Resource.__table_args__ + (
-        UniqueConstraint(
-            "name",
-            "version",
-            name="same_name_and_version",
-        ),
+    funder: list["AgentTable"] = Relationship(
+        sa_relationship_kwargs={"cascade": "all, delete"},
+        link_model=link_factory("dataset", AgentTable.__tablename__, table_prefix="funder"),
     )
+    size_identifier: int | None = Field(foreign_key=SizeORM.__tablename__ + ".identifier")
+    size: Optional[SizeORM] = Relationship()
+    spatial_coverage_identifier: int | None = Field(
+        foreign_key=LocationORM.__tablename__ + ".identifier"
+    )
+    spatial_coverage: Optional[LocationORM] = Relationship()
 
-    identifier: int = Field(primary_key=True, foreign_key="ai_asset.identifier")
-
-    license_identifier: int | None = Field(foreign_key="license.identifier")
-    license: Optional[License] = Relationship(back_populates="datasets")
-    alternate_names: List[DatasetAlternateName] = Relationship(
-        back_populates="datasets", link_model=DatasetAlternateNameLink
-    )
-    citations: List[Publication] = Relationship(
-        back_populates="datasets",
-        link_model=DatasetPublicationLink,
-    )
-    distributions: List[DataDownloadORM] = Relationship(
-        sa_relationship_kwargs={"cascade": "all, delete"}
-    )
-    has_parts: List["Dataset"] = Relationship(
-        back_populates="is_part",
-        link_model=DatasetParentChildLink,
-        sa_relationship_kwargs=dict(
-            primaryjoin="Dataset.identifier==DatasetParentChildLink.parent_identifier",
-            secondaryjoin="Dataset.identifier==DatasetParentChildLink.child_identifier",
-            cascade="all, delete",
-        ),
-    )
-    is_part: List["Dataset"] = Relationship(
-        back_populates="has_parts",
-        link_model=DatasetParentChildLink,
-        sa_relationship_kwargs=dict(
-            primaryjoin="Dataset.identifier==DatasetParentChildLink.child_identifier",
-            secondaryjoin="Dataset.identifier==DatasetParentChildLink.parent_identifier",
-            cascade="all, delete",
-        ),
-    )
-    keywords: List[Keyword] = Relationship(back_populates="datasets", link_model=DatasetKeywordLink)
-    measured_values: List[MeasuredValueORM] = Relationship(
-        back_populates="datasets", link_model=DatasetMeasuredValueNameLink
-    )
-
-    class RelationshipConfig:
-        alternate_names: List[str] = ResourceRelationshipList(
-            example=["alias 1", "alias 2"],
-            serializer=AttributeSerializer("name"),
-            deserializer=FindByNameDeserializer(DatasetAlternateName),
-        )
-        citations: List[int] = ResourceRelationshipList(
-            example=[],
-            deserializer=FindByIdentifierDeserializer(Publication),
+    class RelationshipConfig(AIAsset.RelationshipConfig):
+        funder: list[int] = ResourceRelationshipList(
+            description="Links to identifiers of the agents (person or organization) that supports "
+            "this dataset through some kind of financial contribution. ",
             serializer=AttributeSerializer("identifier"),
-        )
-        distributions: List[DataDownload] = ResourceRelationshipList(
-            deserializer=CastDeserializer(DataDownloadORM)
-        )
-        is_part: List[int] = ResourceRelationshipList(
+            deserializer=FindByIdentifierDeserializer(AgentTable),
+            default_factory_pydantic=list,
             example=[],
-            serializer=AttributeSerializer("identifier"),
         )
-        has_parts: List[int] = ResourceRelationshipList(
-            example=[],
-            serializer=AttributeSerializer("identifier"),
+        size: Optional[Size] = ResourceRelationshipSingle(
+            description="The size of this dataset, for example the number of rows. The file size "
+            "should not be included here, but in distribution.content_size_kb.",
+            deserializer=CastDeserializer(SizeORM),
         )
-        license: Optional[str] = ResourceRelationshipSingle(
-            identifier_name="license_identifier",
-            serializer=AttributeSerializer("name"),
-            deserializer=FindByNameDeserializer(License),
-            example="https://creativecommons.org/share-your-work/public-domain/cc0/",
+        spatial_coverage: Optional[Location] = ResourceRelationshipSingle(
+            description="A location that describes the spatial aspect of this dataset. For "
+            "example, a point where all the measurements were collected.",
+            deserializer=CastDeserializer(LocationORM),
         )
-        keywords: List[str] = ResourceRelationshipList(
-            serializer=AttributeSerializer("name"),
-            deserializer=FindByNameDeserializer(Keyword),
-            example=["keyword1", "keyword2"],
-        )
-        measured_values: List[MeasuredValue] = ResourceRelationshipList(
-            deserializer=CastDeserializer(MeasuredValueORM)
-        )
-
-
-# Defined separate because it references Dataset, and can therefor not be defined inside Dataset
-deserializer = FindByIdentifierDeserializer(Dataset)
-Dataset.RelationshipConfig.is_part.deserializer = deserializer  # type: ignore[attr-defined]
-Dataset.RelationshipConfig.has_parts.deserializer = deserializer  # type: ignore[attr-defined]
-Publication.RelationshipConfig.datasets.deserializer = deserializer  # type: ignore[attr-defined]

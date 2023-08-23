@@ -1,11 +1,11 @@
-from database.model.organisation.organisation import Organisation
-from routers import ResourceRouter
+from database.model.agent.organisation import Organisation
+from routers.resource_router import ResourceRouter
 
 
 class OrganisationRouter(ResourceRouter):
     @property
     def version(self) -> int:
-        return 0
+        return 1
 
     @property
     def resource_name(self) -> str:

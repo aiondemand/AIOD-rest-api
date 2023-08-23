@@ -4,7 +4,7 @@ Utility functions for initializing the database and tables through SQLAlchemy.
 import logging
 from typing import List
 
-from sqlalchemy import text, and_
+from sqlalchemy import text
 from sqlalchemy.engine import Engine
 from sqlalchemy.exc import IntegrityError
 from sqlmodel import create_engine, Session, select, SQLModel
@@ -12,10 +12,10 @@ from sqlmodel import create_engine, Session, select, SQLModel
 import routers
 from connectors import ResourceConnector
 from connectors.resource_with_relations import ResourceWithRelations
+from database.model.concept.concept import AIoDConcept
 from database.model.dataset.dataset import Dataset
+from database.model.knowledge_asset.publication import Publication
 from database.model.platform.platform import Platform
-from database.model.publication.publication import Publication
-from database.model.resource import Resource
 from database.model.platform.platform_names import PlatformName
 
 
@@ -43,7 +43,7 @@ def connect_to_database(
     engine = create_engine(url, echo=True, pool_recycle=3600)
 
     with engine.connect() as connection:
-        Resource.metadata.create_all(connection, checkfirst=True)
+        AIoDConcept.metadata.create_all(connection, checkfirst=True)
         connection.commit()
     return engine
 
@@ -109,16 +109,18 @@ def populate_database(
 
 
 def _get_existing_resource(
-    session: Session, resource: Resource, clazz: type[SQLModel]
-) -> Resource | None:
+    session: Session, resource: AIoDConcept, clazz: type[SQLModel]
+) -> AIoDConcept | None:
     """Selecting a resource based on platform and platform_identifier"""
-    query = select(clazz).where(
-        and_(
-            clazz.platform == resource.platform,
-            clazz.platform_identifier == resource.platform_identifier,
-        )
-    )
-    return session.scalars(query).first()
+    return None
+    # TODO(jos): this currently doesn't work, since we started using aiod_entry
+    # query = select(clazz).where(
+    #     and_(
+    #         clazz.aiod_entry.platform == resource.aiod_entry.platform,
+    #         clazz.aiod_entry.platform_identifier == resource.aiod_entry.platform_identifier,
+    #     )
+    # )
+    # return session.scalars(query).first()
 
 
 def _create_or_fetch_related_objects(session: Session, item: ResourceWithRelations):
@@ -128,7 +130,7 @@ def _create_or_fetch_related_objects(session: Session, item: ResourceWithRelatio
     into the item.resource.[field_name]
     """
     for field_name, related_resource_or_list in item.related_resources.items():
-        if isinstance(related_resource_or_list, Resource):
+        if isinstance(related_resource_or_list, AIoDConcept):
             resources = [related_resource_or_list]
         else:
             resources = related_resource_or_list
@@ -157,7 +159,7 @@ def _create_or_fetch_related_objects(session: Session, item: ResourceWithRelatio
                 else:
                     identifiers.append(existing.identifier)
 
-        if isinstance(related_resource_or_list, Resource):
+        if isinstance(related_resource_or_list, AIoDConcept):
             (id_,) = identifiers
             item.resource.__setattr__(field_name, id_)  # E.g. Dataset.license_identifier = 1
         else:

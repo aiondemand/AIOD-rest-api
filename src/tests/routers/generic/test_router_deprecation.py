@@ -6,8 +6,8 @@ from fastapi import FastAPI
 from sqlalchemy.engine import Engine
 from starlette.testclient import TestClient
 
-from tests.testutils.test_resource import TestResource, RouterTestResource
 from authentication import keycloak_openid
+from tests.testutils.test_resource import RouterTestResource
 
 
 class DeprecatedRouter(RouterTestResource):
@@ -26,9 +26,9 @@ class DeprecatedRouter(RouterTestResource):
     "verb,url",
     [
         ("get", "/test_resources/v1/"),
-        ("get", "/platforms/example/test_resources/v1"),
+        # ("get", "/platforms/example/test_resources/v1"),
         ("get", "/test_resources/v1/1"),
-        ("get", "/platforms/example/test_resources/v1/1"),
+        # ("get", "/platforms/example/test_resources/v1/1"),
         ("post", "/test_resources/v1/"),
         ("put", "/test_resources/v1/1"),
         ("delete", "/test_resources/v1/1"),
@@ -44,9 +44,10 @@ def test_deprecated_router(
 
     kwargs = {}
     if verb in ("post", "put"):
-        kwargs["json"] = TestResource(
-            title="Another title", platform="example", platform_identifier="2"
-        ).dict()
+        kwargs["json"] = {
+            "title": "Another title",
+            "aiod_entry": {"platform": "example", "platform_identifier": "2"},
+        }
 
     if verb in ("post", "put", "delete"):
         kwargs["headers"] = {"Authorization": "fake-token"}

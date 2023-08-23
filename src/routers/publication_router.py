@@ -1,11 +1,11 @@
-from database.model.publication.publication import Publication
+from database.model.knowledge_asset.publication import Publication
 from routers.resource_router import ResourceRouter
 
 
 class PublicationRouter(ResourceRouter):
     @property
     def version(self) -> int:
-        return 0
+        return 1
 
     @property
     def resource_name(self) -> str:

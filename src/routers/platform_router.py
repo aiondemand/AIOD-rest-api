@@ -5,7 +5,7 @@ from routers.resource_router import ResourceRouter
 class PlatformRouter(ResourceRouter):
     @property
     def version(self) -> int:
-        return 0
+        return 1
 
     @property
     def resource_name(self) -> str:

@@ -5,10 +5,9 @@ from requests import HTTPError
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import joinedload
 from sqlmodel import Session
-from .utils import huggingface_license_identifiers
 
-from database.model.dataset.data_download import DataDownloadORM
 from database.model.dataset.dataset import Dataset
+from .utils import huggingface_license_identifiers
 
 
 class HuggingfaceUploader:
@@ -89,17 +88,18 @@ class HuggingfaceUploader:
         return resource
 
     def _store_resource_updated(self, engine: Engine, resource: Dataset, url: str, repo_id: str):
-        with Session(engine) as session:
-            try:
-                data_download = DataDownloadORM(content_url=url, name=repo_id, dataset=resource)
-                resource.distributions.append(data_download)
-                session.merge(resource)
-                session.commit()
-            except Exception as e:
-                raise HTTPException(
-                    status_code=status.HTTP_502_BAD_GATEWAY,
-                    detail="Dataset metdata could not be upload",
-                ) from e
+        raise NotImplementedError()
+        # with Session(engine) as session:
+        #     try:
+        #         data_download = DistributionORM(content_url=url, name=repo_id, dataset=resource)
+        #         resource.distributions.append(data_download)
+        #         session.merge(resource)
+        #         session.commit()
+        #     except Exception as e:
+        #         raise HTTPException(
+        #             status_code=status.HTTP_502_BAD_GATEWAY,
+        #             detail="Dataset metdata could not be upload",
+        #         ) from e
 
     def _create_or_get_repo_url(sef, repo_id, token):
         try:
