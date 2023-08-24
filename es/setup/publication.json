@@ -25,6 +25,10 @@
                     }
                 }
             },
+            "asset_identifier" : {
+                "type" : "long",
+                "index" : false
+            },
             "creators" : {
                 "type" : "text",
                 "index" : false,
@@ -39,9 +43,21 @@
                 "type" : "date",
                 "index" : false
             },
+            "date_modified" : {
+                "type" : "date"
+            },
             "date_published" : {
                 "type" : "date",
                 "index" : false
+            },
+            "description" : {
+                "type" : "text",
+                "fields" : {
+                    "keyword" : {
+                        "type" : "keyword",
+                        "ignore_above" : 256
+                    }
+                }
             },
             "doi" : {
                 "type" : "text",
@@ -57,9 +73,60 @@
                 "type" : "long",
                 "index" : false
             },
+            "isbn" : {
+                "type" : "text",
+                "fields" : {
+                    "keyword" : {
+                        "type" : "keyword",
+                        "ignore_above" : 256
+                    }
+                }
+            },
+            "issn" : {
+                "type" : "text",
+                "fields" : {
+                    "keyword" : {
+                        "type" : "keyword",
+                        "ignore_above" : 256
+                    }
+                }
+            },
+            "knowledge_asset_identifier" : {
+                "type" : "long",
+                "index" : false
+            },
+            "license" : {
+                "type" : "text",
+                "index" : false,
+                "fields" : {
+                    "keyword" : {
+                        "type" : "keyword",
+                        "ignore_above" : 256
+                    }
+                }
+            },
             "license_identifier" : {
                 "type" : "long",
                 "index" : false
+            },
+            "name" : {
+                "type" : "text",
+                "fields" : {
+                    "keyword" : {
+                        "type" : "keyword",
+                        "ignore_above" : 256
+                    }
+                }
+            },
+            "permanent_identifier" : {
+                "type" : "text",
+                "index" : false,
+                "fields" : {
+                    "keyword" : {
+                        "type" : "keyword",
+                        "ignore_above" : 256
+                    }
+                }
             },
             "platform" : {
                 "type" : "text",
@@ -73,6 +140,7 @@
             },
             "platform_identifier" : {
                 "type" : "text",
+                "index" : false,
                 "fields" : {
                     "keyword" : {
                         "type" : "keyword",
@@ -80,9 +148,43 @@
                     }
                 }
             },
+            "publication_type" : {
+                "type" : "text",
+                "index" : false,
+                "fields" : {
+                    "keyword" : {
+                        "type" : "keyword",
+                        "ignore_above" : 256
+                    }
+                }
+            },
+            "resource_identifier" : {
+                "type" : "long",
+                "index" : false
+            },
             "resource_type_identifier" : {
                 "type" : "long",
                 "index" : false
+            },
+            "same_as" : {
+                "type" : "text",
+                "index" : false,
+                "fields" : {
+                    "keyword" : {
+                        "type" : "keyword",
+                        "ignore_above" : 256
+                    }
+                }
+            },
+            "status" : {
+                "type" : "text",
+                "index" : false,
+                "fields" : {
+                    "keyword" : {
+                        "type" : "keyword",
+                        "ignore_above" : 256
+                    }
+                }
             },
             "title" : {
                 "type" : "text",
@@ -104,6 +206,16 @@
                 }
             },
             "url" : {
+                "type" : "text",
+                "index" : false,
+                "fields" : {
+                    "keyword" : {
+                        "type" : "keyword",
+                        "ignore_above" : 256
+                    }
+                }
+            },
+            "version" : {
                 "type" : "text",
                 "index" : false,
                 "fields" : {

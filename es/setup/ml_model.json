@@ -43,19 +43,6 @@
                 "type" : "long",
                 "index" : false
             },
-            "is_accessible_for_free" : {
-                "type" : "boolean",
-                "index" : false
-            },
-            "issn" : {
-                "type" : "text",
-                "fields" : {
-                    "keyword" : {
-                        "type" : "keyword",
-                        "ignore_above" : 256
-                    }
-                }
-            },
             "license" : {
                 "type" : "text",
                 "index" : false,
@@ -66,7 +53,7 @@
                     }
                 }
             },
-            "measurement_technique" : {
+            "ml_model_type" : {
                 "type" : "text",
                 "index" : false,
                 "fields" : {
@@ -129,16 +116,6 @@
                     }
                 }
             },
-            "temporal_coverage" : {
-                "type" : "text",
-                "index" : false,
-                "fields" : {
-                    "keyword" : {
-                        "type" : "keyword",
-                        "ignore_above" : 256
-                    }
-                }
-            },
             "type" : {
                 "type" : "text",
                 "index" : false,
@@ -162,3 +139,4 @@
         }
     }
 }
+

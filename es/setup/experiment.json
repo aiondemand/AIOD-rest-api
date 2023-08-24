@@ -39,24 +39,7 @@
                     }
                 }
             },
-            "identifier" : {
-                "type" : "long",
-                "index" : false
-            },
-            "is_accessible_for_free" : {
-                "type" : "boolean",
-                "index" : false
-            },
-            "issn" : {
-                "type" : "text",
-                "fields" : {
-                    "keyword" : {
-                        "type" : "keyword",
-                        "ignore_above" : 256
-                    }
-                }
-            },
-            "license" : {
+            "execution_settings" : {
                 "type" : "text",
                 "index" : false,
                 "fields" : {
@@ -66,7 +49,21 @@
                     }
                 }
             },
-            "measurement_technique" : {
+            "experimental_workflow" : {
+                "type" : "text",
+                "index" : false,
+                "fields" : {
+                    "keyword" : {
+                        "type" : "keyword",
+                        "ignore_above" : 256
+                    }
+                }
+            },
+            "identifier" : {
+                "type" : "long",
+                "index" : false
+            },
+            "license" : {
                 "type" : "text",
                 "index" : false,
                 "fields" : {
@@ -105,6 +102,16 @@
                     }
                 }
             },
+            "reproducibility_explanation" : {
+                "type" : "text",
+                "index" : false,
+                "fields" : {
+                    "keyword" : {
+                        "type" : "keyword",
+                        "ignore_above" : 256
+                    }
+                }
+            },
             "resource_identifier" : {
                 "type" : "long",
                 "index" : false
@@ -120,16 +127,6 @@
                 }
             },
             "status" : {
-                "type" : "text",
-                "index" : false,
-                "fields" : {
-                    "keyword" : {
-                        "type" : "keyword",
-                        "ignore_above" : 256
-                    }
-                }
-            },
-            "temporal_coverage" : {
                 "type" : "text",
                 "index" : false,
                 "fields" : {
@@ -162,3 +159,4 @@
         }
     }
 }
+
