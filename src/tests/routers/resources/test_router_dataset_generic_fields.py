@@ -47,8 +47,8 @@ def test_happy_path(
     assert response_json["resource_identifier"] == 3
     assert response_json["asset_identifier"] == 2
 
-    assert response_json["aiod_entry"]["platform"] == "example"
-    assert response_json["aiod_entry"]["platform_identifier"] == "1"
+    assert response_json["platform"] == "example"
+    assert response_json["platform_identifier"] == "1"
     assert response_json["aiod_entry"]["editor"] == [1]
     assert response_json["aiod_entry"]["status"] == "draft"
     date_created = dateutil.parser.parse(response_json["aiod_entry"]["date_created"] + "Z")
@@ -93,7 +93,7 @@ def test_happy_path(
     )
     assert lorem in notes
 
-    body["aiod_entry"]["platform_identifier"] = "2"
+    body["platform_identifier"] = "2"
     body["name"] = "new name"
     body["version"] = "1.b"
     body["distribution"] = [
@@ -119,8 +119,8 @@ def test_happy_path(
     assert 0 < (date_created - datetime_create_request).total_seconds() < 0.1
     assert 0 < (date_modified - datetime_update_request).total_seconds() < 0.1
 
-    assert response_json["aiod_entry"]["platform"] == "example"
-    assert response_json["aiod_entry"]["platform_identifier"] == "2"
+    assert response_json["platform"] == "example"
+    assert response_json["platform_identifier"] == "2"
 
     assert response_json["name"] == "new name"
 

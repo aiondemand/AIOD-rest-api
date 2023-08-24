@@ -12,8 +12,12 @@ def test_get_count_happy_path(
     with Session(engine_test_resource) as session:
         session.add_all(
             [
-                test_resource_factory(title="my_test_resource_1", status=draft),
-                test_resource_factory(title="My second test resource", status=draft),
+                test_resource_factory(
+                    title="my_test_resource_1", status=draft, platform_identifier="2"
+                ),
+                test_resource_factory(
+                    title="My second test resource", status=draft, platform_identifier="3"
+                ),
             ]
         )
         session.commit()

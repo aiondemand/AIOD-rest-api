@@ -1,6 +1,7 @@
 import abc
 import datetime
 import traceback
+from functools import partial
 from typing import Literal, Union, Any
 from typing import TypeVar, Type
 from wsgiref.handlers import format_date_time
@@ -18,6 +19,7 @@ from config import KEYCLOAK_CONFIG
 from converters.schema_converters.schema_converter import SchemaConverter
 from database.model.ai_resource.resource import AIResource
 from database.model.platform.platform import Platform
+from database.model.platform.platform_names import PlatformName
 from database.model.resource_read_and_create import (
     resource_create,
     resource_read,
@@ -157,22 +159,21 @@ class ResourceRouter(AIoDRouter, abc.ABC):
             name=self.resource_name,
             **default_kwargs,
         )
-        # TODO(jos): this doesn't work since we moved platform to AIoDEntry
-        # router.add_api_route(
-        #     path=f"{url_prefix}/platforms/{{platform}}/{self.resource_name_plural}/{version}",
-        #     endpoint=self.get_platform_resources_func(engine),
-        #     response_model=response_model_plural,  # type: ignore
-        #     name=f"List {self.resource_name_plural}",
-        #     **default_kwargs,
-        # )
-        # router.add_api_route(
-        #     path=f"{url_prefix}/platforms/{{platform}}/{self.resource_name_plural}/{version}"
-        #     f"/{{identifier}}",
-        #     endpoint=self.get_platform_resource_func(engine),
-        #     response_model=response_model,  # type: ignore
-        #     name=self.resource_name,
-        #     **default_kwargs,
-        # )
+        router.add_api_route(
+            path=f"{url_prefix}/platforms/{{platform}}/{self.resource_name_plural}/{version}",
+            endpoint=self.get_platform_resources_func(engine),
+            response_model=response_model_plural,  # type: ignore
+            name=f"List {self.resource_name_plural}",
+            **default_kwargs,
+        )
+        router.add_api_route(
+            path=f"{url_prefix}/platforms/{{platform}}/{self.resource_name_plural}/{version}"
+            f"/{{identifier}}",
+            endpoint=self.get_platform_resource_func(engine),
+            response_model=response_model,  # type: ignore
+            name=self.resource_name,
+            **default_kwargs,
+        )
         return router
 
     def get_resources(
@@ -180,22 +181,21 @@ class ResourceRouter(AIoDRouter, abc.ABC):
     ):
         """Fetch all resources of this platform in given schema, using pagination"""
         _raise_error_on_invalid_schema(self._possible_schemas, schema)
-        convert_schema = (
-            self.schema_converters[schema].convert
-            if schema != "aiod"
-            else self.resource_class_read.from_orm
-        )
         try:
             with Session(engine) as session:
-                # TODO(jos) "This doesn't work since platform is moved to AIoDEntry")
-                # where_clause = (
-                #     (self.resource_class.aiod_entry.platform == platform)
-                #     if platform is not None else True
-                # )
+                convert_schema = (
+                    partial(self.schema_converters[schema].convert, session)
+                    if schema != "aiod"
+                    else self.resource_class_read.from_orm
+                )
+                where_clause = (
+                    (self.resource_class.platform == platform) if platform is not None else True
+                )
                 query = (
                     select(self.resource_class)
-                    # .where(where_clause)
-                    .offset(pagination.offset).limit(pagination.limit)
+                    .where(where_clause)
+                    .offset(pagination.offset)
+                    .limit(pagination.limit)
                 )
 
                 return self._wrap_with_headers(
@@ -216,7 +216,7 @@ class ResourceRouter(AIoDRouter, abc.ABC):
             with Session(engine) as session:
                 resource = self._retrieve_resource(session, identifier, platform=platform)
                 if schema != "aiod":
-                    return self.schema_converters[schema].convert(resource)
+                    return self.schema_converters[schema].convert(session, resource)
                 return self._wrap_with_headers(self.resource_class_read.from_orm(resource))
         except Exception as e:
             raise _wrap_as_http_exception(e)
@@ -382,7 +382,7 @@ class ResourceRouter(AIoDRouter, abc.ABC):
                 with Session(engine) as session:
                     resource = self._retrieve_resource(session, identifier)
                     if hasattr(resource, "aiod_entry"):
-                        datetime_created = resource.aiod_entry.date_created  # TODO(jos): clean up
+                        datetime_created = resource.aiod_entry.date_created
                     for attribute_name in resource.schema()["properties"]:
                         if hasattr(resource_create_instance, attribute_name):
                             new_value = getattr(resource_create_instance, attribute_name)
@@ -441,18 +441,17 @@ class ResourceRouter(AIoDRouter, abc.ABC):
         if platform is None:
             query = select(self.resource_class).where(self.resource_class.identifier == identifier)
         else:
-            raise NotImplementedError("This doesn't work since platform is moved to AIoDEntry")
-            # if platform not in {n.name for n in PlatformName}:
-            #     raise HTTPException(
-            #         status_code=status.HTTP_400_BAD_REQUEST,
-            #         detail=f"platform '{platform}' not recognized.",
-            #     )
-            # query = select(self.resource_class).where(
-            #     and_(
-            #         self.resource_class.aiod_entry.platform_identifier == identifier,
-            #         self.resource_class.aiod_entry.platform == platform,
-            #     )
-            # )
+            if platform not in {n.name for n in PlatformName}:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"platform '{platform}' not recognized.",
+                )
+            query = select(self.resource_class).where(
+                and_(
+                    self.resource_class.platform_identifier == identifier,
+                    self.resource_class.platform == platform,
+                )
+            )
         resource = session.scalars(query).first()
         if not resource:
             if platform is None:
@@ -529,12 +528,12 @@ class ResourceRouter(AIoDRouter, abc.ABC):
                 f"{field1} and {field2}, with "
                 f"identifier={existing_resource.identifier}.",
             ) from e
-        if "FOREIGN KEY" in error and resource_create.aiod_entry.platform is not None:
-            query = select(Platform).where(Platform.name == resource_create.aiod_entry.platform)
+        if "FOREIGN KEY" in error and resource_create.platform is not None:
+            query = select(Platform).where(Platform.name == resource_create.platform)
             if session.scalars(query).first() is None:
                 raise HTTPException(
                     status_code=status.HTTP_412_PRECONDITION_FAILED,
-                    detail=f"Platform {resource_create.aiod_entry.platform} does not exist. "
+                    detail=f"Platform {resource_create.platform} does not exist. "
                     f"You can register it using the POST platforms "
                     f"endpoint.",
                 )

@@ -1,17 +1,14 @@
 import json
 
-import pytest
 import responses
 
-import connectors
+from connectors.huggingface.huggingface_dataset_connector import HuggingFaceDatasetConnector
 from connectors.resource_with_relations import ResourceWithRelations
-from database.model.platform.platform_names import PlatformName
 from tests.testutils.paths import path_test_resources
 
 HUGGINGFACE_URL = "https://datasets-server.huggingface.co"
 
 
-@pytest.mark.skip(reason="TODO: while going to Metadata model v2")
 def test_fetch_all_happy_path():
     ids_expected = {
         "0n1xus/codexglue",
@@ -20,7 +17,7 @@ def test_fetch_all_happy_path():
         "acronym_identification",
         "air_dialogue",
     }
-    connector = connectors.dataset_connectors[PlatformName.huggingface]
+    connector = HuggingFaceDatasetConnector()
     with responses.RequestsMock() as mocked_requests:
         path_data_list = path_test_resources() / "connectors" / "huggingface" / "data_list.json"
         with open(path_data_list, "r") as f:
@@ -33,7 +30,7 @@ def test_fetch_all_happy_path():
         )
         for dataset_id in ids_expected:
             mock_parquet(mocked_requests, dataset_id)
-        resources_with_relations = list(connector.fetch_all(limit=None))
+        resources_with_relations = list(connector.fetch())
 
     assert len(resources_with_relations) == 5
     assert all(type(r) == ResourceWithRelations for r in resources_with_relations)
@@ -42,8 +39,8 @@ def test_fetch_all_happy_path():
     names = {d.name for d in datasets}
     assert ids == ids_expected
     assert names == ids_expected
-    assert all(len(r.related_resources) == 1 for r in resources_with_relations)
-    assert all(len(r.related_resources["citations"]) == 1 for r in resources_with_relations)
+    assert all(len(r.related_resources) in (1, 2) for r in resources_with_relations)
+    assert all(len(r.related_resources["citation"]) == 1 for r in resources_with_relations)
 
 
 def mock_parquet(mocked_requests: responses.RequestsMock, dataset_id: str):

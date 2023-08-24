@@ -6,106 +6,68 @@
     },
     "@graph": [
         {
-            "@id": "7",
+            "@id": "1",
             "@type": "dcat:Dataset",
-            "dct:description": "description",
-            "dct:title": "name1",
+            "dct:description": "A description.",
+            "dct:title": "The name",
             "dcat:contactPoint": [
                 {
-                    "@id": "individual_contact"
+                    "@id": "individual_person_name"
                 }
             ],
             "dcat:distribution": [
                 {
-                    "@id": "distr.content_url"
+                    "@id": "https://www.example.com/resource.pdf"
                 }
             ],
             "dcat:keyword": [
-                "a",
-                "b",
-                "c"
+                "keyword1",
+                "keyword2"
             ],
             "dct:publisher": null,
-            "dct:temporal": [
-                {
-                    "@id": "period_2000-01-01T00:00:00_to_2000-01-02T06:00:00"
-                }
-            ],
-            "dct:spatial": [
-                {
-                    "@id": "spatial_coverage"
-                }
-            ],
-            "dcat:theme": [
-                "variable"
-            ],
             "dcat:creator": [
                 {
-                    "@id": "individual_creator"
+                    "@id": "individual_person_name"
                 }
             ],
             "foaf:page": [],
             "dcat:landingPage": [
-                "sameAs"
+                "https://www.example.com/resource"
             ],
             "dct:issued": {
                 "@type": "xsd:dateTime",
-                "@value": "2001-01-01T08:00:00"
+                "@value": "2023-08-22T04:05:06"
             },
             "dct:modified": {
                 "@type": "xsd:dateTime",
-                "@value": "2002-01-01T00:00:00"
+                "@value": "2023-08-22T01:02:03"
             },
-            "owl:versionInfo": "version1"
+            "owl:versionInfo": "1.a"
         },
         {
-            "@id": "individual_contact",
+            "@id": "individual_person_name",
             "@type": "vcard:Individual",
-            "vcard:fn": "contact"
+            "vcard:fn": "person name"
         },
         {
-            "@id": "individual_creator",
-            "@type": "vcard:Individual",
-            "vcard:fn": "creator"
-        },
-        {
-            "@id": "spatial_coverage",
-            "@type": "dct:Location",
-            "dcat:bbox": null,
-            "dcat:centroid": null,
-            "dcat:geometry": "spatial_coverage"
-        },
-        {
-            "@id": "period_2000-01-01T00:00:00_to_2000-01-02T06:00:00",
-            "@type": "dct:PeriodOfTime",
-            "dcat:startDate": {
-                "@type": "xsd:dateTime",
-                "@value": "2000-01-01T00:00:00"
-            },
-            "dcat:endDate": {
-                "@type": "xsd:dateTime",
-                "@value": "2000-01-02T06:00:00"
-            }
-        },
-        {
-            "@id": "md5hash",
+            "@id": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
             "@type": "spdx:Checksum",
-            "algorithm": "md5",
-            "checksumValue": "md5hash"
+            "algorithm": "sha256",
+            "checksumValue": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
         },
         {
-            "@id": "distr.content_url",
+            "@id": "https://www.example.com/resource.pdf",
             "@type": "dcat:Distribution",
-            "dcat:accessURL": "distr.content_url",
+            "dcat:accessURL": "https://www.example.com/resource.pdf",
             "dcat:byteSize": null,
             "spdx:checksum": {
-                "@id": "md5hash"
+                "@id": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
             },
-            "dct:description": "distr.description",
-            "dcat:downloadURL": "distr.content_url",
-            "dct:format": "distr.encoding_format",
-            "dct:license": "license.name",
-            "dct:title": "distr.name"
+            "dct:description": "A downloadable instance of this resource",
+            "dcat:downloadURL": "https://www.example.com/resource.pdf",
+            "dct:format": "application/pdf",
+            "dct:license": "a license",
+            "dct:title": "resource.pdf"
         }
     ]
 }

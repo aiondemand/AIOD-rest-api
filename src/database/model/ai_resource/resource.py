@@ -32,7 +32,9 @@ if TYPE_CHECKING:
 
 class AIResourceBase(AIoDConceptBase, metaclass=abc.ABCMeta):
     name: str = Field(max_length=NORMAL, schema_extra={"example": "The name of this resource"})
-    description: str = Field(max_length=DESCRIPTION, schema_extra={"example": "A description."})
+    description: str | None = Field(
+        max_length=DESCRIPTION, schema_extra={"example": "A description."}, default=None
+    )
     same_as: str | None = Field(
         description="Url of a reference Web page that unambiguously indicates this resource's "
         "identity.",

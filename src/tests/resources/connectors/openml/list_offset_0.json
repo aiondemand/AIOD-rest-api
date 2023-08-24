@@ -102,57 +102,6 @@
                         "value": "37.0"
                     }
                 ]
-            },
-            {
-                "did": 4,
-                "name": "labor",
-                "version": 1,
-                "status": "active",
-                "format": "ARFF",
-                "md5_checksum": "",
-                "file_id": 4,
-                "quality": [
-                    {
-                        "name": "MajorityClassSize",
-                        "value": "37.0"
-                    },
-                    {
-                        "name": "MaxNominalAttDistinctValues",
-                        "value": "3.0"
-                    },
-                    {
-                        "name": "MinorityClassSize",
-                        "value": "20.0"
-                    },
-                    {
-                        "name": "NumberOfClasses",
-                        "value": "2.0"
-                    },
-                    {
-                        "name": "NumberOfFeatures",
-                        "value": "17.0"
-                    },
-                    {
-                        "name": "NumberOfInstances",
-                        "value": "57.0"
-                    },
-                    {
-                        "name": "NumberOfInstancesWithMissingValues",
-                        "value": "56.0"
-                    },
-                    {
-                        "name": "NumberOfMissingValues",
-                        "value": "326.0"
-                    },
-                    {
-                        "name": "NumberOfNumericFeatures",
-                        "value": "8.0"
-                    },
-                    {
-                        "name": "NumberOfSymbolicFeatures",
-                        "value": "9.0"
-                    }
-                ]
             }
         ]
     }

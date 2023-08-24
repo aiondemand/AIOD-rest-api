@@ -3,13 +3,12 @@ from fastapi import File, Query, UploadFile
 from sqlalchemy.engine import Engine
 
 from routers.router import AIoDRouter
-from uploader.hugging_face_uploader import HuggingfaceUploader
+from uploader.hugging_face_uploader import handle_upload
 
 
 class UploadRouterHuggingface(AIoDRouter):
     def create(self, engine: Engine, url_prefix: str) -> APIRouter:
         router = APIRouter()
-        uploader = HuggingfaceUploader(engine)
 
         @router.post(url_prefix + "/upload/datasets/{identifier}/huggingface", tags=["upload"])
         def huggingFaceUpload(
@@ -24,6 +23,6 @@ class UploadRouterHuggingface(AIoDRouter):
                 ..., title="Huggingface username", description="The username of HuggingFace"
             ),
         ) -> int:
-            return uploader.handle_upload(identifier, file, token, username)
+            return handle_upload(engine, identifier, file, token, username)
 
         return router

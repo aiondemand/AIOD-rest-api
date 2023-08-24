@@ -25,9 +25,9 @@ def test_resource_factory(title=None, status=None, platform="example", platform_
         status = Status(name="draft")
     return TestResource(
         title=title,
-        aiod_entry=AIoDEntryORM(
-            platform=platform, platform_identifier=platform_identifier, status=status
-        ),
+        platform=platform,
+        platform_identifier=platform_identifier,
+        aiod_entry=AIoDEntryORM(status=status),
     )
 
 

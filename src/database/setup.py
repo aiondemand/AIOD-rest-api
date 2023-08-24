@@ -1,21 +1,17 @@
 """
 Utility functions for initializing the database and tables through SQLAlchemy.
 """
-import logging
-from typing import List
+
+from operator import and_
 
 from sqlalchemy import text
 from sqlalchemy.engine import Engine
-from sqlalchemy.exc import IntegrityError
-from sqlmodel import create_engine, Session, select, SQLModel
+from sqlmodel import create_engine, Session, SQLModel, select
 
 import routers
-from connectors import ResourceConnector
+from config import DB_CONFIG
 from connectors.resource_with_relations import ResourceWithRelations
 from database.model.concept.concept import AIoDConcept
-from database.model.dataset.dataset import Dataset
-from database.model.knowledge_asset.publication import Publication
-from database.model.platform.platform import Platform
 from database.model.platform.platform_names import PlatformName
 
 
@@ -40,7 +36,7 @@ def connect_to_database(
 
     if delete_first or create_if_not_exists:
         drop_or_create_database(url, delete_first)
-    engine = create_engine(url, echo=True, pool_recycle=3600)
+    engine = create_engine(url, echo=False, pool_recycle=3600)
 
     with engine.connect() as connection:
         AIoDConcept.metadata.create_all(connection, checkfirst=True)
@@ -50,7 +46,7 @@ def connect_to_database(
 
 def drop_or_create_database(url: str, delete_first: bool):
     server, database = url.rsplit("/", 1)
-    engine = create_engine(server, echo=True)  # Temporary engine, not connected to a database
+    engine = create_engine(server, echo=False)  # Temporary engine, not connected to a database
 
     with engine.connect() as connection:
         if delete_first:
@@ -60,67 +56,17 @@ def drop_or_create_database(url: str, delete_first: bool):
     engine.dispose()
 
 
-def populate_database(
-    engine: Engine,
-    connectors: List[ResourceConnector],
-    only_if_empty: bool = True,
-    limit: int | None = None,
-):
-    """Add some data to the Dataset and Publication tables."""
-
-    with Session(engine) as session:
-        session.add_all([Platform(name=name) for name in PlatformName])
-        data_exists = (
-            session.scalars(select(Publication)).first() or session.scalars(select(Dataset)).first()
-        )
-        if only_if_empty and data_exists:
-            return
-
-        for connector in connectors:
-            (router,) = [
-                router
-                for router in routers.resource_routers
-                if router.resource_class == connector.resource_class
-            ]
-            # We use the create_resource function for this router.
-            # This is a temporary solution. After finishing the Connectors (so that they're
-            # synchronizing), we will probably just perform a HTTP POST instead.
-
-            for item in connector.fetch_all(limit=limit):
-                if isinstance(item, ResourceWithRelations):
-                    resource_create_instance = item.resource
-                    _create_or_fetch_related_objects(session, item)
-                else:
-                    resource_create_instance = item
-                if (
-                    _get_existing_resource(
-                        session, resource_create_instance, connector.resource_class
-                    )
-                    is None
-                ):
-                    try:
-                        router.create_resource(session, resource_create_instance)
-                    except IntegrityError as e:
-                        logging.warning(
-                            f"Error while creating resource. Continuing for now: " f" {e}"
-                        )
-                session.flush()
-        session.commit()
-
-
 def _get_existing_resource(
     session: Session, resource: AIoDConcept, clazz: type[SQLModel]
 ) -> AIoDConcept | None:
     """Selecting a resource based on platform and platform_identifier"""
-    return None
-    # TODO(jos): this currently doesn't work, since we started using aiod_entry
-    # query = select(clazz).where(
-    #     and_(
-    #         clazz.aiod_entry.platform == resource.aiod_entry.platform,
-    #         clazz.aiod_entry.platform_identifier == resource.aiod_entry.platform_identifier,
-    #     )
-    # )
-    # return session.scalars(query).first()
+    query = select(clazz).where(
+        and_(
+            clazz.platform == resource.platform,
+            clazz.platform_identifier == resource.platform_identifier,
+        )
+    )
+    return session.scalars(query).first()
 
 
 def _create_or_fetch_related_objects(session: Session, item: ResourceWithRelations):
@@ -164,3 +110,20 @@ def _create_or_fetch_related_objects(session: Session, item: ResourceWithRelatio
             item.resource.__setattr__(field_name, id_)  # E.g. Dataset.license_identifier = 1
         else:
             item.resource.__setattr__(field_name, identifiers)  # E.g. Dataset.keywords = [1, 4]
+
+
+def sqlmodel_engine(rebuild_db: str) -> Engine:
+    """
+    Return a SQLModel engine, backed by the MySql connection as configured in the configuration
+    file.
+    """
+    username = DB_CONFIG.get("name", "root")
+    password = DB_CONFIG.get("password", "ok")
+    host = DB_CONFIG.get("host", "demodb")
+    port = DB_CONFIG.get("port", 3306)
+    database = DB_CONFIG.get("database", "aiod")
+
+    db_url = f"mysql://{username}:{password}@{host}:{port}/{database}"
+
+    delete_before_create = rebuild_db == "always"
+    return connect_to_database(db_url, delete_first=delete_before_create)

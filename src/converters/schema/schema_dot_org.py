@@ -62,6 +62,12 @@ class SchemaDotOrgPerson(BaseModel):
 
     type_: str = Field(default="Person", alias="@type", constant=True)
     name: str = Field(description="The name of the item.")
+    givenName: str | None = Field(
+        description="Given name. In the U.S., the first name of a Person."
+    )
+    familyName: str | None = Field(
+        description="Family name. In the U.S., the last name of a Person."
+    )
 
 
 class SchemaDotOrgDataset(BaseModel):
@@ -73,9 +79,6 @@ class SchemaDotOrgDataset(BaseModel):
     name: str = Field(description="The name of the item.")
     description: str = Field(default=None, description="A description of the item.")
     identifier: str = Field(description="The AIoD identifier")
-    maintainer: SchemaDotOrgOrganization = Field(
-        description="The platform on which this dataset is found."
-    )
     alternateName: list[str] | str | None = Field(
         default=None,
         description="An alias for the item.",
@@ -138,14 +141,6 @@ class SchemaDotOrgDataset(BaseModel):
         "of financial"
         "contribution.",
     )
-    hasPart: list[str] | str | None = Field(
-        default=None,
-        description="Indicates the identifier of a Dataset that is part of this item.",
-    )
-    isPartOf: list[str] | str | None = Field(
-        default=None,
-        description="Indicates the identifier of a Dataset that this item is part of.",
-    )
     issn: str | list[str] | None = Field(
         default=None,
         description="The International Standard Serial Number (ISSN) that identifies this serial "
@@ -177,14 +172,6 @@ class SchemaDotOrgDataset(BaseModel):
         "simple textual string (for example 'XL', '32Wx34L'), a QuantitativeValue "
         "with a unitCode,",
     )
-    spatialCoverage: str | None = Field(
-        default=None,
-        description="The spatialCoverage of a CreativeWork indicates the place(s) which are the "
-        "focus of the content. It is a subproperty of contentLocation intended primarily for more "
-        "technical and detailed materials. For example with a Dataset, it indicates areas that the "
-        "dataset describes: a dataset of New York weather would have spatialCoverage which was "
-        "the place: the state of New York.",
-    )
     temporalCoverage: datetime.datetime | str | None = Field(
         default=None,
         description="The temporalCoverage of a CreativeWork indicates the period that the content "
@@ -201,12 +188,6 @@ class SchemaDotOrgDataset(BaseModel):
         '"2015-11/.." indicates a range beginning in November 2015 and with no specified final '
         "date. This is tentative and might be updated in future when ISO 8601 is officially "
         "updated.",
-    )
-    variableMeasured: str | list[str] | None = Field(
-        default=None,
-        description="The variableMeasured property can indicate (repeated as necessary) the "
-        "variables that are measured in some dataset, either described as text or as pairs of "
-        "identifier and description using PropertyValue.",
     )
 
     class Config:

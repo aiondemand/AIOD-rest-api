@@ -1,6 +1,8 @@
 [
   {
-  "name": "The name of this resource",
+  "platform": "example",
+  "platform_identifier": "1",
+  "name": "The name of this publication",
   "description": "A description.",
   "same_as": "https://www.example.com/resource/this_resource",
   "date_published": "2022-01-01T15:15:00.000",
@@ -9,8 +11,6 @@
   "isbn": "9783161484100",
   "issn": "20493630",
   "aiod_entry": {
-    "platform": "example",
-    "platform_identifier": "1",
     "editor": [],
     "status": "draft"
   },
@@ -31,11 +31,11 @@
       "checksum": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "checksum_algorithm": "sha256",
       "copyright": "2010-2020 Example Company. All rights reserved.",
-      "content_url": "https://www.example.com/dataset/file.csv",
+      "content_url": "https://www.example.com/publication.pdf",
       "content_size_kb": 10000,
       "date_published": "2022-01-01T15:15:00.000",
       "description": "Description of this file.",
-      "encoding_format": "text/csv",
+      "encoding_format": "application/pdf",
       "name": "Name of this file.",
       "technology_readiness_level": 1
     }
@@ -55,16 +55,15 @@
   "license": "https://creativecommons.org/share-your-work/public-domain/cc0/",
   "media": [
     {
-      "checksum": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "checksum_algorithm": "sha256",
-      "copyright": "2010-2020 Example Company. All rights reserved.",
-      "content_url": "https://www.example.com/dataset/file.csv",
-      "content_size_kb": 10000,
-      "date_published": "2022-01-01T15:15:00.000",
-      "description": "Description of this file.",
-      "encoding_format": "text/csv",
-      "name": "Name of this file.",
-      "technology_readiness_level": 1
+          "checksum": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "checksum_algorithm": "sha256",
+          "copyright": "2010-2020 Example Company. All rights reserved.",
+          "content_url": "https://www.example.com/image.jpeg",
+          "content_size_kb": 10000,
+          "date_published": "2022-01-01T15:15:00.000",
+          "description": "Description of this file.",
+          "encoding_format": "image/jpeg",
+          "name": "Name of this file."
     }
   ],
   "note": [

@@ -10,17 +10,17 @@ from database.model.serializers import CastDeserializer
 class GeoBase(SQLModel):
     latitude: float | None = Field(
         default=None,
-        description="The latitude of a location in " "degrees (WGS84)",
+        description="The latitude of a location in degrees (WGS84)",
         schema_extra={"example": 37.42242},
     )
     longitude: float | None = Field(
         default=None,
-        description="The longitude of a location in " "degrees (WGS84)",
+        description="The longitude of a location in degrees (WGS84)",
         schema_extra={"example": -122.08585},
     )
     elevation_millimeters: int | None = Field(
         default=None,
-        description="The elevation in millimeters with " "tespect to the WGS84 ellipsoid",
+        description="The elevation in millimeters with tespect to the WGS84 ellipsoid",
     )
 
 

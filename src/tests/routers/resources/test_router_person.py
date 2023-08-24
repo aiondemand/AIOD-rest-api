@@ -19,6 +19,7 @@ def test_happy_path(
     keycloak_openid.userinfo = mocked_privileged_token
 
     with Session(engine) as session:
+        person.platform_identifier = "2"
         session.add(person)
         session.commit()
 
@@ -26,6 +27,8 @@ def test_happy_path(
     body["expertise"] = ["machine learning"]
     body["language"] = ["eng", "nld"]
     body["contact"] = [1]
+    body["price_per_hour_euro"] = 10.50
+    body["wants_to_be_contacted"] = True
     response = client.post("/persons/v1", json=body, headers={"Authorization": "Fake token"})
     assert response.status_code == 200, response.json()
 
@@ -40,3 +43,6 @@ def test_happy_path(
 
     assert set(response_json["expertise"]) == {"machine learning"}
     assert set(response_json["language"]) == {"eng", "nld"}
+
+    assert response_json["price_per_hour_euro"] == 10.50
+    assert response_json["wants_to_be_contacted"]

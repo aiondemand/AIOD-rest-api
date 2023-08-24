@@ -3,51 +3,42 @@
         "@vocab": "http://schema.org/"
     },
     "@type": "Dataset",
-    "name": "name1",
-    "description": "description",
-    "identifier": "7",
-    "maintainer": {
-        "@type": "Organization",
-        "name": "platform"
-    },
+    "name": "The name",
+    "description": "A description.",
+    "identifier": "1",
     "alternateName": [
-        "alternative_1",
-        "alternative_2"
+        "alias1",
+        "alias2"
     ],
-    "citation": null,
+    "citation": "A Cited Resource by person name",
     "creator": {
         "@type": "Organization",
-        "name": "creator"
+        "name": "person name"
     },
-    "dateModified": "2002-01-01T00:00:00",
-    "datePublished": "2001-01-01T08:00:00",
+    "dateModified": "2023-08-22T01:02:03",
+    "datePublished": "2023-08-22T04:05:06",
     "isAccessibleForFree": true,
     "keywords": [
-        "a",
-        "b",
-        "c"
+        "keyword1",
+        "keyword2"
     ],
-    "sameAs": "sameAs",
-    "version": "version1",
-    "url": "https://aiod.eu/api/datasets/7",
+    "sameAs": "https://www.example.com/resource",
+    "version": "1.a",
+    "url": "https://aiod.eu/api/datasets/1",
     "distribution": {
         "@type": "DataDownload",
-        "name": "distr.name",
-        "contentUrl": "distr.content_url",
-        "contentSize": "123",
-        "encodingFormat": "distr.encoding_format"
+        "name": "resource.pdf",
+        "contentUrl": "https://www.example.com/resource.pdf",
+        "contentSize": "42",
+        "encodingFormat": "application/pdf"
     },
     "funder": {
         "@type": "Organization",
-        "name": "funder"
+        "name": "person name"
     },
-    "hasPart": null,
-    "isPartOf": null,
-    "issn": "12345678",
-    "license": "license.name",
-    "measurementTechnique": "technique",
-    "size": "100",
-    "spatialCoverage": "spatial_coverage",
-    "temporalCoverage": "2000-01-01T00:00:00/2000-01-02T06:00:00",
-    "variableMeasured": "variable"
+    "issn": "20493630",
+    "license": "a license",
+    "measurementTechnique": "mass spectrometry",
+    "size": "unit='Rows' value=1",
+    "temporalCoverage": "2011/2012"
 }

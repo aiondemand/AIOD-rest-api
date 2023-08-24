@@ -5,6 +5,7 @@ services:
     build:
       context: ./
       dockerfile: Dockerfile
+    image: ai4eu_server
     container_name: apiserver
     env_file: .env
     environment:
@@ -14,17 +15,88 @@ services:
     volumes:
       - ./src:/app
     command: >
+      python main.py
       --rebuild-db only-if-empty
-      --fill-with-examples datasets experiments ml_models organisations persons publications services
       --reload
-      --limit 10
     healthcheck:
       test: ["CMD", "python", "-c",  "import requests; requests.get('http://localhost:8000')"]
+      start_interval: 1s
+      start_period: 30s
       interval: 5s
       timeout: 30s
-      retries: 30
+      retries: 5
     depends_on:
       sqlserver:
+        condition: service_healthy
+
+  fill-db-with-examples:
+    image: ai4eu_server
+    container_name: fill-db-with-examples
+    env_file: .env
+    environment:
+      - KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET
+    volumes:
+      - ./src:/app
+      - ./data/connectors:/opt/connectors/data
+      - ./connectors:/opt/connectors/script
+    command: >
+      /bin/bash -c "/opt/connectors/script/fill-examples.sh"
+    depends_on:
+      app:
+        condition: service_healthy
+
+  huggingface-dataset-connector:
+    image: ai4eu_server
+    container_name: huggingface-dataset-connector
+    env_file: .env
+    environment:
+      - KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET
+    volumes:
+      - ./src:/app
+      - ./data/connectors:/opt/connectors/data
+      - ./connectors/huggingface/:/opt/connectors/script
+    command: >
+      /bin/bash -c "/opt/connectors/script/datasets.sh"
+    depends_on:
+      app:
+        condition: service_healthy
+
+  openml-dataset-connector:
+    build:
+      context: connectors/openml
+      dockerfile: Dockerfile
+    image: ai4eu_openml_connector
+    container_name: openml-dataset-connector
+    env_file: .env
+    environment:
+      - KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET
+    volumes:
+      - ./src:/app
+      - ./data/connectors:/opt/connectors/data
+      - ./connectors/openml/:/opt/connectors/script
+    command: >
+      /bin/bash -c "/opt/connectors/script/entry.sh"
+    depends_on:
+      app:
+        condition: service_healthy
+
+  zenodo-dataset-connector:
+    build:
+      context: connectors/zenodo
+      dockerfile: Dockerfile
+    image: ai4eu_zenodo_connector
+    container_name: zenodo-dataset-connector
+    env_file: .env
+    environment:
+      - KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET
+    volumes:
+      - ./src:/app
+      - ./data/connectors:/opt/connectors/data
+      - ./connectors/zenodo/:/opt/connectors/script
+    command: >
+      /bin/bash -c "/opt/connectors/script/entry.sh"
+    depends_on:
+      app:
         condition: service_healthy
 
   sqlserver:
@@ -37,6 +109,8 @@ services:
       - ./data/mysql:/var/lib/mysql
     healthcheck:
       test: ["CMD", "mysqladmin", "-uroot", "-p$MYSQL_ROOT_PASSWORD", "ping", "-h", "localhost", "--protocol","tcp"]
+      start_interval: 1s
+      start_period: 10s
       interval: 5s
       timeout: 30s
       retries: 30
@@ -53,7 +127,7 @@ services:
     volumes:
      - ./quay-keycloak:/opt/keycloak/data/import
     command: >
-      start-dev 
+      start-dev
       --hostname-url http://${HOSTNAME}/aiod-auth
       --hostname-admin-url http://${HOSTNAME}/aiod-auth
       --http-relative-path=/aiod-auth

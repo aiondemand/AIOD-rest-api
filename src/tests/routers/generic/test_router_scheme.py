@@ -4,6 +4,7 @@ import pytest
 from fastapi import FastAPI
 from pydantic import BaseModel, Field
 from sqlalchemy.engine import Engine
+from sqlmodel import Session
 from starlette.testclient import TestClient
 
 from converters.schema_converters.schema_converter import SchemaConverter
@@ -23,7 +24,7 @@ class SchemaConverterTestResource(SchemaConverter[TestResource, SchemaClass]):
     def to_class(self) -> Type[SchemaClass]:
         return SchemaClass
 
-    def convert(self, aiod: TestResource) -> SchemaClass:
+    def convert(self, session: Session, aiod: TestResource) -> SchemaClass:
         return SchemaClass(title_with_alternative_name=aiod.title)
 
 

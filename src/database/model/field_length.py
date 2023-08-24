@@ -6,4 +6,4 @@ length need (such as, for instance, for an ISSN for which you know the precise l
 
 SHORT = 64
 NORMAL = 256
-DESCRIPTION = 1800  # an A4 full of text should be enough?
+DESCRIPTION = 1800  # an A4s full of text should be enough?

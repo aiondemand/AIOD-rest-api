@@ -72,6 +72,9 @@ def publication(body_asset: dict, engine: Engine) -> Publication:
 @pytest.fixture
 def dataset(body_asset: dict, engine: Engine) -> Dataset:
     body = copy.copy(body_asset)
+    body["issn"] = "20493630"
+    body["measurement_technique"] = "mass spectrometry"
+    body["temporal_coverage"] = "2011/2012"
     return _create_class_with_body(Dataset, body, engine)
 
 

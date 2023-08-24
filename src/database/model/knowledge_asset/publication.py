@@ -46,7 +46,7 @@ class Publication(PublicationBase, KnowledgeAsset, table=True):  # type: ignore 
     type: Optional[PublicationType] = Relationship()
 
     class RelationshipConfig(KnowledgeAsset.RelationshipConfig):
-        type: str = ResourceRelationshipSingle(
+        type: str | None = ResourceRelationshipSingle(
             description="The type of publication.",
             identifier_name="type_identifier",
             serializer=AttributeSerializer("name"),

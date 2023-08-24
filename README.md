@@ -197,20 +197,6 @@ The `--reload` argument will automatically restart the app if changes are made t
 2. Run using docker. For instance using `scripts/run_apiserver.sh`
 3. Run using DevContainer (see next subsection)
 
-#### (Optional) Devcontainer Installation
-If you want to run the server on and isolated container pre configured for the proyect you can open the proyect via docker dashboard. On the dev container section click `create a new enviroment`
-
-<img width="1270" alt="image" src="https://user-images.githubusercontent.com/46299278/224726755-a8843f78-9cd8-41f2-a042-c24838c79fea.png">
-
-Follow the instructions and select the root folder of the project:
-
-<img width="895" alt="image" src="https://user-images.githubusercontent.com/46299278/224727211-0615d20b-e42f-499d-87c6-ec33b9e20e57.png">
- 
- After this, docker will ask you for selection de devcontainer and open it on vscode, you should 
- choose aiod-app-1:
- 
- <img width="883" alt="image" src="https://user-images.githubusercontent.com/46299278/224727507-5b77fa99-6e59-4df1-a280-46214930e1d0.png">
-
 ### Authentication
 Currently, the code is on default coupled with a keycloak running on test.openml.org. To make 
 this work, you need to set an environment variable. You can do this by setting the 

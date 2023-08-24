@@ -1,18 +1,15 @@
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from sqlmodel import SQLModel, Field, Relationship
+
 from database.model.concept.status import Status
-from database.model.field_length import SHORT, NORMAL
-from database.model.platform.platform_names import PlatformName
 from database.model.relationships import ResourceRelationshipSingle, ResourceRelationshipList
 from database.model.serializers import (
     AttributeSerializer,
     FindByNameDeserializer,
     create_getter_dict,
 )
-
-
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from database.model.agent.person import Person
@@ -21,23 +18,6 @@ if TYPE_CHECKING:
 class AIoDEntryBase(SQLModel):
     """Metadata of the metadata: when was the metadata last updated, with what identifiers is it
     known on other platforms, etc."""
-
-    platform: str | None = Field(
-        max_length=SHORT,
-        default=None,
-        description="The external platform from which this resource originates. Leave empty if "
-        "this item originates from AIoD. If platform is not None, the "
-        "platform_identifier should be set as well.",
-        schema_extra={"example": PlatformName.example},
-        foreign_key="platform.name",
-    )
-    platform_identifier: str | None = Field(
-        max_length=NORMAL,
-        description="A unique identifier issued by the external platform that's specified in "
-        "'platform'. Leave empty if this item is not part of an external platform.",
-        default=None,
-        schema_extra={"example": "1"},
-    )
 
 
 class AIoDEntryORM(AIoDEntryBase, table=True):  # type: ignore [call-arg]

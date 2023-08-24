@@ -1,0 +1,68 @@
+[
+    {
+      "platform": "example",
+      "platform_identifier": "1",
+      "name": "Name of the Computational Asset",
+      "description": "The computational asset should be saved in a separate database (stored as 'platform') by using the platform_identifier.",
+      "same_as": "https://www.example.com/resource/this_resource",
+      "date_published": "2022-01-01T15:15:00.000",
+      "version": "1.1.0",
+      "pid": "https://doi.org/10.1000/182",
+      "aiod_entry": {
+        "editor": [],
+        "status": "draft"
+      },
+      "alternate_name": [
+        "alias 1",
+        "alias 2"
+      ],
+      "application_area": [
+        "Fraud Prevention",
+        "Voice Assistance",
+        "Disease Classification"
+      ],
+      "citation": [],
+      "contact": [],
+      "creator": [],
+      "distribution": [],
+      "has_part": [],
+      "industrial_sector": [
+        "Finance",
+        "eCommerce",
+        "Healthcare"
+      ],
+      "is_part_of": [],
+      "keyword": [
+        "keyword1",
+        "keyword2"
+      ],
+      "license": "https://creativecommons.org/share-your-work/public-domain/cc0/",
+      "media": [
+        {
+          "checksum": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "checksum_algorithm": "sha256",
+          "copyright": "2010-2020 Example Company. All rights reserved.",
+          "content_url": "https://www.example.com/image.jpeg",
+          "content_size_kb": 10000,
+          "date_published": "2022-01-01T15:15:00.000",
+          "description": "Description of this file.",
+          "encoding_format": "image/jpeg",
+          "name": "Name of this file."
+        }
+      ],
+      "note": [
+        "A brief record of points or ideas about this AI resource."
+      ],
+      "research_area": [
+        "Explainable AI",
+        "Physical AI"
+      ],
+      "scientific_domain": [
+        "Anomaly Detection",
+        "Voice Recognition",
+        "Computer Vision."
+      ],
+      "status_info": "https://www.example.com/cluster-status",
+      "type": "storage"
+    }
+]

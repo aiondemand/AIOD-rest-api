@@ -1,0 +1,1 @@
+55 * * * * bash /opt/connectors/script/datasets.sh >> /opt/connectors/data/zenodo/dataset/cron.log 2>&1

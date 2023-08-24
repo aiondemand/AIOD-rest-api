@@ -1,0 +1,129 @@
+{
+    "conceptdoi": "10.5281/zenodo.7902672",
+    "conceptrecid": "7902672",
+    "created": "2023-05-23T07:56:17.414652+00:00",
+    "doi": "10.5281/zenodo.7961614",
+    "files": [
+        {
+            "bucket": "ec86c6d8-aa64-4eea-aa9b-b2ca0880a9c4",
+            "checksum": "md5:97f511d24f8867405a8f87afbc76939d",
+            "key": "FIELDS_CONFIDE_CHECLIST.docx",
+            "links": {
+                "self": "https://zenodo.org/api/files/ec86c6d8-aa64-4eea-aa9b-b2ca0880a9c4/FIELDS_CONFIDE_CHECLIST.docx"
+            },
+            "size": 15600,
+            "type": "docx"
+        },
+        {
+            "bucket": "ec86c6d8-aa64-4eea-aa9b-b2ca0880a9c4",
+            "checksum": "md5:18431d2ad50b7d82935a1dda6ee6db61",
+            "key": "FIELDS_UNITS_XL.xlsx",
+            "links": {
+                "self": "https://zenodo.org/api/files/ec86c6d8-aa64-4eea-aa9b-b2ca0880a9c4/FIELDS_UNITS_XL.xlsx"
+            },
+            "size": 12369,
+            "type": "xlsx"
+        }
+    ],
+    "id": 7961614,
+    "links": {
+        "badge": "https://zenodo.org/badge/doi/10.5281/zenodo.7961614.svg",
+        "bucket": "https://zenodo.org/api/files/ec86c6d8-aa64-4eea-aa9b-b2ca0880a9c4",
+        "conceptbadge": "https://zenodo.org/badge/doi/10.5281/zenodo.7902672.svg",
+        "conceptdoi": "https://doi.org/10.5281/zenodo.7902672",
+        "doi": "https://doi.org/10.5281/zenodo.7961614",
+        "html": "https://zenodo.org/record/7961614",
+        "latest": "https://zenodo.org/api/records/7961614",
+        "latest_html": "https://zenodo.org/record/7961614",
+        "self": "https://zenodo.org/api/records/7961614"
+    },
+    "metadata": {
+        "access_right": "open",
+        "access_right_category": "success",
+        "creators": [
+            {
+                "affiliation": "Odense University Hospital",
+                "name": "Hansen, Peter Martin"
+            },
+            {
+                "affiliation": "Copenhagen University Hopsital",
+                "name": "Alstrøm, henrik"
+            },
+            {
+                "affiliation": "Copenhagen Emergency Medical Services",
+                "name": "Damm-Hejmdal, Anders"
+            },
+            {
+                "affiliation": "Odense University Hospital",
+                "name": "Mikkelsen, Søren"
+            },
+            {
+                "affiliation": "Oslo University Hospital",
+                "name": "Rehn, Marius"
+            },
+            {
+                "affiliation": "Copenhagen University Hospital",
+                "name": "Berlac, Peter Anthony"
+            }
+        ],
+        "description": "This is a description paragraph",
+        "doi": "10.5281/zenodo.7961614",
+        "keywords": [
+            "Major incident",
+            "Disaster",
+            "Mass shooting",
+            "Mass casualty",
+            "Management and leadership"
+        ],
+        "license": {
+            "id": "CC-BY-4.0"
+        },
+        "publication_date": "2023-05-06",
+        "related_identifiers": [
+            {
+                "identifier": "10.5281/zenodo.7902672",
+                "relation": "isVersionOf",
+                "scheme": "doi"
+            }
+        ],
+        "relations": {
+            "version": [
+                {
+                    "count": 2,
+                    "index": 1,
+                    "is_last": true,
+                    "last_child": {
+                        "pid_type": "recid",
+                        "pid_value": "7961614"
+                    },
+                    "parent": {
+                        "pid_type": "recid",
+                        "pid_value": "7902672"
+                    }
+                }
+            ]
+        },
+        "resource_type": {
+            "title": "Dataset",
+            "type": "dataset"
+        },
+        "title": "THE FIELD'S MALL MASS SHOOTING: EMERGENCY MEDICAL SERVICES RESPONSE"
+    },
+    "owners": [
+        543260
+    ],
+    "revision": 4,
+    "stats": {
+        "downloads": 2.0,
+        "unique_downloads": 1.0,
+        "unique_views": 3.0,
+        "version_downloads": 3.0,
+        "version_unique_downloads": 2.0,
+        "version_unique_views": 29.0,
+        "version_views": 30.0,
+        "version_volume": 53543.0,
+        "views": 3.0,
+        "volume": 27969.0
+    },
+    "updated": "2023-05-25T02:28:52.350812+00:00"
+}

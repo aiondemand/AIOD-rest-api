@@ -1,6 +1,5 @@
 from unittest.mock import Mock
 
-import pytest
 from sqlalchemy.future import Engine
 from starlette.testclient import TestClient
 
@@ -22,7 +21,6 @@ def test_get_unauthenticated(client_test_resource: TestClient, engine_test_resou
     assert response.status_code == 200, response.json()
 
 
-@pytest.mark.skip(reason="Platforms currently don't work")
 def test_platform_get_all_unauthenticated(
     client_test_resource: TestClient, engine_test_resource_filled: Engine
 ):
@@ -32,7 +30,6 @@ def test_platform_get_all_unauthenticated(
     assert len(response.json()) == 1
 
 
-@pytest.mark.skip(reason="Platforms currently don't work")
 def test_platform_get_unauthenticated(
     client_test_resource: TestClient, engine_test_resource_filled: Engine
 ):

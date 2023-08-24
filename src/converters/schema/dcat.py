@@ -111,22 +111,6 @@ class DcatAPDataset(DcatAPObject):
         description="This property refers to an entity (organisation) responsible for making the "
         "Dataset available.",
     )
-    temporal_coverage: list[DcatAPIdentifier] = Field(
-        alias="dct:temporal",
-        description="This property refers to a temporal period that the Dataset covers.",
-        default_factory=list,
-    )
-    spatial_coverage: list[DcatAPIdentifier] = Field(
-        alias="dct:spatial",
-        description="This property refers to a geographic region that is covered by the Dataset.",
-        default_factory=list,
-    )
-    theme: list[str] = Field(
-        alias="dcat:theme",
-        description="This property refers to a category of the Dataset. A Dataset may be "
-        "associated with multiple themes.",
-        default_factory=list,
-    )
 
     creator: list[DcatAPIdentifier] = Field(alias="dcat:creator", default_factory=list)
     documentation: list[str] = Field(alias="foaf:page", default_factory=list)

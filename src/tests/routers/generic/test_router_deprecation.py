@@ -46,7 +46,8 @@ def test_deprecated_router(
     if verb in ("post", "put"):
         kwargs["json"] = {
             "title": "Another title",
-            "aiod_entry": {"platform": "example", "platform_identifier": "2"},
+            "platform": "example",
+            "platform_identifier": "2",
         }
 
     if verb in ("post", "put", "delete"):

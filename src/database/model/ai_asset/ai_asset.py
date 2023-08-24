@@ -35,7 +35,15 @@ class AIAssetBase(AIResourceBase, metaclass=abc.ABCMeta):
         default=None,
         schema_extra={"example": "2022-01-01T15:15:00.000"},
     )
-    version: str | None = Field(max_length=NORMAL, default=None, schema_extra={"example": "1.1.0"})
+    is_accessible_for_free: bool = Field(
+        description="A flag to signal that this asset is accessible at no cost.", default=True
+    )
+    version: str | None = Field(
+        description="The version of this asset.",
+        max_length=NORMAL,
+        default=None,
+        schema_extra={"example": "1.1.0"},
+    )
 
 
 class AIAsset(AIAssetBase, AIResource, metaclass=abc.ABCMeta):

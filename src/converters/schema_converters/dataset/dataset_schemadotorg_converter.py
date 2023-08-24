@@ -1,5 +1,7 @@
 from typing import Type, TypeVar
 
+from sqlmodel import select, Session
+
 from converters.schema.schema_dot_org import (
     SchemaDotOrgDataset,
     SchemaDotOrgOrganization,
@@ -7,7 +9,11 @@ from converters.schema.schema_dot_org import (
     SchemaDotOrgDataDownload,
 )
 from converters.schema_converters.schema_converter import SchemaConverter
+from database.model.agent.agent_table import AgentTable
+from database.model.agent.organisation import Organisation
+from database.model.agent.person import Person
 from database.model.dataset.dataset import Dataset
+from database.model.knowledge_asset.publication import Publication
 
 
 class DatasetConverterSchemaDotOrg(SchemaConverter[Dataset, SchemaDotOrgDataset]):
@@ -19,27 +25,23 @@ class DatasetConverterSchemaDotOrg(SchemaConverter[Dataset, SchemaDotOrgDataset]
     def to_class(self) -> Type[SchemaDotOrgDataset]:
         return SchemaDotOrgDataset
 
-    def convert(self, aiod: Dataset) -> SchemaDotOrgDataset:
-        temporal_coverage_parts = [
-            d.isoformat()
-            for d in [aiod.temporal_coverage_from, aiod.temporal_coverage_to]
-            if d is not None
-        ]
-        temporal_coverage = (
-            "/".join(temporal_coverage_parts) if len(temporal_coverage_parts) > 0 else None
-        )
+    def convert(self, session: Session, aiod: Dataset) -> SchemaDotOrgDataset:
+        creator = [_person(creator) for creator in aiod.creator]
+        funder = [_agent(session, agent_table) for agent_table in aiod.funder]
+        citations = [_publication(publication) for publication in aiod.citation]
+
         return SchemaDotOrgDataset(
             description=aiod.description,
             identifier=aiod.identifier,
             name=aiod.name,
-            maintainer=SchemaDotOrgOrganization(name=aiod.platform),
-            alternateName=_list_to_one_or_none([a.name for a in aiod.alternate_names]),
-            # citation=_list_to_one_or_none(aiod.citations),
-            creator=SchemaDotOrgPerson(name=aiod.creator) if aiod.creator is not None else None,
-            dateModified=aiod.date_modified,
+            alternateName=_list_to_one_or_none([a.name for a in aiod.alternate_name]),
+            citation=_list_to_one_or_none(citations),
+            creator=_list_to_one_or_none(creator),
+            dateModified=aiod.aiod_entry.date_modified,
             datePublished=aiod.date_published,
-            isAccessibleForFree=aiod.is_accessible_for_free,
-            keywords=_list_to_one_or_none([a.name for a in aiod.keywords]),
+            isAccessibleForFree=True,
+            funder=_list_to_one_or_none(funder),
+            keywords=_list_to_one_or_none([a.name for a in aiod.keyword]),
             sameAs=aiod.same_as,
             version=aiod.version,
             url=f"https://aiod.eu/api/datasets/{aiod.identifier}",  # TODO: update url
@@ -52,19 +54,14 @@ class DatasetConverterSchemaDotOrg(SchemaConverter[Dataset, SchemaDotOrgDataset]
                         contentSize=d.content_size_kb,
                         encodingFormat=d.encoding_format,
                     )
-                    for d in aiod.distributions
+                    for d in aiod.distribution
                 ]
             ),
-            funder=SchemaDotOrgPerson(name=aiod.funder) if aiod.funder is not None else None,
-            hasPart=_list_to_one_or_none(aiod.has_parts),
-            isPartOf=_list_to_one_or_none(aiod.is_part),
             issn=aiod.issn,
             license=aiod.license.name if aiod.license is not None else None,
-            measurementTechnique=_list_to_one_or_none([m.technique for m in aiod.measured_values]),
+            measurementTechnique=aiod.measurement_technique,
             size=str(aiod.size) if aiod.size is not None else None,
-            spatialCoverage=aiod.spatial_coverage,
-            temporalCoverage=temporal_coverage,
-            variableMeasured=_list_to_one_or_none([m.variable for m in aiod.measured_values]),
+            temporalCoverage=aiod.temporal_coverage,
         )
 
 
@@ -82,3 +79,27 @@ def _list_to_one_or_none(value: set[V] | list[V]) -> set[V] | list[V] | V | None
         (only,) = value
         return only
     return value
+
+
+def _person(person: Person) -> SchemaDotOrgPerson:
+    return SchemaDotOrgPerson(name=person.name)
+
+
+def _organisation(organisation: Organisation) -> SchemaDotOrgOrganization:
+    return SchemaDotOrgOrganization(name=organisation.name)
+
+
+def _publication(publication: Publication) -> str:
+    return f"{publication.name} by {', '.join(creator.name for creator in publication.creator)}"
+
+
+def _agent(session: Session, agent: AgentTable) -> SchemaDotOrgPerson | SchemaDotOrgOrganization:
+    if agent.type == Person.__tablename__:
+        query = select(Person).where(Person.identifier == agent.identifier)
+        person = session.scalars(query).first()
+        return _person(person)
+    if agent.type == Organisation.__tablename__:
+        query = select(Organisation).where(Organisation.identifier == agent.identifier)
+        organisation = session.scalars(query).first()
+        return _organisation(organisation)
+    raise ValueError(f"Agent type {agent.type} not recognized.")

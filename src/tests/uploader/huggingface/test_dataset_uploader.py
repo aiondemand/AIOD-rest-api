@@ -1,8 +1,7 @@
-import huggingface_hub
-import pytest
-import responses
 from unittest.mock import Mock
 
+import huggingface_hub
+import responses
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session
 from starlette.testclient import TestClient
@@ -13,26 +12,12 @@ from database.model.dataset.dataset import Dataset
 from tests.testutils.paths import path_test_resources
 
 
-@pytest.mark.skip(reason="TODO: while going to Metadata model v2")
 def test_happy_path_new_repository(
-    client: TestClient, engine: Engine, mocked_privileged_token: Mock
+    client: TestClient, engine: Engine, mocked_privileged_token: Mock, dataset: Dataset
 ):
     keycloak_openid.userinfo = mocked_privileged_token
-    dataset_id = 1
     with Session(engine) as session:
-        session.add_all(
-            [
-                AIAssetTable(type="dataset"),
-                Dataset(
-                    identifier=dataset_id,
-                    name="Parent",
-                    platform="example",
-                    platform_identifier="1",
-                    description="description text",
-                    same_as="",
-                ),
-            ]
-        )
+        session.add(dataset)
         session.commit()
 
     data = {
@@ -52,7 +37,7 @@ def test_happy_path_new_repository(
         )
         huggingface_hub.upload_file = Mock(return_value=None)
         response = client.post(
-            f"/upload/datasets/{dataset_id}/huggingface",
+            "/upload/datasets/1/huggingface",
             data=data,
             params={"username": "Fake-username", "token": "Fake-token"},
             headers={"Authorization": "Fake token"},
@@ -60,10 +45,9 @@ def test_happy_path_new_repository(
         )
     assert response.status_code == 200, response.json()
     id_response = response.json()
-    assert id_response == dataset_id
+    assert id_response == 1
 
 
-@pytest.mark.skip(reason="TODO: while going to Metadata model v2")
 def test_repo_already_exists(client: TestClient, engine: Engine, mocked_privileged_token: Mock):
     keycloak_openid.userinfo = mocked_privileged_token
     dataset_id = 1

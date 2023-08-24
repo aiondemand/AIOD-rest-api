@@ -1,8 +1,7 @@
 import abc
 from typing import Generic, TypeVar, Type
 
-from sqlmodel import SQLModel
-
+from sqlmodel import SQLModel, Session
 
 RESOURCE = TypeVar("RESOURCE", bound=SQLModel)
 SCHEMA_CLASS = TypeVar("SCHEMA_CLASS")
@@ -22,5 +21,5 @@ class SchemaConverter(abc.ABC, Generic[RESOURCE, SCHEMA_CLASS]):
         pass
 
     @abc.abstractmethod
-    def convert(self, aiod: RESOURCE) -> SCHEMA_CLASS:
+    def convert(self, session: Session, aiod: RESOURCE) -> SCHEMA_CLASS:
         pass

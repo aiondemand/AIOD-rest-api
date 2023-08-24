@@ -4,15 +4,14 @@ from typing import Iterator, TypeVar
 
 from sqlmodel import SQLModel
 
-from connectors import ResourceConnector
-from database.model.resource_read_and_create import resource_create
+from connectors.abstract.resource_connector_on_start_up import ResourceConnectorOnStartUp
 from database.model.platform.platform_names import PlatformName
-
+from database.model.resource_read_and_create import resource_create
 
 RESOURCE = TypeVar("RESOURCE", bound=SQLModel)
 
 
-class ExampleConnector(ResourceConnector[RESOURCE]):
+class ExampleConnector(ResourceConnectorOnStartUp[RESOURCE]):
     """
     Creating hardcoded values example values based on json files
     """
@@ -29,7 +28,7 @@ class ExampleConnector(ResourceConnector[RESOURCE]):
     def platform_name(self) -> PlatformName:
         return PlatformName.example
 
-    def fetch_all(self, limit: int | None = None) -> Iterator[RESOURCE]:
+    def fetch(self, limit: int | None = None) -> Iterator[RESOURCE]:
         with open(self.json_path) as f:
             json_data = json.load(f)
         pydantic_class = resource_create(self.resource_class)

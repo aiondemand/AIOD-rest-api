@@ -53,7 +53,6 @@ def test_null_value(client_test_resource: TestClient, mocked_privileged_token: M
     ]
 
 
-@pytest.mark.skip(reason="Platforms currently don't work")
 def test_posting_same_item_twice(client_test_resource: TestClient, mocked_privileged_token: Mock):
     keycloak_openid.userinfo = mocked_privileged_token
     headers = {"Authorization": "Fake token"}
@@ -82,7 +81,6 @@ def test_no_platform_no_platform_identifier(
     assert response.status_code == 200, response.json()
 
 
-@pytest.mark.skip(reason="Platforms currently don't work")
 def test_no_platform_with_platform_identifier(
     client_test_resource: TestClient, mocked_privileged_token: Mock
 ):
@@ -97,7 +95,6 @@ def test_no_platform_with_platform_identifier(
     )
 
 
-@pytest.mark.skip(reason="Platforms currently don't work")
 def test_platform_with_no_platform_identifier(
     client_test_resource: TestClient, mocked_privileged_token: Mock
 ):
@@ -128,7 +125,6 @@ def test_same_title_twice(client_test_resource: TestClient, mocked_privileged_to
     )
 
 
-@pytest.mark.skip(reason="Platforms currently don't work")
 def test_non_existent_platform(client_test_resource: TestClient, mocked_privileged_token: Mock):
     keycloak_openid.userinfo = mocked_privileged_token
     keycloak_openid.public_key = Mock(return_value="")
