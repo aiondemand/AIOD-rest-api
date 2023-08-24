@@ -38,9 +38,10 @@ def connect_to_database(
         drop_or_create_database(url, delete_first)
     engine = create_engine(url, echo=False, pool_recycle=3600)
 
-    with engine.connect() as connection:
-        AIoDConcept.metadata.create_all(connection, checkfirst=True)
-        connection.commit()
+    if create_if_not_exists:
+        with engine.connect() as connection:
+            AIoDConcept.metadata.create_all(connection, checkfirst=True)
+            connection.commit()
     return engine
 
 
@@ -112,7 +113,7 @@ def _create_or_fetch_related_objects(session: Session, item: ResourceWithRelatio
             item.resource.__setattr__(field_name, identifiers)  # E.g. Dataset.keywords = [1, 4]
 
 
-def sqlmodel_engine(rebuild_db: str) -> Engine:
+def sqlmodel_engine(rebuild_db: str, create_if_not_exists=True) -> Engine:
     """
     Return a SQLModel engine, backed by the MySql connection as configured in the configuration
     file.
@@ -126,4 +127,6 @@ def sqlmodel_engine(rebuild_db: str) -> Engine:
     db_url = f"mysql://{username}:{password}@{host}:{port}/{database}"
 
     delete_before_create = rebuild_db == "always"
-    return connect_to_database(db_url, delete_first=delete_before_create)
+    return connect_to_database(
+        db_url, delete_first=delete_before_create, create_if_not_exists=create_if_not_exists
+    )

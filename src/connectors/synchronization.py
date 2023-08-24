@@ -162,7 +162,7 @@ def main():
         if router.resource_class == connector.resource_class
     ]
 
-    engine = sqlmodel_engine(rebuild_db="never")
+    engine = sqlmodel_engine(rebuild_db="never", create_if_not_exists=False)
 
     with Session(engine) as session:
         for i, item in enumerate(items):

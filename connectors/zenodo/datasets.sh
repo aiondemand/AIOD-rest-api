@@ -11,6 +11,7 @@ another_instance()
 exec 9< "$0"
 flock -n -x 9 || another_instance
 
+
 echo $(date -u) "Starting synchronization..."
 PYTHONPATH=/app /usr/local/bin/python3 /app/connectors/synchronization.py \
       -c $CONNECTOR \
