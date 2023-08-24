@@ -16,7 +16,7 @@ def test_happy_path(
     keycloak_openid.userinfo = mocked_privileged_token
 
     body = copy.copy(body_asset)
-    body["pid"] = "https://doi.org/10.1000/182"
+    body["permanent_identifier"] = "https://doi.org/10.1000/182"
     body["experimental_workflow"] = "Example workflow."
     body["execution_settings"] = "Example execution settings."
     body["reproducibility_explanation"] = "Example reproducibility explanation."
@@ -51,7 +51,7 @@ def test_happy_path(
     assert response.status_code == 200, response.json()
 
     response_json = response.json()
-    assert response_json["pid"] == "https://doi.org/10.1000/182"
+    assert response_json["permanent_identifier"] == "https://doi.org/10.1000/182"
     assert response_json["experimental_workflow"] == "Example workflow."
     assert response_json["execution_settings"] == "Example execution settings."
     assert response_json["reproducibility_explanation"] == "Example reproducibility explanation."

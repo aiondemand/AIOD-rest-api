@@ -10,6 +10,10 @@ python3 connectors/synchronization.py \
   -w /opt/connectors/data/example/computational_asset
 
 python3 connectors/synchronization.py \
+  -c connectors.example.example.ExampleDatasetConnector \
+  -w /opt/connectors/data/example/dataset
+
+python3 connectors/synchronization.py \
   -c connectors.example.example.ExampleEducationalResourceConnector \
   -w /opt/connectors/data/example/educational_resource
 

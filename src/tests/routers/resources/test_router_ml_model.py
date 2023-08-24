@@ -23,7 +23,7 @@ def test_happy_path(
         session.commit()
 
     body = copy.copy(body_asset)
-    body["pid"] = "https://doi.org/10.1000/182"
+    body["permanent_identifier"] = "https://doi.org/10.1000/182"
     body["type"] = "Large Language Model"
     body["related_experiment"] = [1]
     distribution = {
@@ -56,7 +56,7 @@ def test_happy_path(
     assert response.status_code == 200, response.json()
 
     response_json = response.json()
-    assert response_json["pid"] == "https://doi.org/10.1000/182"
+    assert response_json["permanent_identifier"] == "https://doi.org/10.1000/182"
     assert response_json["type"] == "Large Language Model"
     assert response_json["related_experiment"] == [1]
     assert response_json["distribution"] == [distribution]
