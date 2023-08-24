@@ -1,5 +1,5 @@
 import os
-from typing import TypeVar, Generic
+from typing import TypeVar, Generic, Any, Type
 
 from elasticsearch import Elasticsearch
 from fastapi import APIRouter, Depends, HTTPException
@@ -8,6 +8,7 @@ from sqlalchemy.engine import Engine
 from starlette import status
 
 from authentication import get_current_user, has_role
+from database.model.concept.aiod_entry import AIoDEntryRead
 from database.model.knowledge_asset.publication import Publication
 from database.model.resource_read_and_create import resource_read
 from routers.router import AIoDRouter
@@ -21,7 +22,7 @@ RESOURCE = TypeVar("RESOURCE")
 class SearchResult(BaseModel, Generic[RESOURCE]):
     total_hits: int
     resources: list[RESOURCE]
-    next_offset: str | None
+    next_offset: list | None
 
 
 class SearchRouter(AIoDRouter):
@@ -38,7 +39,7 @@ class SearchRouter(AIoDRouter):
 
         @router.get(url_prefix + "/search/publications/v1", tags=["search"])
         def search_publication(
-            title: str = "",
+            name: str = "",
             limit: int = 10,
             offset: str | None = None,  # TODO: this should not be a string
             user: dict = Depends(get_current_user),
@@ -60,19 +61,32 @@ class SearchRouter(AIoDRouter):
                     status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                     detail="Client not initialized",
                 )
-            query = {"bool": {"must": {"match": {"title": title}}}}
+            query = {"bool": {"must": {"match": {"name": name}}}}
             result = self.client.search(
                 index="publication", query=query, size=limit, sort=SORT, search_after=offset
             )
-            # TODO: how to get Publications?
-            resources: list[publication_class] = []  # type: ignore
+
+            total_hits = result["hits"]["total"]["value"]
+            resources: list[publication_class] = [  # type: ignore
+                _cast_resource(publication_class, hit["_source"]) for hit in result["hits"]["hits"]
+            ]
             next_offset = (
                 result["hits"]["hits"][-1]["sort"] if len(result["hits"]["hits"]) > 0 else None
             )
             return SearchResult[publication_class](  # type: ignore
-                total_hits=result["hits"]["total"]["value"],
+                total_hits=total_hits,
                 next_offset=next_offset,
                 resources=resources,
             )
 
         return router
+
+
+def _cast_resource(resource_class: RESOURCE, resource_dict: dict[str, Any]) -> Type[RESOURCE]:
+    resource = resource_class(**resource_dict)  # type: ignore
+    resource.aiod_entry = AIoDEntryRead(
+        date_modified=resource_dict["date_modified"],
+        date_created=resource_dict["date_created"],
+        status=resource_dict["status"],
+    )
+    return resource

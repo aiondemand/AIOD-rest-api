@@ -45,59 +45,59 @@ services:
       app:
         condition: service_healthy
 
-  huggingface-dataset-connector:
-    image: ai4eu_server
-    container_name: huggingface-dataset-connector
-    env_file: .env
-    environment:
-      - KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET
-    volumes:
-      - ./src:/app
-      - ./data/connectors:/opt/connectors/data
-      - ./connectors/huggingface/:/opt/connectors/script
-    command: >
-      /bin/bash -c "/opt/connectors/script/datasets.sh"
-    depends_on:
-      app:
-        condition: service_healthy
-
-  openml-dataset-connector:
-    build:
-      context: connectors/openml
-      dockerfile: Dockerfile
-    image: ai4eu_openml_connector
-    container_name: openml-dataset-connector
-    env_file: .env
-    environment:
-      - KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET
-    volumes:
-      - ./src:/app
-      - ./data/connectors:/opt/connectors/data
-      - ./connectors/openml/:/opt/connectors/script
-    command: >
-      /bin/bash -c "/opt/connectors/script/entry.sh"
-    depends_on:
-      app:
-        condition: service_healthy
-
-  zenodo-dataset-connector:
-    build:
-      context: connectors/zenodo
-      dockerfile: Dockerfile
-    image: ai4eu_zenodo_connector
-    container_name: zenodo-dataset-connector
-    env_file: .env
-    environment:
-      - KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET
-    volumes:
-      - ./src:/app
-      - ./data/connectors:/opt/connectors/data
-      - ./connectors/zenodo/:/opt/connectors/script
-    command: >
-      /bin/bash -c "/opt/connectors/script/entry.sh"
-    depends_on:
-      app:
-        condition: service_healthy
+#  huggingface-dataset-connector:
+#    image: ai4eu_server
+#    container_name: huggingface-dataset-connector
+#    env_file: .env
+#    environment:
+#      - KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET
+#    volumes:
+#      - ./src:/app
+#      - ./data/connectors:/opt/connectors/data
+#      - ./connectors/huggingface/:/opt/connectors/script
+#    command: >
+#      /bin/bash -c "/opt/connectors/script/datasets.sh"
+#    depends_on:
+#      app:
+#        condition: service_healthy
+#
+#  openml-dataset-connector:
+#    build:
+#      context: connectors/openml
+#      dockerfile: Dockerfile
+#    image: ai4eu_openml_connector
+#    container_name: openml-dataset-connector
+#    env_file: .env
+#    environment:
+#      - KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET
+#    volumes:
+#      - ./src:/app
+#      - ./data/connectors:/opt/connectors/data
+#      - ./connectors/openml/:/opt/connectors/script
+#    command: >
+#      /bin/bash -c "/opt/connectors/script/entry.sh"
+#    depends_on:
+#      app:
+#        condition: service_healthy
+#
+#  zenodo-dataset-connector:
+#    build:
+#      context: connectors/zenodo
+#      dockerfile: Dockerfile
+#    image: ai4eu_zenodo_connector
+#    container_name: zenodo-dataset-connector
+#    env_file: .env
+#    environment:
+#      - KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET
+#    volumes:
+#      - ./src:/app
+#      - ./data/connectors:/opt/connectors/data
+#      - ./connectors/zenodo/:/opt/connectors/script
+#    command: >
+#      /bin/bash -c "/opt/connectors/script/entry.sh"
+#    depends_on:
+#      app:
+#        condition: service_healthy
 
   sqlserver:
     image: mysql

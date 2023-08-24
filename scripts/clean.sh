@@ -1,8 +1,8 @@
 #!/bin/bash
 
-docker image rm ai4eu_server
-docker image rm ai4eu_openml_connector
-docker image rm ai4eu_zenodo_connector
+#docker image rm ai4eu_server
+#docker image rm ai4eu_openml_connector
+#docker image rm ai4eu_zenodo_connector
 echo "Deleted docker images, so that they will be rebuild on docker up."
 
 
