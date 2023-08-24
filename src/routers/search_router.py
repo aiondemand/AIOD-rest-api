@@ -68,7 +68,10 @@ class SearchRouter(AIoDRouter):
 
             total_hits = result["hits"]["total"]["value"]
             resources: list[publication_class] = [  # type: ignore
-                _cast_resource(publication_class, hit["_source"]) for hit in result["hits"]["hits"]
+                _cast_resource(
+                    publication_class, hit["_source"], key_translations={"publication_type": "type"}
+                )
+                for hit in result["hits"]["hits"]
             ]
             next_offset = (
                 result["hits"]["hits"][-1]["sort"] if len(result["hits"]["hits"]) > 0 else None
@@ -82,8 +85,15 @@ class SearchRouter(AIoDRouter):
         return router
 
 
-def _cast_resource(resource_class: RESOURCE, resource_dict: dict[str, Any]) -> Type[RESOURCE]:
-    resource = resource_class(**resource_dict)  # type: ignore
+def _cast_resource(
+    resource_class: RESOURCE, resource_dict: dict[str, Any], key_translations: dict[str, str]
+) -> Type[RESOURCE]:
+    kwargs = {
+        key_translations.get(key, key): val
+        for key, val in resource_dict.items()
+        if key != "type" and not key.startswith("@")
+    }
+    resource = resource_class(**kwargs)  # type: ignore
     resource.aiod_entry = AIoDEntryRead(
         date_modified=resource_dict["date_modified"],
         date_created=resource_dict["date_created"],
