@@ -1,5 +1,5 @@
 from database.model.dataset.dataset import Dataset
-from routers import SearchRouter
+from routers.search_router import SearchRouter
 
 
 class SearchRouterDatasets(SearchRouter[Dataset]):

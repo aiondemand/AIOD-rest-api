@@ -1,5 +1,5 @@
 from database.model.knowledge_asset.publication import Publication
-from routers import SearchRouter
+from routers.search_router import SearchRouter
 
 
 class SearchRouterPublications(SearchRouter[Publication]):

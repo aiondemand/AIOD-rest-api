@@ -2,24 +2,25 @@ import os
 
 from elasticsearch import Elasticsearch
 
-from routers.resource_router import ResourceRouter  # noqa:F401
-from routers.resources.case_study_router import CaseStudyRouter
-from routers.resources.computational_asset_router import ComputationalAssetRouter
-from routers.resources.dataset_router import DatasetRouter
-from routers.resources.educational_resource_router import EducationalResourceRouter
-from routers.resources.experiment_router import ExperimentRouter
-from routers.resources.ml_model_router import MLModelRouter
-from routers.resources.organisation_router import OrganisationRouter
-from routers.resources.person_router import PersonRouter
-from routers.resources.platform_router import PlatformRouter
-from routers.resources.publication_router import PublicationRouter
-from routers.resources.service_router import ServiceRouter
-from routers.resources.team_router import TeamRouter
-from routers.router import AIoDRouter  # noqa:F401
-from routers.search_router import SearchRouter  # noqa:F401
-from routers.search_routers.search_router_datasets import SearchRouterDatasets
-from routers.search_routers.search_router_publications import SearchRouterPublications
-from routers.upload_router_huggingface import UploadRouterHuggingface
+from .resource_router import ResourceRouter  # noqa:F401
+from .resources.case_study_router import CaseStudyRouter
+from .resources.computational_asset_router import ComputationalAssetRouter
+from .resources.dataset_router import DatasetRouter
+from .resources.educational_resource_router import EducationalResourceRouter
+from .resources.event_router import EventRouter
+from .resources.experiment_router import ExperimentRouter
+from .resources.ml_model_router import MLModelRouter
+from .resources.news_router import NewsRouter
+from .resources.organisation_router import OrganisationRouter
+from .resources.person_router import PersonRouter
+from .resources.platform_router import PlatformRouter
+from .resources.publication_router import PublicationRouter
+from .resources.service_router import ServiceRouter
+from .resources.team_router import TeamRouter
+from .router import AIoDRouter  # noqa:F401
+from .search_routers.search_router_datasets import SearchRouterDatasets
+from .search_routers.search_router_publications import SearchRouterPublications
+from .upload_router_huggingface import UploadRouterHuggingface
 
 resource_routers = [
     PlatformRouter(),
@@ -27,10 +28,10 @@ resource_routers = [
     ComputationalAssetRouter(),
     DatasetRouter(),
     EducationalResourceRouter(),
-    # EventRouter(),
+    EventRouter(),
     ExperimentRouter(),
     MLModelRouter(),
-    # NewsRouter(),
+    NewsRouter(),
     OrganisationRouter(),
     PersonRouter(),
     PublicationRouter(),

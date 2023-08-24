@@ -18,12 +18,20 @@ python3 connectors/synchronization.py \
   -w /opt/connectors/data/example/educational_resource
 
 python3 connectors/synchronization.py \
+  -c connectors.example.example.ExampleEventConnector \
+  -w /opt/connectors/data/example/event
+
+python3 connectors/synchronization.py \
   -c connectors.example.example.ExampleExperimentConnector \
   -w /opt/connectors/data/example/experiment
 
 python3 connectors/synchronization.py \
   -c connectors.example.example.ExampleMLModelConnector \
   -w /opt/connectors/data/example/ml_model
+
+python3 connectors/synchronization.py \
+  -c connectors.example.example.ExampleNewsConnector \
+  -w /opt/connectors/data/example/news
 
 python3 connectors/synchronization.py \
   -c connectors.example.example.ExampleOrganisationConnector \
