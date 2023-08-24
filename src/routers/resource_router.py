@@ -14,7 +14,7 @@ from sqlalchemy.engine import Engine
 from sqlmodel import SQLModel, Session, select
 from starlette.responses import JSONResponse
 
-from authentication import get_current_user
+from authentication import get_current_user, has_role
 from config import KEYCLOAK_CONFIG
 from converters.schema_converters.schema_converter import SchemaConverter
 from database.model.ai_resource.resource import AIResource
@@ -330,7 +330,7 @@ class ResourceRouter(AIoDRouter, abc.ABC):
             user: dict = Depends(get_current_user),
         ):
             f"""Register a {self.resource_name} with AIoD."""
-            if "groups" not in user or KEYCLOAK_CONFIG.get("role") not in user["groups"]:
+            if not has_role(user, KEYCLOAK_CONFIG.get("role")):
                 raise HTTPException(
                     status_code=status.HTTP_403_FORBIDDEN,
                     detail="You do not have permission to edit Aiod resources.",
@@ -372,7 +372,7 @@ class ResourceRouter(AIoDRouter, abc.ABC):
             user: dict = Depends(get_current_user),
         ):
             f"""Update an existing {self.resource_name}."""
-            if "groups" not in user or KEYCLOAK_CONFIG.get("role") not in user["groups"]:
+            if not has_role(user, KEYCLOAK_CONFIG.get("role")):
                 raise HTTPException(
                     status_code=status.HTTP_403_FORBIDDEN,
                     detail="You do not have permission to edit Aiod resources.",
@@ -411,7 +411,7 @@ class ResourceRouter(AIoDRouter, abc.ABC):
         """
 
         def delete_resource(identifier: str, user: dict = Depends(get_current_user)):
-            if "groups" not in user or KEYCLOAK_CONFIG.get("role") not in user["groups"]:
+            if not has_role(user, KEYCLOAK_CONFIG.get("role")):
                 raise HTTPException(
                     status_code=status.HTTP_403_FORBIDDEN,
                     detail="You do not have permission to edit Aiod resources.",

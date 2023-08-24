@@ -7,7 +7,7 @@ from pydantic import BaseModel
 from sqlalchemy.engine import Engine
 from starlette import status
 
-from authentication import get_current_user
+from authentication import get_current_user, has_role
 from database.model.knowledge_asset.publication import Publication
 from database.model.resource_read_and_create import resource_read
 from routers.router import AIoDRouter
@@ -30,9 +30,9 @@ class SearchRouter(AIoDRouter):
 
     def create(self, engine: Engine, url_prefix: str) -> APIRouter:
         router = APIRouter()
-        user = os.getenv("ES_USER")
+        user_name = os.getenv("ES_USER")
         pw = os.getenv("ES_PASSWORD")
-        self.client = Elasticsearch("http://localhost:9200", basic_auth=(user, pw))
+        self.client = Elasticsearch("http://localhost:9200", basic_auth=(user_name, pw))
 
         publication_class = resource_read(Publication)
 
@@ -49,7 +49,8 @@ class SearchRouter(AIoDRouter):
                     detail=f"The limit should be maximum {LIMIT_MAX}. If you want more results, "
                     f"use pagination.",
                 )
-            if "groups" not in user or os.getenv("ES_ROLE") not in user["groups"]:
+
+            if not has_role(user, os.getenv("ES_ROLE")):
                 raise HTTPException(
                     status_code=status.HTTP_403_FORBIDDEN,
                     detail="You do not have permission to search Aiod resources.",
