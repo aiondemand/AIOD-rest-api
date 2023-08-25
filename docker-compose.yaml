@@ -20,7 +20,7 @@ services:
       --reload
     healthcheck:
       test: ["CMD", "python", "-c",  "import requests; requests.get('http://localhost:8000')"]
-      start_interval: 1s
+      x-start_interval: 1s
       start_period: 30s
       interval: 5s
       timeout: 30s
@@ -109,7 +109,7 @@ services:
       - ./data/mysql:/var/lib/mysql
     healthcheck:
       test: ["CMD", "mysqladmin", "-uroot", "-p$MYSQL_ROOT_PASSWORD", "ping", "-h", "localhost", "--protocol","tcp"]
-      start_interval: 1s
+      x-start_interval: 1s
       start_period: 10s
       interval: 5s
       timeout: 30s
