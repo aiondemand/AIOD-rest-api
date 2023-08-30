@@ -8,12 +8,12 @@ SELECT
     aiod_entry.date_modified,
     aiod_entry.date_created,
     -- Resource
-    ml_model.resource_id AS `resource_identifier`,
+    ml_model.ai_resource_id AS `resource_identifier`,
     ml_model.name,
     ml_model.description,
     ml_model.same_as,
     -- AIAsset
-    ml_model.asset_id AS `asset_identifier`,
+    ml_model.ai_asset_id AS `asset_identifier`,
     ml_model.date_published,
     ml_model.version,
     license.name AS `license`,

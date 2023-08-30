@@ -8,12 +8,12 @@ SELECT
     aiod_entry.date_modified,
     aiod_entry.date_created,
     -- Resource
-    publication.resource_id AS `resource_identifier`,
+    publication.ai_resource_id AS `resource_identifier`,
     publication.name,
     publication.description,
     publication.same_as,
     -- AIAsset
-    publication.asset_id AS `asset_identifier`,
+    publication.ai_asset_id AS `asset_identifier`,
     publication.date_published,
     publication.version,
     license.name AS `license`,

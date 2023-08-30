@@ -8,12 +8,12 @@ SELECT
     aiod_entry.date_modified,
     aiod_entry.date_created,
     -- Resource
-    dataset.resource_id AS `resource_identifier`,
+    dataset.ai_resource_id AS `resource_identifier`,
     dataset.name,
     dataset.description,
     dataset.same_as,
     -- AIAsset
-    dataset.asset_id AS `asset_identifier`,
+    dataset.ai_asset_id AS `asset_identifier`,
     dataset.date_published,
     dataset.version,
     license.name AS `license`,

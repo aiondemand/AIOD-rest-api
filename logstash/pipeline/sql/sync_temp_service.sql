@@ -8,7 +8,7 @@ SELECT
     aiod_entry.date_modified,
     aiod_entry.date_created,
     -- Resource
-    service.resource_id AS `resource_identifier`,
+    service.ai_resource_id AS `resource_identifier`,
     service.name,
     service.description,
     service.same_as,

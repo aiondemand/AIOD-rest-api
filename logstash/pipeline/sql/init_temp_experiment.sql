@@ -8,12 +8,12 @@ SELECT
     aiod_entry.date_modified,
     aiod_entry.date_created,
     -- Resource
-    experiment.resource_id AS `resource_identifier`,
+    experiment.ai_resource_id AS `resource_identifier`,
     experiment.name,
     experiment.description,
     experiment.same_as,
     -- AIAsset
-    experiment.asset_id AS `asset_identifier`,
+    experiment.ai_asset_id AS `asset_identifier`,
     experiment.date_published,
     experiment.version,
     license.name AS `license`,
