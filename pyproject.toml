@@ -13,25 +13,24 @@ authors = [
     {name = "Taniya Das", email = "t.das@tue.nl"}
 ]
 dependencies = [
+    "urllib3== 2.0.4",
     "bibtexparser==1.4.0",
     "datasets==2.14.4",
-    "elasticsearch==8.9.0",
-    "fastapi==0.101.1",
-    "httpx==0.24.1",
-    "mysql-connector-python==8.1.0",
+    "fastapi==0.103.0",
+    "uvicorn==0.23.2",
+    "requests==2.31.0",
     "mysqlclient==2.2.0",
     "oic==1.6.0",
+    "python-keycloak==3.3.0",
+    "python-dotenv==1.0.0",
     "pydantic_schemaorg==1.0.6",
     "python-dateutil==2.8.2",
-    "python-dotenv==1.0.0",
-    "python-keycloak==3.3.0",
-    "python-multipart==0.0.6",
-    "requests==2.31.0",
-    "sickle==0.7.0",
     "sqlmodel==0.0.8",
-    "urllib3== 1.26.16",
-    "uvicorn==0.23.2",
+    "httpx==0.24.1",
+    "sickle==0.7.0",
     "xmltodict==0.13.0",
+    "python-multipart==0.0.6",
+    "mysql-connector-python==8.1.0",
 ]
 readme = "README.md"
 
