@@ -20,7 +20,7 @@ class AgentBase(AIResourceBase):
 
 
 class Agent(AgentBase, AIResource):
-    agent_id: int | None = Field(foreign_key=AgentTable.__tablename__ + ".identifier")
+    agent_id: int | None = Field(foreign_key=AgentTable.__tablename__ + ".identifier", index=True)
     agent_identifier: AgentTable | None = Relationship(
         sa_relationship_kwargs={"cascade": "all, delete"}
     )

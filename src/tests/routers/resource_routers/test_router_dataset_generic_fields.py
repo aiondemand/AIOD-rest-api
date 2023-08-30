@@ -44,8 +44,8 @@ def test_happy_path(
 
     response_json = response.json()
     assert response_json["identifier"] == 1
-    assert response_json["resource_identifier"] == 3
-    assert response_json["asset_identifier"] == 2
+    assert response_json["ai_resource_identifier"] == 3
+    assert response_json["ai_asset_identifier"] == 2
 
     assert response_json["platform"] == "example"
     assert response_json["platform_identifier"] == "1"
@@ -111,8 +111,8 @@ def test_happy_path(
     response = client.get("/datasets/v1/1")
     response_json = response.json()
     assert response_json["identifier"] == 1
-    assert response_json["resource_identifier"] == 3
-    assert response_json["asset_identifier"] == 2
+    assert response_json["ai_resource_identifier"] == 3
+    assert response_json["ai_asset_identifier"] == 2
 
     date_created = dateutil.parser.parse(response_json["aiod_entry"]["date_created"] + "Z")
     date_modified = dateutil.parser.parse(response_json["aiod_entry"]["date_modified"] + "Z")

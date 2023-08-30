@@ -19,6 +19,7 @@ from config import KEYCLOAK_CONFIG
 from database.model.platform.platform import Platform
 from database.model.platform.platform_names import PlatformName
 from database.setup import sqlmodel_engine
+from routers import resource_routers, parent_routers, enum_routers
 
 
 def _parse_args() -> argparse.Namespace:
@@ -64,7 +65,12 @@ def add_routes(app: FastAPI, engine: Engine, url_prefix=""):
         """
         return {"msg": "success", "user": user}
 
-    for router in routers.resource_routers + routers.other_routers:
+    for router in (
+        resource_routers.router_list
+        + routers.other_routers
+        + parent_routers.router_list
+        + enum_routers.router_list
+    ):
         app.include_router(router.create(engine, url_prefix))
 
 

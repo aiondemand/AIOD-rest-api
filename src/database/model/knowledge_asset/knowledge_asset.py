@@ -6,7 +6,7 @@ from database.model.ai_asset.ai_asset import AIAssetBase, AIAsset
 from database.model.ai_asset.ai_asset_table import AIAssetTable
 from database.model.helper_functions import link_factory
 from database.model.knowledge_asset.knowledge_asset_table import KnowledgeAssetTable
-from database.model.relationships import ResourceRelationshipList, ResourceRelationshipSingle
+from database.model.relationships import ResourceRelationshipList
 from database.model.serializers import AttributeSerializer, FindByIdentifierDeserializer
 
 
@@ -16,7 +16,7 @@ class KnowledgeAssetBase(AIAssetBase):
 
 class KnowledgeAsset(KnowledgeAssetBase, AIAsset):
     knowledge_asset_id: int | None = Field(
-        foreign_key=KnowledgeAssetTable.__tablename__ + ".identifier"
+        foreign_key=KnowledgeAssetTable.__tablename__ + ".identifier", index=True
     )
     knowledge_asset_identifier: KnowledgeAssetTable | None = Relationship(
         sa_relationship_kwargs={"cascade": "all, delete"}
@@ -40,12 +40,6 @@ class KnowledgeAsset(KnowledgeAssetBase, AIAsset):
         cls.__sqlmodel_relationships__.update(relationships)
 
     class RelationshipConfig(AIAsset.RelationshipConfig):
-        knowledge_asset_identifier: int | None = ResourceRelationshipSingle(
-            identifier_name="knowledge_asset_id",
-            serializer=AttributeSerializer("identifier"),
-            include_in_create=False,
-            default_factory_orm=lambda type_: KnowledgeAssetTable(type=type_),
-        )
         documents: list[int] = ResourceRelationshipList(
             description="The identifier of an AI asset for which the Knowledge Asset acts as an "
             "information source",

@@ -9,7 +9,7 @@ from sqlmodel import Field
 from database.model.concept.aiod_entry import AIoDEntryORM
 from database.model.concept.concept import AIoDConcept, AIoDConceptBase
 from database.model.concept.status import Status
-from routers import ResourceRouter
+from routers.resource_router import ResourceRouter
 
 
 class TestResourceBase(AIoDConceptBase):

@@ -37,7 +37,7 @@ def test_happy_path(
 
     response_json = response.json()
     assert response_json["identifier"] == 2
-    assert response_json["resource_identifier"] == 2
+    assert response_json["ai_resource_identifier"] == 2
     assert response_json["agent_identifier"] == 2
     assert response_json["contact"] == [1]
 

@@ -45,8 +45,8 @@ class AIResourceBase(AIoDConceptBase, metaclass=abc.ABCMeta):
 
 
 class AIResource(AIResourceBase, AIoDConcept, metaclass=abc.ABCMeta):
-    resource_id: int | None = Field(foreign_key="ai_resource.identifier")
-    resource_identifier: AIResourceTable | None = Relationship()
+    ai_resource_id: int | None = Field(foreign_key="ai_resource.identifier", index=True)
+    ai_resource_identifier: AIResourceTable | None = Relationship()
 
     alternate_name: list[AlternateName] = Relationship()
     keyword: list[Keyword] = Relationship()
@@ -79,10 +79,10 @@ class AIResource(AIResourceBase, AIoDConcept, metaclass=abc.ABCMeta):
         cls.__sqlmodel_relationships__.update(relationships)
 
     class RelationshipConfig(AIoDConcept.RelationshipConfig):
-        resource_identifier: int | None = ResourceRelationshipSingle(
+        ai_resource_identifier: int | None = ResourceRelationshipSingle(
             description="This resource can be identified by its own identifier, but also by the "
             "resource_identifier.",
-            identifier_name="resource_id",
+            identifier_name="ai_resource_id",
             serializer=AttributeSerializer("identifier"),
             include_in_create=False,
             default_factory_orm=lambda type_: AIResourceTable(type=type_),

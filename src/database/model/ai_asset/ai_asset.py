@@ -47,8 +47,10 @@ class AIAssetBase(AIResourceBase, metaclass=abc.ABCMeta):
 
 
 class AIAsset(AIAssetBase, AIResource, metaclass=abc.ABCMeta):
-    asset_id: int | None = Field(foreign_key=AIAssetTable.__tablename__ + ".identifier")
-    asset_identifier: AIAssetTable | None = Relationship()
+    ai_asset_id: int | None = Field(
+        foreign_key=AIAssetTable.__tablename__ + ".identifier", index=True
+    )
+    ai_asset_identifier: AIAssetTable | None = Relationship()
 
     citation: list["Publication"] = Relationship()
     distribution: list = Relationship(sa_relationship_kwargs={"cascade": "all, delete"})
@@ -71,8 +73,8 @@ class AIAsset(AIAssetBase, AIResource, metaclass=abc.ABCMeta):
         cls.__sqlmodel_relationships__.update(relationships)
 
     class RelationshipConfig(AIResource.RelationshipConfig):
-        asset_identifier: int | None = ResourceRelationshipSingle(
-            identifier_name="asset_id",
+        ai_asset_identifier: int | None = ResourceRelationshipSingle(
+            identifier_name="ai_asset_id",
             serializer=AttributeSerializer("identifier"),
             include_in_create=False,
             default_factory_orm=lambda type_: AIAssetTable(type=type_),

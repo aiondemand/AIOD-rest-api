@@ -17,7 +17,7 @@ from database.model.serializers import (
 
 
 class MLModelBase(AIAssetBase):
-    permanent_identifier: str | None = Field(
+    pid: str | None = Field(
         description="A permanent identifier for the model, for example a digital object "
         "identifier (DOI). Ideally a url.",
         max_length=SHORT,

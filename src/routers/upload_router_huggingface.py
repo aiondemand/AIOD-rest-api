@@ -2,11 +2,10 @@ from fastapi import APIRouter
 from fastapi import File, Query, UploadFile
 from sqlalchemy.engine import Engine
 
-from routers.router import AIoDRouter
 from uploader.hugging_face_uploader import handle_upload
 
 
-class UploadRouterHuggingface(AIoDRouter):
+class UploadRouterHuggingface:
     def create(self, engine: Engine, url_prefix: str) -> APIRouter:
         router = APIRouter()
 

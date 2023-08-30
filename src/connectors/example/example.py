@@ -13,84 +13,91 @@ from database.model.knowledge_asset.publication import Publication
 from database.model.models_and_experiments.experiment import Experiment
 from database.model.models_and_experiments.ml_model import MLModel
 from database.model.news.news import News
+from database.model.project.project import Project
 from database.model.service.service import Service
 
-_path_example_resources = pathlib.Path(__file__).parent.parent / "example" / "resources"
+RESOURCE_PATH = pathlib.Path(__file__).parent.parent / "example" / "resources" / "resource"
 
 
 class ExampleCaseStudyConnector(ExampleConnector[CaseStudy]):
     def __init__(self):
-        json_path = _path_example_resources / "case_studies.json"
+        json_path = RESOURCE_PATH / "case_studies.json"
         super().__init__(json_path, CaseStudy)
 
 
 class ExampleComputationalAssetConnector(ExampleConnector[ComputationalAsset]):
     def __init__(self):
-        json_path = _path_example_resources / "computational_assets.json"
+        json_path = RESOURCE_PATH / "computational_assets.json"
         super().__init__(json_path, ComputationalAsset)
 
 
 class ExampleDatasetConnector(ExampleConnector[Dataset]):
     def __init__(self):
-        json_path = _path_example_resources / "datasets.json"
+        json_path = RESOURCE_PATH / "datasets.json"
         super().__init__(json_path, Dataset)
 
 
 class ExampleEducationalResourceConnector(ExampleConnector[EducationalResource]):
     def __init__(self):
-        json_path = _path_example_resources / "educational_resources.json"
+        json_path = RESOURCE_PATH / "educational_resources.json"
         super().__init__(json_path, EducationalResource)
 
 
 class ExampleEventConnector(ExampleConnector[Event]):
     def __init__(self):
-        json_path = _path_example_resources / "events.json"
+        json_path = RESOURCE_PATH / "events.json"
         super().__init__(json_path, Event)
 
 
 class ExampleExperimentConnector(ExampleConnector[Experiment]):
     def __init__(self):
-        json_path = _path_example_resources / "experiments.json"
+        json_path = RESOURCE_PATH / "experiments.json"
         super().__init__(json_path, Experiment)
 
 
 class ExampleMLModelConnector(ExampleConnector[MLModel]):
     def __init__(self):
-        json_path = _path_example_resources / "ml_models.json"
+        json_path = RESOURCE_PATH / "ml_models.json"
         super().__init__(json_path, MLModel)
 
 
 class ExampleNewsConnector(ExampleConnector[News]):
     def __init__(self):
-        json_path = _path_example_resources / "news.json"
+        json_path = RESOURCE_PATH / "news.json"
         super().__init__(json_path, News)
 
 
 class ExampleOrganisationConnector(ExampleConnector[Organisation]):
     def __init__(self):
-        json_path = _path_example_resources / "organisations.json"
+        json_path = RESOURCE_PATH / "organisations.json"
         super().__init__(json_path, Organisation)
 
 
 class ExamplePersonConnector(ExampleConnector[Person]):
     def __init__(self):
-        json_path = _path_example_resources / "persons.json"
+        json_path = RESOURCE_PATH / "persons.json"
         super().__init__(json_path, Person)
+
+
+class ExampleProjectConnector(ExampleConnector[Project]):
+    def __init__(self):
+        json_path = RESOURCE_PATH / "projects.json"
+        super().__init__(json_path, Project)
 
 
 class ExamplePublicationConnector(ExampleConnector[Publication]):
     def __init__(self):
-        json_path = _path_example_resources / "publications.json"
+        json_path = RESOURCE_PATH / "publications.json"
         super().__init__(json_path, Publication)
 
 
 class ExampleServiceConnector(ExampleConnector[Service]):
     def __init__(self):
-        json_path = _path_example_resources / "services.json"
+        json_path = RESOURCE_PATH / "services.json"
         super().__init__(json_path, Service)
 
 
 class ExampleTeamConnector(ExampleConnector[Team]):
     def __init__(self):
-        json_path = _path_example_resources / "teams.json"
+        json_path = RESOURCE_PATH / "teams.json"
         super().__init__(json_path, Team)

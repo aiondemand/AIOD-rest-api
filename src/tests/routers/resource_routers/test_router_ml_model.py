@@ -2,25 +2,30 @@ import copy
 from unittest.mock import Mock
 
 from sqlalchemy.engine import Engine
+from sqlalchemy.orm import Session
 from starlette.testclient import TestClient
 
 from authentication import keycloak_openid
+from database.model.models_and_experiments.experiment import Experiment
 
 
 def test_happy_path(
     client: TestClient,
     engine: Engine,
     mocked_privileged_token: Mock,
+    experiment: Experiment,
     body_asset: dict,
 ):
     keycloak_openid.userinfo = mocked_privileged_token
 
-    body = copy.copy(body_asset)
-    body["permanent_identifier"] = "https://doi.org/10.1000/182"
-    body["experimental_workflow"] = "Example workflow."
-    body["execution_settings"] = "Example execution settings."
-    body["reproducibility_explanation"] = "Example reproducibility explanation."
+    with Session(engine) as session:
+        session.add(experiment)
+        session.commit()
 
+    body = copy.copy(body_asset)
+    body["pid"] = "https://doi.org/10.1000/182"
+    body["type"] = "Large Language Model"
+    body["related_experiment"] = [1]
     distribution = {
         "checksum": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         "checksum_algorithm": "sha256",
@@ -44,15 +49,14 @@ def test_happy_path(
     }
     body["distribution"] = [distribution]
 
-    response = client.post("/experiments/v1", json=body, headers={"Authorization": "Fake token"})
+    response = client.post("/ml_models/v1", json=body, headers={"Authorization": "Fake token"})
     assert response.status_code == 200, response.json()
 
-    response = client.get("/experiments/v1/1")
+    response = client.get("/ml_models/v1/1")
     assert response.status_code == 200, response.json()
 
     response_json = response.json()
-    assert response_json["permanent_identifier"] == "https://doi.org/10.1000/182"
-    assert response_json["experimental_workflow"] == "Example workflow."
-    assert response_json["execution_settings"] == "Example execution settings."
-    assert response_json["reproducibility_explanation"] == "Example reproducibility explanation."
+    assert response_json["pid"] == "https://doi.org/10.1000/182"
+    assert response_json["type"] == "Large Language Model"
+    assert response_json["related_experiment"] == [1]
     assert response_json["distribution"] == [distribution]

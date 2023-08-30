@@ -8,11 +8,12 @@ from sqlalchemy import text
 from sqlalchemy.engine import Engine
 from sqlmodel import create_engine, Session, SQLModel, select
 
-import routers
 from config import DB_CONFIG
 from connectors.resource_with_relations import ResourceWithRelations
 from database.model.concept.concept import AIoDConcept
+from database.model.named_relation import NamedRelation
 from database.model.platform.platform_names import PlatformName
+from routers import resource_routers
 
 
 def connect_to_database(
@@ -38,10 +39,9 @@ def connect_to_database(
         drop_or_create_database(url, delete_first)
     engine = create_engine(url, echo=False, pool_recycle=3600)
 
-    if create_if_not_exists:
-        with engine.connect() as connection:
-            AIoDConcept.metadata.create_all(connection, checkfirst=True)
-            connection.commit()
+    with engine.connect() as connection:
+        AIoDConcept.metadata.create_all(connection, checkfirst=True)
+        connection.commit()
     return engine
 
 
@@ -61,12 +61,16 @@ def _get_existing_resource(
     session: Session, resource: AIoDConcept, clazz: type[SQLModel]
 ) -> AIoDConcept | None:
     """Selecting a resource based on platform and platform_identifier"""
-    query = select(clazz).where(
-        and_(
-            clazz.platform == resource.platform,
-            clazz.platform_identifier == resource.platform_identifier,
+    is_enum = NamedRelation in clazz.__mro__
+    if is_enum:
+        query = select(clazz).where(clazz.name == resource)
+    else:
+        query = select(clazz).where(
+            and_(
+                clazz.platform == resource.platform,
+                clazz.platform_identifier == resource.platform_identifier,
+            )
         )
-    )
     return session.scalars(query).first()
 
 
@@ -95,7 +99,7 @@ def _create_or_fetch_related_objects(session: Session, item: ResourceWithRelatio
                 resource_read_str = type(resource).__name__  # E.g. DatasetRead
                 (router,) = [
                     router
-                    for router in routers.resource_routers
+                    for router in resource_routers.router_list
                     if resource_read_str.startswith(router.resource_class.__name__)
                     # E.g. "DatasetRead".startswith("Dataset")
                 ]
@@ -113,7 +117,7 @@ def _create_or_fetch_related_objects(session: Session, item: ResourceWithRelatio
             item.resource.__setattr__(field_name, identifiers)  # E.g. Dataset.keywords = [1, 4]
 
 
-def sqlmodel_engine(rebuild_db: str, create_if_not_exists=True) -> Engine:
+def sqlmodel_engine(rebuild_db: str) -> Engine:
     """
     Return a SQLModel engine, backed by the MySql connection as configured in the configuration
     file.
@@ -127,6 +131,4 @@ def sqlmodel_engine(rebuild_db: str, create_if_not_exists=True) -> Engine:
     db_url = f"mysql://{username}:{password}@{host}:{port}/{database}"
 
     delete_before_create = rebuild_db == "always"
-    return connect_to_database(
-        db_url, delete_first=delete_before_create, create_if_not_exists=create_if_not_exists
-    )
+    return connect_to_database(db_url, delete_first=delete_before_create)
