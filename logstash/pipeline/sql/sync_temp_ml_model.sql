@@ -18,7 +18,6 @@ SELECT
     ml_model.version,
     license.name AS `license`,
     -- MLModel
-    ml_model.permanent_identifier,
     ml_model_type.name AS `ml_model_type`
 FROM aiod.ml_model
 INNER JOIN aiod.aiod_entry ON aiod.ml_model.aiod_entry_identifier=aiod.aiod_entry.identifier

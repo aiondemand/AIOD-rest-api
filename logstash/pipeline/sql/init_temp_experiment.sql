@@ -18,7 +18,6 @@ SELECT
     experiment.version,
     license.name AS `license`,
     -- Experiment
-    experiment.permanent_identifier,
     experiment.experimental_workflow,
     experiment.execution_settings,
     experiment.reproducibility_explanation
