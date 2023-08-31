@@ -13,3 +13,4 @@ class PlatformName(str, enum.Enum):
     openml = "openml"
     huggingface = "huggingface"
     zenodo = "zenodo"
+    ai4experiments = "ai4experiments"
