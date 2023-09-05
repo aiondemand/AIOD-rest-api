@@ -43,10 +43,6 @@
                 "type" : "long",
                 "index" : false
             },
-            "is_accessible_for_free" : {
-                "type" : "boolean",
-                "index" : false
-            },
             "issn" : {
                 "type" : "text",
                 "fields" : {

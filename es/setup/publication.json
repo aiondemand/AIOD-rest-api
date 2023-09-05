@@ -15,29 +15,9 @@
                     }
                 }
             },
-            "access_right" : {
-                "type" : "text",
-                "index" : false,
-                "fields" : {
-                    "keyword" : {
-                        "type" : "keyword",
-                        "ignore_above" : 256
-                    }
-                }
-            },
             "asset_identifier" : {
                 "type" : "long",
                 "index" : false
-            },
-            "creators" : {
-                "type" : "text",
-                "index" : false,
-                "fields" : {
-                    "keyword" : {
-                        "type" : "keyword",
-                        "ignore_above" : 256
-                    }
-                }
             },
             "date_created" : {
                 "type" : "date",
@@ -52,16 +32,6 @@
             },
             "description" : {
                 "type" : "text",
-                "fields" : {
-                    "keyword" : {
-                        "type" : "keyword",
-                        "ignore_above" : 256
-                    }
-                }
-            },
-            "doi" : {
-                "type" : "text",
-                "index" : false,
                 "fields" : {
                     "keyword" : {
                         "type" : "keyword",
@@ -91,10 +61,6 @@
                     }
                 }
             },
-            "knowledge_asset_identifier" : {
-                "type" : "long",
-                "index" : false
-            },
             "license" : {
                 "type" : "text",
                 "index" : false,
@@ -104,10 +70,6 @@
                         "ignore_above" : 256
                     }
                 }
-            },
-            "license_identifier" : {
-                "type" : "long",
-                "index" : false
             },
             "name" : {
                 "type" : "text",
@@ -162,10 +124,6 @@
                 "type" : "long",
                 "index" : false
             },
-            "resource_type_identifier" : {
-                "type" : "long",
-                "index" : false
-            },
             "same_as" : {
                 "type" : "text",
                 "index" : false,
@@ -186,26 +144,7 @@
                     }
                 }
             },
-            "title" : {
-                "type" : "text",
-                "fields" : {
-                    "keyword" : {
-                        "type" : "keyword",
-                        "ignore_above" : 256
-                    }
-                }
-            },
             "type" : {
-                "type" : "text",
-                "index" : false,
-                "fields" : {
-                    "keyword" : {
-                        "type" : "keyword",
-                        "ignore_above" : 256
-                    }
-                }
-            },
-            "url" : {
                 "type" : "text",
                 "index" : false,
                 "fields" : {
