@@ -11,7 +11,9 @@ from starlette import status
 from authentication import get_current_user, has_role
 from database.model.concept.aiod_entry import AIoDEntryRead
 from database.model.resource_read_and_create import resource_read
-from routers.router import AIoDRouter
+
+# from routers.router import AIoDRouter
+
 
 SORT = {"identifier": "asc"}
 LIMIT_MAX = 1000
@@ -25,7 +27,7 @@ class SearchResult(BaseModel, Generic[RESOURCE]):
     next_offset: list | None
 
 
-class SearchRouter(AIoDRouter, Generic[RESOURCE], abc.ABC):
+class SearchRouter(Generic[RESOURCE], abc.ABC):
     """
     Providing search functionality in ElasticSearch
     """

@@ -75,3 +75,15 @@ async def get_current_user(token=Security(oidc)) -> dict:
             detail=detail,
             headers={"WWW-Authenticate": "Bearer"},
         )
+
+
+def has_role(user: dict, role: str | None) -> bool:
+    if role is None:
+        raise ValueError("Role should be set.")
+    if "groups" in user:
+        roles = user["groups"]
+    elif "realm_access" in user and "roles" in user["realm_access"]:
+        roles = user["realm_access"]["roles"]
+    else:
+        return False
+    return role in roles
