@@ -33,7 +33,7 @@ def test_fetch_happy_path():
         "Mass shooting",
     }
 
-    creators: list[Person] = datasets[0].related_resources["creator"]
+    creators: list[Person] = datasets[0].related_resources["creator"]  # type: ignore
     assert len(creators) == 4
     for given, sur in [
         ("Peter Martin", "Hansen"),
@@ -75,7 +75,7 @@ def test_retry_happy_path():
         "Disaster",
         "Mass shooting",
     }
-    creators: list[Person] = resource_with_relations.related_resources["creator"]
+    creators: list[Person] = resource_with_relations.related_resources["creator"]  # type: ignore
     assert len(creators) == 6
     for given, sur in [
         ("Peter Martin", "Hansen"),

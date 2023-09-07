@@ -71,7 +71,7 @@ def add_routes(app: FastAPI, engine: Engine, url_prefix=""):
         + parent_routers.router_list
         + enum_routers.router_list
     ):
-        app.include_router(router.create(engine, url_prefix))
+        app.include_router(router.create(engine, url_prefix))  # type: ignore
 
 
 def create_app() -> FastAPI:

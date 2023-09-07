@@ -134,7 +134,7 @@ def main():
     module_path = ".".join(args.connector.split(".")[0:-1])
     connector_cls_name = args.connector.split(".")[-1]
     module = importlib.import_module(module_path)
-    connector: ResourceConnector = getattr(module, connector_cls_name)()
+    connector: ResourceConnector = getattr(module, connector_cls_name)()  # type: ignore
 
     error_path = working_dir / RELATIVE_PATH_ERROR_CSV
     state_path = working_dir / RELATIVE_PATH_STATE_JSON
