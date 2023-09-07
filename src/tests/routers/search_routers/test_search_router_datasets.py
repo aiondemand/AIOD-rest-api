@@ -3,24 +3,19 @@ from unittest.mock import Mock
 
 from starlette.testclient import TestClient
 
-from authentication import keycloak_openid
+# from authentication import keycloak_openid
 from routers import other_routers, SearchRouterDatasets
 from tests.testutils.paths import path_test_resources
 
 
-def test_search_happy_path(client: TestClient, mocked_privileged_token: Mock):
-    keycloak_openid.userinfo = mocked_privileged_token
+def test_search_happy_path(client: TestClient):
 
     (search_router,) = [r for r in other_routers if isinstance(r, SearchRouterDatasets)]
     with open(path_test_resources() / "elasticsearch" / "dataset_search.json", "r") as f:
         mocked_results = json.load(f)
     search_router.client.search = Mock(return_value=mocked_results)
 
-    response = client.get(
-        "/search/datasets/v1",
-        params={"name": "dataset"},
-        headers={"Authorization": "Fake token"},
-    )
+    response = client.get("/search/datasets/v1", params={"name": "dataset"})
 
     assert response.status_code == 200, response.json()
     response_json = response.json()

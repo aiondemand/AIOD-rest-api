@@ -1,14 +1,12 @@
 import abc
-import os
 from typing import TypeVar, Generic, Any, Type
 
 from elasticsearch import Elasticsearch
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.engine import Engine
 from starlette import status
 
-from authentication import get_current_user, has_role
 from database.model.concept.aiod_entry import AIoDEntryRead
 from database.model.resource_read_and_create import resource_read
 
@@ -66,7 +64,6 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
             name: str = "",
             limit: int = 10,
             offset: str | None = None,  # TODO: this should not be a string
-            user: dict = Depends(get_current_user),
         ) -> SearchResult[read_class]:  # type: ignore
             f"""
             Search for {self.resource_name_plural}.
@@ -76,12 +73,6 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail=f"The limit should be maximum {LIMIT_MAX}. If you want more results, "
                     f"use pagination.",
-                )
-
-            if not has_role(user, os.getenv("ES_ROLE")):
-                raise HTTPException(
-                    status_code=status.HTTP_403_FORBIDDEN,
-                    detail="You do not have permission to search Aiod resources.",
                 )
 
             query = {"bool": {"must": {"match": {"name": name}}}}
