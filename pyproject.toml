@@ -13,7 +13,7 @@ authors = [
     {name = "Taniya Das", email = "t.das@tue.nl"}
 ]
 dependencies = [
-    "urllib3== 2.0.4",
+    "urllib3== 1.26.16",
     "bibtexparser==1.4.0",
     "datasets==2.14.4",
     "fastapi==0.103.0",
@@ -31,6 +31,7 @@ dependencies = [
     "xmltodict==0.13.0",
     "python-multipart==0.0.6",
     "mysql-connector-python==8.1.0",
+    "elasticsearch==8.9.0"
 ]
 readme = "README.md"
 

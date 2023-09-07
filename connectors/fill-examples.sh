@@ -10,7 +10,7 @@ python3 connectors/synchronization.py \
 
 python3 connectors/synchronization.py \
   -c connectors.example.example.ExampleDatasetConnector \
-  -w /opt/connectors/data/example/datasset
+  -w /opt/connectors/data/example/dataset
 
 python3 connectors/synchronization.py \
   -c connectors.example.example.ExampleEducationalResourceConnector \
