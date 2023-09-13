@@ -23,14 +23,51 @@ def main(index, search_concept, platforms):
     es_client = Elasticsearch("http://localhost:9200", basic_auth=(ELASTIC_USER, elastic_password))
 
     # Prepare query
-    platform_identifiers = [{"match": {"platform_identifier": p}} for p in platforms]
-    query = {
-        "bool": {
-            "must": {"match": {"title": search_concept}},
-            "must": {"bool": {"should": platform_identifiers}},
+    # -------------------------------------------------------------------------
+    
+    # Search fields corresponding to the indices
+    match_fields = ['name', 'description']
+    if ('dataset' in index) or ('publication' in index):
+        match_fields.append('issn')
+    if 'publication' in index:
+        match_fields.append('isbn')
+    if 'service' in index:
+        match_fields.append('slogan')
+    
+    # Matches of the search concept for each field
+    query_matches = [{'match': {f: search_concept}} for f in match_fields]
+    
+    if platforms:
+        
+        # Matches of the platform field for each selected platform
+        platform_matches = [{'match': {'platform': p}} for p in platforms]
+        
+        # Query must match platform and search concept on at least one field
+        query = {
+            'bool': {
+                'must': {
+                    'bool': {
+                        'should': platform_matches,
+                        'minimum_should_match': 1
+                    }
+                },
+                'should': query_matches,
+                'minimum_should_match': 1
+            }
         }
-    }
-
+    
+    else:
+        
+        # Query must match search concept on at least one field
+        query = {
+            'bool': {
+                'should': query_matches,
+                'minimum_should_match': 1
+            }
+        }
+    
+    # -------------------------------------------------------------------------
+    
     # Perform first search
     result = es_client.search(index=index, query=query, size=SIZE, sort=SORT)
 
@@ -57,5 +94,5 @@ def main(index, search_concept, platforms):
 if __name__ == "__main__":
     index = ["publication"]  # List of assets
     search_concept = "in"  # Search concept
-    platforms = ["2", "4", "9"]  # List of platforms
+    platforms = ["example", "ai4experiments"]  # List of platforms
     main(index, search_concept, platforms)
