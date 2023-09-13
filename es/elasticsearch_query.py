@@ -5,10 +5,8 @@ import json
 from elasticsearch import Elasticsearch
 
 # Global parameters
-ELASTIC_USER = "elastic"
 SIZE = 2
 SORT = {"identifier": "asc"}
-
 
 def main(index, search_concept, platforms):
 
@@ -17,10 +15,12 @@ def main(index, search_concept, platforms):
         for line in f:
             if "ES_PASSWORD" in line:
                 elastic_password = line.split("=")[1][:-1]
-                break
-
+            if "ES_USER" in line:
+                elastic_user = line.split("=")[1][:-1]
+    
     # Generate client
-    es_client = Elasticsearch("http://localhost:9200", basic_auth=(ELASTIC_USER, elastic_password))
+    es_client = Elasticsearch("http://localhost:9200",
+                              basic_auth=(elastic_user, elastic_password))
 
     # Prepare query
     # -------------------------------------------------------------------------

@@ -1,9 +1,9 @@
 import abc
 import os
-from typing import TypeVar, Generic, Any, Type
+from typing import TypeVar, Generic, Any, Type, Annotated
 
 from elasticsearch import Elasticsearch
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
 from sqlalchemy.engine import Engine
 from starlette import status
@@ -11,7 +11,6 @@ from starlette import status
 from authentication import get_current_user#, has_role
 from database.model.concept.aiod_entry import AIoDEntryRead
 from database.model.resource_read_and_create import resource_read
-#from routers.router import AIoDRouter
 
 SORT = {"identifier": "asc"}
 LIMIT_MAX = 1000
@@ -29,86 +28,115 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
     """
     Providing search functionality in ElasticSearch
     """
-
+    
     def __init__(self, client: Elasticsearch):
         self.client: Elasticsearch = client
-
+    
     @property
     @abc.abstractmethod
     def es_index(self) -> str:
         """The name of the elasticsearch index"""
-
+    
     @property
     @abc.abstractmethod
     def resource_name_plural(self) -> str:
         """The name of the resource (plural)"""
-
+    
     @property
     def key_translations(self) -> dict[str, str]:
-        """If an attribute is called differently in elasticsearch than in our metadata model,
-        you can define a translation dictionary here. The key should be the name in
-        elasticsearch, the value the name in our data model."""
+        """If an attribute is called differently in elasticsearch than in our
+        metadata model, you can define a translation dictionary here. The key
+        should be the name in elasticsearch, the value the name in our data
+        model."""
         return {}
-
+    
     @property
     @abc.abstractmethod
     def resource_class(self) -> RESOURCE:
         """The resource class"""
-
+    
     def create(self, engine: Engine, url_prefix: str) -> APIRouter:
         router = APIRouter()
         read_class = resource_read(self.resource_class)  # type: ignore
-
-        @router.get(f"{url_prefix}/search/{self.resource_name_plural}/v1", tags=["search"])
+        
+        @router.get(f"{url_prefix}/search/{self.resource_name_plural}/v1",
+                    tags=["search"])
         def search(
-            name: str = "",
+            platforms: Annotated[list[str] | None, Query()] = None,
+            search_query: str = "",
             limit: int = 10,
-            offset: str | None = None,  # TODO: this should not be a string
-            user: dict = {Depends(get_current_user)},
+            offset: Annotated[list[str] | None, Query()] = None
         ) -> SearchResult[read_class]:  # type: ignore
             f"""
             Search for {self.resource_name_plural}.
             """
+            
             if limit > LIMIT_MAX:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
-                    detail=f"The limit should be maximum {LIMIT_MAX}. If you want more results, "
-                    f"use pagination.",
+                    detail=f"The limit should be maximum {LIMIT_MAX}. "
+                           f"If you want more results, use pagination."
                 )
+            # Prepare query
+            # -----------------------------------------------------------------
             
-#            if not has_role(user, os.getenv("ES_ROLE")):
-#                raise HTTPException(
-#                    status_code=status.HTTP_403_FORBIDDEN,
-#                    detail="You do not have permission to search Aiod resources.",
-#                )
+            # Matches of the search concept for each field
+            query_matches = [{'match': {f: search_query}}
+                             for f in self.match_fields]
             
-            query = {"bool": {"must": {"match": {"name": name}}}}
-            # Just to test
-            client = Elasticsearch("http://localhost:9200",
-                                   basic_auth=("elastic", "changeme"))
-            result = client.search(
-                index=self.es_index, query=query, size=limit, sort=SORT, search_after=offset
-            )
-#            result = self.client.search(
-#                index=self.es_index, query=query, size=limit, sort=SORT, search_after=offset
-#            )
-
+            if platforms:
+                
+                # Matches of the platform field for each selected platform
+                platform_matches = [{'match': {'platform': p}}
+                                    for p in platforms]
+                
+                # Must match platform and search query on at least one field
+                query = {
+                    'bool': {
+                        'must': {
+                            'bool': {
+                                'should': platform_matches,
+                                'minimum_should_match': 1
+                            }
+                        },
+                        'should': query_matches,
+                        'minimum_should_match': 1
+                    }
+                }
+            
+            else:
+                
+                # Must match search concept on at least one field
+                query = {
+                    'bool': {
+                        'should': query_matches,
+                        'minimum_should_match': 1
+                    }
+                }
+            
+            # -----------------------------------------------------------------
+            
+            result = self.client.search(index=self.es_index, query=query,
+                                        size=limit, sort=SORT,
+                                        search_after=offset)
+            
             total_hits = result["hits"]["total"]["value"]
             resources: list[read_class] = [  # type: ignore
                 self._cast_resource(read_class, hit["_source"])  # type: ignore
                 for hit in result["hits"]["hits"]
             ]
             next_offset = (
-                result["hits"]["hits"][-1]["sort"] if len(result["hits"]["hits"]) > 0 else None
+                result["hits"]["hits"][-1]["sort"]
+                if len(result["hits"]["hits"]) > 0 else None
             )
             return SearchResult[read_class](  # type: ignore
                 total_hits=total_hits,
                 next_offset=next_offset,
-                resources=resources,
+                resources=resources
             )
-
+        
         return router
-
+    
     def _cast_resource(
         self, resource_class: RESOURCE, resource_dict: dict[str, Any]
     ) -> Type[RESOURCE]:

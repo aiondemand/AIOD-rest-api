@@ -14,7 +14,7 @@ class SearchRouterPublications(SearchRouter[Publication]):
     @property
     def resource_class(self):
         return Publication
-
+    
     @property
-    def key_translations(self) -> dict:
-        return {"publication_type": "type"}
+    def match_fields(self):
+        return ['name', 'description', 'issn', 'isbn']

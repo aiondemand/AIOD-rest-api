@@ -1,20 +1,20 @@
-from database.model.dataset.dataset import Dataset
+from database.model.service.service import Service
 from routers.search_router import SearchRouter
 
 
-class SearchRouterDatasets(SearchRouter[Dataset]):
+class SearchRouterServices(SearchRouter[Service]):
     @property
     def es_index(self) -> str:
-        return "dataset"
+        return "service"
 
     @property
     def resource_name_plural(self) -> str:
-        return "datasets"
+        return "services"
 
     @property
     def resource_class(self):
-        return Dataset
+        return Service
     
     @property
     def match_fields(self):
-        return ['name', 'description', 'issn']
+        return ['name', 'description', 'slogan']
