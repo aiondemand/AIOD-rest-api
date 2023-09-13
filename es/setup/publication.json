@@ -92,7 +92,6 @@
             },
             "platform" : {
                 "type" : "text",
-                "index" : false,
                 "fields" : {
                     "keyword" : {
                         "type" : "keyword",

@@ -8,10 +8,10 @@ from pydantic import BaseModel
 from sqlalchemy.engine import Engine
 from starlette import status
 
-from authentication import get_current_user, has_role
+from authentication import get_current_user#, has_role
 from database.model.concept.aiod_entry import AIoDEntryRead
 from database.model.resource_read_and_create import resource_read
-from routers.router import AIoDRouter
+#from routers.router import AIoDRouter
 
 SORT = {"identifier": "asc"}
 LIMIT_MAX = 1000
@@ -25,7 +25,7 @@ class SearchResult(BaseModel, Generic[RESOURCE]):
     next_offset: list | None
 
 
-class SearchRouter(AIoDRouter, Generic[RESOURCE], abc.ABC):
+class SearchRouter(Generic[RESOURCE], abc.ABC):
     """
     Providing search functionality in ElasticSearch
     """
@@ -64,7 +64,7 @@ class SearchRouter(AIoDRouter, Generic[RESOURCE], abc.ABC):
             name: str = "",
             limit: int = 10,
             offset: str | None = None,  # TODO: this should not be a string
-            user: dict = Depends(get_current_user),
+            user: dict = {Depends(get_current_user)},
         ) -> SearchResult[read_class]:  # type: ignore
             f"""
             Search for {self.resource_name_plural}.
@@ -75,17 +75,23 @@ class SearchRouter(AIoDRouter, Generic[RESOURCE], abc.ABC):
                     detail=f"The limit should be maximum {LIMIT_MAX}. If you want more results, "
                     f"use pagination.",
                 )
-
-            if not has_role(user, os.getenv("ES_ROLE")):
-                raise HTTPException(
-                    status_code=status.HTTP_403_FORBIDDEN,
-                    detail="You do not have permission to search Aiod resources.",
-                )
-
+            
+#            if not has_role(user, os.getenv("ES_ROLE")):
+#                raise HTTPException(
+#                    status_code=status.HTTP_403_FORBIDDEN,
+#                    detail="You do not have permission to search Aiod resources.",
+#                )
+            
             query = {"bool": {"must": {"match": {"name": name}}}}
-            result = self.client.search(
+            # Just to test
+            client = Elasticsearch("http://localhost:9200",
+                                   basic_auth=("elastic", "changeme"))
+            result = client.search(
                 index=self.es_index, query=query, size=limit, sort=SORT, search_after=offset
             )
+#            result = self.client.search(
+#                index=self.es_index, query=query, size=limit, sort=SORT, search_after=offset
+#            )
 
             total_hits = result["hits"]["total"]["value"]
             resources: list[read_class] = [  # type: ignore
