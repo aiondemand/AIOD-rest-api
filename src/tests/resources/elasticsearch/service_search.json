@@ -1,0 +1,44 @@
+{
+    "took" : 1,
+    "timed_out" : false,
+    "_shards" : {
+        "total" : 1,
+        "successful" : 1,
+        "skipped" : 0,
+        "failed" : 0
+    },
+    "hits" : {
+        "total" : {
+            "value" : 1,
+            "relation" : "eq"
+        },
+        "max_score" : 1.0,
+        "hits" : [
+            {
+                "_index" : "service",
+                "_id" : "service_1",
+                "_score" : 1.0,
+                "_source" : {
+                    "date_created" : "2023-09-01T00:00:00.000Z",
+                    "type" : "service",
+                    "terms_of_service" : "Some terms",
+                    "slogan" : "A slogan",
+                    "platform_identifier" : "1",
+                    "resource_identifier" : 377,
+                    "date_modified" : "2023-09-01T00:00:00.000Z",
+                    "@version" : "1",
+                    "status" : "draft",
+                    "description" : "A description",
+                    "platform" : "example",
+                    "name" : "A name",
+                    "same_as" : "https://test_resource.test",
+                    "@timestamp" : "2023-09-01T00:00:00.000Z",
+                    "identifier" : 1
+                },
+                "sort": [
+                    1
+                ]
+            }
+        ]
+    }
+}

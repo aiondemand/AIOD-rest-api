@@ -1,0 +1,52 @@
+{
+    "took" : 1,
+    "timed_out" : false,
+    "_shards" : {
+        "total" : 1,
+        "successful" : 1,
+        "skipped" : 0,
+        "failed" : 0
+    },
+    "hits" : {
+        "total" : {
+            "value" : 1,
+            "relation" : "eq"
+        },
+        "max_score" : 4.3783627,
+        "hits" : [
+            {
+                "_index" : "experiment",
+                "_id" : "experiment_40",
+                "_score" : 4.3783627,
+                "_ignored" : [
+                    "description.keyword"
+                ],
+                "_source" : {
+                    "license" : "https://test_resource.test",
+                    "date_created" : "2023-09-01T00:00:00.000Z",
+                    "date_published" : "2023-09-01T00:00:00.000Z",
+                    "version" : "1.0.0",
+                    "reproducibility_explanation" : "",
+                    "type" : "experiment",
+                    "experimental_workflow" : "",
+                    "platform_identifier" : "405",
+                    "resource_identifier" : 179,
+                    "date_modified" : "2023-09-01T00:00:00.000Z",
+                    "asset_identifier" : 177,
+                    "@version" : "1",
+                    "status" : "draft",
+                    "description" : "A description",
+                    "platform" : "example",
+                    "name" : "A name",
+                    "same_as" : "https://test_resource.test",
+                    "@timestamp" : "2023-09-01T00:00:00.000Z",
+                    "identifier" : 40,
+                    "execution_settings" : ""
+                },
+                "sort": [
+                    1
+                ]
+            }
+        ]
+    }
+}

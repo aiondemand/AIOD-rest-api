@@ -77,6 +77,7 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
                     detail=f"The limit should be maximum {LIMIT_MAX}. "
                            f"If you want more results, use pagination."
                 )
+            
             # Prepare query
             # -----------------------------------------------------------------
             

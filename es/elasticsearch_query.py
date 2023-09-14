@@ -70,7 +70,9 @@ def main(index, search_concept, platforms):
     
     # Perform first search
     result = es_client.search(index=index, query=query, size=SIZE, sort=SORT)
-
+    
+    print(json.dumps(dict(result), indent=4))
+    
     # Print total number of results
     print(f"TOTAL RESULTS: {result['hits']['total']['value']}")
 
@@ -93,6 +95,6 @@ def main(index, search_concept, platforms):
 
 if __name__ == "__main__":
     index = ["publication"]  # List of assets
-    search_concept = "in"  # Search concept
+    search_concept = "name"  # Search concept
     platforms = ["example", "ai4experiments"]  # List of platforms
     main(index, search_concept, platforms)
