@@ -64,6 +64,7 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
         def search(
             platforms: Annotated[list[str] | None, Query()] = None,
             search_query: str = "",
+            search_fields: Annotated[list[str] | None, Query()] = None,
             limit: int = 10,
             offset: Annotated[list[str] | None, Query()] = None
         ) -> SearchResult[read_class]:  # type: ignore
@@ -82,8 +83,25 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
             # -----------------------------------------------------------------
             
             # Matches of the search concept for each field
-            query_matches = [{'match': {f: search_query}}
-                             for f in self.match_fields]
+            if search_fields:
+                
+                # The selected fields must be present in the match fields
+                if not set(search_fields).issubset(set(self.match_fields)):
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail=f"The available search fields for this entity "
+                               f"are:{self.match_fields}"
+                    )
+                
+                # Search in specific search fields
+                query_matches = [{'match': {f: search_query}}
+                                 for f in search_fields]
+            
+            else:
+                
+                # Search in any match field
+                query_matches = [{'match': {f: search_query}}
+                                 for f in self.match_fields]
             
             if platforms:
                 
