@@ -24,4 +24,5 @@ INNER JOIN aiod.aiod_entry ON aiod.ml_model.aiod_entry_identifier=aiod.aiod_entr
 INNER JOIN aiod.status ON aiod.aiod_entry.status_identifier=aiod.status.identifier
 LEFT JOIN aiod.license ON aiod.ml_model.license_identifier=aiod.license.identifier
 LEFT JOIN aiod.ml_model_type ON aiod.ml_model.type_identifier=aiod.ml_model_type.identifier
+WHERE aiod.aiod_entry.date_modified > :sql_last_value
 ORDER BY aiod.ml_model.identifier
