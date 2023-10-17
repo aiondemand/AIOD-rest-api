@@ -16,7 +16,7 @@ SELECT
     project.end_date,
     project.total_cost_euro,
     project.coordinator_identifier,
-    organisation.name AS coordinator,
+    organisation.name AS coordinator_name
 FROM aiod.project
 INNER JOIN aiod.aiod_entry ON aiod.project.aiod_entry_identifier=aiod.aiod_entry.identifier
 INNER JOIN aiod.status ON aiod.aiod_entry.status_identifier=aiod.status.identifier

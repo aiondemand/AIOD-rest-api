@@ -1,0 +1,127 @@
+{
+    "mappings" : {
+        "properties" : {
+            "@timestamp" : {
+                "type" : "date",
+                "index" : false
+            },
+            "@version" : {
+                "type" : "text",
+                "index" : false,
+                "fields" : {
+                    "keyword" : {
+                        "type" : "keyword",
+                        "ignore_above" : 256
+                    }
+                }
+            },
+            "coordinator_identifier" : {
+                "type" : "long",
+                "index" : false
+            },
+            "coordinator_name" : {
+                "type" : "text",
+                "fields" : {
+                    "keyword" : {
+                        "type" : "keyword",
+                        "ignore_above" : 256
+                    }
+                }
+            },
+            "date_created" : {
+                "type" : "date",
+                "index" : false
+            },
+            "date_modified" : {
+                "type" : "date"
+            },
+            "description" : {
+                "type" : "text",
+                "fields" : {
+                    "keyword" : {
+                        "type" : "keyword",
+                        "ignore_above" : 256
+                    }
+                }
+            },
+            "end_date" : {
+                "type" : "date",
+                "index" : false
+            },
+            "identifier" : {
+                "type" : "long",
+                "index" : false
+            },
+            "name" : {
+                "type" : "text",
+                "fields" : {
+                    "keyword" : {
+                        "type" : "keyword",
+                        "ignore_above" : 256
+                    }
+                }
+            },
+            "platform" : {
+                "type" : "text",
+                "fields" : {
+                    "keyword" : {
+                        "type" : "keyword",
+                        "ignore_above" : 256
+                    }
+                }
+            },
+            "platform_identifier" : {
+                "type" : "text",
+                "index" : false,
+                "fields" : {
+                    "keyword" : {
+                        "type" : "keyword",
+                        "ignore_above" : 256
+                    }
+                }
+            },
+            "resource_identifier" : {
+                "type" : "long",
+                "index" : false
+            },
+            "same_as" : {
+                "type" : "text",
+                "index" : false,
+                "fields" : {
+                    "keyword" : {
+                        "type" : "keyword",
+                        "ignore_above" : 256
+                    }
+                }
+            },
+            "start_date" : {
+                "type" : "date",
+                "index" : false
+            },
+            "status" : {
+                "type" : "text",
+                "index" : false,
+                "fields" : {
+                    "keyword" : {
+                        "type" : "keyword",
+                        "ignore_above" : 256
+                    }
+                }
+            },
+            "total_cost_euro" : {
+                "type" : "float",
+                "index" : false
+            },
+            "type" : {
+                "type" : "text",
+                "index" : false,
+                "fields" : {
+                    "keyword" : {
+                        "type" : "keyword",
+                        "ignore_above" : 256
+                    }
+                }
+            }
+        }
+    }
+}

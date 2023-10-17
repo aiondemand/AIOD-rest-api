@@ -2,12 +2,13 @@
     {
       "platform": "example",
       "platform_identifier": "1",
-      "name": "Name of the Event",
+      "name": "The name of the Event",
       "description": "A description.",
       "same_as": "https://www.example.com/resource/this_resource",
       "date_published": "2022-01-01T15:15:00.000",
       "version": "1.1.0",
       "pid": "https://doi.org/10.1000/182",
+      "organiser": 2,
       "aiod_entry": {
         "editor": [],
         "status": "draft"

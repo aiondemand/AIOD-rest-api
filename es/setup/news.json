@@ -1,0 +1,120 @@
+{
+    "mappings" : {
+        "properties" : {
+            "@timestamp" : {
+                "type" : "date",
+                "index" : false
+            },
+            "@version" : {
+                "type" : "text",
+                "index" : false,
+                "fields" : {
+                    "keyword" : {
+                        "type" : "keyword",
+                        "ignore_above" : 256
+                    }
+                }
+            },
+            "alternative_headline" : {
+                "type" : "text",
+                "fields" : {
+                    "keyword" : {
+                        "type" : "keyword",
+                        "ignore_above" : 256
+                    }
+                }
+            },
+            "date_created" : {
+                "type" : "date",
+                "index" : false
+            },
+            "date_modified" : {
+                "type" : "date"
+            },
+            "description" : {
+                "type" : "text",
+                "fields" : {
+                    "keyword" : {
+                        "type" : "keyword",
+                        "ignore_above" : 256
+                    }
+                }
+            },
+            "headline" : {
+                "type" : "text",
+                "fields" : {
+                    "keyword" : {
+                        "type" : "keyword",
+                        "ignore_above" : 256
+                    }
+                }
+            },
+            "identifier" : {
+                "type" : "long",
+                "index" : false
+            },
+            "name" : {
+                "type" : "text",
+                "fields" : {
+                    "keyword" : {
+                        "type" : "keyword",
+                        "ignore_above" : 256
+                    }
+                }
+            },
+            "platform" : {
+                "type" : "text",
+                "fields" : {
+                    "keyword" : {
+                        "type" : "keyword",
+                        "ignore_above" : 256
+                    }
+                }
+            },
+            "platform_identifier" : {
+                "type" : "text",
+                "index" : false,
+                "fields" : {
+                    "keyword" : {
+                        "type" : "keyword",
+                        "ignore_above" : 256
+                    }
+                }
+            },
+            "resource_identifier" : {
+                "type" : "long",
+                "index" : false
+            },
+            "same_as" : {
+                "type" : "text",
+                "index" : false,
+                "fields" : {
+                    "keyword" : {
+                        "type" : "keyword",
+                        "ignore_above" : 256
+                    }
+                }
+            },
+            "status" : {
+                "type" : "text",
+                "index" : false,
+                "fields" : {
+                    "keyword" : {
+                        "type" : "keyword",
+                        "ignore_above" : 256
+                    }
+                }
+            },
+            "type" : {
+                "type" : "text",
+                "index" : false,
+                "fields" : {
+                    "keyword" : {
+                        "type" : "keyword",
+                        "ignore_above" : 256
+                    }
+                }
+            }
+        }
+    }
+}

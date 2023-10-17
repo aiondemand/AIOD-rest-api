@@ -13,7 +13,7 @@ SELECT
     news.description,
     news.same_as,
     news.headline,
-    news.alternative_headline,
+    news.alternative_headline
 FROM aiod.news
 INNER JOIN aiod.aiod_entry ON aiod.news.aiod_entry_identifier=aiod.aiod_entry.identifier
 INNER JOIN aiod.status ON aiod.aiod_entry.status_identifier=aiod.status.identifier

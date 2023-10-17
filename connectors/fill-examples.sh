@@ -17,10 +17,6 @@ python3 connectors/synchronization.py \
   -w /opt/connectors/data/example/educational_resource
 
 python3 connectors/synchronization.py \
-  -c connectors.example.example.ExampleEventConnector \
-  -w /opt/connectors/data/example/event
-
-python3 connectors/synchronization.py \
   -c connectors.example.example.ExampleExperimentConnector \
   -w /opt/connectors/data/example/experiment
 
@@ -39,6 +35,10 @@ python3 connectors/synchronization.py \
 python3 connectors/synchronization.py \
   -c connectors.example.example.ExamplePersonConnector \
   -w /opt/connectors/data/example/person
+
+python3 connectors/synchronization.py \
+  -c connectors.example.example.ExampleEventConnector \
+  -w /opt/connectors/data/example/event
 
 python3 connectors/synchronization.py \
   -c connectors.example.example.ExampleProjectConnector \

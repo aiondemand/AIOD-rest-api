@@ -8,7 +8,7 @@ SELECT
     event_mode.name AS `mode`,
     aiod_entry.date_modified,
     aiod_entry.date_created,
-    agent.type AS `organiser`,
+    agent.type AS `organiser_type`,
     -- Resource
     event.ai_resource_id AS `resource_identifier`,
     event.name,
@@ -18,6 +18,7 @@ SELECT
     event.end_date,
     event.schedule,
     event.registration_link,
+    event.organiser_identifier
 FROM aiod.event
 INNER JOIN aiod.aiod_entry ON aiod.event.aiod_entry_identifier=aiod.aiod_entry.identifier
 INNER JOIN aiod.agent ON aiod.event.organiser_identifier=aiod.agent.identifier
