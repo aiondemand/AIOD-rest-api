@@ -59,6 +59,7 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
         router = APIRouter()
         read_class = resource_read(self.resource_class)  # type: ignore
         
+        # TODO: check parameters correctness
         @router.get(f"{url_prefix}/search/{self.resource_name_plural}/v1",
                     tags=["search"])
         def search(
@@ -66,7 +67,8 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
             search_query: str = "",
             search_fields: Annotated[list[str] | None, Query()] = None,
             limit: int = 10,
-            offset: Annotated[list[str] | None, Query()] = None
+            page: int = 1
+#            offset: Annotated[list[str] | None, Query()] = None
         ) -> SearchResult[read_class]:  # type: ignore
             f"""
             Search for {self.resource_name_plural}.
@@ -135,9 +137,12 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
             
             # -----------------------------------------------------------------
             
+#            result = self.client.search(index=self.es_index, query=query,
+#                                        size=limit, sort=SORT,
+#                                        search_after=offset)
+            from_ = limit*(page - 1)
             result = self.client.search(index=self.es_index, query=query,
-                                        size=limit, sort=SORT,
-                                        search_after=offset)
+                                        from_=from_, size=limit, sort=SORT)
             
             total_hits = result["hits"]["total"]["value"]
             resources: list[read_class] = [  # type: ignore
