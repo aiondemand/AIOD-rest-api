@@ -22,7 +22,8 @@ class SearchResult(BaseModel, Generic[RESOURCE]):
     total_hits: int
     resources: list[RESOURCE]
     next_offset: list | None
-
+    current_page: int
+    page_size: int
 
 class SearchRouter(Generic[RESOURCE], abc.ABC):
     """
@@ -155,8 +156,10 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
             )
             return SearchResult[read_class](  # type: ignore
                 total_hits=total_hits,
+                resources=resources,
                 next_offset=next_offset,
-                resources=resources
+                current_page=page,
+                page_size=limit
             )
         
         return router
