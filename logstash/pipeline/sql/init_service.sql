@@ -14,8 +14,13 @@ SELECT
     service.same_as,
     -- Service
     service.slogan,
-    service.terms_of_service
+    service.terms_of_service,
+    -- Application Area
+    GROUP_CONCAT(application_area.name) AS `application_area`
 FROM aiod.service
 INNER JOIN aiod.aiod_entry ON aiod.service.aiod_entry_identifier=aiod.aiod_entry.identifier
 INNER JOIN aiod.status ON aiod.aiod_entry.status_identifier=aiod.status.identifier
+LEFT JOIN aiod.service_application_area_link ON aiod.service_application_area_link.from_identifier=aiod.service.identifier
+LEFT JOIN aiod.application_area ON aiod.service_application_area_link.linked_identifier=aiod.application_area.identifier
+GROUP BY aiod.service.identifier
 ORDER BY aiod.service.identifier

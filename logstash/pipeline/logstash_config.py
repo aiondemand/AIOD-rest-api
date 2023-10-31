@@ -56,7 +56,20 @@ SYNC_INPUT_BASE = """  jdbc {{
   }}
 """
 
-FILTER = """filter {{
+FILTER_BASE = """filter {{
+  if ![application_area] {{
+    mutate {{
+      replace => {{"application_area" => ""}}
+    }}
+  }}
+  mutate {{
+    # remove_field => ["@version", "@timestamp"]
+    split => {{"application_area" => ","}}
+  }}{0}
+}}
+"""
+
+DATE_FILTER = """
   if [type] == "organisation" {0}{{
       ruby {{
         code => '
@@ -65,10 +78,9 @@ FILTER = """filter {{
         '
       }}
   }}
-}}
 """
 
-SYNC_FILTER_ADDON = """or [type] == "rm_organisation" """
+SYNC_DATE_FILTER_ADDON = """or [type] == "rm_organisation" """
 
 INIT_OUTPUT_BASE = """  if [type] == "{2}" {{
     elasticsearch {{
@@ -119,10 +131,15 @@ SQL_BASE = """SELECT
     {0}.ai_resource_id AS `resource_identifier`,
     {0}.name,
     {0}.description,
-    {0}.same_as{1}{2}{3}{4}{5}{6}{7}
+    {0}.same_as{1}{2}{3}{4}{5}{6}{7},
+    -- Application Area
+    GROUP_CONCAT(application_area.name) AS `application_area`
 FROM aiod.{0}
 INNER JOIN aiod.aiod_entry ON aiod.{0}.aiod_entry_identifier=aiod.aiod_entry.identifier
-INNER JOIN aiod.status ON aiod.aiod_entry.status_identifier=aiod.status.identifier{8}{9}
+INNER JOIN aiod.status ON aiod.aiod_entry.status_identifier=aiod.status.identifier{8}
+LEFT JOIN aiod.{0}_application_area_link ON aiod.{0}_application_area_link.from_identifier=aiod.{0}.identifier
+LEFT JOIN aiod.application_area ON aiod.{0}_application_area_link.linked_identifier=aiod.application_area.identifier{9}
+GROUP BY aiod.{0}.identifier
 ORDER BY aiod.{0}.identifier
 """
 
@@ -193,12 +210,12 @@ def generate_config_file(conf_path, db_user, db_pass, es_user, es_pass,
     if not sync: # init file
         file_path = os.path.join(conf_path, "init_table.conf")
         input_base = INIT_INPUT_BASE
-        filter = FILTER.format("")
+        date_filter = DATE_FILTER.format("")
         output_base = INIT_OUTPUT_BASE
     else: # sync file
         file_path = os.path.join(conf_path, "sync_table.conf")
         input_base = SYNC_INPUT_BASE
-        filter = FILTER.format(SYNC_FILTER_ADDON)
+        date_filter = DATE_FILTER.format(SYNC_DATE_FILTER_ADDON)
         output_base = SYNC_OUTPUT_BASE
     
     # Generate configuration file
@@ -212,7 +229,9 @@ def generate_config_file(conf_path, db_user, db_pass, es_user, es_pass,
         
         # Filters
         if "organisation" in entities:
-            f.write(filter)
+            f.write(FILTER_BASE.format(date_filter))
+        else:
+            f.write(FILTER_BASE.format(""))
         
         # Output
         f.write("output {\n")
