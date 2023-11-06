@@ -1,3 +1,5 @@
+import datetime
+
 from sqlalchemy.future import Engine
 from sqlmodel import Session
 from starlette.testclient import TestClient
@@ -13,10 +15,16 @@ def test_get_count_happy_path(
         session.add_all(
             [
                 test_resource_factory(
-                    title="my_test_resource_1", status=draft, platform_identifier="2"
+                    title="my_test_resource_1", status=draft, platform_identifier="1"
                 ),
                 test_resource_factory(
-                    title="My second test resource", status=draft, platform_identifier="3"
+                    title="My second test resource", status=draft, platform_identifier="2"
+                ),
+                test_resource_factory(
+                    title="My third test resource",
+                    status=draft,
+                    platform_identifier="3",
+                    date_deleted=datetime.datetime.now(),
                 ),
             ]
         )

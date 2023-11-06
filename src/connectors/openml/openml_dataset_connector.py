@@ -14,7 +14,7 @@ from database.model import field_length
 from database.model.ai_asset.distribution import Distribution
 from database.model.concept.aiod_entry import AIoDEntryCreate
 from database.model.dataset.dataset import Dataset
-from database.model.dataset.size import Size
+from database.model.dataset.size import DatasetSize
 from database.model.platform.platform_names import PlatformName
 from database.model.resource_read_and_create import resource_create
 
@@ -71,7 +71,7 @@ class OpenMlDatasetConnector(ResourceConnectorById[Dataset]):
             description = description[: field_length.DESCRIPTION - len(text_break)] + text_break
         size = None
         if "NumberOfInstances" in qualities_json:
-            size = Size(value=_as_int(qualities_json["NumberOfInstances"]), unit="instances")
+            size = DatasetSize(value=_as_int(qualities_json["NumberOfInstances"]), unit="instances")
         return pydantic_class(
             aiod_entry=AIoDEntryCreate(
                 platform=self.platform_name,

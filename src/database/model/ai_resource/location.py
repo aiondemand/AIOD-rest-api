@@ -1,9 +1,10 @@
 from typing import Optional
 
+from sqlalchemy import Column, Integer, ForeignKey
 from sqlmodel import SQLModel, Field, Relationship
 
 from database.model.field_length import NORMAL, SHORT
-from database.model.relationships import ResourceRelationshipSingle
+from database.model.relationships import OneToOne
 from database.model.serializers import CastDeserializer
 
 
@@ -27,6 +28,11 @@ class GeoBase(SQLModel):
 class GeoORM(GeoBase, table=True):  # type: ignore [call-arg]
     __tablename__ = "geo"
     identifier: int | None = Field(primary_key=True)
+
+    location_identifier: int | None = Field(
+        sa_column=Column(Integer, ForeignKey("location.identifier", ondelete="CASCADE"))
+    )
+    location: Optional["LocationORM"] = Relationship(back_populates="geo")
 
 
 class Geo(GeoBase):
@@ -84,7 +90,7 @@ class AddressORM(AddressBase, table=True):  # type: ignore [call-arg]
     #  working on non-main entities
     # country_identifier: int | None = Field(foreign_key=Country.__tablename__ + ".identifier")
     # country: Optional[Country] = Relationship(
-    #     back_populates="addresses", sa_relationship_kwargs={"cascade": "all, delete"}
+    #     back_populates="addresses"
     # )
 
     # class RelationshipConfig:
@@ -93,6 +99,10 @@ class AddressORM(AddressBase, table=True):  # type: ignore [call-arg]
     #         identifier_name="country_identifier",
     #         deserializer=FindByNameDeserializer(Country),
     #     )
+    location_identifier: int | None = Field(
+        sa_column=Column(Integer, ForeignKey("location.identifier", ondelete="CASCADE"))
+    )
+    location: Optional["LocationORM"] = Relationship(back_populates="address")
 
 
 class Address(AddressBase):
@@ -118,20 +128,16 @@ class LocationORM(LocationBase, table=True):  # type: ignore [call-arg]
     __tablename__ = "location"
 
     identifier: int | None = Field(primary_key=True)
-    address_identifier: int | None = Field(foreign_key="address.identifier")
     address: Optional["AddressORM"] = Relationship(
-        sa_relationship_kwargs={"cascade": "all, delete"}
+        back_populates="location", sa_relationship_kwargs={"uselist": False}
     )
-    geo_identifier: int | None = Field(foreign_key="geo.identifier")
-    geo: Optional["GeoORM"] = Relationship(sa_relationship_kwargs={"cascade": "all, delete"})
+    geo: Optional["GeoORM"] = Relationship(
+        back_populates="location", sa_relationship_kwargs={"uselist": False}
+    )
 
     class RelationshipConfig:
-        address: Optional[Address] = ResourceRelationshipSingle(
-            deserializer=CastDeserializer(AddressORM),
-        )
-        geo: Optional[Geo] = ResourceRelationshipSingle(
-            deserializer=CastDeserializer(GeoORM),
-        )
+        address: Optional[Address] = OneToOne(deserializer=CastDeserializer(AddressORM))
+        geo: Optional[Geo] = OneToOne(deserializer=CastDeserializer(GeoORM))
 
 
 class Location(LocationBase):

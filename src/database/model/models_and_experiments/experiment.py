@@ -2,10 +2,10 @@ from sqlmodel import Field, Relationship
 
 from database.model.ai_asset.ai_asset import AIAssetBase, AIAsset
 from database.model.field_length import SHORT, DESCRIPTION
-from database.model.helper_functions import link_factory
+from database.model.helper_functions import many_to_many_link_factory
 from database.model.models_and_experiments.badge import Badge
 from database.model.models_and_experiments.runnable_distribution import RunnableDistribution
-from database.model.relationships import ResourceRelationshipList
+from database.model.relationships import ManyToMany, OneToMany
 from database.model.serializers import AttributeSerializer, FindByNameDeserializer
 
 
@@ -44,18 +44,15 @@ class Experiment(ExperimentBase, AIAsset, table=True):  # type: ignore [call-arg
     __tablename__ = "experiment"
 
     badge: list[Badge] = Relationship(
-        sa_relationship_kwargs={"cascade": "all, delete"},
-        link_model=link_factory("experiment", Badge.__tablename__),
+        link_model=many_to_many_link_factory("experiment", Badge.__tablename__),
     )
 
     class RelationshipConfig(AIAsset.RelationshipConfig):
-        badge: list[str] = ResourceRelationshipList(
+        badge: list[str] = ManyToMany(
             description="Labels awarded on the basis of the reproducibility of this experiment.",
             serializer=AttributeSerializer("name"),
             deserializer=FindByNameDeserializer(Badge),
             default_factory_pydantic=list,
             example=["ACM Artifacts Evaluated - Reusable"],
         )
-        distribution: list[RunnableDistribution] = ResourceRelationshipList(
-            default_factory_pydantic=list
-        )
+        distribution: list[RunnableDistribution] = OneToMany(default_factory_pydantic=list)

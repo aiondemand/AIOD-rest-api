@@ -16,6 +16,8 @@ from sqlmodel import Session, select
 import routers
 from authentication import get_current_user
 from config import KEYCLOAK_CONFIG
+from database.deletion.triggers import add_delete_triggers
+from database.model.concept.concept import AIoDConcept
 from database.model.platform.platform import Platform
 from database.model.platform.platform_names import PlatformName
 from database.setup import sqlmodel_engine
@@ -92,6 +94,10 @@ def create_app() -> FastAPI:
         },
     )
     engine = sqlmodel_engine(args.rebuild_db)
+    add_delete_triggers(AIoDConcept)
+    with engine.connect() as connection:
+        AIoDConcept.metadata.create_all(connection, checkfirst=True)
+        connection.commit()
     with Session(engine) as session:
         existing_platforms = session.scalars(select(Platform)).all()
         if not any(existing_platforms):

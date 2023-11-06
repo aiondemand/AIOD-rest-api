@@ -1,4 +1,5 @@
 [
+<<<<<<< HEAD
   {
     "platform": "ai4experiments",
     "platform_identifier": "1",
@@ -8083,4 +8084,96 @@
     "scientific_domain": [],
     "type": ""
   }
+=======
+    {
+      "platform": "example",
+      "platform_identifier": "1",
+      "name": "The name of this resource",
+      "description": "A description.",
+      "same_as": "https://www.example.com/resource/this_resource",
+      "date_published": "2022-01-01T15:15:00.000",
+      "version": "1.1.0",
+      "pid": "https://doi.org/10.1000/182",
+      "aiod_entry": {
+        "editor": [],
+        "status": "draft"
+      },
+      "alternate_name": [
+        "alias 1",
+        "alias 2"
+      ],
+      "application_area": [
+        "Fraud Prevention",
+        "Voice Assistance",
+        "Disease Classification"
+      ],
+      "citation": [],
+      "contact": [],
+      "creator": [],
+      "distribution": [
+        {
+          "checksum": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "checksum_algorithm": "sha256",
+          "copyright": "2010-2020 Example Company. All rights reserved.",
+          "content_url": "https://www.example.com/model.zip",
+          "content_size_kb": 10000,
+          "date_published": "2022-01-01T15:15:00.000",
+          "description": "Description of this file.",
+          "encoding_format": "application/zip",
+          "name": "Name of this file.",
+          "technology_readiness_level": 1,
+          "installation_script": "./install.sh",
+          "installation": "Build the Dockerfile",
+          "installation_time_milliseconds": 100,
+          "deployment_script": "./run.sh",
+          "deployment": "You can run the run.py file using python3. See README.md for required arguments.",
+          "deployment_time_milliseconds": 100,
+          "os_requirement": "Windows 11.",
+          "dependency": "Python packages as listed in requirements.txt.",
+          "hardware_requirement": "4GB RAM; 100MB storage; 1GHz processor with 8 cores."
+        }
+      ],
+      "has_part": [],
+      "industrial_sector": [
+        "Finance",
+        "eCommerce",
+        "Healthcare"
+      ],
+      "is_part_of": [],
+      "keyword": [
+        "keyword1",
+        "keyword2"
+      ],
+      "license": "https://creativecommons.org/share-your-work/public-domain/cc0/",
+      "media": [
+        {
+          "checksum": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "checksum_algorithm": "sha256",
+          "copyright": "2010-2020 Example Company. All rights reserved.",
+          "content_url": "https://www.example.com/image.jpeg",
+          "content_size_kb": 10000,
+          "date_published": "2022-01-01T15:15:00.000",
+          "description": "Description of this file.",
+          "encoding_format": "image/jpeg",
+          "name": "Name of this file."
+        }
+      ],
+      "note": [
+        {
+          "value": "A brief record of points or ideas about this AI resource."
+        }
+      ],
+      "related_experiment": [],
+      "research_area": [
+        "Explainable AI",
+        "Physical AI"
+      ],
+      "scientific_domain": [
+        "Anomaly Detection",
+        "Voice Recognition",
+        "Computer Vision."
+      ],
+      "type": "Large Language Model"
+    }
+>>>>>>> develop
 ]

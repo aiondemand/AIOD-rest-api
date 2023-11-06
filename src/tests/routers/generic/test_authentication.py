@@ -54,7 +54,7 @@ def test_delete_unauthorized(client_test_resource: TestClient, mocked_token: Moc
     )
     assert response.status_code == 403, response.json()
     response_json = response.json()
-    assert response_json["detail"] == "You do not have permission to edit Aiod resources."
+    assert response_json["detail"] == "You do not have permission to delete Aiod resources."
 
 
 def test_post_unauthorized(client_test_resource: TestClient, mocked_token: Mock):

@@ -4,7 +4,8 @@ from typing import TYPE_CHECKING
 from sqlmodel import SQLModel, Field, Relationship
 
 from database.model.concept.status import Status
-from database.model.relationships import ResourceRelationshipSingle, ResourceRelationshipList
+from database.model.helper_functions import many_to_many_link_factory
+from database.model.relationships import ManyToOne, ManyToMany
 from database.model.serializers import (
     AttributeSerializer,
     FindByNameDeserializer,
@@ -27,7 +28,9 @@ class AIoDEntryORM(AIoDEntryBase, table=True):  # type: ignore [call-arg]
     __tablename__ = "aiod_entry"
 
     identifier: int = Field(default=None, primary_key=True)
-    editor: list["Person"] = Relationship()
+    editor: list["Person"] = Relationship(
+        link_model=many_to_many_link_factory("aiod_entry", "person", table_prefix="editor"),
+    )
     status_identifier: int | None = Field(foreign_key=Status.__tablename__ + ".identifier")
     status: Status = Relationship()
 
@@ -36,8 +39,8 @@ class AIoDEntryORM(AIoDEntryBase, table=True):  # type: ignore [call-arg]
     date_created: datetime | None = Field(default_factory=datetime.utcnow)
 
     class RelationshipConfig:
-        editor: list[int] = ResourceRelationshipList()
-        status: str = ResourceRelationshipSingle(
+        editor: list[int] = ManyToMany()  # No deletion triggers: "orphan" Persons should be kept
+        status: str = ManyToOne(
             example="draft",
             identifier_name="status_identifier",
             deserializer=FindByNameDeserializer(Status),

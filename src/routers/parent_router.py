@@ -6,6 +6,8 @@ from sqlalchemy.engine import Engine
 from sqlmodel import SQLModel, select, Session
 from starlette.status import HTTP_404_NOT_FOUND, HTTP_500_INTERNAL_SERVER_ERROR
 
+from database.model.concept.concept import AIoDConcept
+from database.model.helper_functions import non_abstract_subclasses
 from routers import resource_routers
 
 
@@ -66,17 +68,17 @@ class ParentRouter(abc.ABC):
                 )
                 parent_resource = session.scalars(query).first()
                 if not parent_resource:
-                    raise HTTPException(
-                        status_code=HTTP_404_NOT_FOUND,
-                        detail=f"{self.resource_name} with identifier {identifier} not found.",
-                    )
+                    self.raise_404(identifier)
                 child_type: str = parent_resource.type
                 child_class = classes_dict[child_type]
                 child_class_read = read_classes_dict[child_type]
                 query_child = select(child_class).where(
                     getattr(child_class, self.resource_name + "_id") == identifier
                 )
-                child = session.scalars(query_child).first()
+                child: AIoDConcept = session.scalars(query_child).first()
+                if child.date_deleted is not None:
+                    self.raise_404(identifier)
+
                 if not child:
                     raise HTTPException(
                         status_code=HTTP_500_INTERNAL_SERVER_ERROR,
@@ -87,18 +89,8 @@ class ParentRouter(abc.ABC):
 
         return get_resource
 
-
-def non_abstract_subclasses(cls):
-    """
-    All non-abstract subclasses of the class.
-
-    To check if a class is abstract, we check if it has any children itself. This will break if
-    we ever inherit from a non-abstract class.
-    """
-    for child in cls.__subclasses__():
-        has_grandchild = False
-        for grand_child in non_abstract_subclasses(child):
-            has_grandchild = True
-            yield grand_child
-        if not has_grandchild:
-            yield child
+    def raise_404(self, identifier: int):
+        raise HTTPException(
+            status_code=HTTP_404_NOT_FOUND,
+            detail=f"{self.resource_name} with identifier {identifier} not found.",
+        )

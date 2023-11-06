@@ -16,11 +16,11 @@ from database.model.serializers import create_getter_dict
 
 if TYPE_CHECKING:
     from database.model.concept.concept import AIoDConcept
-    from database.model.relationships import ResourceRelationshipInfo
+    from database.model.relationships import _ResourceRelationship
 
 
 def _get_field_definitions_read(
-    resource_class: Type["AIoDConcept"], relationships: dict[str, "ResourceRelationshipInfo"]
+    resource_class: Type["AIoDConcept"], relationships: dict[str, "_ResourceRelationship"]
 ) -> dict[str, Tuple[Type, FieldInfo]]:
     if not hasattr(resource_class, "RelationshipConfig"):
         return {}
@@ -37,7 +37,7 @@ def _get_field_definitions_read(
 
 
 def _get_field_definitions_create(
-    resource_class: Type["AIoDConcept"], relationships: dict[str, "ResourceRelationshipInfo"]
+    resource_class: Type["AIoDConcept"], relationships: dict[str, "_ResourceRelationship"]
 ) -> dict[str, Tuple[Type, FieldInfo]]:
     if not hasattr(resource_class, "RelationshipConfig"):
         return {}
@@ -94,7 +94,6 @@ def resource_read(resource_class: Type["AIoDConcept"]) -> Type[SQLModel]:
         resource_class.__name__ + "Read", __base__=resource_class.__base__, **field_definitions
     )
     _update_model_serialization(resource_class, resource_class_read)
-    relationships.items()
     return resource_class_read
 
 

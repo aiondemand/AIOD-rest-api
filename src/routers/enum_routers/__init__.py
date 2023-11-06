@@ -1,7 +1,6 @@
 from database.model.named_relation import NamedRelation
 from routers.enum_routers.enum_router import EnumRouter
-from routers.parent_router import non_abstract_subclasses
-
+from database.model.helper_functions import non_abstract_subclasses
 
 # Excluding some enums that should not get a router. TODO: make it configurable on the NamedRelation
 __exclusion_list = ("alternate_name", "email", "note", "telephone")

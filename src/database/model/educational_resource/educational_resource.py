@@ -5,7 +5,7 @@ from sqlmodel import Field, Relationship
 from database.model.ai_resource.resource import AIResource, AIResourceBase
 from database.model.educational_resource.educational_resource_type import EducationalResourceType
 from database.model.field_length import NORMAL
-from database.model.relationships import ResourceRelationshipSingle
+from database.model.relationships import ManyToOne
 from database.model.serializers import AttributeSerializer, FindByNameDeserializer
 
 
@@ -29,7 +29,7 @@ class EducationalResource(
     type: Optional[EducationalResourceType] = Relationship()
 
     class RelationshipConfig(AIResource.RelationshipConfig):
-        type: Optional[str] = ResourceRelationshipSingle(
+        type: Optional[str] = ManyToOne(
             description="The type of educational resource.",
             identifier_name="type_identifier",
             serializer=AttributeSerializer("name"),

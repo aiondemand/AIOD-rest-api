@@ -80,7 +80,7 @@ def test_happy_path(
     assert response_json["date_published"] == "2022-01-01T15:15:00"
     assert response_json["license"] == "https://creativecommons.org/licenses/by/4.0/"
     assert response_json["version"] == "1.a"
-    notes = response_json["note"]
+    notes = [note["value"] for note in response_json["note"]]
     assert len(notes) == 2
     assert "A note" in notes
     lorem = (

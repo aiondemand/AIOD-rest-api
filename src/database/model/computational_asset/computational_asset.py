@@ -5,7 +5,7 @@ from sqlmodel import Field, Relationship
 from database.model.ai_asset.ai_asset import AIAssetBase, AIAsset
 from database.model.computational_asset.computational_asset_type import ComputationalAssetType
 from database.model.field_length import NORMAL
-from database.model.relationships import ResourceRelationshipSingle
+from database.model.relationships import ManyToOne
 from database.model.serializers import AttributeSerializer, FindByNameDeserializer
 
 
@@ -35,7 +35,7 @@ class ComputationalAsset(ComputationalAssetBase, AIAsset, table=True):  # type: 
     type: Optional[ComputationalAssetType] = Relationship()
 
     class RelationshipConfig(AIAsset.RelationshipConfig):
-        type: Optional[str] = ResourceRelationshipSingle(
+        type: Optional[str] = ManyToOne(
             description="The type of computational asset.",
             identifier_name="type_identifier",
             serializer=AttributeSerializer("name"),

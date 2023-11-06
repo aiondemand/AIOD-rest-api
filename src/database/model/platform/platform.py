@@ -1,3 +1,5 @@
+import datetime
+
 from sqlmodel import Field, SQLModel
 
 
@@ -9,6 +11,7 @@ class PlatformBase(SQLModel):
         schema_extra={"example": "example_platform"},
         index=True,
     )
+    date_deleted: datetime.datetime | None = Field()
 
 
 class Platform(PlatformBase, table=True):  # type: ignore [call-arg]

@@ -6,7 +6,7 @@ from database.model.ai_asset.ai_asset import AIAsset
 from database.model.field_length import NORMAL
 from database.model.knowledge_asset.PublicationType import PublicationType
 from database.model.knowledge_asset.knowledge_asset import KnowledgeAssetBase, KnowledgeAsset
-from database.model.relationships import ResourceRelationshipSingle
+from database.model.relationships import ManyToOne
 from database.model.serializers import (
     AttributeSerializer,
     FindByNameDeserializer,
@@ -46,7 +46,7 @@ class Publication(PublicationBase, KnowledgeAsset, table=True):  # type: ignore 
     type: Optional[PublicationType] = Relationship()
 
     class RelationshipConfig(KnowledgeAsset.RelationshipConfig):
-        type: str | None = ResourceRelationshipSingle(
+        type: str | None = ManyToOne(
             description="The type of publication.",
             identifier_name="type_identifier",
             serializer=AttributeSerializer("name"),

@@ -9,7 +9,7 @@ from database.model.agent.person import Person
 from database.model.ai_asset.license import License
 from database.model.ai_resource.alternate_name import AlternateName
 from database.model.dataset.dataset import Dataset
-from database.model.dataset.size import Size
+from database.model.dataset.size import DatasetSizeORM
 from database.model.knowledge_asset.publication import Publication
 from tests.testutils.paths import path_test_resources
 
@@ -18,7 +18,7 @@ def test_aiod_to_schema_dot_org_happy_path(engine: Engine, dataset: Dataset):
     dataset.identifier = 1
     dataset.license = License(name="a license")
     dataset.alternate_name = [AlternateName(name="alias1"), AlternateName(name="alias2")]
-    dataset.size = Size(value=1, unit="Rows")
+    dataset.size = DatasetSizeORM(value=1, unit="Rows")
     dataset.keyword = [AlternateName(name="keyword1"), AlternateName(name="keyword2")]
     creator = Person(name="person name")
     dataset.creator = [creator]

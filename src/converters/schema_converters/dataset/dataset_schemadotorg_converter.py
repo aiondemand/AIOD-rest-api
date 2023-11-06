@@ -60,7 +60,9 @@ class DatasetConverterSchemaDotOrg(SchemaConverter[Dataset, SchemaDotOrgDataset]
             issn=aiod.issn,
             license=aiod.license.name if aiod.license is not None else None,
             measurementTechnique=aiod.measurement_technique,
-            size=str(aiod.size) if aiod.size is not None else None,
+            size=f"unit={aiod.size.unit} value={aiod.size.value}"
+            if aiod.size is not None
+            else None,
             temporalCoverage=aiod.temporal_coverage,
         )
 

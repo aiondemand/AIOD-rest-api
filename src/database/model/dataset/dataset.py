@@ -1,14 +1,15 @@
 from typing import Optional
 
+from sqlalchemy import Column, Integer, ForeignKey
 from sqlmodel import Field, Relationship
 
 from database.model.agent.agent_table import AgentTable
 from database.model.ai_asset.ai_asset import AIAssetBase, AIAsset
 from database.model.ai_resource.location import LocationORM, Location
-from database.model.dataset.size import Size, SizeORM
+from database.model.dataset.size import DatasetSizeORM, DatasetSize
 from database.model.field_length import NORMAL, SHORT
-from database.model.helper_functions import link_factory
-from database.model.relationships import ResourceRelationshipList, ResourceRelationshipSingle
+from database.model.helper_functions import many_to_many_link_factory
+from database.model.relationships import ManyToMany, OneToOne
 from database.model.serializers import (
     AttributeSerializer,
     FindByIdentifierDeserializer,
@@ -48,18 +49,21 @@ class Dataset(DatasetBase, AIAsset, table=True):  # type: ignore [call-arg]
     __tablename__ = "dataset"
 
     funder: list["AgentTable"] = Relationship(
-        sa_relationship_kwargs={"cascade": "all, delete"},
-        link_model=link_factory("dataset", AgentTable.__tablename__, table_prefix="funder"),
+        link_model=many_to_many_link_factory(
+            "dataset", AgentTable.__tablename__, table_prefix="funder"
+        ),
     )
-    size_identifier: int | None = Field(foreign_key=SizeORM.__tablename__ + ".identifier")
-    size: Optional[SizeORM] = Relationship()
+    size_identifier: int | None = Field(
+        sa_column=Column(Integer, ForeignKey(DatasetSizeORM.__tablename__ + ".identifier"))
+    )
+    size: Optional[DatasetSizeORM] = Relationship()
     spatial_coverage_identifier: int | None = Field(
         foreign_key=LocationORM.__tablename__ + ".identifier"
     )
     spatial_coverage: Optional[LocationORM] = Relationship()
 
     class RelationshipConfig(AIAsset.RelationshipConfig):
-        funder: list[int] = ResourceRelationshipList(
+        funder: list[int] = ManyToMany(
             description="Links to identifiers of the agents (person or organization) that supports "
             "this dataset through some kind of financial contribution. ",
             serializer=AttributeSerializer("identifier"),
@@ -67,13 +71,15 @@ class Dataset(DatasetBase, AIAsset, table=True):  # type: ignore [call-arg]
             default_factory_pydantic=list,
             example=[],
         )
-        size: Optional[Size] = ResourceRelationshipSingle(
+        size: Optional[DatasetSize] = OneToOne(
             description="The size of this dataset, for example the number of rows. The file size "
             "should not be included here, but in distribution.content_size_kb.",
-            deserializer=CastDeserializer(SizeORM),
+            deserializer=CastDeserializer(DatasetSizeORM),
+            on_delete_trigger_deletion_by="size_identifier",
         )
-        spatial_coverage: Optional[Location] = ResourceRelationshipSingle(
+        spatial_coverage: Optional[Location] = OneToOne(
             description="A location that describes the spatial aspect of this dataset. For "
             "example, a point where all the measurements were collected.",
             deserializer=CastDeserializer(LocationORM),
+            on_delete_trigger_deletion_by="spatial_coverage_identifier",
         )

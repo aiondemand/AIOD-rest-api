@@ -78,13 +78,12 @@ Next we create the `Example` in `src/database/model/example/example.py`, inherit
 `ExampleBase`.
 
 ```python
-from sqlalchemy import UniqueConstraint
-from database.model.relationships import ResourceRelationshipSingle
 from sqlmodel import Field, Relationship
 from database.model.serializers import (
     AttributeSerializer,
     FindByNameDeserializer
 )
+from database.model.relationships import ManyToOne
 
 
 class Example(ExampleBase, table=True):  # type: ignore [call-arg]
@@ -96,7 +95,7 @@ class Example(ExampleBase, table=True):  # type: ignore [call-arg]
     example_enum: ExampleEnum | None = Relationship(back_populates="examples")
 
     class RelationshipConfig:  # This is AIoD-specific code, used to go from Pydantic to SqlAlchemy
-        example_enum: str | None = ResourceRelationshipSingle(
+        example_enum: str | None = ManyToOne(
             identifier_name="example_enum_identifier",
             serializer=AttributeSerializer("name"),  # code to serialize ORM to Pydantic
             deserializer=FindByNameDeserializer(ExampleEnum),  # deserialize Pydantic to ORM
@@ -105,46 +104,51 @@ class Example(ExampleBase, table=True):  # type: ignore [call-arg]
 ```
 
 ### Types of relations
-#### Many-to-one Enum
+#### One-to-one
+One-to-one relationships are the simplest. One (or both) of the tables can have a foreign key to 
+the other table. Example: `AIAsset.ai_asset_identifier`.
+
+#### One-to-many
+See `AIAsset.distribution` as example.
+
+#### Many-to-one
 See `ExampleEnum` above. Example: `Dataset.license`: we keep a list of possible licenses. Each 
 license relates back to multiple datasets.
 
-#### Many-to-many Enum or one-to-many.
-If, instead, we needed a many-to-many or one-to-many enum, we need a separate table linking them 
+#### Many-to-many.
+If, instead, we needed a many-to-many relation, we need a separate table linking them 
 together. Example: `Dataset.alternate_name`:
-
-In `src/database/model/example/example_enum.py`:
-```python
-from typing import TYPE_CHECKING
-
-from sqlmodel import SQLModel, Field
-
-if TYPE_CHECKING:  # avoid circular imports; only import while type checking
-    from database.model.example import Example
-
-class ExampleEnumLink(SQLModel, table=True):  # type: ignore [call-arg]
-    __tablename__ = "example_example_enum_link"
-
-    example_identifier: int = Field(foreign_key="example.identifier", primary_key=True)
-    example_enum_identifier: int = Field(foreign_key="example_enum.identifier", primary_key=True)
-```
 
 In `src/database/model/example/example.py`:
 ```python
 class Example(ExampleBase, table=True):  # type: ignore [call-arg]
     # [...]
     example_enums: List[ExampleEnum] = Relationship(
-        back_populates="examples", link_model=ExampleEnumLink
+        back_populates="examples", 
+        link_model=many_to_many_link_factory("example", ExampleEnum.__tablename__)
     )
 
     class RelationshipConfig:
         # [...]
-        alternate_names: List[str] = ResourceRelationshipList(
+        alternate_names: List[str] = ManyToMany(
             example=["alias 1", "alias 2"],
             serializer=AttributeSerializer("name"),
             deserializer=FindByNameDeserializer(ExampleEnum),
         )
 ```
+### Deletion
+
+Deletion of related entities is quite complex. For instance, if we delete a Dataset, we want the 
+related `AIAssetTable` entry to be deleted as well. Normally you'd implement a cascading delete at 
+the `AIAssetTable` that "listens" to deletions on the dataset. For that, we'd need a foreign key 
+at `AIAssetTable` though, which is difficult: it then needs a foreign key to all possible 
+different classes (`CaseStudy`, `Dataset`, `Publication` ...).
+
+To solve this problem, we're making use of deletion triggers. We define a trigger on `Dataset` 
+and other tables, so that the related entities are deleted as well. Those deletion triggers can 
+be defined on the relationship configuration as well. See `relationships.py` for information on 
+how those triggers can be configured. 
+
 
 ### Nested classes
 
@@ -194,18 +198,14 @@ We can then add this to our `Example` model:
 ```python
 class Example(ExampleBase, table=True):  # type: ignore [call-arg]
     # [...]
-    nested: List[NestedORM] = Relationship(
-        back_populates="examples", link_model=NestedLink
-    )
+    nested: List[NestedORM] = Relationship(sa_relationship_kwargs={"cascade": "all, delete"})
 
     class RelationshipConfig:
         # [...]
-        nested: List[Nested] = ResourceRelationshipList(
-            deserializer=CastDeserializer(DataDownloadORM)
+        nested: List[Nested] = OneToMany(
+            deserializer=CastDeserializer(NestedORM)
         )
 ```
-
-See for a more complex example `dataset.data_download`.
 
 
 ## Router implementation

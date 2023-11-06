@@ -7,8 +7,8 @@ from database.model.agent.language import Language
 from database.model.ai_resource.resource import AIResource
 from database.model.concept.aiod_entry import AIoDEntryORM
 from database.model.field_length import NORMAL
-from database.model.helper_functions import link_factory
-from database.model.relationships import ResourceRelationshipList
+from database.model.helper_functions import many_to_many_link_factory
+from database.model.relationships import ManyToMany
 from database.model.serializers import (
     AttributeSerializer,
     FindByNameDeserializer,
@@ -45,22 +45,23 @@ class Person(PersonBase, Agent, table=True):  # type: ignore [call-arg]
     __tablename__ = "person"
 
     expertise: list[Expertise] = Relationship(
-        link_model=link_factory("person", Expertise.__tablename__)
+        link_model=many_to_many_link_factory("person", Expertise.__tablename__)
     )
     language: list[Language] = Relationship(
-        link_model=link_factory("person", Language.__tablename__)
+        link_model=many_to_many_link_factory("person", Language.__tablename__)
     )
     # TODO(jos): memberOf? This should probably be on Agent
 
     class RelationshipConfig(Agent.RelationshipConfig):
-        expertise: list[str] = ResourceRelationshipList(
+        expertise: list[str] = ManyToMany(
             description="A skill this person masters.",
             serializer=AttributeSerializer("name"),
             deserializer=FindByNameDeserializer(Expertise),
             example=["transfer learning"],
             default_factory_pydantic=list,
+            on_delete_trigger_orphan_deletion=list,
         )
-        language: list[str] = ResourceRelationshipList(
+        language: list[str] = ManyToMany(
             description="A language this person masters, in ISO639-3",
             serializer=AttributeSerializer("name"),
             deserializer=FindByNameDeserializer(Language),

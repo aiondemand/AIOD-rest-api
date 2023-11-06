@@ -53,7 +53,9 @@
       0
     ],
     "note": [
-      "A brief record of points or ideas about this AI resource."
+      {
+        "value": "A brief record of points or ideas about this AI resource."
+      }
     ],
     "research_area": [
       "Explainable AI",

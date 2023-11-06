@@ -1,9 +1,14 @@
+from typing import TYPE_CHECKING
+
 from sqlmodel import SQLModel, Field
 
 from database.model.field_length import SHORT
 
+if TYPE_CHECKING:
+    pass
 
-class SizeBase(SQLModel):
+
+class DatasetSizeBase(SQLModel):
     unit: str = Field(
         default=None,
         max_length=SHORT,
@@ -17,11 +22,11 @@ class SizeBase(SQLModel):
     )
 
 
-class SizeORM(SizeBase, table=True):  # type: ignore [call-arg]
-    __tablename__ = "size"
+class DatasetSizeORM(DatasetSizeBase, table=True):  # type: ignore [call-arg]
+    __tablename__ = "dataset_size"
 
     identifier: int = Field(default=None, primary_key=True)
 
 
-class Size(SizeBase):
+class DatasetSize(DatasetSizeBase):
     """A point value for product characteristics"""

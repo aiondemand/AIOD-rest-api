@@ -13,14 +13,16 @@ from routers.resource_router import ResourceRouter
 
 
 class TestResourceBase(AIoDConceptBase):
-    title: str = Field(max_length=250, nullable=False, unique=True)
+    title: str = Field(max_length=250, nullable=False)
 
 
 class TestResource(TestResourceBase, AIoDConcept, table=True):  # type: ignore [call-arg]
     identifier: int = Field(default=None, primary_key=True)
 
 
-def test_resource_factory(title=None, status=None, platform="example", platform_identifier="1"):
+def test_resource_factory(
+    title=None, status=None, platform="example", platform_identifier="1", date_deleted=None
+):
     if status is None:
         status = Status(name="draft")
     return TestResource(
@@ -28,6 +30,7 @@ def test_resource_factory(title=None, status=None, platform="example", platform_
         platform=platform,
         platform_identifier=platform_identifier,
         aiod_entry=AIoDEntryORM(status=status),
+        date_deleted=date_deleted,
     )
 
 

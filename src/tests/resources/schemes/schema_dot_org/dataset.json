@@ -39,6 +39,6 @@
     "issn": "20493630",
     "license": "a license",
     "measurementTechnique": "mass spectrometry",
-    "size": "unit='Rows' value=1",
+    "size": "unit=Rows value=1",
     "temporalCoverage": "2011/2012"
 }

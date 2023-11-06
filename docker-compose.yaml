@@ -45,6 +45,23 @@ services:
       app:
         condition: service_healthy
 
+
+  deletion:
+    build:
+      context: deletion
+      dockerfile: Dockerfile
+    image: ai4eu_deletion
+    container_name: deletion
+    env_file: .env
+    volumes:
+      - ./src:/app
+      - ./data/deletion:/opt/deletion/data
+    command: >
+      /bin/bash -c "/opt/deletion/script/entry.sh"
+    depends_on:
+      app:
+        condition: service_healthy
+
   huggingface-dataset-connector:
     image: ai4eu_server
     container_name: huggingface-dataset-connector

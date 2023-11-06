@@ -9,8 +9,9 @@ from wsgiref.handlers import format_date_time
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
-from sqlalchemy import and_, delete
+from sqlalchemy import and_
 from sqlalchemy.engine import Engine
+from sqlalchemy.sql.operators import is_
 from sqlmodel import SQLModel, Session, select
 from starlette.responses import JSONResponse
 
@@ -18,6 +19,7 @@ from authentication import get_current_user
 from config import KEYCLOAK_CONFIG
 from converters.schema_converters.schema_converter import SchemaConverter
 from database.model.ai_resource.resource import AIResource
+from database.model.concept.concept import AIoDConcept
 from database.model.platform.platform import Platform
 from database.model.platform.platform_names import PlatformName
 from database.model.resource_read_and_create import (
@@ -187,8 +189,9 @@ class ResourceRouter(abc.ABC):
                     if schema != "aiod"
                     else self.resource_class_read.from_orm
                 )
-                where_clause = (
-                    (self.resource_class.platform == platform) if platform is not None else True
+                where_clause = and_(
+                    is_(self.resource_class.date_deleted, None),
+                    (self.resource_class.platform == platform) if platform is not None else True,
                 )
                 query = (
                     select(self.resource_class)
@@ -250,7 +253,11 @@ class ResourceRouter(abc.ABC):
             f"""Retrieve the number of {self.resource_name_plural}."""
             try:
                 with Session(engine) as session:
-                    return session.query(self.resource_class).count()
+                    return (
+                        session.query(self.resource_class)
+                        .where(is_(self.resource_class.date_deleted, None))
+                        .count()
+                    )
             except Exception as e:
                 raise _wrap_as_http_exception(e)
 
@@ -380,8 +387,8 @@ class ResourceRouter(abc.ABC):
             try:
                 with Session(engine) as session:
                     resource = self._retrieve_resource(session, identifier)
-                    if hasattr(resource, "aiod_entry"):
-                        datetime_created = resource.aiod_entry.date_created
+
+                    datetime_created = resource.aiod_entry.date_created
                     for attribute_name in resource.schema()["properties"]:
                         if hasattr(resource_create_instance, attribute_name):
                             new_value = getattr(resource_create_instance, attribute_name)
@@ -389,8 +396,7 @@ class ResourceRouter(abc.ABC):
                     deserialize_resource_relationships(
                         session, self.resource_class, resource, resource_create_instance
                     )
-                    if hasattr(resource, "aiod_entry"):
-                        resource.aiod_entry.date_created = datetime_created
+                    resource.aiod_entry.date_created = datetime_created
                     try:
                         session.merge(resource)
                         session.commit()
@@ -413,25 +419,17 @@ class ResourceRouter(abc.ABC):
             if "groups" in user and KEYCLOAK_CONFIG.get("role") not in user["groups"]:
                 raise HTTPException(
                     status_code=status.HTTP_403_FORBIDDEN,
-                    detail="You do not have permission to edit Aiod resources.",
+                    detail="You do not have permission to delete Aiod resources.",
                 )
-
             try:
                 with Session(engine) as session:
-                    self._retrieve_resource(session, identifier)  # Raise error if it does not exist
-                    statement = delete(self.resource_class).where(
-                        self.resource_class.identifier == identifier
-                    )
-                    session.execute(statement)
+                    # Raise error if it does not exist
+                    resource = self._retrieve_resource(session, identifier)
+                    resource.date_deleted = datetime.datetime.utcnow()
+                    session.add(resource)
                     session.commit()
                 return self._wrap_with_headers(None)
             except Exception as e:
-                if "foreign key" in str(e).lower():  # Should work regardless of db technology
-                    raise HTTPException(
-                        status_code=status.HTTP_400_BAD_REQUEST,
-                        detail="This resource cannot be deleted, because other resources are "
-                        "related to it.",
-                    )
                 raise _wrap_as_http_exception(e)
 
         return delete_resource
@@ -452,15 +450,18 @@ class ResourceRouter(abc.ABC):
                 )
             )
         resource = session.scalars(query).first()
-        if not resource:
-            if platform is None:
-                msg = f"{self.resource_name.capitalize()} '{identifier}' not found in the database."
-            else:
-                msg = (
-                    f"{self.resource_name.capitalize()} '{identifier}' of '{platform}' not found "
-                    "in the database."
-                )
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=msg)
+        if not resource or resource.date_deleted is not None:
+            name = (
+                f"{self.resource_name.capitalize()} '{identifier}'"
+                if platform is None
+                else f"{self.resource_name.capitalize()} '{identifier}' of '{platform}'"
+            )
+            msg = (
+                "not found in the database."
+                if not resource
+                else "not found in the database, " "because it was deleted."
+            )
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"{name} {msg}")
         return resource
 
     @property
@@ -477,7 +478,7 @@ class ResourceRouter(abc.ABC):
         return JSONResponse(content=jsonable_encoder(resource, exclude_none=True), headers=headers)
 
     def _raise_clean_http_exception(
-        self, e: Exception, session: Session, resource_create: SQLModel
+        self, e: Exception, session: Session, resource_create: AIoDConcept
     ):
         """Raise an understandable exception based on this SQL IntegrityError."""
         session.rollback()
@@ -492,41 +493,22 @@ class ResourceRouter(abc.ABC):
         # Note that the "real" errors are different from testing errors, because we use a
         # sqlite db while testing and a mysql db when running the application. The correct error
         # handling is therefore not tested. TODO: can we improve this?
-        if "MySQLdb.IntegrityError" in error:
-            fields = error.split("same_")[-1].split("'")[0]
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail=f"There already exists a {self.resource_name} with the same {fields}.",
-            )
-        if "UNIQUE constraint failed: " in error and ", " not in error:
-            duplicate_field = error.split(".")[-1]
-            query = select(self.resource_class).where(
-                getattr(self.resource_class, duplicate_field)
-                == getattr(resource_create, duplicate_field)
-            )
-            existing_resource = session.scalars(query).first()
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail=f"There already exists a {self.resource_name} with the same "
-                f"{duplicate_field}, with "
-                f"identifier={existing_resource.identifier}.",
-            ) from e
-        if "UNIQUE constraint failed: " in error:
-            fields = error.split("constraint failed: ")[-1]
-            field1, field2 = [field.split(".")[-1] for field in fields.split(", ")]
+        if "_same_platform_and_platform_identifier" in error:
             query = select(self.resource_class).where(
                 and_(
-                    getattr(self.resource_class, field1) == getattr(resource_create, field1),
-                    getattr(self.resource_class, field2) == getattr(resource_create, field2),
+                    getattr(self.resource_class, "platform") == resource_create.platform,
+                    getattr(self.resource_class, "platform_identifier")
+                    == resource_create.platform_identifier,
+                    is_(getattr(self.resource_class, "date_deleted"), None),
                 )
             )
             existing_resource = session.scalars(query).first()
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail=f"There already exists a {self.resource_name} with the same "
-                f"{field1} and {field2}, with "
-                f"identifier={existing_resource.identifier}.",
+                detail=f"There already exists a {self.resource_name} with the same platform and "
+                f"platform_identifier, with identifier={existing_resource.identifier}.",
             ) from e
+
         if "FOREIGN KEY" in error and resource_create.platform is not None:
             query = select(Platform).where(Platform.name == resource_create.platform)
             if session.scalars(query).first() is None:

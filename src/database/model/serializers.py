@@ -165,8 +165,8 @@ def deserialize_resource_relationships(
                     new_value = None
                 elif relationship.default_factory_orm is None:
                     raise ValueError(
-                        "If a relationship is not included in create, it should "
-                        "contain a default_factory_orm"
+                        "If a relationship is not included in create, it should contain a "
+                        "default_factory_orm"
                     )
                 else:
                     parent = relationship.default_factory_orm(type_=resource_class.__tablename__)
@@ -177,7 +177,6 @@ def deserialize_resource_relationships(
                 if relationship.deserializer is not None:
                     new_value = relationship.deserializer.deserialize(session, new_value)
                 if hasattr(relationship, "identifier_name") and relationship.identifier_name:
-                    # a `ResourceRelationshipSingleInfo`, so a many-to-one relationship
                     setattr(resource, relationship.identifier_name, new_value)
                 else:
                     setattr(resource, attribute, new_value)

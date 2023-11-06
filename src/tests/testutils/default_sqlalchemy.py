@@ -1,6 +1,6 @@
 import sqlite3
 import tempfile
-from typing import Iterator
+from typing import Iterator, Type
 from unittest.mock import Mock
 
 import pytest
@@ -10,6 +10,8 @@ from sqlalchemy.engine import Engine
 from sqlmodel import create_engine, SQLModel, Session
 from starlette.testclient import TestClient
 
+from database.deletion.triggers import add_delete_triggers
+from database.model.concept.concept import AIoDConcept
 from database.model.platform.platform import Platform
 from database.model.platform.platform_names import PlatformName
 from main import add_routes
@@ -17,7 +19,14 @@ from tests.testutils.test_resource import RouterTestResource, test_resource_fact
 
 
 @pytest.fixture(scope="session")
-def engine() -> Iterator[Engine]:
+def deletion_triggers() -> Type[AIoDConcept]:
+    """Making sure that the deletion triggers are only created once"""
+    add_delete_triggers(AIoDConcept)
+    return AIoDConcept
+
+
+@pytest.fixture(scope="session")
+def engine(deletion_triggers) -> Iterator[Engine]:
     """
     Create a SqlAlchemy engine for tests, backed by a temporary sqlite file.
     """
@@ -25,6 +34,15 @@ def engine() -> Iterator[Engine]:
     engine = create_engine(f"sqlite:///{temporary_file.name}")
     SQLModel.metadata.create_all(engine)
     # Yielding is essential, the temporary file will be closed after the engine is used
+    yield engine
+
+
+@pytest.fixture(scope="session")
+def engine_test_resource(deletion_triggers) -> Iterator[Engine]:
+    """Create a SqlAlchemy Engine populated with an instance of the TestResource"""
+    temporary_file = tempfile.NamedTemporaryFile()
+    engine = create_engine(f"sqlite:///{temporary_file.name}")
+    SQLModel.metadata.create_all(engine)
     yield engine
 
 
@@ -67,15 +85,6 @@ def sqlite_enable_foreign_key_constraints(dbapi_connection, connection_record):
         cursor = dbapi_connection.cursor()
         cursor.execute("PRAGMA foreign_keys=ON")
         cursor.close()
-
-
-@pytest.fixture(scope="session")
-def engine_test_resource() -> Iterator[Engine]:
-    """Create a SqlAlchemy Engine populated with an instance of the TestResource"""
-    temporary_file = tempfile.NamedTemporaryFile()
-    engine = create_engine(f"sqlite:///{temporary_file.name}")
-    SQLModel.metadata.create_all(engine)
-    yield engine
 
 
 @pytest.fixture

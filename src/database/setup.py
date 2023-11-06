@@ -38,10 +38,6 @@ def connect_to_database(
     if delete_first or create_if_not_exists:
         drop_or_create_database(url, delete_first)
     engine = create_engine(url, echo=False, pool_recycle=3600)
-
-    with engine.connect() as connection:
-        AIoDConcept.metadata.create_all(connection, checkfirst=True)
-        connection.commit()
     return engine
 
 

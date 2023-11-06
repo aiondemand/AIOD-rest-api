@@ -1,6 +1,7 @@
 import abc
 import copy
 from typing import Any
+from typing import TYPE_CHECKING
 
 from sqlmodel import Field, Relationship
 
@@ -9,22 +10,20 @@ from database.model.ai_resource.alternate_name import AlternateName
 from database.model.ai_resource.application_area import ApplicationArea
 from database.model.ai_resource.industrial_sector import IndustrialSector
 from database.model.ai_resource.keyword import Keyword
-from database.model.ai_resource.note import Note
+from database.model.ai_resource.note import note_factory, Note
 from database.model.ai_resource.research_area import ResearchArea
 from database.model.ai_resource.resource_table import AIResourceTable
 from database.model.ai_resource.scientific_domain import ScientificDomain
 from database.model.concept.concept import AIoDConceptBase, AIoDConcept
 from database.model.field_length import DESCRIPTION, NORMAL
-from database.model.helper_functions import link_factory
-from database.model.relationships import ResourceRelationshipSingle, ResourceRelationshipList
+from database.model.helper_functions import many_to_many_link_factory, non_abstract_subclasses
+from database.model.relationships import OneToOne, ManyToMany, OneToMany
 from database.model.serializers import (
     AttributeSerializer,
     FindByNameDeserializer,
     CastDeserializer,
     FindByIdentifierDeserializer,
 )
-
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from database.model.agent.person import Person
@@ -62,7 +61,7 @@ class AIResource(AIResourceBase, AIoDConcept, metaclass=abc.ABCMeta):
     has_part: list[AIResourceTable] = Relationship()
 
     media: list = Relationship(sa_relationship_kwargs={"cascade": "all, delete"})
-    note: list[Note] = Relationship()
+    note: list = Relationship(sa_relationship_kwargs={"cascade": "all, delete"})
 
     def __init_subclass__(cls):
         """
@@ -72,53 +71,60 @@ class AIResource(AIResourceBase, AIoDConcept, metaclass=abc.ABCMeta):
         """
         cls.__annotations__.update(AIResource.__annotations__)
         relationships = copy.deepcopy(AIResource.__sqlmodel_relationships__)
-        if cls.__tablename__ not in ("aiasset", "agent", "knowledgeasset"):
-            # AIAsset, Agent and KnowledgeAsset are abstract classes, and must perform their own
-            # initialization, including their own relationships.
+        is_not_abstract = cls.__tablename__ not in ("aiasset", "agent", "knowledgeasset")
+        if is_not_abstract:
             cls.update_relationships(relationships)
         cls.__sqlmodel_relationships__.update(relationships)
 
     class RelationshipConfig(AIoDConcept.RelationshipConfig):
-        ai_resource_identifier: int | None = ResourceRelationshipSingle(
+        ai_resource_identifier: int | None = OneToOne(
             description="This resource can be identified by its own identifier, but also by the "
             "resource_identifier.",
             identifier_name="ai_resource_id",
             serializer=AttributeSerializer("identifier"),
             include_in_create=False,
             default_factory_orm=lambda type_: AIResourceTable(type=type_),
+            on_delete_trigger_deletion_by="ai_resource_id",
         )
-        alternate_name: list[str] = ResourceRelationshipList(
+        alternate_name: list[str] = ManyToMany(
             description="An alias for the item, commonly used for the resource instead of the "
             "name.",
             serializer=AttributeSerializer("name"),
             deserializer=FindByNameDeserializer(AlternateName),
             example=["alias 1", "alias 2"],
             default_factory_pydantic=list,
+            on_delete_trigger_orphan_deletion=lambda: [
+                f"{a.__tablename__}_alternate_name_link"
+                for a in non_abstract_subclasses(AIResource)
+            ],
         )
-        keyword: list[str] = ResourceRelationshipList(
+        keyword: list[str] = ManyToMany(
             description="Keywords or tags used to describe this resource, providing additional "
             "context.",
             serializer=AttributeSerializer("name"),
             deserializer=FindByNameDeserializer(Keyword),
             example=["keyword1", "keyword2"],
             default_factory_pydantic=list,
+            on_delete_trigger_orphan_deletion=lambda: [
+                f"{a.__tablename__}_keyword_link" for a in non_abstract_subclasses(AIResource)
+            ],
         )
 
-        application_area: list[str] = ResourceRelationshipList(
+        application_area: list[str] = ManyToMany(
             description="The objective of this AI resource.",
             serializer=AttributeSerializer("name"),
             deserializer=FindByNameDeserializer(ApplicationArea),
             example=["Fraud Prevention", "Voice Assistance", "Disease Classification"],
             default_factory_pydantic=list,
         )
-        industrial_sector: list[str] = ResourceRelationshipList(
+        industrial_sector: list[str] = ManyToMany(
             description="A business domain where a resource is or can be used.",
             serializer=AttributeSerializer("name"),
             deserializer=FindByNameDeserializer(IndustrialSector),
             example=["Finance", "eCommerce", "Healthcare"],
             default_factory_pydantic=list,
         )
-        research_area: list[str] = ResourceRelationshipList(
+        research_area: list[str] = ManyToMany(
             description="The research area is similar to the scientific_domain, but more "
             "high-level.",
             serializer=AttributeSerializer("name"),
@@ -126,7 +132,7 @@ class AIResource(AIResourceBase, AIoDConcept, metaclass=abc.ABCMeta):
             example=["Explainable AI", "Physical AI"],
             default_factory_pydantic=list,
         )
-        scientific_domain: list[str] = ResourceRelationshipList(
+        scientific_domain: list[str] = ManyToMany(
             description="The scientific domain is related to the methods with which an objective "
             "is reached.",
             serializer=AttributeSerializer("name"),
@@ -135,7 +141,7 @@ class AIResource(AIResourceBase, AIoDConcept, metaclass=abc.ABCMeta):
             default_factory_pydantic=list,
         )
         # TODO(jos): documentedIn - KnowledgeAsset. This should probably be defined on ResourceTable
-        contact: list[int] = ResourceRelationshipList(
+        contact: list[int] = ManyToMany(
             description="Links to identifiers of persons that can be contacted for this resource.",
             serializer=AttributeSerializer("identifier"),
             default_factory_pydantic=list,
@@ -143,26 +149,23 @@ class AIResource(AIResourceBase, AIoDConcept, metaclass=abc.ABCMeta):
         )
         # decided to remove Location here. What does it mean for e.g. a dataset to reside at an
         # address of at a geographical location?
-        media: list[Distribution] = ResourceRelationshipList(
+        media: list[Distribution] = OneToMany(
             description="Images or videos depicting the resource or associated with it. ",
-            default_factory_pydantic=list,
+            default_factory_pydantic=list,  # no deletion trigger: cascading delete is used
         )
-        note: list[str] = ResourceRelationshipList(
+        note: list[Note] = OneToMany(
             description="Notes on this AI resource.",
-            default_factory_pydantic=list,
-            serializer=AttributeSerializer("name"),
-            deserializer=FindByNameDeserializer(Note),
-            example=["A brief record of points or ideas about this AI resource."],
+            default_factory_pydantic=list,  # no deletion trigger: cascading delete is used
         )
 
-        is_part_of: list[int] = ResourceRelationshipList(
+        is_part_of: list[int] = ManyToMany(
             description="Links to identifiers of parent resources, which include this resource.",
             serializer=AttributeSerializer("identifier"),
             deserializer=FindByIdentifierDeserializer(AIResourceTable),
             default_factory_pydantic=list,
             example=[],
         )
-        has_part: list[int] = ResourceRelationshipList(
+        has_part: list[int] = ManyToMany(
             description="Links to identifiers of child resources, which are included in this "
             "resource.",
             serializer=AttributeSerializer("identifier"),
@@ -180,6 +183,11 @@ class AIResource(AIResourceBase, AIoDConcept, metaclass=abc.ABCMeta):
         cls.RelationshipConfig.media = copy.copy(cls.RelationshipConfig.media)
         cls.RelationshipConfig.media.deserializer = CastDeserializer(distribution)  # type: ignore
 
+        note: Any = note_factory(table_from=cls.__tablename__)
+        cls.__annotations__["note"] = list[note]
+        cls.RelationshipConfig.note = copy.copy(cls.RelationshipConfig.note)
+        cls.RelationshipConfig.note.deserializer = CastDeserializer(note)  # type: ignore
+
         for table_to in (
             "alternate_name",
             "keyword",
@@ -187,12 +195,11 @@ class AIResource(AIResourceBase, AIoDConcept, metaclass=abc.ABCMeta):
             "industrial_sector",
             "research_area",
             "scientific_domain",
-            "note",
         ):
-            relationships[table_to].link_model = link_factory(
+            relationships[table_to].link_model = many_to_many_link_factory(
                 table_from=cls.__tablename__, table_to=table_to
             )
-        relationships["contact"].link_model = link_factory(
+        relationships["contact"].link_model = many_to_many_link_factory(
             table_from=cls.__tablename__,
             table_to="person",
             table_prefix="contact",
@@ -212,12 +219,12 @@ class AIResource(AIResourceBase, AIoDConcept, metaclass=abc.ABCMeta):
                 == relationships["contact"].link_model.linked_identifier,
                 cascade="all, delete",
             )
-        relationships["has_part"].link_model = link_factory(
+        relationships["has_part"].link_model = many_to_many_link_factory(
             table_from=cls.__tablename__,
             table_to=AIResourceTable.__tablename__,
             table_prefix="has_part",
         )
-        relationships["is_part_of"].link_model = link_factory(
+        relationships["is_part_of"].link_model = many_to_many_link_factory(
             table_from=cls.__tablename__,
             table_to=AIResourceTable.__tablename__,
             table_prefix="is_part_of",
