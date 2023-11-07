@@ -42,7 +42,7 @@ dev = [
     "pytest-xdist==3.3.1",
     "pre-commit==3.5.0",
     "responses==0.24.0",
-    "starlette==0.27.0"
+    "starlette==0.32.0.post1"
 ]
 
 [tool.setuptools]
