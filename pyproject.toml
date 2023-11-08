@@ -17,7 +17,7 @@ dependencies = [
     "bibtexparser==1.4.1",
     "datasets==2.14.6",
     "fastapi==0.104.1",
-    "uvicorn==0.23.2",
+    "uvicorn==0.24.0.post1",
     "requests==2.31.0",
     "mysqlclient==2.2.0",
     "oic==1.6.0",
@@ -26,7 +26,7 @@ dependencies = [
     "pydantic_schemaorg==1.0.6",
     "python-dateutil==2.8.2",
     "sqlmodel==0.0.11",
-    "httpx==0.25.0",
+    "httpx==0.25.1",
     "sickle==0.7.0",
     "xmltodict==0.13.0",
     "python-multipart==0.0.6",
@@ -41,7 +41,7 @@ dev = [
     "pytest-dotenv==0.5.2",
     "pytest-xdist==3.3.1",
     "pre-commit==3.5.0",
-    "responses==0.23.3",
+    "responses==0.24.0",
     "starlette==0.27.0"
 ]
 
