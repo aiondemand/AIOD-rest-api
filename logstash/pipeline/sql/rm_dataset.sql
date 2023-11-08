@@ -29,6 +29,6 @@ INNER JOIN aiod.status ON aiod.aiod_entry.status_identifier=aiod.status.identifi
 LEFT JOIN aiod.license ON aiod.dataset.license_identifier=aiod.license.identifier
 LEFT JOIN aiod.dataset_application_area_link ON aiod.dataset_application_area_link.from_identifier=aiod.dataset.identifier
 LEFT JOIN aiod.application_area ON aiod.dataset_application_area_link.linked_identifier=aiod.application_area.identifier
-WHERE aiod.dataset.date_deleted IS NULL
+WHERE aiod.dataset.date_deleted IS NOT NULL AND aiod.dataset.date_deleted > :sql_last_value
 GROUP BY aiod.dataset.identifier
 ORDER BY aiod.dataset.identifier

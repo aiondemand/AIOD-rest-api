@@ -17,12 +17,12 @@ SELECT
     publication.date_published,
     publication.version,
     license.name AS `license`,
-    -- KnowledgeAsset
-    publication.knowledge_asset_id AS `knowledge_asset_identifier`,
-    -- Publication
+    -- Attributes
     publication.permanent_identifier,
     publication.isbn,
     publication.issn,
+    publication.knowledge_asset_id AS `knowledge_asset_identifier`,
+    -- Type
     publication_type.name AS `publication_type`,
     -- Application Area
     GROUP_CONCAT(application_area.name) AS `application_area`
@@ -33,6 +33,6 @@ LEFT JOIN aiod.license ON aiod.publication.license_identifier=aiod.license.ident
 LEFT JOIN aiod.publication_type ON aiod.publication.type_identifier=aiod.publication_type.identifier
 LEFT JOIN aiod.publication_application_area_link ON aiod.publication_application_area_link.from_identifier=aiod.publication.identifier
 LEFT JOIN aiod.application_area ON aiod.publication_application_area_link.linked_identifier=aiod.application_area.identifier
-WHERE aiod.aiod_entry.date_modified > :sql_last_value
+WHERE aiod.publication.date_deleted IS NULL AND aiod.aiod_entry.date_modified > :sql_last_value
 GROUP BY aiod.publication.identifier
 ORDER BY aiod.publication.identifier

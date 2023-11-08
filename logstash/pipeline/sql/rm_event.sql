@@ -34,6 +34,6 @@ LEFT JOIN aiod.event_status ON aiod.event.status_identifier=aiod.event_status.id
 LEFT JOIN aiod.agent ON aiod.event.organiser_identifier=aiod.agent.identifier
 LEFT JOIN aiod.event_application_area_link ON aiod.event_application_area_link.from_identifier=aiod.event.identifier
 LEFT JOIN aiod.application_area ON aiod.event_application_area_link.linked_identifier=aiod.application_area.identifier
-WHERE aiod.event.date_deleted IS NULL
+WHERE aiod.event.date_deleted IS NOT NULL AND aiod.event.date_deleted > :sql_last_value
 GROUP BY aiod.event.identifier
 ORDER BY aiod.event.identifier

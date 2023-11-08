@@ -33,6 +33,6 @@ LEFT JOIN aiod.license ON aiod.publication.license_identifier=aiod.license.ident
 LEFT JOIN aiod.publication_type ON aiod.publication.type_identifier=aiod.publication_type.identifier
 LEFT JOIN aiod.publication_application_area_link ON aiod.publication_application_area_link.from_identifier=aiod.publication.identifier
 LEFT JOIN aiod.application_area ON aiod.publication_application_area_link.linked_identifier=aiod.application_area.identifier
-WHERE aiod.publication.date_deleted IS NULL
+WHERE aiod.publication.date_deleted IS NOT NULL AND aiod.publication.date_deleted > :sql_last_value
 GROUP BY aiod.publication.identifier
 ORDER BY aiod.publication.identifier

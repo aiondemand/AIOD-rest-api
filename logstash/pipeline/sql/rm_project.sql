@@ -27,6 +27,6 @@ INNER JOIN aiod.status ON aiod.aiod_entry.status_identifier=aiod.status.identifi
 LEFT JOIN aiod.organisation ON aiod.project.coordinator_identifier=aiod.organisation.identifier
 LEFT JOIN aiod.project_application_area_link ON aiod.project_application_area_link.from_identifier=aiod.project.identifier
 LEFT JOIN aiod.application_area ON aiod.project_application_area_link.linked_identifier=aiod.application_area.identifier
-WHERE aiod.project.date_deleted IS NULL AND aiod.aiod_entry.date_modified > :sql_last_value
+WHERE aiod.project.date_deleted IS NOT NULL AND aiod.project.date_deleted > :sql_last_value
 GROUP BY aiod.project.identifier
 ORDER BY aiod.project.identifier

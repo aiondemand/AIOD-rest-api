@@ -28,6 +28,6 @@ LEFT JOIN aiod.license ON aiod.ml_model.license_identifier=aiod.license.identifi
 LEFT JOIN aiod.ml_model_type ON aiod.ml_model.type_identifier=aiod.ml_model_type.identifier
 LEFT JOIN aiod.ml_model_application_area_link ON aiod.ml_model_application_area_link.from_identifier=aiod.ml_model.identifier
 LEFT JOIN aiod.application_area ON aiod.ml_model_application_area_link.linked_identifier=aiod.application_area.identifier
-WHERE aiod.ml_model.date_deleted IS NULL AND aiod.aiod_entry.date_modified > :sql_last_value
+WHERE aiod.ml_model.date_deleted IS NOT NULL AND aiod.ml_model.date_deleted > :sql_last_value
 GROUP BY aiod.ml_model.identifier
 ORDER BY aiod.ml_model.identifier

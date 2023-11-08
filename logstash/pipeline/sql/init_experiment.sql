@@ -17,17 +17,18 @@ SELECT
     experiment.date_published,
     experiment.version,
     license.name AS `license`,
-    -- Experiment
+    -- Attributes
     experiment.experimental_workflow,
     experiment.execution_settings,
     experiment.reproducibility_explanation,
     -- Application Area
     GROUP_CONCAT(application_area.name) AS `application_area`
-FROM aiod.experiment 
+FROM aiod.experiment
 INNER JOIN aiod.aiod_entry ON aiod.experiment.aiod_entry_identifier=aiod.aiod_entry.identifier
 INNER JOIN aiod.status ON aiod.aiod_entry.status_identifier=aiod.status.identifier
 LEFT JOIN aiod.license ON aiod.experiment.license_identifier=aiod.license.identifier
 LEFT JOIN aiod.experiment_application_area_link ON aiod.experiment_application_area_link.from_identifier=aiod.experiment.identifier
 LEFT JOIN aiod.application_area ON aiod.experiment_application_area_link.linked_identifier=aiod.application_area.identifier
+WHERE aiod.experiment.date_deleted IS NULL
 GROUP BY aiod.experiment.identifier
 ORDER BY aiod.experiment.identifier

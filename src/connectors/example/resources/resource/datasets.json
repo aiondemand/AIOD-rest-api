@@ -39,11 +39,24 @@
         "name": ""
       }
     ],
-<<<<<<< HEAD
-    "note": [],
-    "research_area": [],
-    "scientific_domain": [],
-    "size": {},
+    "note": [
+        {
+            "value": "A brief record of points or ideas about this AI resource."
+        }
+    ],
+    "research_area": [
+        "Explainable AI",
+        "Physical AI"
+    ],
+    "scientific_domain": [
+        "Anomaly Detection",
+        "Voice Recognition",
+        "Computer Vision."
+    ],
+    "size": {
+        "unit": "Rows",
+        "value": 100
+    },
     "spatial_coverage": {}
   },
   {
@@ -60,25 +73,6 @@
     "aiod_entry": {
       "editor": [],
       "status": "draft"
-=======
-    "note": [
-      {
-        "value": "A brief record of points or ideas about this AI resource."
-      }
-    ],
-    "research_area": [
-      "Explainable AI",
-      "Physical AI"
-    ],
-    "scientific_domain": [
-      "Anomaly Detection",
-      "Voice Recognition",
-      "Computer Vision."
-    ],
-    "size": {
-      "unit": "Rows",
-      "value": 100
->>>>>>> develop
     },
     "alternate_name": [],
     "application_area": [],

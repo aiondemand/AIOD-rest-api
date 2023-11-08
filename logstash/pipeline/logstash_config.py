@@ -48,7 +48,7 @@ SYNC_INPUT_BASE = """  jdbc {{
     jdbc_user => "{0}"
     jdbc_password => "{1}"
     use_column_value => true
-    tracking_column => "datetime_deleted"
+    tracking_column => "date_deleted"
     tracking_column_type => "timestamp"
     schedule => "*/5 * * * * *"
     statement_filepath => "/usr/share/logstash/sql/rm_{2}.sql"
@@ -193,13 +193,13 @@ LEFT_ORGANISATION = """
 LEFT JOIN aiod.organisation ON aiod.{0}.{1}=aiod.organisation.identifier"""
 
 INIT_CLAUSE = """
-WHERE aiod.{0}.datetime_deleted IS NULL"""
+WHERE aiod.{0}.date_deleted IS NULL"""
 
 SYNC_CLAUSE = """
-WHERE aiod.{0}.datetime_deleted IS NULL AND aiod.aiod_entry.date_modified > :sql_last_value"""
+WHERE aiod.{0}.date_deleted IS NULL AND aiod.aiod_entry.date_modified > :sql_last_value"""
 
 RM_CLAUSE = """
-WHERE aiod.{0}.datetime_deleted IS NOT NULL AND aiod.{0}.datetime_deleted > :sql_last_value"""
+WHERE aiod.{0}.date_deleted IS NOT NULL AND aiod.{0}.date_deleted > :sql_last_value"""
 
 # DOCUMENTS GENERATION FUNCTIONS
 # =============================================================================

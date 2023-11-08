@@ -28,6 +28,6 @@ LEFT JOIN aiod.organisation_type ON aiod.organisation.type_identifier=aiod.organ
 LEFT JOIN aiod.agent ON aiod.organisation.agent_id=aiod.agent.identifier
 LEFT JOIN aiod.organisation_application_area_link ON aiod.organisation_application_area_link.from_identifier=aiod.organisation.identifier
 LEFT JOIN aiod.application_area ON aiod.organisation_application_area_link.linked_identifier=aiod.application_area.identifier
-WHERE aiod.organisation.date_deleted IS NULL
+WHERE aiod.organisation.date_deleted IS NOT NULL AND aiod.organisation.date_deleted > :sql_last_value
 GROUP BY aiod.organisation.identifier
 ORDER BY aiod.organisation.identifier

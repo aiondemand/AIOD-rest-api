@@ -29,6 +29,6 @@ INNER JOIN aiod.status ON aiod.aiod_entry.status_identifier=aiod.status.identifi
 LEFT JOIN aiod.license ON aiod.experiment.license_identifier=aiod.license.identifier
 LEFT JOIN aiod.experiment_application_area_link ON aiod.experiment_application_area_link.from_identifier=aiod.experiment.identifier
 LEFT JOIN aiod.application_area ON aiod.experiment_application_area_link.linked_identifier=aiod.application_area.identifier
-WHERE aiod.experiment.date_deleted IS NULL AND aiod.aiod_entry.date_modified > :sql_last_value
+WHERE aiod.experiment.date_deleted IS NOT NULL AND aiod.experiment.date_deleted > :sql_last_value
 GROUP BY aiod.experiment.identifier
 ORDER BY aiod.experiment.identifier
