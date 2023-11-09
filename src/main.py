@@ -94,7 +94,6 @@ def create_app() -> FastAPI:
         },
     )
     engine = sqlmodel_engine(args.rebuild_db)
-    add_delete_triggers(AIoDConcept)
     with engine.connect() as connection:
         AIoDConcept.metadata.create_all(connection, checkfirst=True)
         connection.commit()
@@ -103,6 +102,11 @@ def create_app() -> FastAPI:
         if not any(existing_platforms):
             session.add_all([Platform(name=name) for name in PlatformName])
             session.commit()
+
+            # this is a bit of a hack: instead of checking whether the triggers exist, we check
+            # whether platforms are already present. If platforms were not present, the db is
+            # empty, and so the triggers should still be added.
+            add_delete_triggers(AIoDConcept)
 
     add_routes(app, engine, url_prefix=args.url_prefix)
     return app
