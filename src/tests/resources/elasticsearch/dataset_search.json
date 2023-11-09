@@ -1,52 +1,53 @@
 {
-    "took" : 2,
-    "timed_out" : false,
-    "_shards" : {
-        "total" : 1,
-        "successful" : 1,
-        "skipped" : 0,
-        "failed" : 0
+  "took" : 4,
+  "timed_out" : false,
+  "_shards" : {
+    "total" : 1,
+    "successful" : 1,
+    "skipped" : 0,
+    "failed" : 0
+  },
+  "hits" : {
+    "total" : {
+      "value" : 83,
+      "relation" : "eq"
     },
-    "hits" : {
-        "total" : {
-            "value" : 1,
-            "relation" : "eq"
+    "max_score" : 0.74700636,
+    "hits" : [
+      {
+        "_index" : "dataset",
+        "_id" : "dataset_104",
+        "_score" : 0.74700636,
+        "_ignored" : [
+          "description.keyword"
+        ],
+        "_source" : {
+          "version" : "1.0.1",
+          "same_as" : "https://www.example.com/resource/this_resource",
+          "asset_identifier" : 106,
+          "identifier" : 104,
+          "resource_identifier" : 106,
+          "description" : "A description.",
+          "temporal_coverage" : "",
+          "type" : "dataset",
+          "platform_identifier" : "287",
+          "date_published" : "2023-09-01T00:00:00.000Z",
+          "date_modified" : "2023-09-01T00:00:00.000Z",
+          "application_area" : [ ],
+          "name" : "trondheim-simulator",
+          "measurement_technique" : "",
+          "license" : "https://www.example.com/resource/this_resource",
+          "issn" : "00000000",
+          "date_created" : "2023-09-01T00:00:00.000Z",
+          "@version" : "1",
+          "platform" : "ai4experiments",
+          "status" : "draft",
+          "@timestamp" : "2023-09-01T00:00:00.000Z"
         },
-        "max_score" : 6.3386726,
-        "hits" : [
-            {
-                "_index" : "dataset",
-                "_id" : "dataset_2",
-                "_score" : 6.3386726,
-                "_ignored" : [
-                    "description.keyword"
-                ],
-                "_source" : {
-                    "license" : "https://test_resource.test",
-                    "date_created" : "2023-09-01T00:00:00.000Z",
-                    "date_published" : "2023-09-01T00:00:00.000Z",
-                    "version" : "1.0.0",
-                    "measurement_technique" : "",
-                    "temporal_coverage" : "",
-                    "issn" : "00000000",
-                    "type" : "dataset",
-                    "platform_identifier" : "6",
-                    "resource_identifier" : 4,
-                    "date_modified" : "2023-09-01T00:00:00.000Z",
-                    "asset_identifier" : 4,
-                    "@version" : "1",
-                    "status" : "draft",
-                    "description" : "A description",
-                    "platform" : "example",
-                    "name" : "A name",
-                    "same_as" : "https://test_resource.test",
-                    "@timestamp" : "2023-09-01T00:00:00.000Z",
-                    "identifier" : 2
-                },
-                "sort": [
-                    1
-                ]
-            }
+        "sort" : [
+            1
         ]
-    }
+      }
+    ]
+  }
 }

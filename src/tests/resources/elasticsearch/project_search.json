@@ -1,5 +1,5 @@
 {
-  "took" : 1,
+  "took" : 4,
   "timed_out" : false,
   "_shards" : {
     "total" : 1,
@@ -15,30 +15,33 @@
     "max_score" : 0.2876821,
     "hits" : [
       {
-        "_index" : "service",
-        "_id" : "service_1",
+        "_index" : "project",
+        "_id" : "project_1",
         "_score" : 0.2876821,
         "_source" : {
+          "coordinator_identifier" : 1,
+          "start_date" : "2023-09-01T00:00:00.000Z",
           "same_as" : "https://www.example.com/resource/this_resource",
-          "type" : "service",
+          "end_date" : "2023-09-01T00:00:00.000Z",
           "identifier" : 1,
-          "resource_identifier" : 377,
+          "resource_identifier" : 375,
           "description" : "A description.",
+          "type" : "project",
           "platform_identifier" : "1",
           "date_modified" : "2023-09-01T00:00:00.000Z",
-          "slogan" : "Making your Smart Paradigm Shifts more Disruptive",
+          "total_cost_euro" : 1.0E7,
           "application_area" : [
             "Fraud Prevention",
             "Voice Assistance",
             "Disease Classification"
           ],
-          "name" : "The name of this service",
+          "name" : "Name of the Project",
+          "coordinator_name" : "The name of this organisation",
           "@version" : "1",
           "date_created" : "2023-09-01T00:00:00.000Z",
           "@timestamp" : "2023-09-01T00:00:00.000Z",
           "platform" : "example",
-          "status" : "draft",
-          "terms_of_service" : "Your use of this service is subject to the following terms: [...]."
+          "status" : "draft"
         },
         "sort" : [
             1

@@ -31,14 +31,15 @@ def test_search_happy_path(client: TestClient):
     resource = response.json()['resources'][0]
     
     # Test the response
+    assert resource['same_as'] == "https://www.example.com/resource/this_resource"
     assert resource['identifier'] == 1
-    assert resource['aiod_entry']['date_created'] == "2023-09-01T00:00:00+00:00"
-    assert resource['aiod_entry']['date_modified'] == "2023-09-01T00:00:00+00:00"
-    assert resource['aiod_entry']['status'] == "draft"
-    assert resource['name'] == "A name"
-    assert resource['slogan'] == "A slogan"
-    assert resource['description'] == "A description"
-    assert resource['platform'] == "example"
+    assert resource['description'] == "A description."
     assert resource['platform_identifier'] == "1"
-    assert resource['terms_of_service'] == "Some terms"
-    assert resource['same_as'] == "https://test_resource.test"
+    assert resource['aiod_entry']['date_modified'] == "2023-09-01T00:00:00+00:00"
+    assert resource['slogan'] == "Making your Smart Paradigm Shifts more Disruptive"
+    assert resource['application_area'] == ["Fraud Prevention", "Voice Assistance", "Disease Classification"]
+    assert resource['name'] == "The name of this service"
+    assert resource['aiod_entry']['date_created'] == "2023-09-01T00:00:00+00:00"
+    assert resource['platform'] == "example"
+    assert resource['aiod_entry']['status'] == "draft"
+    assert resource['terms_of_service'] == "Your use of this service is subject to the following terms: [...]."

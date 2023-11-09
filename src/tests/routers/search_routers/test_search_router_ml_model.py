@@ -31,15 +31,16 @@ def test_search_happy_path(client: TestClient):
     resource = response.json()['resources'][0]
     
     # Test the response
-    assert resource['identifier'] == 3
-    assert resource['aiod_entry']['date_created'] == "2023-09-01T00:00:00+00:00"
-    assert resource['aiod_entry']['date_modified'] == "2023-09-01T00:00:00+00:00"
-    assert resource['aiod_entry']['status'] == "draft"
-    assert resource['name'] == "A name"
-    assert resource['description'] == "A description"
-    assert resource['version'] == "1.0.1"
-    assert resource['platform'] == "example"
-    assert resource['platform_identifier'] == "3"
-    assert resource['license'] == "https://test_resource.test"
+    assert resource['version'] == "1.0.0"
+    assert resource['same_as'] == "https://www.example.com/resource/this_resource"
+    assert resource['identifier'] == 168
+    assert resource['description'] == "A description."
+    assert resource['platform_identifier'] == "316"
     assert resource['date_published'] == "2023-09-01T00:00:00+00:00"
-    assert resource['same_as'] == "https://test_resource.test"
+    assert resource['aiod_entry']['date_modified'] == "2023-09-01T00:00:00+00:00"
+    assert resource['application_area'] == [ ]
+    assert resource['name'] == "EntityRecognizer"
+    assert resource['license'] == "https://www.example.com/resource/this_resource"
+    assert resource['aiod_entry']['date_created'] == "2023-09-01T00:00:00+00:00"
+    assert resource['platform'] == "ai4experiments"
+    assert resource['aiod_entry']['status'] == "draft"

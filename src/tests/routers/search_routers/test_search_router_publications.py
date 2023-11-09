@@ -31,18 +31,19 @@ def test_search_happy_path(client: TestClient):
     resource = response.json()['resources'][0]
     
     # Test the response
-    assert resource['identifier'] == 1
-    assert resource['aiod_entry']['date_created'] == "2023-09-01T00:00:00+00:00"
-    assert resource['aiod_entry']['date_modified'] == "2023-09-01T00:00:00+00:00"
-    assert resource['aiod_entry']['status'] == "draft"
-    assert resource['name'] == "A name"
-    assert resource['description'] == "A description"
-    assert resource['version'] == "1.0.0"
-    assert resource['platform'] == "example"
+    assert resource['description'] == "A description."
     assert resource['platform_identifier'] == "1"
     assert resource['date_published'] == "2023-09-01T00:00:00+00:00"
-    assert resource['issn'] == "00000000"
-    assert resource['isbn'] == "0000000000000"
-    assert resource['permanent_identifier'] == "https://test_resource.test"
-    assert resource['license'] == "https://test_resource.test"
-    assert resource['same_as'] == "https://test_resource.test"
+    assert resource['application_area'] == ["Fraud Prevention", "Voice Assistance", "Disease Classification"]
+    assert resource['name'] == "The name of this publication"
+    assert resource['isbn'] == "9783161484100"
+    assert resource['issn'] == "20493630"
+    assert resource['platform'] == "example"
+    assert resource['version'] == "1.1.0"
+    assert resource['same_as'] == "https://www.example.com/resource/this_resource"
+    assert resource['identifier'] == 1
+    assert resource['aiod_entry']['date_modified'] == "2023-09-01T00:00:00+00:00"
+    assert resource['license'] == "https://www.example.com/resource/this_resource"
+    assert resource['permanent_identifier'] == "http://dx.doi.org/10.1093/ajae/aaq063"
+    assert resource['aiod_entry']['date_created'] == "2023-09-01T00:00:00+00:00"
+    assert resource['aiod_entry']['status'] == "draft"
