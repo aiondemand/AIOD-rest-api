@@ -58,6 +58,11 @@ For development:
 - Additional 'mysqlclient' dependencies. Please have a look at [their installation instructions]
   (https://github.com/PyMySQL/mysqlclient#install).
 
+## Production environment
+
+For production environments elasticsearch recomends -Xss4G and -Xmx8G for the JVM settings.\
+This parameters can be defined in the .env file.
+See the [elasticsearch guide](https://www.elastic.co/guide/en/logstash/current/jvm-settings.html).
 
 ## Installation
 

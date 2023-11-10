@@ -170,6 +170,7 @@ services:
     env_file: .env
     environment:
       - ES_JAVA_OPTS=$ES_JAVA_OPTS
+      - ELASTIC_USER=$ES_USER
       - ELASTIC_PASSWORD=$ES_PASSWORD
       - discovery.type=$ES_DISCOVERY_TYPE
     ports:
@@ -182,7 +183,7 @@ services:
         read_only: true
       - ./data/elasticsearch:/usr/share/elasticsearch/data
     healthcheck:
-      test: ["CMD-SHELL", "curl -u elastic:changeme http://localhost:9200/_cat/health | grep -q -E 'green|yellow'"]
+      test: ["CMD-SHELL", "curl -u $ES_USER:$ES_PASSWORD --silent --fail localhost:9200/_cluster/health || exit 1"]
       interval: 5s
       timeout: 30s
       retries: 30
@@ -190,9 +191,10 @@ services:
   elasticsearch_setup:
     build:
       context: es/setup/
-      dockerfile: curl_dockerfile
+      dockerfile: Dockerfile
     env_file: .env
     environment:
+      - ES_USER=$ES_USER
       - ES_PASSWORD=$ES_PASSWORD
     restart: "no"
     depends_on:

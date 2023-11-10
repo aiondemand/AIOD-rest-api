@@ -14,7 +14,6 @@ ENV PATH="${PATH}:/home/apprunner/.local/bin"
 # Install python packages globally, so that it can also be used from cron dockers (running as root)
 COPY ./pyproject.toml /app/pyproject.toml
 RUN pip install .
-RUN pip install elasticsearch
 
 # This can be overwritten by a live volume, to support live code changes
 COPY ./src /app

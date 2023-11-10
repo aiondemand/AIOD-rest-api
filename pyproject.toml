@@ -31,6 +31,7 @@ dependencies = [
     "xmltodict==0.13.0",
     "python-multipart==0.0.6",
     "mysql-connector-python==8.2.0",
+    "elasticsearch==8.10.1",
 ]
 readme = "README.md"
 
