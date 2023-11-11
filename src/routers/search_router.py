@@ -64,7 +64,6 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
         router = APIRouter()
         read_class = resource_read(self.resource_class)  # type: ignore
         
-        # TODO: check parameters correctness
         @router.get(f"{url_prefix}/search/{self.resource_name_plural}/v1",
                     tags=["search"])
         def search(
@@ -78,6 +77,12 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
             f"""
             Search for {self.resource_name_plural}.
             """
+            
+            if page < 1:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"The page numbers start by 1."
+                )
             
             if limit > LIMIT_MAX:
                 raise HTTPException(
@@ -114,36 +119,6 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
                 # Must match platform and search query on at least one field
                 query['bool']['must'] = {'bool': {'should': platform_matches,
                                                   'minimum_should_match': 1}}
-            
-#            if platforms:
-#                
-#                # Matches of the platform field for each selected platform
-#                platform_matches = [{'match': {'platform': p}}
-#                                    for p in platforms]
-#                
-#                # Must match platform and search query on at least one field
-#                query = {
-#                    'bool': {
-#                        'must': {
-#                            'bool': {
-#                                'should': platform_matches,
-#                                'minimum_should_match': 1
-#                            }
-#                        },
-#                        'should': query_matches,
-#                        'minimum_should_match': 1
-#                    }
-#                }
-#            
-#            else:
-#                
-#                # Must match search concept on at least one field
-#                query = {
-#                    'bool': {
-#                        'should': query_matches,
-#                        'minimum_should_match': 1
-#                    }
-#                }
             
             # -----------------------------------------------------------------
             
