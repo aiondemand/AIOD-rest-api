@@ -1,11 +1,11 @@
 # https://www.docker.elastic.co/
-FROM docker.elastic.co/logstash/logstash:7.13.0
+FROM docker.elastic.co/logstash/logstash:8.11.0
 
 # Download MySQL JDBC driver to connect Logstash to MySQL
-RUN curl -Lo "mysql-connector-java-8.0.22.tar.gz" "https://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-8.0.22.tar.gz" \
-    && tar -xf "mysql-connector-java-8.0.22.tar.gz" "mysql-connector-java-8.0.22/mysql-connector-java-8.0.22.jar" \
-    && mv "mysql-connector-java-8.0.22/mysql-connector-java-8.0.22.jar" "mysql-connector-java-8.0.22.jar" \
-    && rm -r "mysql-connector-java-8.0.22" "mysql-connector-java-8.0.22.tar.gz"
+RUN curl -Lo "mysql-connector-j-8.2.0.tar.gz" "https://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-j-8.2.0.tar.gz" \
+    && tar -xf "mysql-connector-j-8.2.0.tar.gz" "mysql-connector-j-8.2.0/mysql-connector-j-8.2.0.jar" \
+    && mv "mysql-connector-j-8.2.0/mysql-connector-j-8.2.0.jar" "mysql-connector-j.jar" \
+    && rm -r "mysql-connector-j-8.2.0" "mysql-connector-j-8.2.0.tar.gz"
 
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint"]
 

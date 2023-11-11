@@ -17,4 +17,4 @@ class SearchRouterProjects(SearchRouter[Project]):
     
     @property
     def match_fields(self):
-        return ['name', 'description', 'coordinator_name']
+        return set(['name', 'description', 'coordinator_name'])

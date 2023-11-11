@@ -1,5 +1,4 @@
 import abc
-import os
 from typing import TypeVar, Generic, Any, Type, Annotated
 
 from elasticsearch import Elasticsearch
@@ -56,6 +55,11 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
     def resource_class(self) -> RESOURCE:
         """The resource class"""
     
+    @property
+    @abc.abstractmethod
+    def match_fields(self) -> set:
+        """The set of indexed fields"""
+    
     def create(self, engine: Engine, url_prefix: str) -> APIRouter:
         router = APIRouter()
         read_class = resource_read(self.resource_class)  # type: ignore
@@ -86,26 +90,21 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
             # -----------------------------------------------------------------
             
             # Matches of the search concept for each field
-            if search_fields:
-                
-                # The selected fields must be present in the match fields
-                if not set(search_fields).issubset(set(self.match_fields)):
-                    raise HTTPException(
-                        status_code=status.HTTP_400_BAD_REQUEST,
-                        detail=f"The available search fields for this entity "
-                               f"are:{self.match_fields}"
-                    )
-                
-                # Search in specific search fields
-                query_matches = [{'match': {f: search_query}}
-                                 for f in search_fields]
+            fields = search_fields if search_fields else self.match_fields
+            if not set(fields).issubset(self.match_fields):
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                                    detail=f"The available search fields for "
+                                           f"this entity are:"
+                                           f"{self.match_fields}")
+            query_matches = [{'match': {f: search_query}} for f in fields]
             
-            else:
-                
-                # Search in any match field
-                query_matches = [{'match': {f: search_query}}
-                                 for f in self.match_fields]
-            
+            # Must match search concept on at least one field
+            query = {
+                'bool': {
+                    'should': query_matches,
+                    'minimum_should_match': 1
+                }
+            }
             if platforms:
                 
                 # Matches of the platform field for each selected platform
@@ -113,28 +112,38 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
                                     for p in platforms]
                 
                 # Must match platform and search query on at least one field
-                query = {
-                    'bool': {
-                        'must': {
-                            'bool': {
-                                'should': platform_matches,
-                                'minimum_should_match': 1
-                            }
-                        },
-                        'should': query_matches,
-                        'minimum_should_match': 1
-                    }
-                }
+                query['bool']['must'] = {'bool': {'should': platform_matches,
+                                                  'minimum_should_match': 1}}
             
-            else:
-                
-                # Must match search concept on at least one field
-                query = {
-                    'bool': {
-                        'should': query_matches,
-                        'minimum_should_match': 1
-                    }
-                }
+#            if platforms:
+#                
+#                # Matches of the platform field for each selected platform
+#                platform_matches = [{'match': {'platform': p}}
+#                                    for p in platforms]
+#                
+#                # Must match platform and search query on at least one field
+#                query = {
+#                    'bool': {
+#                        'must': {
+#                            'bool': {
+#                                'should': platform_matches,
+#                                'minimum_should_match': 1
+#                            }
+#                        },
+#                        'should': query_matches,
+#                        'minimum_should_match': 1
+#                    }
+#                }
+#            
+#            else:
+#                
+#                # Must match search concept on at least one field
+#                query = {
+#                    'bool': {
+#                        'should': query_matches,
+#                        'minimum_should_match': 1
+#                    }
+#                }
             
             # -----------------------------------------------------------------
             

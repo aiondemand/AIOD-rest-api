@@ -17,4 +17,4 @@ class SearchRouterServices(SearchRouter[Service]):
     
     @property
     def match_fields(self):
-        return ['name', 'description', 'slogan']
+        return set(['name', 'description', 'slogan'])

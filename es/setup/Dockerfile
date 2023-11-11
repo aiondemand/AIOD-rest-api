@@ -11,7 +11,7 @@ COPY organisation.json /organisation.json
 COPY project.json /project.json
 COPY publication.json /publication.json
 COPY service.json /service.json
-COPY curl.sh /curl.sh
+COPY create_indices.sh /create_indices.sh
 
-ENTRYPOINT ["/bin/bash", "/curl.sh"]
+ENTRYPOINT ["/bin/bash", "/create_indices.sh"]
 

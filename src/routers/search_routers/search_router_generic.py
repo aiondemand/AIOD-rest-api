@@ -17,4 +17,4 @@ class SearchRouterAIODEntry(SearchRouter[Dataset]):
     
     @property
     def match_fields(self):
-        return ['name', 'description', 'issn']
+        return set(['name', 'description', 'issn'])
