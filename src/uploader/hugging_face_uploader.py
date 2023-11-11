@@ -17,7 +17,7 @@ def handle_upload(
     token: str,
     username: str,
 ):
-    dataset = _get_resource(engine=engine, identifier=identifier)
+    dataset = _get_resource(engine=engine, identifier=identifier)  # TODO: place this inside session
     dataset_name_cleaned = "".join(c if c.isalnum() else "_" for c in dataset.name)
     repo_id = f"{username}/{dataset_name_cleaned}"
 
@@ -74,7 +74,7 @@ def _get_resource(engine: Engine, identifier: int) -> Dataset:
 
     with Session(engine) as session:
         query = (
-            session.query(Dataset)
+            session.query(Dataset)  # TODO: remove these joinedloads
             .options(joinedload(Dataset.keyword), joinedload(Dataset.distribution))
             .filter(Dataset.identifier == identifier)
         )

@@ -1,8 +1,8 @@
 from database.model.models_and_experiments.ml_model import MLModel
-from routers.resource_router import ResourceRouter
+from routers.resource_ai_asset_router import ResourceAIAssetRouter
 
 
-class MLModelRouter(ResourceRouter):
+class MLModelRouter(ResourceAIAssetRouter):
     @property
     def version(self) -> int:
         return 1

@@ -1,8 +1,8 @@
 from database.model.case_study.case_study import CaseStudy
-from routers.resource_router import ResourceRouter
+from routers.resource_ai_asset_router import ResourceAIAssetRouter
 
 
-class CaseStudyRouter(ResourceRouter):
+class CaseStudyRouter(ResourceAIAssetRouter):
     @property
     def version(self) -> int:
         return 1
