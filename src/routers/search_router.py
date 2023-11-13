@@ -74,7 +74,8 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
             search_query: str = "",
             search_fields: Annotated[list[str] | None, Query()] = None,
             limit: int = 10,
-            page: int = 1
+            page: int = 1,
+            get_all: bool = True
 #            offset: Annotated[list[str] | None, Query()] = None
         ) -> SearchResult[read_class]:  # type: ignore
             f"""
@@ -149,29 +150,28 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
             result = self.client.search(index=self.es_index, query=query,
                                         from_=from_, size=limit, sort=SORT)
             
-            # Launch database query
-            # -----------------------------------------------------------------
-            
-            try:
-                with Session(engine) as session:
-                    query = select(Platform)
-                    database_platforms = session.scalars(query).all()
-                    platform_names = set([p.name for p in database_platforms])
-            except Exception as e:
-                raise _wrap_as_http_exception(e)
-            
-            # Manage results
-            # -----------------------------------------------------------------
-            
             total_hits = result["hits"]["total"]["value"]
-            resources: list[read_class] = [  # type: ignore
-                self._cast_resource(read_class, hit["_source"])  # type: ignore
-                for hit in result["hits"]["hits"]
-            ]
             next_offset = (
-                result["hits"]["hits"][-1]["sort"]
-                if len(result["hits"]["hits"]) > 0 else None
-            )
+                    result["hits"]["hits"][-1]["sort"]
+                    if len(result["hits"]["hits"]) > 0 else None
+                )
+            if get_all:
+                
+                # Launch database query
+                resources: list[read_class] = [
+                    self._db_query(engine, read_class,
+                                   hit["_source"]["identifier"])
+                    for hit in result["hits"]["hits"]
+                ]
+                
+            else:
+                
+                # Return just the elasticsearch contents
+                resources: list[read_class] = [  # type: ignore
+                    self._cast_resource(read_class, hit["_source"])
+                    for hit in result["hits"]["hits"]
+                ]
+            
             return SearchResult[read_class](  # type: ignore
                 total_hits=total_hits,
                 resources=resources,
@@ -192,8 +192,33 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
         }
         resource = resource_class(**kwargs)  # type: ignore
         resource.aiod_entry = AIoDEntryRead(
-            date_modified=resource_dict["date_modified"],
-#            date_created=resource_dict["date_created"],
-#            status=resource_dict["status"],
+            date_modified=resource_dict["date_modified"]
         )
-        return resource
+        resource.description = {
+            "plain": resource_dict["plain"],
+            "html": resource_dict["html"]
+        }
+        return self._clean_structure(dict(resource))
+    
+    def _db_query(
+        self, engine: Engine, read_class: RESOURCE, identifier: int
+    ) -> Type[RESOURCE]:
+        try:
+            with Session(engine) as session:
+                query = select(self.resource_class).where(
+                            self.resource_class.identifier == identifier)
+                resource = session.scalars(query).first()
+                # Some error handling if resource does not exist
+                resource_read = read_class.from_orm(resource)
+        except Exception as e:
+            raise _wrap_as_http_exception(e)
+        return resource_read
+    
+    def _clean_structure(self, structure: dict):
+        new_structure = {}
+        for key, value in structure.items():
+            if isinstance(value, dict):
+                value = self._clean_structure(value)
+            if value:
+                new_structure[key] = value
+        return new_structure

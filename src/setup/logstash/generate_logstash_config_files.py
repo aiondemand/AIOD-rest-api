@@ -10,16 +10,16 @@ import os
 #REPO_PATH = os.path.join("..", "..", "..")
 
 FIELDS = {
-    "dataset": ["aiod_entry.date_modified", "dataset.identifier", "name", "description", "issn"],
-    "event": ["aiod_entry.date_modified", "event.identifier", "name", "description",],
-    "experiment": ["aiod_entry.date_modified", "experiment.identifier", "name", "description"],
-    "ml_model": ["aiod_entry.date_modified", "ml_model.identifier", "name", "description"],
-    "news": ["aiod_entry.date_modified", "news.identifier", "name", "description", "headline",
+    "dataset": ["aiod_entry.date_modified", "dataset.identifier", "name", "description_identifier", "text.plain as 'plain'", "text.html as 'html'", "issn"],
+    "event": ["aiod_entry.date_modified", "event.identifier", "name", "description_identifier", "text.plain", "text.html",],
+    "experiment": ["aiod_entry.date_modified", "experiment.identifier", "name", "description_identifier", "text.plain as 'plain'", "text.html as 'html'"],
+    "ml_model": ["aiod_entry.date_modified", "ml_model.identifier", "name", "description_identifier", "text.plain as 'plain'", "text.html as 'html'"],
+    "news": ["aiod_entry.date_modified", "news.identifier", "name", "description_identifier", "text.plain as 'plain'", "text.html as 'html'", "headline",
              "alternative_headline"],
-    "organisation": ["aiod_entry.date_modified", "organisation.identifier", "name", "description", "legal_name"],
-    "project": ["aiod_entry.date_modified", "project.identifier", "name", "description"],
-    "publication": ["aiod_entry.date_modified", "publication.identifier", "name", "description", "issn", "isbn"],
-    "service": ["aiod_entry.date_modified", "service.identifier", "name", "description", "slogan"]
+    "organisation": ["aiod_entry.date_modified", "organisation.identifier", "name", "description_identifier", "text.plain as 'plain'", "text.html as 'html'", "legal_name"],
+    "project": ["aiod_entry.date_modified", "project.identifier", "name", "description_identifier", "text.plain as 'plain'", "text.html as 'html'"],
+    "publication": ["aiod_entry.date_modified", "publication.identifier", "name", "description_identifier", "text.plain as 'plain'", "text.html as 'html'", "issn", "isbn"],
+    "service": ["aiod_entry.date_modified", "service.identifier", "name", "description_identifier", "text.plain as 'plain'", "text.html as 'html'", "slogan"]
 }
 
 # MACROS FOR THE DOCUMENTS GENERATION FUNCTIONS
@@ -84,7 +84,7 @@ FILTER_BASE = """filter {{
     }}
   }}
   mutate {{
-    # remove_field => ["@version", "@timestamp"]
+    remove_field => ["@version", "@timestamp"]
     split => {{"application_area" => ","}}
   }}{0}
 }}
@@ -140,7 +140,8 @@ SYNC_OUTPUT_BASE = """  if [type] == "{2}" {{
 
 SQL_BASE = """SELECT {1}
 FROM aiod.{0}
-INNER JOIN aiod.aiod_entry ON aiod.{0}.aiod_entry_identifier=aiod.aiod_entry.identifier{2}
+INNER JOIN aiod.aiod_entry ON aiod.{0}.aiod_entry_identifier=aiod.aiod_entry.identifier
+LEFT JOIN aiod.text ON aiod.{0}.description_identifier=aiod.text.identifier{2}
 """
 
 SQL_RM_BASE = """SELECT {0}.identifier

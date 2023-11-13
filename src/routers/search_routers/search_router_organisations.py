@@ -17,4 +17,4 @@ class SearchRouterOrganisations(SearchRouter[Organisation]):
     
     @property
     def match_fields(self):
-        return set(['name', 'legal_name', 'description'])
+        return set(['name', 'legal_name', 'plain', 'html'])

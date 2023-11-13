@@ -17,4 +17,4 @@ class SearchRouterEvents(SearchRouter[Event]):
     
     @property
     def match_fields(self):
-        return set(['name', 'description', 'organiser_type', 'mode'])
+        return set(['name', 'plain', 'html'])

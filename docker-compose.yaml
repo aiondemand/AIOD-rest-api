@@ -188,18 +188,18 @@ services:
       timeout: 30s
       retries: 30
 
-  elasticsearch_setup:
-    build:
-      context: es/setup/
-      dockerfile: Dockerfile
-    env_file: .env
-    environment:
-      - ES_USER=$ES_USER
-      - ES_PASSWORD=$ES_PASSWORD
-    restart: "no"
-    depends_on:
-      elasticsearch:
-        condition: service_healthy
+#  elasticsearch_setup:
+#    build:
+#      context: es/setup/
+#      dockerfile: Dockerfile
+#    env_file: .env
+#    environment:
+#      - ES_USER=$ES_USER
+#      - ES_PASSWORD=$ES_PASSWORD
+#    restart: "no"
+#    depends_on:
+#      elasticsearch:
+#        condition: service_healthy
   
   logstash_setup:
     build:
@@ -250,8 +250,10 @@ services:
     depends_on:
       app:
         condition: service_healthy
-      elasticsearch_setup:
-        condition: service_completed_successfully
+      elasticsearch:
+        condition: service_healthy
+#      elasticsearch_setup:
+#        condition: service_completed_successfully
       logstash_setup:
         condition: service_completed_successfully
       fill-db-with-examples:
