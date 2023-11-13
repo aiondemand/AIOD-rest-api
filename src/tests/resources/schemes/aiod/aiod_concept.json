@@ -1,6 +1,6 @@
 {
     "platform": "example",
-    "platform_identifier": "1",
+    "platform_resource_identifier": "1",
     "aiod_entry": {
         "status": "draft"
     }

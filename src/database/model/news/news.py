@@ -1,7 +1,14 @@
-from sqlmodel import Field
+from typing import Optional
 
-from database.model.ai_resource.resource import AIResource, AIResourceBase
+from sqlmodel import Field, Relationship
+
+from database.model.ai_resource.resource import AbstractAIResource, AIResourceBase
+from database.model.ai_resource.text import TextORM, Text
 from database.model.field_length import NORMAL
+from database.model.helper_functions import many_to_many_link_factory
+from database.model.news.news_category import NewsCategory
+from database.model.relationships import ManyToMany, OneToOne
+from database.model.serializers import AttributeSerializer, FindByNameDeserializer, CastDeserializer
 
 
 class NewsBase(AIResourceBase):
@@ -17,8 +24,31 @@ class NewsBase(AIResourceBase):
     )
 
 
-class News(NewsBase, AIResource, table=True):  # type: ignore [call-arg]
+class News(NewsBase, AbstractAIResource, table=True):  # type: ignore [call-arg]
     __tablename__ = "news"
 
-    # Instead of related assets, projects and news, as suggested by the spreadsheet, we propose
-    # to use News.has_part (pointing to AIResource)
+    category: list[NewsCategory] = Relationship(
+        link_model=many_to_many_link_factory("news", NewsCategory.__tablename__)
+    )
+    content_identifier: int | None = Field(
+        index=True,
+        description="Alternative for using .distributions[*].content_url, to make it easier to add "
+        "textual content. ",
+        foreign_key="text.identifier",
+    )
+    content: TextORM | None = Relationship(
+        sa_relationship_kwargs=dict(foreign_keys="[News.content_identifier]")
+    )
+
+    class RelationshipConfig(AbstractAIResource.RelationshipConfig):
+        category: list[str] = ManyToMany(
+            description="News categories related to this item.",
+            _serializer=AttributeSerializer("name"),
+            deserializer=FindByNameDeserializer(NewsCategory),
+            example=["research: education", "research: awards", "business: robotics"],
+            default_factory_pydantic=list,
+        )
+        content: Optional[Text] = OneToOne(
+            deserializer=CastDeserializer(TextORM),
+            on_delete_trigger_deletion_by="content_identifier",
+        )

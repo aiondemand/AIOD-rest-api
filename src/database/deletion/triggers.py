@@ -51,7 +51,7 @@ def create_deletion_trigger_one_to_one(
 
     ddl = DDL(
         f"""
-        CREATE TRIGGER delete_{trigger_name}_{delete_name}
+        CREATE TRIGGER delete_{trigger_name}_{trigger_identifier_link}_{delete_name}
         AFTER DELETE ON {trigger_name}
         FOR EACH ROW
         BEGIN
@@ -144,7 +144,7 @@ def create_deletion_trigger_many_to_many(
     )
     ddl = DDL(
         f"""
-        CREATE TRIGGER delete_{trigger_name}_{delete_name}
+        CREATE TRIGGER delete_{link_name}
         AFTER DELETE ON {trigger_name}
         FOR EACH ROW
         BEGIN

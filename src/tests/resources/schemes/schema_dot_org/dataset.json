@@ -34,7 +34,7 @@
     },
     "funder": {
         "@type": "Organization",
-        "name": "person name"
+        "name": "Firstname Surname"
     },
     "issn": "20493630",
     "license": "a license",

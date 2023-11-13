@@ -38,7 +38,7 @@ class ComputationalAsset(ComputationalAssetBase, AIAsset, table=True):  # type: 
         type: Optional[str] = ManyToOne(
             description="The type of computational asset.",
             identifier_name="type_identifier",
-            serializer=AttributeSerializer("name"),
+            _serializer=AttributeSerializer("name"),
             deserializer=FindByNameDeserializer(ComputationalAssetType),
             example="storage",
         )

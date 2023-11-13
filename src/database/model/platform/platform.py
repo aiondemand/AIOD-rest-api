@@ -1,3 +1,8 @@
+"""
+The external platform (e.g. openml).
+"""
+
+
 import datetime
 
 from sqlmodel import Field, SQLModel
@@ -5,13 +10,12 @@ from sqlmodel import Field, SQLModel
 
 class PlatformBase(SQLModel):
     name: str = Field(
-        unique=True,
         description="The name of the platform, such as huggingface, "
         "openml or zenodo. Preferably using snake_case.",
         schema_extra={"example": "example_platform"},
         index=True,
+        unique=True,
     )
-    date_deleted: datetime.datetime | None = Field()
 
 
 class Platform(PlatformBase, table=True):  # type: ignore [call-arg]
@@ -19,5 +23,8 @@ class Platform(PlatformBase, table=True):  # type: ignore [call-arg]
     AIoD. This table is partly filled with the enum PlatformName"""
 
     __tablename__ = "platform"
+    __deletion_config__ = {"soft_delete": False}  # hard_deletion, otherwise name cannot be unique,
+    # which is difficult for foreign key constraints
 
     identifier: int = Field(primary_key=True, default=None)
+    date_deleted: datetime.datetime | None = Field()

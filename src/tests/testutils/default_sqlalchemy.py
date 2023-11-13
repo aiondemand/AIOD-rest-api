@@ -70,7 +70,7 @@ def clear_db(request):
                         test_resource_factory(
                             title="A title",
                             platform="example",
-                            platform_identifier="1",
+                            platform_resource_identifier="1",
                         )
                     )
                 session.commit()
@@ -102,7 +102,7 @@ def client(engine: Engine) -> TestClient:
     """
     app = FastAPI()
     add_routes(app, engine)
-    return TestClient(app)
+    return TestClient(app, base_url="http://localhost")
 
 
 @pytest.fixture(scope="session")
@@ -110,7 +110,7 @@ def client_test_resource(engine_test_resource) -> TestClient:
     """A Startlette TestClient including routes to the TestResource, only in "aiod" schema"""
     app = FastAPI()
     app.include_router(RouterTestResource().create(engine_test_resource, ""))
-    return TestClient(app)
+    return TestClient(app, base_url="http://localhost")
 
 
 @pytest.fixture()

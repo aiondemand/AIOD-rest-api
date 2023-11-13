@@ -1,9 +1,13 @@
 {
     "name": "The name",
-    "description": "A description.",
+    "description": {
+        "plain": "A description.",
+        "html": "<p>A <strong>html formatted</strong> description.</p>"
+    },
     "same_as": "https://www.example.com/resource",
     "alternate_name": ["alias1", "alias2"],
     "keyword": ["tag1", "tag2"],
+    "relevant_link": ["https://www.example.com/a_relevant_link", "https://www.example.com/another_relevant_link"],
 
     "application_area": ["Voice Assistance"],
     "industrial_sector": ["eCommerce"],

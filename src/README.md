@@ -97,7 +97,7 @@ class Example(ExampleBase, table=True):  # type: ignore [call-arg]
     class RelationshipConfig:  # This is AIoD-specific code, used to go from Pydantic to SqlAlchemy
         example_enum: str | None = ManyToOne(
             identifier_name="example_enum_identifier",
-            serializer=AttributeSerializer("name"),  # code to serialize ORM to Pydantic
+            _serializer=AttributeSerializer("name"),  # code to serialize ORM to Pydantic
             deserializer=FindByNameDeserializer(ExampleEnum),  # deserialize Pydantic to ORM
             example="An example string value",
         )

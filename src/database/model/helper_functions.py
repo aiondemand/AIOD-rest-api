@@ -18,7 +18,13 @@ def all_annotations(cls) -> ChainMap:
     return ChainMap(*(c.__annotations__ for c in cls.__mro__ if "__annotations__" in c.__dict__))
 
 
-def many_to_many_link_factory(table_from: str, table_to: str, table_prefix=None):
+def many_to_many_link_factory(
+    table_from: str,
+    table_to: str,
+    table_prefix=None,
+    table_from_identifier="identifier",
+    table_to_identifier="identifier",
+):
     """Create a table linking table_name_from to table_name_to, using the .identifier at both
     sides.
     """
@@ -29,11 +35,13 @@ def many_to_many_link_factory(table_from: str, table_to: str, table_prefix=None)
         from_identifier: int = Field(
             sa_column=Column(
                 Integer,
-                ForeignKey(table_from + ".identifier", ondelete="CASCADE"),
+                ForeignKey(f"{table_from}.{table_from_identifier}", ondelete="CASCADE"),
                 primary_key=True,
             )
         )
-        linked_identifier: int = Field(foreign_key=table_to + ".identifier", primary_key=True)
+        linked_identifier: int = Field(
+            foreign_key=f"{table_to}.{table_to_identifier}", primary_key=True
+        )
 
     LinkTable.__name__ = LinkTable.__qualname__ = LinkTable.__tablename__
     return LinkTable

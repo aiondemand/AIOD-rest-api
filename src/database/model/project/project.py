@@ -6,9 +6,15 @@ from sqlmodel import Field, Relationship
 
 from database.model.agent.organisation import Organisation
 from database.model.ai_asset.ai_asset_table import AIAssetTable
-from database.model.ai_resource.resource import AIResourceBase, AIResource
+
+
+from database.model.ai_resource.resource import AbstractAIResource
+
+from database.model.ai_resource.resource import AIResourceBase
 from database.model.helper_functions import many_to_many_link_factory
 from database.model.relationships import ManyToMany, ManyToOne
+
+
 from database.model.serializers import (
     AttributeSerializer,
     FindByIdentifierDeserializer,
@@ -33,7 +39,7 @@ class ProjectBase(AIResourceBase):
     )
 
 
-class Project(ProjectBase, AIResource, table=True):  # type: ignore [call-arg]
+class Project(ProjectBase, AbstractAIResource, table=True):  # type: ignore [call-arg]
     __tablename__ = "project"
 
     funder: list[Organisation] = Relationship(
@@ -61,18 +67,18 @@ class Project(ProjectBase, AIResource, table=True):  # type: ignore [call-arg]
         ),
     )
 
-    class RelationshipConfig(AIResource.RelationshipConfig):
+    class RelationshipConfig(AbstractAIResource.RelationshipConfig):
         funder: list[int] = ManyToMany(
             description="Identifiers of organizations that support this project through some kind "
             "of financial contribution. ",
-            serializer=AttributeSerializer("identifier"),
+            _serializer=AttributeSerializer("identifier"),
             deserializer=FindByIdentifierDeserializer(Organisation),
             default_factory_pydantic=list,
             example=[],
         )
         participant: list[int] = ManyToMany(
             description="Identifiers of members of this project. ",
-            serializer=AttributeSerializer("identifier"),
+            _serializer=AttributeSerializer("identifier"),
             deserializer=FindByIdentifierDeserializer(Organisation),
             default_factory_pydantic=list,
             example=[],
@@ -80,18 +86,18 @@ class Project(ProjectBase, AIResource, table=True):  # type: ignore [call-arg]
         coordinator: Optional[int] = ManyToOne(
             identifier_name="coordinator_identifier",
             description="The coordinating organisation of this project.",
-            serializer=AttributeSerializer("identifier"),
+            _serializer=AttributeSerializer("identifier"),
         )
         produced: list[int] = ManyToMany(
             description="Identifiers of AIAssets that are created in this project.",
-            serializer=AttributeSerializer("identifier"),
+            _serializer=AttributeSerializer("identifier"),
             deserializer=FindByIdentifierDeserializer(AIAssetTable),
             default_factory_pydantic=list,
             example=[],
         )
         used: list[int] = ManyToMany(
             description="Identifiers of AIAssets that are used (but not created) in this project.",
-            serializer=AttributeSerializer("identifier"),
+            _serializer=AttributeSerializer("identifier"),
             deserializer=FindByIdentifierDeserializer(AIAssetTable),
             default_factory_pydantic=list,
             example=[],

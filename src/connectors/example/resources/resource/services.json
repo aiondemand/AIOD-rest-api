@@ -1,9 +1,10 @@
 [
   {
   "platform": "example",
-  "platform_identifier": "1",
+  "platform_resource_identifier": "1",
   "name": "The name of this service",
-  "description": "A description.",
+  "description": {"plain": "A description."},
+  "date_published": "2022-01-01T15:15:00.000",
   "same_as": "https://www.example.com/resource/this_resource",
   "slogan": "Making your Smart Paradigm Shifts more Disruptive",
   "terms_of_service": "Your use of this service is subject to the following terms: [...].",
@@ -32,6 +33,7 @@
     "keyword1",
     "keyword2"
   ],
+  "relevant_link": ["https://www.example.com/a_relevant_link", "https://www.example.com/another_relevant_link"],
   "media": [
     {
           "checksum": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",

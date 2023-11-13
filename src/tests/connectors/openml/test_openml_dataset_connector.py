@@ -64,31 +64,37 @@ def mock_list_data(mocked_requests, offset):
     )
 
 
-def mock_get_data(mocked_requests: responses.RequestsMock, platform_identifier: str):
+def mock_get_data(mocked_requests: responses.RequestsMock, platform_resource_identifier: str):
     """
     Mocking requests to the OpenML dependency, so that we test only our own services
     """
 
     with open(
-        path_test_resources() / "connectors" / "openml" / f"data_{platform_identifier}.json",
+        path_test_resources()
+        / "connectors"
+        / "openml"
+        / f"data_{platform_resource_identifier}.json",
         "r",
     ) as f:
         data_response = json.load(f)
     mocked_requests.add(
         responses.GET,
-        f"{OPENML_URL}/data/{platform_identifier}",
+        f"{OPENML_URL}/data/{platform_resource_identifier}",
         json=data_response,
         status=200,
     )
 
 
-def mock_get_qualities(mocked_requests: responses.RequestsMock, platform_identifier: str):
+def mock_get_qualities(mocked_requests: responses.RequestsMock, platform_resource_identifier: str):
     """
     Mocking requests to the OpenML dependency, so that we test only our own services
     """
 
     with open(
-        path_test_resources() / "connectors" / "openml" / f"data_{platform_identifier}.json",
+        path_test_resources()
+        / "connectors"
+        / "openml"
+        / f"data_{platform_resource_identifier}.json",
         "r",
     ) as f:
         data_response = json.load(f)
@@ -96,20 +102,20 @@ def mock_get_qualities(mocked_requests: responses.RequestsMock, platform_identif
         path_test_resources()
         / "connectors"
         / "openml"
-        / f"data_{platform_identifier}_qualities.json",
+        / f"data_{platform_resource_identifier}_qualities.json",
         "r",
     ) as f:
         data_qualities_response = json.load(f)
 
     mocked_requests.add(
         responses.GET,
-        f"{OPENML_URL}/data/{platform_identifier}",
+        f"{OPENML_URL}/data/{platform_resource_identifier}",
         json=data_response,
         status=200,
     )
     mocked_requests.add(
         responses.GET,
-        f"{OPENML_URL}/data/qualities/{platform_identifier}",
+        f"{OPENML_URL}/data/qualities/{platform_resource_identifier}",
         json=data_qualities_response,
         status=200,
     )

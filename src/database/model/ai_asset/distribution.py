@@ -5,13 +5,13 @@ from sqlalchemy import Column, Integer, ForeignKey
 from sqlmodel import Field
 
 from database.model.concept.concept import AIoDConceptBase
-from database.model.field_length import DESCRIPTION, NORMAL, SHORT
+from database.model.field_length import LONG, NORMAL, SHORT
 
 
 class DistributionBase(AIoDConceptBase):
     checksum: str | None = Field(
         description="The value of a checksum algorithm ran on this content.",
-        max_length=DESCRIPTION,
+        max_length=LONG,
         schema_extra={
             "example": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
         },
@@ -35,7 +35,7 @@ class DistributionBase(AIoDConceptBase):
         schema_extra={"example": "2022-01-01T15:15:00.000"},
     )
     description: str | None = Field(
-        max_length=DESCRIPTION, schema_extra={"example": "Description of this file."}
+        max_length=LONG, schema_extra={"example": "Description of this file."}
     )
     encoding_format: str | None = Field(
         description="The mimetype of this file.",

@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from starlette.testclient import TestClient
 
 from authentication import keycloak_openid
+from database.model.agent.contact import Contact
 from database.model.agent.organisation import Organisation
 
 
@@ -14,24 +15,24 @@ def test_happy_path(
     engine: Engine,
     mocked_privileged_token: Mock,
     organisation: Organisation,
+    contact: Contact,
     body_agent: dict,
 ):
     keycloak_openid.userinfo = mocked_privileged_token
 
     with Session(engine) as session:
         session.add(organisation)  # The new organisation will be a member of this organisation
+        session.add(contact)
         session.commit()
 
     body = copy.copy(body_agent)
-    body["platform_identifier"] = "2"
+    body["platform_resource_identifier"] = "2"
     body["date_founded"] = "2023-01-01"
     body["legal_name"] = "A name for the organisation"
     body["ai_relevance"] = "Part of CLAIRE"
     body["type"] = "Research Institute"
     body["member"] = [1]
-
-    body["telephone"] = ["0031612345678"]
-    body["email"] = ["a@b.com"]
+    body["contact_details"] = 1
 
     response = client.post("/organisations/v1", json=body, headers={"Authorization": "Fake token"})
     assert response.status_code == 200, response.json()
@@ -49,9 +50,7 @@ def test_happy_path(
     assert response_json["ai_relevance"] == "Part of CLAIRE"
     assert response_json["type"] == "Research Institute"
     assert response_json["member"] == [1]
-
-    assert response_json["telephone"] == ["0031612345678"]
-    assert response_json["email"] == ["a@b.com"]
+    assert response_json["contact_details"] == 1
 
     # response = client.delete("/organisations/v1/1", headers={"Authorization": "Fake token"})
     # assert response.status_code == 200

@@ -3,14 +3,16 @@ from typing import Optional
 from sqlmodel import Field, Relationship
 
 from database.model.ai_asset.ai_asset import AIAsset
+from database.model.ai_resource.text import Text, TextORM
 from database.model.field_length import NORMAL
 from database.model.knowledge_asset.PublicationType import PublicationType
 from database.model.knowledge_asset.knowledge_asset import KnowledgeAssetBase, KnowledgeAsset
-from database.model.relationships import ManyToOne
+from database.model.relationships import ManyToOne, OneToOne
 from database.model.serializers import (
     AttributeSerializer,
     FindByNameDeserializer,
     FindByIdentifierDeserializer,
+    CastDeserializer,
 )
 
 
@@ -42,14 +44,27 @@ class PublicationBase(KnowledgeAssetBase):
 class Publication(PublicationBase, KnowledgeAsset, table=True):  # type: ignore [call-arg]
     __tablename__ = "publication"
 
+    content_identifier: int | None = Field(
+        index=True,
+        foreign_key="text.identifier",
+        description="Alternative for using .distributions[*].content_url, to make it easier to add "
+        "textual content. ",
+    )
+    content: TextORM | None = Relationship(
+        sa_relationship_kwargs=dict(foreign_keys="[Publication.content_identifier]")
+    )
     type_identifier: int | None = Field(foreign_key=PublicationType.__tablename__ + ".identifier")
     type: Optional[PublicationType] = Relationship()
 
     class RelationshipConfig(KnowledgeAsset.RelationshipConfig):
+        content: Optional[Text] = OneToOne(
+            deserializer=CastDeserializer(TextORM),
+            on_delete_trigger_deletion_by="content_identifier",
+        )
         type: str | None = ManyToOne(
             description="The type of publication.",
             identifier_name="type_identifier",
-            serializer=AttributeSerializer("name"),
+            _serializer=AttributeSerializer("name"),
             deserializer=FindByNameDeserializer(PublicationType),
             example="journal",
         )

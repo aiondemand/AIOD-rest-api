@@ -1,5 +1,6 @@
 from .case_study_router import CaseStudyRouter
 from .computational_asset_router import ComputationalAssetRouter
+from .contact_router import ContactRouter
 from .dataset_router import DatasetRouter
 from .educational_resource_router import EducationalResourceRouter
 from .event_router import EventRouter
@@ -19,6 +20,7 @@ router_list: list[ResourceRouter] = [
     PlatformRouter(),
     CaseStudyRouter(),
     ComputationalAssetRouter(),
+    ContactRouter(),
     DatasetRouter(),
     EducationalResourceRouter(),
     EventRouter(),

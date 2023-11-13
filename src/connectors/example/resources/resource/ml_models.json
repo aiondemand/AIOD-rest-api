@@ -1,9 +1,9 @@
 [
     {
       "platform": "example",
-      "platform_identifier": "1",
+      "platform_resource_identifier": "1",
       "name": "The name of this resource",
-      "description": "A description.",
+      "description": {"plain": "A description."},
       "same_as": "https://www.example.com/resource/this_resource",
       "date_published": "2022-01-01T15:15:00.000",
       "version": "1.1.0",
@@ -53,11 +53,13 @@
         "eCommerce",
         "Healthcare"
       ],
+      "is_accessible_for_free": true,
       "is_part_of": [],
       "keyword": [
         "keyword1",
         "keyword2"
       ],
+      "relevant_link": ["https://www.example.com/a_relevant_link", "https://www.example.com/another_relevant_link"],
       "license": "https://creativecommons.org/share-your-work/public-domain/cc0/",
       "media": [
         {

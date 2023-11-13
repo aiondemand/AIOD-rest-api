@@ -18,7 +18,7 @@ from starlette.responses import JSONResponse
 from authentication import get_current_user
 from config import KEYCLOAK_CONFIG
 from converters.schema_converters.schema_converter import SchemaConverter
-from database.model.ai_resource.resource import AIResource
+from database.model.ai_resource.resource import AbstractAIResource
 from database.model.concept.concept import AIoDConcept
 from database.model.platform.platform import Platform
 from database.model.platform.platform_names import PlatformName
@@ -34,7 +34,7 @@ class Pagination(BaseModel):
     limit: int = 100
 
 
-RESOURCE = TypeVar("RESOURCE", bound=AIResource)
+RESOURCE = TypeVar("RESOURCE", bound=AbstractAIResource)
 RESOURCE_CREATE = TypeVar("RESOURCE_CREATE", bound=SQLModel)
 RESOURCE_READ = TypeVar("RESOURCE_READ", bound=SQLModel)
 
@@ -160,21 +160,22 @@ class ResourceRouter(abc.ABC):
             name=self.resource_name,
             **default_kwargs,
         )
-        router.add_api_route(
-            path=f"{url_prefix}/platforms/{{platform}}/{self.resource_name_plural}/{version}",
-            endpoint=self.get_platform_resources_func(engine),
-            response_model=response_model_plural,  # type: ignore
-            name=f"List {self.resource_name_plural}",
-            **default_kwargs,
-        )
-        router.add_api_route(
-            path=f"{url_prefix}/platforms/{{platform}}/{self.resource_name_plural}/{version}"
-            f"/{{identifier}}",
-            endpoint=self.get_platform_resource_func(engine),
-            response_model=response_model,  # type: ignore
-            name=self.resource_name,
-            **default_kwargs,
-        )
+        if hasattr(self.resource_class, "platform"):
+            router.add_api_route(
+                path=f"{url_prefix}/platforms/{{platform}}/{self.resource_name_plural}/{version}",
+                endpoint=self.get_platform_resources_func(engine),
+                response_model=response_model_plural,  # type: ignore
+                name=f"List {self.resource_name_plural}",
+                **default_kwargs,
+            )
+            router.add_api_route(
+                path=f"{url_prefix}/platforms/{{platform}}/{self.resource_name_plural}/{version}"
+                f"/{{identifier}}",
+                endpoint=self.get_platform_resource_func(engine),
+                response_model=response_model,  # type: ignore
+                name=self.resource_name,
+                **default_kwargs,
+            )
         return router
 
     def get_resources(
@@ -356,10 +357,11 @@ class ResourceRouter(abc.ABC):
     def create_resource(self, session: Session, resource_create_instance: SQLModel):
         # Store a resource in the database
         resource = self.resource_class.from_orm(resource_create_instance)
-
         deserialize_resource_relationships(
             session, self.resource_class, resource, resource_create_instance
         )
+        # if isinstance(resource, AbstractAIResource) and resource.ai_:
+        #     resource.ai_resource.type = self.resource_name
         session.add(resource)
         session.commit()
         return resource
@@ -387,8 +389,6 @@ class ResourceRouter(abc.ABC):
             try:
                 with Session(engine) as session:
                     resource = self._retrieve_resource(session, identifier)
-
-                    datetime_created = resource.aiod_entry.date_created
                     for attribute_name in resource.schema()["properties"]:
                         if hasattr(resource_create_instance, attribute_name):
                             new_value = getattr(resource_create_instance, attribute_name)
@@ -396,7 +396,8 @@ class ResourceRouter(abc.ABC):
                     deserialize_resource_relationships(
                         session, self.resource_class, resource, resource_create_instance
                     )
-                    resource.aiod_entry.date_created = datetime_created
+                    if hasattr(resource, "aiod_entry"):
+                        resource.aiod_entry.date_modified = datetime.datetime.utcnow()
                     try:
                         session.merge(resource)
                         session.commit()
@@ -404,7 +405,7 @@ class ResourceRouter(abc.ABC):
                         self._raise_clean_http_exception(e, session, resource_create_instance)
                 return self._wrap_with_headers(None)
             except Exception as e:
-                raise _wrap_as_http_exception(e)
+                raise self._raise_clean_http_exception(e, session, resource_create_instance)
 
         return put_resource
 
@@ -425,8 +426,14 @@ class ResourceRouter(abc.ABC):
                 with Session(engine) as session:
                     # Raise error if it does not exist
                     resource = self._retrieve_resource(session, identifier)
-                    resource.date_deleted = datetime.datetime.utcnow()
-                    session.add(resource)
+                    if (
+                        hasattr(self.resource_class, "__deletion_config__")
+                        and not self.resource_class.__deletion_config__["soft_delete"]
+                    ):
+                        session.delete(resource)
+                    else:
+                        resource.date_deleted = datetime.datetime.utcnow()
+                        session.add(resource)
                     session.commit()
                 return self._wrap_with_headers(None)
             except Exception as e:
@@ -445,7 +452,7 @@ class ResourceRouter(abc.ABC):
                 )
             query = select(self.resource_class).where(
                 and_(
-                    self.resource_class.platform_identifier == identifier,
+                    self.resource_class.platform_resource_identifier == identifier,
                     self.resource_class.platform == platform,
                 )
             )
@@ -482,6 +489,8 @@ class ResourceRouter(abc.ABC):
     ):
         """Raise an understandable exception based on this SQL IntegrityError."""
         session.rollback()
+        if isinstance(e, HTTPException):
+            raise e
         if len(e.args) == 0:
             traceback.print_exc()
             raise HTTPException(
@@ -493,12 +502,12 @@ class ResourceRouter(abc.ABC):
         # Note that the "real" errors are different from testing errors, because we use a
         # sqlite db while testing and a mysql db when running the application. The correct error
         # handling is therefore not tested. TODO: can we improve this?
-        if "_same_platform_and_platform_identifier" in error:
+        if "_same_platform_and_platform_id" in error:
             query = select(self.resource_class).where(
                 and_(
                     getattr(self.resource_class, "platform") == resource_create.platform,
-                    getattr(self.resource_class, "platform_identifier")
-                    == resource_create.platform_identifier,
+                    getattr(self.resource_class, "platform_resource_identifier")
+                    == resource_create.platform_resource_identifier,
                     is_(getattr(self.resource_class, "date_deleted"), None),
                 )
             )
@@ -506,7 +515,14 @@ class ResourceRouter(abc.ABC):
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail=f"There already exists a {self.resource_name} with the same platform and "
-                f"platform_identifier, with identifier={existing_resource.identifier}.",
+                f"platform_resource_identifier, with identifier={existing_resource.identifier}.",
+            ) from e
+        if ("UNIQUE" in error and "platform.name" in error) or (
+            "Duplicate entry" in error and "platform_name" in error
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=f"There already exists a {self.resource_name} with the same name.",
             ) from e
 
         if "FOREIGN KEY" in error and resource_create.platform is not None:
@@ -520,7 +536,8 @@ class ResourceRouter(abc.ABC):
                 )
         if "platform_xnor_platform_id_null" in error:
             error_msg = (
-                "If platform is NULL, platform_identifier should also be NULL, and vice versa."
+                "If platform is NULL, platform_resource_identifier should also be NULL, "
+                "and vice versa."
             )
             status_code = status.HTTP_400_BAD_REQUEST
         elif "constraint failed" in error:

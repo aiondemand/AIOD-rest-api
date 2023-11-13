@@ -14,5 +14,6 @@
             "encoding_format": "application/pdf",
             "name": "resource.pdf"
         }
-    ]
+    ],
+    "is_accessible_for_free": true
 }

@@ -1,9 +1,9 @@
 [
     {
       "platform": "example",
-      "platform_identifier": "1",
+      "platform_resource_identifier": "1",
       "name": "Name of the Event",
-      "description": "A description.",
+      "description": {"plain": "A description."},
       "same_as": "https://www.example.com/resource/this_resource",
       "date_published": "2022-01-01T15:15:00.000",
       "version": "1.1.0",
@@ -49,6 +49,13 @@
         "keyword1",
         "keyword2"
       ],
+      "location": [
+        {
+            "address": {"country": "NED", "street": "Street Name 10", "postal_code": "1234AB"},
+            "geo": {"latitude": 37.42242, "longitude": -122.08585, "elevation_millimeters": 2000}
+        }
+      ],
+      "relevant_link": ["https://www.example.com/a_relevant_link", "https://www.example.com/another_relevant_link"],
       "license": "https://creativecommons.org/share-your-work/public-domain/cc0/",
       "media": [
         {

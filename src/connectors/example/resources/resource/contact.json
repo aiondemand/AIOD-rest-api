@@ -1,0 +1,20 @@
+[
+    {
+      "email": ["a@b.com"],
+      "telephone": ["0032 XXXX XXXX"],
+      "location": [
+        {
+          "address": {
+            "country": "NED",
+            "street": "Street Name 10",
+            "postal_code": "1234AB"
+          },
+          "geo": {
+            "latitude": 37.42242,
+            "longitude": -122.08585,
+            "elevation_millimeters": 2000
+          }
+        }
+      ]
+    }
+]

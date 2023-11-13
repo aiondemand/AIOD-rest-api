@@ -26,12 +26,22 @@ class DatasetConverterSchemaDotOrg(SchemaConverter[Dataset, SchemaDotOrgDataset]
         return SchemaDotOrgDataset
 
     def convert(self, session: Session, aiod: Dataset) -> SchemaDotOrgDataset:
-        creator = [_person(creator) for creator in aiod.creator]
+        creator = [
+            SchemaDotOrgPerson(name=creator.contact_name)
+            for creator in aiod.creator
+            if creator.contact_name
+        ]
         funder = [_agent(session, agent_table) for agent_table in aiod.funder]
+        funder = [f for f in funder if f]
         citations = [_publication(publication) for publication in aiod.citation]
-
+        if aiod.description and aiod.description.plain:
+            description = aiod.description.plain
+        elif aiod.description and aiod.description.html:
+            description = aiod.description.html
+        else:
+            description = None
         return SchemaDotOrgDataset(
-            description=aiod.description,
+            description=description,
             identifier=aiod.identifier,
             name=aiod.name,
             alternateName=_list_to_one_or_none([a.name for a in aiod.alternate_name]),
@@ -83,25 +93,28 @@ def _list_to_one_or_none(value: set[V] | list[V]) -> set[V] | list[V] | V | None
     return value
 
 
-def _person(person: Person) -> SchemaDotOrgPerson:
-    return SchemaDotOrgPerson(name=person.name)
-
-
-def _organisation(organisation: Organisation) -> SchemaDotOrgOrganization:
-    return SchemaDotOrgOrganization(name=organisation.name)
-
-
 def _publication(publication: Publication) -> str:
-    return f"{publication.name} by {', '.join(creator.name for creator in publication.creator)}"
+    names = (creator.contact_name for creator in publication.creator if creator.contact_name)
+    return f"{publication.name} by {', '.join(names)}"
 
 
-def _agent(session: Session, agent: AgentTable) -> SchemaDotOrgPerson | SchemaDotOrgOrganization:
+def _agent(
+    session: Session, agent: AgentTable
+) -> SchemaDotOrgPerson | SchemaDotOrgOrganization | None:
     if agent.type == Person.__tablename__:
-        query = select(Person).where(Person.identifier == agent.identifier)
-        person = session.scalars(query).first()
-        return _person(person)
-    if agent.type == Organisation.__tablename__:
-        query = select(Organisation).where(Organisation.identifier == agent.identifier)
-        organisation = session.scalars(query).first()
-        return _organisation(organisation)
-    raise ValueError(f"Agent type {agent.type} not recognized.")
+        query = select(Person).where(Person.agent_id == agent.identifier)
+        person: Person = session.scalars(query).first()
+        if person:
+            name = ", ".join([name for name in (person.surname, person.given_name) if name])
+            name = name if name else person.name
+            if name:
+                return SchemaDotOrgPerson(name=person.name)
+    elif agent.type == Organisation.__tablename__:
+        query = select(Organisation).where(Organisation.agent_id == agent.identifier)
+        organisation: Organisation = session.scalars(query).first()
+        name = organisation.legal_name if organisation.legal_name else organisation.name
+        if name:
+            return SchemaDotOrgOrganization(name=name)
+    else:
+        raise ValueError(f"Agent type {agent.type} not recognized.")
+    return None

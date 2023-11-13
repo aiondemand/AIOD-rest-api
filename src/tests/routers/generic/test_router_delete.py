@@ -25,13 +25,13 @@ def test_happy_path(
                 test_resource_factory(
                     title="my_test_resource",
                     platform="example",
-                    platform_identifier=1,
+                    platform_resource_identifier=1,
                     status=draft,
                 ),
                 test_resource_factory(
                     title="second_test_resource",
                     platform="example",
-                    platform_identifier=2,
+                    platform_resource_identifier=2,
                     status=draft,
                 ),
             ]
@@ -63,13 +63,13 @@ def test_non_existent(
                 test_resource_factory(
                     title="my_test_resource",
                     platform="example",
-                    platform_identifier=1,
+                    platform_resource_identifier=1,
                     status=draft,
                 ),
                 test_resource_factory(
                     title="second_test_resource",
                     platform="example",
-                    platform_identifier=2,
+                    platform_resource_identifier=2,
                     status=draft,
                 ),
             ]
@@ -80,3 +80,25 @@ def test_non_existent(
     )
     assert response.status_code == 404, response.json()
     assert response.json()["detail"] == f"Test_resource '{identifier}' not found in the database."
+
+
+def test_add_after_deletion(
+    client_test_resource: TestClient,
+    engine_test_resource: Engine,
+    mocked_privileged_token: Mock,
+):
+    keycloak_openid.userinfo = mocked_privileged_token
+    body = {"title": "my_favourite_resource"}
+    response = client_test_resource.post(
+        "/test_resources/v0", json=body, headers={"Authorization": "Fake token"}
+    )
+    assert response.status_code == 200, response.json()
+    id_ = response.json()["identifier"]
+    response = client_test_resource.delete(
+        f"/test_resources/v0/{id_}", headers={"Authorization": "Fake token"}
+    )
+    assert response.status_code == 200, response.json()
+    response = client_test_resource.post(
+        "/test_resources/v0", json=body, headers={"Authorization": "Fake token"}
+    )
+    assert response.status_code == 200, response.json()

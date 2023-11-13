@@ -56,7 +56,7 @@ def drop_or_create_database(url: str, delete_first: bool):
 def _get_existing_resource(
     session: Session, resource: AIoDConcept, clazz: type[SQLModel]
 ) -> AIoDConcept | None:
-    """Selecting a resource based on platform and platform_identifier"""
+    """Selecting a resource based on platform and platform_resource_identifier"""
     is_enum = NamedRelation in clazz.__mro__
     if is_enum:
         query = select(clazz).where(clazz.name == resource)
@@ -64,7 +64,7 @@ def _get_existing_resource(
         query = select(clazz).where(
             and_(
                 clazz.platform == resource.platform,
-                clazz.platform_identifier == resource.platform_identifier,
+                clazz.platform_resource_identifier == resource.platform_resource_identifier,
             )
         )
     return session.scalars(query).first()
@@ -86,7 +86,7 @@ def _create_or_fetch_related_objects(session: Session, item: ResourceWithRelatio
             if (
                 resource.platform is not None
                 and resource.platform != PlatformName.aiod
-                and resource.platform_identifier is not None
+                and resource.platform_resource_identifier is not None
             ):
                 # Get the router of this resource. The difficulty is, that the resource will be a
                 # ResourceRead (e.g. a DatasetRead). So we search for the router for which the

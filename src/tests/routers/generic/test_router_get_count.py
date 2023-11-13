@@ -15,15 +15,15 @@ def test_get_count_happy_path(
         session.add_all(
             [
                 test_resource_factory(
-                    title="my_test_resource_1", status=draft, platform_identifier="1"
+                    title="my_test_resource_1", status=draft, platform_resource_identifier="1"
                 ),
                 test_resource_factory(
-                    title="My second test resource", status=draft, platform_identifier="2"
+                    title="My second test resource", status=draft, platform_resource_identifier="2"
                 ),
                 test_resource_factory(
                     title="My third test resource",
                     status=draft,
-                    platform_identifier="3",
+                    platform_resource_identifier="3",
                     date_deleted=datetime.datetime.now(),
                 ),
             ]

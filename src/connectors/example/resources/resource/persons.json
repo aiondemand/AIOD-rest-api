@@ -1,11 +1,12 @@
 [
     {
     "platform": "example",
-    "platform_identifier": "1",
+    "platform_resource_identifier": "1",
     "name": "Jane Doe",
     "given_name": "Jane",
     "surname": "Doe",
-    "description": "A description.",
+    "description": {"plain": "A description."},
+    "date_published": "2022-01-01T15:15:00.000",
     "same_as": "https://www.example.com/resource/this_resource",
     "aiod_entry": {
       "editor": [],
@@ -21,9 +22,6 @@
       "Disease Classification"
     ],
     "contact": [],
-    "email": [
-      "a@b.com"
-    ],
     "expertise": [
       "transfer learning"
     ],
@@ -38,6 +36,7 @@
       "keyword1",
       "keyword2"
     ],
+    "relevant_link": ["https://www.example.com/a_relevant_link", "https://www.example.com/another_relevant_link"],
     "language": [
       "eng",
       "fra",
@@ -69,9 +68,6 @@
       "Anomaly Detection",
       "Voice Recognition",
       "Computer Vision."
-    ],
-    "telephone": [
-      "0032 XXXX XXXX"
     ],
     "price_per_hour_euro": 75.5
     }

@@ -88,17 +88,6 @@ class AddressORM(AddressBase, table=True):  # type: ignore [call-arg]
 
     # TODO(jos): make country an enum. This is difficult though, because deserialization isn't
     #  working on non-main entities
-    # country_identifier: int | None = Field(foreign_key=Country.__tablename__ + ".identifier")
-    # country: Optional[Country] = Relationship(
-    #     back_populates="addresses"
-    # )
-
-    # class RelationshipConfig:
-    #     country: Optional[str] = ResourceRelationshipSingle(
-    #         example="BEL",
-    #         identifier_name="country_identifier",
-    #         deserializer=FindByNameDeserializer(Country),
-    #     )
     location_identifier: int | None = Field(
         sa_column=Column(Integer, ForeignKey("location.identifier", ondelete="CASCADE"))
     )
@@ -107,17 +96,6 @@ class AddressORM(AddressBase, table=True):  # type: ignore [call-arg]
 
 class Address(AddressBase):
     """A postal address"""
-
-    # country: Optional[Country] = Field(
-    #     default=None,
-    #     description="The country as ISO 3166-1 alpha-3",
-    #     schema_extra={"example": "BEL"},
-    # )
-
-    # class Config:
-    #     getter_dict = create_getter_dict(
-    #         {"country": AttributeSerializer("name")}
-    #     )
 
 
 class LocationBase(SQLModel):
@@ -133,6 +111,12 @@ class LocationORM(LocationBase, table=True):  # type: ignore [call-arg]
     )
     geo: Optional["GeoORM"] = Relationship(
         back_populates="location", sa_relationship_kwargs={"uselist": False}
+    )
+    contact_identifier: int | None = Field(
+        sa_column=Column(Integer, ForeignKey("contact.identifier", ondelete="CASCADE"))
+    )
+    event_identifier: int | None = Field(
+        sa_column=Column(Integer, ForeignKey("event.identifier", ondelete="CASCADE"))
     )
 
     class RelationshipConfig:

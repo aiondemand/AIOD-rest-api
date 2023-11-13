@@ -1,6 +1,7 @@
 import pathlib
 
 from connectors.example.example_connector import ExampleConnector
+from database.model.agent.contact import Contact
 from database.model.agent.organisation import Organisation
 from database.model.agent.person import Person
 from database.model.agent.team import Team
@@ -29,6 +30,12 @@ class ExampleComputationalAssetConnector(ExampleConnector[ComputationalAsset]):
     def __init__(self):
         json_path = RESOURCE_PATH / "computational_assets.json"
         super().__init__(json_path, ComputationalAsset)
+
+
+class ExampleContactConnector(ExampleConnector[Contact]):
+    def __init__(self):
+        json_path = RESOURCE_PATH / "contacts.json"
+        super().__init__(json_path, Contact)
 
 
 class ExampleDatasetConnector(ExampleConnector[Dataset]):

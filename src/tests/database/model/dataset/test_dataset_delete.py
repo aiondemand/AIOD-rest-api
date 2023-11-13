@@ -3,8 +3,8 @@ from sqlmodel import Session, select
 from starlette.testclient import TestClient
 
 from database.model.agent.agent_table import AgentTable
+from database.model.agent.location import LocationORM, AddressORM, GeoORM
 from database.model.ai_asset.ai_asset_table import AIAssetTable
-from database.model.ai_resource.location import LocationORM, AddressORM, GeoORM
 from database.model.dataset.dataset import Dataset
 from database.model.dataset.size import DatasetSizeORM
 

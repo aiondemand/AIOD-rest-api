@@ -72,8 +72,14 @@ class ParentRouter(abc.ABC):
                 child_type: str = parent_resource.type
                 child_class = classes_dict[child_type]
                 child_class_read = read_classes_dict[child_type]
+                identifier_name = (
+                    self.resource_name + "_id"
+                    if hasattr(child_class, self.resource_name + "_id")
+                    else self.resource_name + "_identifier"
+                )
+
                 query_child = select(child_class).where(
-                    getattr(child_class, self.resource_name + "_id") == identifier
+                    getattr(child_class, identifier_name) == identifier
                 )
                 child: AIoDConcept = session.scalars(query_child).first()
                 if child.date_deleted is not None:

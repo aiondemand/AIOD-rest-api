@@ -4,8 +4,8 @@ from sqlalchemy import Column, Integer, ForeignKey
 from sqlmodel import Field, Relationship
 
 from database.model.agent.agent_table import AgentTable
+from database.model.agent.location import LocationORM, Location
 from database.model.ai_asset.ai_asset import AIAssetBase, AIAsset
-from database.model.ai_resource.location import LocationORM, Location
 from database.model.dataset.size import DatasetSizeORM, DatasetSize
 from database.model.field_length import NORMAL, SHORT
 from database.model.helper_functions import many_to_many_link_factory
@@ -66,7 +66,7 @@ class Dataset(DatasetBase, AIAsset, table=True):  # type: ignore [call-arg]
         funder: list[int] = ManyToMany(
             description="Links to identifiers of the agents (person or organization) that supports "
             "this dataset through some kind of financial contribution. ",
-            serializer=AttributeSerializer("identifier"),
+            _serializer=AttributeSerializer("identifier"),
             deserializer=FindByIdentifierDeserializer(AgentTable),
             default_factory_pydantic=list,
             example=[],

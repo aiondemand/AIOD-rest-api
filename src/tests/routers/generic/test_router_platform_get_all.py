@@ -10,10 +10,12 @@ def test_get_all_happy_path(client_test_resource: TestClient, engine_test_resour
         session.add_all(
             [
                 TestResource(
-                    title="my_test_resource_1", platform="example", platform_identifier="1"
+                    title="my_test_resource_1", platform="example", platform_resource_identifier="1"
                 ),
                 TestResource(
-                    title="My second test resource", platform="example", platform_identifier="2"
+                    title="My second test resource",
+                    platform="example",
+                    platform_resource_identifier="2",
                 ),
             ]
         )

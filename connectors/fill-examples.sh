@@ -5,6 +5,10 @@ python3 connectors/synchronization.py \
   -w /opt/connectors/data/example/case_study
 
 python3 connectors/synchronization.py \
+  -c connectors.example.example.ExampleContactConnector \
+  -w /opt/connectors/data/example/contact
+
+python3 connectors/synchronization.py \
   -c connectors.example.example.ExampleComputationalAssetConnector \
   -w /opt/connectors/data/example/computational_asset
 
@@ -81,6 +85,10 @@ python3 connectors/synchronization.py \
 python3 connectors/synchronization.py \
   -c connectors.example.enum.EnumConnectorOrganisationType \
   -w /opt/connectors/data/enum/organisation_type
+
+python3 connectors/synchronization.py \
+  -c connectors.example.enum.EnumConnectorNewsCategory \
+  -w /opt/connectors/data/enum/news_category
 
 python3 connectors/synchronization.py \
   -c connectors.example.enum.EnumConnectorStatus \

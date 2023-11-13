@@ -12,6 +12,7 @@ from connectors.record_error import RecordError
 from connectors.resource_with_relations import ResourceWithRelations
 from database.model import field_length
 from database.model.agent.person import Person
+from database.model.ai_resource.text import Text
 from database.model.dataset.dataset import Dataset
 from database.model.platform.platform_names import PlatformName
 from database.model.resource_read_and_create import resource_create
@@ -57,14 +58,16 @@ class ZenodoDatasetConnector(ResourceConnectorByDate[Dataset]):
                 creators.append(Person(name=name))
 
         description = record.get("metadata").get("description")
-        if len(description) > field_length.DESCRIPTION:
+        if len(description) > field_length.LONG:
             text_break = " [...]"
-            description = description[: field_length.DESCRIPTION - len(text_break)] + text_break
+            description = description[: field_length.LONG - len(text_break)] + text_break
+        if description:
+            description = Text(plain=description)
 
         pydantic_class = resource_create(Dataset)
         dataset = pydantic_class(
             platform="zenodo",
-            platform_identifier=_id,
+            platform_resource_identifier=_id,
             date_published=record.get("created"),
             name=record.get("metadata").get("title"),
             description=description,
@@ -121,9 +124,11 @@ class ZenodoDatasetConnector(ResourceConnectorByDate[Dataset]):
             description = description_raw["#text"]
         else:
             return RecordError(identifier=identifier, error=error_fmt("description"))
-        if len(description) > field_length.DESCRIPTION:
+        if len(description) > field_length.LONG:
             text_break = " [...]"
-            description = description[: field_length.DESCRIPTION - len(text_break)] + text_break
+            description = description[: field_length.LONG - len(text_break)] + text_break
+        if description:
+            description = Text(plain=description)
 
         date_published = None
         date_raw = record["dates"]["date"]
@@ -159,7 +164,7 @@ class ZenodoDatasetConnector(ResourceConnectorByDate[Dataset]):
         pydantic_class = resource_create(Dataset)
         dataset = pydantic_class(
             platform="zenodo",
-            platform_identifier=identifier,
+            platform_resource_identifier=identifier,
             name=title,
             same_as=same_as,
             description=description,

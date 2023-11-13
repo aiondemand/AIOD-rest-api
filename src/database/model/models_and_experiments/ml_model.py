@@ -40,13 +40,13 @@ class MLModel(MLModelBase, AIAsset, table=True):  # type: ignore [call-arg]
         type: str | None = ManyToOne(
             description="The type of machine learning model.",
             identifier_name="type_identifier",
-            serializer=AttributeSerializer("name"),
+            _serializer=AttributeSerializer("name"),
             deserializer=FindByNameDeserializer(MLModelType),
             example="Large Language Model",
         )
         related_experiment: list[int] = ManyToMany(
             description="Related experiments.",
-            serializer=AttributeSerializer("identifier"),
+            _serializer=AttributeSerializer("identifier"),
             deserializer=FindByIdentifierDeserializer(Experiment),
             default_factory_pydantic=list,
             example=[],

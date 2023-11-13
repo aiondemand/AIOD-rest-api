@@ -16,7 +16,7 @@ class KnowledgeAssetBase(AIAssetBase):
 
 class KnowledgeAsset(KnowledgeAssetBase, AIAsset):
     knowledge_asset_id: int | None = Field(
-        foreign_key=KnowledgeAssetTable.__tablename__ + ".identifier", index=True
+        foreign_key=KnowledgeAssetTable.__tablename__ + ".identifier", unique=True, index=True
     )
     knowledge_asset_identifier: KnowledgeAssetTable | None = Relationship()
 
@@ -41,7 +41,7 @@ class KnowledgeAsset(KnowledgeAssetBase, AIAsset):
         documents: list[int] = ManyToMany(
             description="The identifier of an AI asset for which the Knowledge Asset acts as an "
             "information source",
-            serializer=AttributeSerializer("identifier"),
+            _serializer=AttributeSerializer("identifier"),
             deserializer=FindByIdentifierDeserializer(AIAssetTable),
             example=[],
             default_factory_pydantic=list,

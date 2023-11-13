@@ -2,9 +2,9 @@
 """
 Actual (hard) deletion of soft-deleted items.
 
-We use soft-deletion, meaning that the .date_deleted attribute is set on a delete request,
-rather than actual deletion. This module hard deletes those items that have been soft deleted
-some time ago.
+We use soft-deletion for most resources, meaning that the .date_deleted attribute is set on a
+delete request, rather than actual deletion. This module hard deletes those items that have been
+soft deleted some time ago.
 """
 import argparse
 import datetime

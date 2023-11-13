@@ -68,7 +68,6 @@ def resource_create(resource_class: Type["AIoDConcept"]) -> Type[SQLModel]:
     """
     relationships = get_relationships(resource_class)
     field_definitions = _get_field_definitions_create(resource_class, relationships)
-
     model = create_model(
         resource_class.__name__ + "Create", __base__=resource_class.__base__, **field_definitions
     )
@@ -90,11 +89,11 @@ def resource_read(resource_class: Type["AIoDConcept"]) -> Type[SQLModel]:
     relationships = get_relationships(resource_class)
     field_definitions = _get_field_definitions_read(resource_class, relationships)
     field_definitions.update({"identifier": (int, Field())})
-    resource_class_read = create_model(
+    model = create_model(
         resource_class.__name__ + "Read", __base__=resource_class.__base__, **field_definitions
     )
-    _update_model_serialization(resource_class, resource_class_read)
-    return resource_class_read
+    _update_model_serialization(resource_class, model)
+    return model
 
 
 def _update_model_serialization(resource_class: Type[SQLModel], resource_class_read):

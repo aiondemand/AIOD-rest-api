@@ -21,14 +21,14 @@ class TestResource(TestResourceBase, AIoDConcept, table=True):  # type: ignore [
 
 
 def test_resource_factory(
-    title=None, status=None, platform="example", platform_identifier="1", date_deleted=None
+    title=None, status=None, platform="example", platform_resource_identifier="1", date_deleted=None
 ):
     if status is None:
         status = Status(name="draft")
     return TestResource(
         title=title,
         platform=platform,
-        platform_identifier=platform_identifier,
+        platform_resource_identifier=platform_resource_identifier,
         aiod_entry=AIoDEntryORM(status=status),
         date_deleted=date_deleted,
     )

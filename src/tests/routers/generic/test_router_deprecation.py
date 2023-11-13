@@ -47,7 +47,7 @@ def test_deprecated_router(
         kwargs["json"] = {
             "title": "Another title",
             "platform": "example",
-            "platform_identifier": "2",
+            "platform_resource_identifier": "2",
         }
 
     if verb in ("post", "put", "delete"):

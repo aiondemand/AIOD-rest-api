@@ -1,10 +1,11 @@
 [
   {
     "platform": "example",
-    "platform_identifier": "1",
+    "platform_resource_identifier": "1",
     "name": "The name of this organisation",
-    "description": "A description.",
+    "description": {"plain": "A description."},
     "same_as": "https://www.example.com/resource/this_resource",
+    "date_published": "2022-01-01T15:15:00.000",
     "date_founded": "2022-01-01",
     "legal_name": "The legal Organisation Name",
     "ai_relevance": "Part of CLAIRE, focussing on explainable AI.",
@@ -22,9 +23,6 @@
       "Disease Classification"
     ],
     "contact": [],
-    "email": [
-      "a@b.com"
-    ],
     "has_part": [],
     "industrial_sector": [
       "Finance",
@@ -36,6 +34,7 @@
       "keyword1",
       "keyword2"
     ],
+    "relevant_link": ["https://www.example.com/a_relevant_link", "https://www.example.com/another_relevant_link"],
     "media": [
       {
           "checksum": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
@@ -65,9 +64,6 @@
       "Anomaly Detection",
       "Voice Recognition",
       "Computer Vision."
-    ],
-    "telephone": [
-      "0032 XXXX XXXX"
     ],
     "type": "Research Institution"
   }

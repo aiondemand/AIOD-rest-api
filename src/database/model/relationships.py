@@ -17,6 +17,7 @@ from sqlmodel import Field, SQLModel
 
 from database.deletion import triggers
 from database.model import serializers
+from database.model.serializers import GetPathSerializer
 
 
 @dataclasses.dataclass
@@ -25,7 +26,7 @@ class _ResourceRelationship(abc.ABC, Representation):
     Configuration for handling relationships to another table.
 
     Args:
-        serializer (Serializer): will be used to serialize the related entity into json.
+        _serializer (Serializer): will be used to serialize the related entity into json.
         deserializer (DeSerializer): will be used to deserialize the related entity from json.
         description: (str): a description of the relation. Will be shown in Swagger if the
             related entity is serialized into a field such as a string.
@@ -38,9 +39,12 @@ class _ResourceRelationship(abc.ABC, Representation):
             class_read and class_create
         class_create: normally not needed, only needed if you want to differentiate between
             class_read and class_create
+        deserialized_path: only needed if the serialized path differs from the deserialized path.
+            E.g., `{"has_part": [1]} needs to be deserialized to {"ai_resource": {"has_part": [1]}}`
+            then `deserialized_path='ai_resource'.
     """
 
-    serializer: serializers.Serializer | None = None
+    _serializer: serializers.Serializer | None = None
     deserializer: serializers.DeSerializer | None = None
     description: str | None = None
     include_in_create: bool = True
@@ -48,7 +52,7 @@ class _ResourceRelationship(abc.ABC, Representation):
     default_factory_pydantic: Any | None = None
     class_read: Any | None = None
     class_create: Any | None = None
-    """jos"""
+    deserialized_path: str | None = None
 
     def field(self):
         return Field(
@@ -58,6 +62,14 @@ class _ResourceRelationship(abc.ABC, Representation):
         )
 
     @property
+    def serializer(self) -> serializers.Serializer | None:
+        if self.deserialized_path is None:
+            return self._serializer
+        if self._serializer is None:
+            raise ValueError("_serializer should be defined if using a deserialized_path")
+        return GetPathSerializer(self.deserialized_path, self._serializer)
+
+    @property
     @abc.abstractmethod
     def example(self):
         pass
@@ -65,6 +77,11 @@ class _ResourceRelationship(abc.ABC, Representation):
     @abc.abstractmethod
     def create_triggers(self, parent_class: Type[SQLModel], field_name: str):
         pass
+
+    def attribute(self, attribute: str) -> str:
+        """Return the attribute belonging to this relationship (e.g. "description")
+        For most relationships, this just returns the given attribute."""
+        return attribute
 
 
 @dataclasses.dataclass
@@ -80,8 +97,10 @@ class _ResourceRelationshipSingle(_ResourceRelationship):
     """
 
     identifier_name: str | None = None
-    """blabla"""
     example: str | int | None = None
+
+    def attribute(self, attribute: str) -> str:
+        return self.identifier_name if self.identifier_name else attribute
 
 
 @dataclasses.dataclass

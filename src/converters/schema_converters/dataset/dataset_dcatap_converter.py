@@ -31,9 +31,16 @@ class DatasetConverterDcatAP(SchemaConverter[Dataset, DcatApWrapper]):
             XSDDateTime(value_=aiod.date_published) if aiod.date_published is not None else None
         )
         update_date = XSDDateTime(value_=aiod.aiod_entry.date_modified)
+
+        if aiod.description and aiod.description.plain:
+            description = aiod.description.plain
+        elif aiod.description and aiod.description.html:
+            description = aiod.description.html
+        else:
+            description = None
         dataset = DcatAPDataset(
             id_=aiod.identifier,
-            description=aiod.description,
+            description=description,
             title=aiod.name,
             keyword=[k.name for k in aiod.keyword],
             landing_page=[aiod.same_as] if aiod.same_as is not None else [],

@@ -10,12 +10,13 @@ import pytest
 from sqlalchemy.engine import Engine
 from sqlmodel import Session
 
+from database.model.agent.contact import Contact
 from database.model.agent.organisation import Organisation
 from database.model.agent.person import Person
 from database.model.concept.status import Status
 from database.model.dataset.dataset import Dataset
-from database.model.models_and_experiments.experiment import Experiment
 from database.model.knowledge_asset.publication import Publication
+from database.model.models_and_experiments.experiment import Experiment
 from database.model.resource_read_and_create import resource_create
 from database.model.serializers import deserialize_resource_relationships
 from tests.testutils.paths import path_test_resources
@@ -70,6 +71,20 @@ def publication(body_asset: dict, engine: Engine) -> Publication:
 
 
 @pytest.fixture
+def contact(body_concept, engine: Engine) -> Contact:
+    body = copy.copy(body_concept)
+    body["email"] = ["a@b.com"]
+    body["telephone"] = ["0032 XXXX XXXX"]
+    body["location"] = [
+        {
+            "address": {"country": "NED", "street": "Street Name 10", "postal_code": "1234AB"},
+            "geo": {"latitude": 37.42242, "longitude": -122.08585, "elevation_millimeters": 2000},
+        }
+    ]
+    return _create_class_with_body(Contact, body, engine)
+
+
+@pytest.fixture
 def dataset(body_asset: dict, engine: Engine) -> Dataset:
     body = copy.copy(body_asset)
     body["issn"] = "20493630"
@@ -108,4 +123,6 @@ def _create_class_with_body(clz, body: dict, engine: Engine):
     with Session(engine) as session:
         deserialize_resource_relationships(session, clz, res, res_create)
         session.commit()
+    if hasattr(res, "ai_resource"):
+        res.ai_resource.type = clz.__tablename__
     return res

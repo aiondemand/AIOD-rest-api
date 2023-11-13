@@ -26,28 +26,28 @@ def test_hard_delete(
                 test_resource_factory(
                     title="test_resource_to_keep",
                     platform="example",
-                    platform_identifier=1,
+                    platform_resource_identifier=1,
                     status=draft,
                     date_deleted=None,
                 ),
                 test_resource_factory(
                     title="test_resource_to_keep_2",
                     platform="example",
-                    platform_identifier=2,
+                    platform_resource_identifier=2,
                     status=draft,
                     date_deleted=now,
                 ),
                 test_resource_factory(
                     title="my_test_resource",
                     platform="example",
-                    platform_identifier=3,
+                    platform_resource_identifier=3,
                     status=draft,
                     date_deleted=deletion_time,
                 ),
                 test_resource_factory(
                     title="second_test_resource",
                     platform="example",
-                    platform_identifier=4,
+                    platform_resource_identifier=4,
                     status=draft,
                     date_deleted=deletion_time,
                 ),
@@ -59,7 +59,7 @@ def test_hard_delete(
     with Session(engine_test_resource) as session:
         resources = session.scalars(select(TestResource)).all()
         assert len(resources) == 2
-        assert {r.platform_identifier for r in resources} == {"1", "2"}
+        assert {r.platform_resource_identifier for r in resources} == {"1", "2"}
 
         entries = session.scalars(select(AIoDEntryORM)).all()
         assert len(entries) == 2
