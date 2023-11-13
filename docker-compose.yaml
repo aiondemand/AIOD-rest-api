@@ -200,7 +200,23 @@ services:
     depends_on:
       elasticsearch:
         condition: service_healthy
-
+  
+  logstash_setup:
+    build:
+      context: logstash/setup/
+      dockerfile: Dockerfile
+    env_file: .env
+    environment:
+      - MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD
+      - ES_USER=$ES_USER
+      - ES_PASSWORD=$ES_PASSWORD
+    volumes:
+      - ./src/setup/logstash:/app
+      - ./logstash:/logstash
+    command: >
+      python generate_logstash_config_files.py
+    restart: "no"
+  
   logstash:
     build:
       context: logstash/
@@ -235,6 +251,8 @@ services:
       app:
         condition: service_healthy
       elasticsearch_setup:
+        condition: service_completed_successfully
+      logstash_setup:
         condition: service_completed_successfully
       fill-db-with-examples:
         condition: service_completed_successfully

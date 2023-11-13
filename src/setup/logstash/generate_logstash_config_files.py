@@ -7,10 +7,20 @@ import os
 # =============================================================================
 
 # Repository base path
-REPO_PATH = ".."
+#REPO_PATH = os.path.join("..", "..", "..")
 
-# Working path
-WORKING_PATH = os.path.join(".")
+FIELDS = {
+    "dataset": ["aiod_entry.date_modified", "dataset.identifier", "name", "description", "issn"],
+    "event": ["aiod_entry.date_modified", "event.identifier", "name", "description",],
+    "experiment": ["aiod_entry.date_modified", "experiment.identifier", "name", "description"],
+    "ml_model": ["aiod_entry.date_modified", "ml_model.identifier", "name", "description"],
+    "news": ["aiod_entry.date_modified", "news.identifier", "name", "description", "headline",
+             "alternative_headline"],
+    "organisation": ["aiod_entry.date_modified", "organisation.identifier", "name", "description", "legal_name"],
+    "project": ["aiod_entry.date_modified", "project.identifier", "name", "description"],
+    "publication": ["aiod_entry.date_modified", "publication.identifier", "name", "description", "issn", "isbn"],
+    "service": ["aiod_entry.date_modified", "service.identifier", "name", "description", "slogan"]
+}
 
 # MACROS FOR THE DOCUMENTS GENERATION FUNCTIONS
 # =============================================================================
@@ -105,7 +115,6 @@ INIT_OUTPUT_BASE = """  if [type] == "{2}" {{
   }}
 """
 
-#TODO: TEST DELETE WITHOUT protocol => "transport"
 SYNC_OUTPUT_BASE = """  if [type] == "{2}" {{
     elasticsearch {{
         hosts => "elasticsearch:9200"
@@ -129,84 +138,15 @@ SYNC_OUTPUT_BASE = """  if [type] == "{2}" {{
   }}
 """
 
-SQL_BASE = """SELECT
-    -- Concept
-    {0}.identifier,
-    {0}.platform,
-    {0}.platform_identifier,
-    -- Concept.aiod_entry
-    status.name AS `status`,
-    aiod_entry.date_modified,
-    aiod_entry.date_created,
-    -- Resource
-    {0}.ai_resource_id AS `resource_identifier`,
-    {0}.name,
-    {0}.description,
-    {0}.same_as{1}{2}{3}{4}{5}{6}{7},
-    -- Application Area
-    GROUP_CONCAT(application_area.name) AS `application_area`
+SQL_BASE = """SELECT {1}
 FROM aiod.{0}
-INNER JOIN aiod.aiod_entry ON aiod.{0}.aiod_entry_identifier=aiod.aiod_entry.identifier
-INNER JOIN aiod.status ON aiod.aiod_entry.status_identifier=aiod.status.identifier{8}
-LEFT JOIN aiod.{0}_application_area_link ON aiod.{0}_application_area_link.from_identifier=aiod.{0}.identifier
-LEFT JOIN aiod.application_area ON aiod.{0}_application_area_link.linked_identifier=aiod.application_area.identifier{9}
-GROUP BY aiod.{0}.identifier
-ORDER BY aiod.{0}.identifier
+INNER JOIN aiod.aiod_entry ON aiod.{0}.aiod_entry_identifier=aiod.aiod_entry.identifier{2}
 """
 
 SQL_RM_BASE = """SELECT {0}.identifier
 FROM aiod.{0}
 WHERE aiod.{0}.date_deleted IS NOT NULL AND aiod.{0}.date_deleted > :sql_last_value
 """
-
-AI_ASSET_BASE = """,
-    -- AIAsset
-    {0}.ai_asset_id AS `asset_identifier`,
-    {0}.date_published,
-    {0}.version,
-    license.name AS `license`"""
-
-ATTRIBUTES_BASE = """,
-    -- Attributes
-    """
-
-TYPE_BASE = """,
-    -- Type
-    {0}_type.name AS `{0}_type`"""
-
-MODE_BASE = """,
-    -- Mode
-    {0}_mode.name AS `mode`"""
-
-STATUS_BASE = """,
-    -- Status
-    {0}_status.name AS `{0}_status`"""
-
-AGENT_BASE = """,
-    -- Agent
-    agent.type AS `{0}`"""
-
-ORGANISATION_BASE = """,
-    -- Organisation
-    organisation.name AS `{0}`"""
-
-LEFT_LICENSE = """
-LEFT JOIN aiod.license ON aiod.{0}.license_identifier=aiod.license.identifier"""
-
-LEFT_TYPE = """
-LEFT JOIN aiod.{0}_type ON aiod.{0}.type_identifier=aiod.{0}_type.identifier"""
-
-LEFT_MODE = """
-LEFT JOIN aiod.{0}_mode ON aiod.{0}.mode_identifier=aiod.{0}_mode.identifier"""
-
-LEFT_STATUS = """
-LEFT JOIN aiod.{0}_status ON aiod.{0}.status_identifier=aiod.{0}_status.identifier"""
-
-LEFT_AGENT = """
-LEFT JOIN aiod.agent ON aiod.{0}.{1}=aiod.agent.identifier"""
-
-LEFT_ORGANISATION = """
-LEFT JOIN aiod.organisation ON aiod.{0}.{1}=aiod.organisation.identifier"""
 
 INIT_CLAUSE = """
 WHERE aiod.{0}.date_deleted IS NULL"""
@@ -282,66 +222,13 @@ def generate_pipeline_sql_files(pipeline_sql_path, entity, sync=False):
         # Info
         f.write(INFO.format('--'))
         
-        # Left joins
-        left_joins = ""
-        
-        # For ai_asset entities
-        ai_asset_attributes = ""
-        if entity in ai_asset_entities:
-            ai_asset_attributes = AI_ASSET_BASE.format(entity)
-            left_joins += LEFT_LICENSE.format(entity)
-        
-        # Attributes
-        entity_attributes = ""
-        if entity in attributes.keys():
-            entity_attributes = (ATTRIBUTES_BASE
-                                 + f"{entity}.{attributes[entity][0]}")
-            for attribute in attributes[entity][1:]:
-                entity_attributes += f",\n    {entity}.{attribute}"
-        
-        # For entities with a type relation
-        type_attribute = ""
-        if entity in type_entities:
-            type_attribute = TYPE_BASE.format(entity)
-            left_joins += LEFT_TYPE.format(entity)
-        
-        # For entities with a mode relation
-        mode_attribute = ""
-        if entity in mode_entities:
-            mode_attribute = MODE_BASE.format(entity)
-            left_joins += LEFT_MODE.format(entity)
-        
-        # For entities with a status relation
-        status_attribute = ""
-        if entity in status_entities:
-            status_attribute = STATUS_BASE.format(entity)
-            left_joins += LEFT_STATUS.format(entity)
-        
-        # For entities with an agent relation
-        agent_attribute = ""
-        if entity in agent_entities.keys():
-            agent_attribute = AGENT_BASE.format(agent_entities[entity][1])
-            left_joins += LEFT_AGENT.format(entity, agent_entities[entity][0])
-        
-        # For entities with an organisation relation
-        organisation_attribute = ""
-        if entity in organisation_entities.keys():
-            organisation_attribute = ORGANISATION_BASE.format(
-                                        organisation_entities[entity][1])
-            left_joins += LEFT_ORGANISATION.format(entity,
-                            organisation_entities[entity][0])
-        
         # Where clause
         if sync:
             where_clause = SYNC_CLAUSE.format(entity)
         else:
             where_clause = INIT_CLAUSE.format(entity)
         
-        f.write(SQL_BASE.format(entity, ai_asset_attributes,
-                                entity_attributes, type_attribute,
-                                mode_attribute, status_attribute,
-                                agent_attribute, organisation_attribute,
-                                left_joins, where_clause))
+        f.write(SQL_BASE.format(entity, ", ".join(FIELDS[entity]), where_clause))
 
 def generate_pipeline_sql_rm_files(pipeline_sql_path, entity):
     
@@ -400,26 +287,27 @@ if __name__ == "__main__":
     # -------------------------------------------------------------------------
     
     # Repository base path
-    repo_path = REPO_PATH
+#    repo_path = REPO_PATH
     
     # Configuration base path
-    base_path = WORKING_PATH
+#    base_path = os.path.join(repo_path, "logstash")
+    base_path = "/logstash"
     
     # -------------------------------------------------------------------------
     
     # Users and passwords
     db_user = "root"
-    db_pass = ""
-    es_user = ""
-    es_pass = ""
-    with open(os.path.join(repo_path, ".env"), "r") as f:
-        for line in f:
-            if "MYSQL_ROOT_PASSWORD" in line:
-                db_pass = line.split("=")[1][:-1]
-            if "ES_USER" in line:
-                es_user = line.split("=")[1][:-1]
-            if "ES_PASSWORD" in line:
-                es_pass = line.split("=")[1][:-1]
+    db_pass = os.environ['MYSQL_ROOT_PASSWORD']
+    es_user = os.environ['ES_USER']
+    es_pass = os.environ['ES_PASSWORD']
+#    with open(os.path.join(repo_path, ".env"), "r") as f:
+#        for line in f:
+#            if "MYSQL_ROOT_PASSWORD" in line:
+#                db_pass = line.split("=")[1][:-1]
+#            if "ES_USER" in line:
+#                es_user = line.split("=")[1][:-1]
+#            if "ES_PASSWORD" in line:
+#                es_pass = line.split("=")[1][:-1]
     
     # Entities and attributes
     entities = ["dataset", "event", "experiment", "ml_model", "news",
