@@ -1,5 +1,5 @@
 {
-  "took" : 4,
+  "took" : 1,
   "timed_out" : false,
   "_shards" : {
     "total" : 1,
@@ -12,36 +12,24 @@
       "value" : 1,
       "relation" : "eq"
     },
-    "max_score" : 0.2876821,
+    "max_score" : null,
     "hits" : [
       {
         "_index" : "news",
         "_id" : "news_1",
-        "_score" : 0.2876821,
+        "_score" : null,
         "_source" : {
-          "same_as" : "https://www.example.com/resource/this_resource",
-          "type" : "news",
           "identifier" : 1,
-          "resource_identifier" : 371,
-          "description" : "A description.",
-          "platform_identifier" : "1",
+          "headline" : "A headline.",
           "date_modified" : "2023-09-01T00:00:00.000Z",
-          "application_area" : [
-            "Fraud Prevention",
-            "Voice Assistance",
-            "Disease Classification"
-          ],
-          "name" : "Name of the News item",
-          "@version" : "1",
-          "headline" : "A headline to show on top of the page.",
-          "alternative_headline" : "An alternative headline.",
-          "date_created" : "2023-09-01T00:00:00.000Z",
-          "@timestamp" : "2023-09-01T00:00:00.000Z",
-          "platform" : "example",
-          "status" : "draft"
+          "name" : "A name.",
+          "plain" : "A plain text description.",
+          "type" : "news",
+          "html" : "An html description.",
+          "alternative_headline" : "An alternative headline."
         },
         "sort" : [
-            1
+          1
         ]
       }
     ]

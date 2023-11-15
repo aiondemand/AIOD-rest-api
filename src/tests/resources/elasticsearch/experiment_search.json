@@ -1,5 +1,5 @@
 {
-  "took" : 4,
+  "took" : 1,
   "timed_out" : false,
   "_shards" : {
     "total" : 1,
@@ -9,43 +9,25 @@
   },
   "hits" : {
     "total" : {
-      "value" : 21,
+      "value" : 1,
       "relation" : "eq"
     },
-    "max_score" : 0.6878389,
+    "max_score" : null,
     "hits" : [
       {
         "_index" : "experiment",
-        "_id" : "experiment_32",
-        "_score" : 0.6878389,
-        "_ignored" : [
-          "description.keyword"
-        ],
+        "_id" : "experiment_1",
+        "_score" : null,
         "_source" : {
-          "version" : "1.0",
-          "same_as" : "https://www.example.com/resource/this_resource",
-          "asset_identifier" : 169,
-          "identifier" : 32,
-          "resource_identifier" : 170,
-          "description" : "A description.",
-          "reproducibility_explanation" : "",
-          "type" : "experiment",
-          "platform_identifier" : "397",
-          "date_published" : "2023-09-01T00:00:00.000Z",
-          "experimental_workflow" : "",
+          "identifier" : 1,
           "date_modified" : "2023-09-01T00:00:00.000Z",
-          "execution_settings" : "",
-          "application_area" : [ ],
-          "name" : "aqpredvisualize",
-          "@version" : "1",
-          "license" : "https://www.example.com/resource/this_resource",
-          "date_created" : "2023-09-01T00:00:00.000Z",
-          "@timestamp" : "2023-09-01T00:00:00.000Z",
-          "platform" : "ai4experiments",
-          "status" : "draft"
+          "name" : "A name.",
+          "plain" : "A plain text description.",
+          "type" : "experiment",
+          "html" : "An html description."
         },
         "sort" : [
-            1
+          1
         ]
       }
     ]

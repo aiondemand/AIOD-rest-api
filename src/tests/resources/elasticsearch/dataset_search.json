@@ -1,5 +1,5 @@
 {
-  "took" : 4,
+  "took" : 5,
   "timed_out" : false,
   "_shards" : {
     "total" : 1,
@@ -9,43 +9,26 @@
   },
   "hits" : {
     "total" : {
-      "value" : 83,
+      "value" : 1,
       "relation" : "eq"
     },
-    "max_score" : 0.74700636,
+    "max_score" : null,
     "hits" : [
       {
         "_index" : "dataset",
-        "_id" : "dataset_104",
-        "_score" : 0.74700636,
-        "_ignored" : [
-          "description.keyword"
-        ],
+        "_id" : "dataset_1",
+        "_score" : null,
         "_source" : {
-          "version" : "1.0.1",
-          "same_as" : "https://www.example.com/resource/this_resource",
-          "asset_identifier" : 106,
-          "identifier" : 104,
-          "resource_identifier" : 106,
-          "description" : "A description.",
-          "temporal_coverage" : "",
-          "type" : "dataset",
-          "platform_identifier" : "287",
-          "date_published" : "2023-09-01T00:00:00.000Z",
+          "identifier" : 1,
           "date_modified" : "2023-09-01T00:00:00.000Z",
-          "application_area" : [ ],
-          "name" : "trondheim-simulator",
-          "measurement_technique" : "",
-          "license" : "https://www.example.com/resource/this_resource",
-          "issn" : "00000000",
-          "date_created" : "2023-09-01T00:00:00.000Z",
-          "@version" : "1",
-          "platform" : "ai4experiments",
-          "status" : "draft",
-          "@timestamp" : "2023-09-01T00:00:00.000Z"
+          "name" : "A name.",
+          "plain" : "A plain text description.",
+          "issn" : "20493630",
+          "type" : "dataset",
+          "html" : "An html description."
         },
         "sort" : [
-            1
+          1
         ]
       }
     ]
