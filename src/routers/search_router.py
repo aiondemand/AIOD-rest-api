@@ -5,7 +5,7 @@ from elasticsearch import Elasticsearch
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
 from sqlalchemy.engine import Engine
-from sqlmodel import Session, select
+from sqlmodel import SQLModel, Session, select
 from starlette import status
 
 from authentication import get_current_user#, has_role
@@ -199,7 +199,7 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
         return self._clean_structure(dict(resource))
     
     def _db_query(
-        self, engine: Engine, read_class: RESOURCE, identifier: int
+        self, engine: Engine, read_class: Type[SQLModel], identifier: int
     ) -> Type[RESOURCE]:
         try:
             with Session(engine) as session:
