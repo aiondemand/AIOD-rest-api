@@ -151,10 +151,8 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
                                         from_=from_, size=limit, sort=SORT)
             
             total_hits = result["hits"]["total"]["value"]
-            next_offset = (
-                    result["hits"]["hits"][-1]["sort"]
-                    if len(result["hits"]["hits"]) > 0 else None
-                )
+            next_offset = (result["hits"]["hits"][-1]["sort"]
+                           if len(result["hits"]["hits"]) > 0 else None)
             if get_all:
                 
                 # Launch database query

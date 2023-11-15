@@ -44,8 +44,7 @@ services:
     depends_on:
       app:
         condition: service_healthy
-
-
+  
   deletion:
     build:
       context: deletion
@@ -187,35 +186,25 @@ services:
       interval: 5s
       timeout: 30s
       retries: 30
-
-#  elasticsearch_setup:
-#    build:
-#      context: es/setup/
-#      dockerfile: Dockerfile
-#    env_file: .env
-#    environment:
-#      - ES_USER=$ES_USER
-#      - ES_PASSWORD=$ES_PASSWORD
-#    restart: "no"
-#    depends_on:
-#      elasticsearch:
-#        condition: service_healthy
   
-  logstash_setup:
-    build:
-      context: logstash/setup/
-      dockerfile: Dockerfile
+  es_logstash_setup:
+    image: ai4eu_server
+    container_name:  es_logstash_setup
     env_file: .env
     environment:
       - MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD
       - ES_USER=$ES_USER
       - ES_PASSWORD=$ES_PASSWORD
     volumes:
-      - ./src/setup/logstash:/app
+      - ./src:/app
       - ./logstash:/logstash
     command: >
-      python generate_logstash_config_files.py
+      /bin/bash -c "python setup/logstash/generate_logstash_config_files.py &&
+      python setup/elasticsearch/generate_elasticsearch_indices.py"
     restart: "no"
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
   
   logstash:
     build:
@@ -248,13 +237,7 @@ services:
         target: /usr/share/logstash/sql
         read_only: true
     depends_on:
-      app:
-        condition: service_healthy
-      elasticsearch:
-        condition: service_healthy
-#      elasticsearch_setup:
-#        condition: service_completed_successfully
-      logstash_setup:
-        condition: service_completed_successfully
       fill-db-with-examples:
+        condition: service_completed_successfully
+      es_logstash_setup:
         condition: service_completed_successfully
