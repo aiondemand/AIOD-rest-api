@@ -78,7 +78,6 @@ def main():
     # Add indices with mappings
     for entity, fields in entities.items():
         mapping = generate_mapping(entity, fields)
-        print(f"{entity}: {mapping}")
         es_client.indices.create(index=entity, body=mapping, ignore=400)
 
 if __name__ == "__main__":
