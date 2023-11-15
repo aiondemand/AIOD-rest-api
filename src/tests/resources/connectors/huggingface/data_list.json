@@ -96,12 +96,12 @@
         "disabled": false,
         "gated": false,
         "lastModified": "2023-01-25T14:18:28.000Z",
-        "likes": 10,
+        "likes": 17,
         "private": false,
         "sha": "c3c245a18bbd57b1682b099e14460eebf154cbdf",
         "citation": "@inproceedings{veyseh-et-al-2020-what,\n   title={{What Does This Acronym Mean? Introducing a New Dataset for Acronym Identification and Disambiguation}},\n   author={Amir Pouran Ben Veyseh and Franck Dernoncourt and Quan Hung Tran and Thien Huu Nguyen},\n   year={2020},\n   booktitle={Proceedings of COLING},\n   link={https://arxiv.org/pdf/2010.14678v1.pdf}\n}",
         "description": "Acronym identification training and development sets for the acronym identification task at SDU@AAAI-21.",
-        "downloads": 6011,
+        "downloads": 2189,
         "paperswithcode_id": "acronym-identification",
         "tags": [
             "task_categories:token-classification",
@@ -113,9 +113,10 @@
             "language:en",
             "license:mit",
             "acronym-identification",
-            "arxiv:2010.14678"
+            "arxiv:2010.14678",
+            "region:us"
         ],
-        "siblings": null,
+        "createdAt": "2022-03-02T23:29:22.000Z",
         "key": ""
     },
     {
@@ -276,13 +277,13 @@
         },
         "disabled": false,
         "gated": false,
-        "lastModified": "2023-01-25T14:43:24.000Z",
-        "likes": 11,
+        "lastModified": "2023-04-05T13:39:30.000Z",
+        "likes": 28,
         "private": false,
-        "sha": "c33cbf965006dba64f134f7bef69c53d5d0d285d",
+        "sha": "c9f4562ef4a6c84f0098f7845944a5472cb52cad",
         "citation": "@InProceedings{Pang+Lee:05a,\n  author =       {Bo Pang and Lillian Lee},\n  title =        {Seeing stars: Exploiting class relationships for sentiment\n                  categorization with respect to rating scales},\n  booktitle =    {Proceedings of the ACL},\n  year =         2005\n}",
         "description": "Movie Review Dataset.\nThis is a dataset of containing 5,331 positive and 5,331 negative processed\nsentences from Rotten Tomatoes movie reviews. This data was first used in Bo\nPang and Lillian Lee, ``Seeing stars: Exploiting class relationships for\nsentiment categorization with respect to rating scales.'', Proceedings of the\nACL, 2005.",
-        "downloads": 68254,
+        "downloads": 65361,
         "paperswithcode_id": "mr",
         "tags": [
             "task_categories:text-classification",
@@ -293,9 +294,10 @@
             "size_categories:1K<n<10K",
             "source_datasets:original",
             "language:en",
-            "license:unknown"
+            "license:unknown",
+            "region:us"
         ],
-        "siblings": null,
+        "createdAt": "2022-03-02T23:29:22.000Z",
         "key": ""
     },
     {
@@ -305,14 +307,16 @@
         "disabled": false,
         "gated": false,
         "lastModified": "2021-11-18T08:45:46.000Z",
-        "likes": 1,
+        "likes": 3,
         "private": false,
         "sha": "e4604616235cdfa7398d489ba1f95d44a18d2f5d",
         "citation": "@article{Lu2021,\nauthor = {Lu, Shuai and Guo, Daya and Ren, Shuo and Huang, Junjie and Svyatkovskiy, Alexey and Blanco, Ambrosio and Clement, Colin B. and Drain, Dawn and Jiang, Daxin and Tang, Duyu and Li, Ge and Zhou, Lidong and Shou, Linjun and Zhou, Long and Tufano, Michele and Gong, Ming and Zhou, Ming and Duan, Nan and Sundaresan, Neel and Deng, Shao Kun and Fu, Shengyu and Liu, Shujie},\nyear = {2021},\nbooktitle = {arXiv},\ntitle = {CodeXGLUE - A Machine Learning Benchmark Dataset for Code Understanding and Generation}\n}",
         "description": "CodeXGLUE is a benchmark dataset to foster machine learning research for program understanding and generation. \nCodeXGLUE includes a collection of 10 tasks across 14 datasets and a platform for model evaluation and comparison.",
-        "downloads": 295,
-        "tags": [],
-        "siblings": null,
+        "downloads": 387,
+        "tags": [
+            "region:us"
+        ],
+        "createdAt": "2022-03-02T23:29:22.000Z",
         "key": ""
     },
     {
@@ -330,11 +334,12 @@
         "sha": "0681013e6518c8d53cac727b2ca4dc821ffd954c",
         "citation": "Probing neural language models for understanding of words of estimative probability\nAnonymous submission",
         "description": "Probing neural language models for understanding of words of estimative probability\nAnonymous submission",
-        "downloads": 0,
+        "downloads": 3,
         "tags": [
-            "license:apache-2.0"
+            "license:apache-2.0",
+            "region:us"
         ],
-        "siblings": null,
+        "createdAt": "2022-07-12T11:48:56.000Z",
         "key": ""
     },
      {
@@ -592,12 +597,12 @@
         "disabled": false,
         "gated": false,
         "lastModified": "2022-11-03T16:31:11.000Z",
-        "likes": 1,
+        "likes": 6,
         "private": false,
         "sha": "3ef284c2b1ca63cebd46335641fa31b09763f4e5",
         "citation": "@inproceedings{wei-etal-2018-airdialogue,\n    title = \"{A}ir{D}ialogue: An Environment for Goal-Oriented Dialogue Research\",\n    author = \"Wei, Wei  and\n      Le, Quoc  and\n      Dai, Andrew  and\n      Li, Jia\",\n    booktitle = \"Proceedings of the 2018 Conference on Empirical Methods in Natural Language Processing\",\n    month = oct # \"-\" # nov,\n    year = \"2018\",\n    address = \"Brussels, Belgium\",\n    publisher = \"Association for Computational Linguistics\",\n    url = \"https://www.aclweb.org/anthology/D18-1419\",\n    doi = \"10.18653/v1/D18-1419\",\n    pages = \"3844--3854\",\n    abstract = \"Recent progress in dialogue generation has inspired a number of studies on dialogue systems that are capable of accomplishing tasks through natural language interactions. A promising direction among these studies is the use of reinforcement learning techniques, such as self-play, for training dialogue agents. However, current datasets are limited in size, and the environment for training agents and evaluating progress is relatively unsophisticated. We present AirDialogue, a large dataset that contains 301,427 goal-oriented conversations. To collect this dataset, we create a context-generator which provides travel and flight restrictions. We then ask human annotators to play the role of a customer or an agent and interact with the goal of successfully booking a trip given the restrictions. Key to our environment is the ease of evaluating the success of the dialogue, which is achieved by using ground-truth states (e.g., the flight being booked) generated by the restrictions. Any dialogue agent that does not generate the correct states is considered to fail. Our experimental results indicate that state-of-the-art dialogue models can only achieve a score of 0.17 while humans can reach a score of 0.91, which suggests significant opportunities for future improvement.\",\n}",
         "description": "AirDialogue, is a large dataset that contains 402,038 goal-oriented conversations. To collect this dataset, we create a contextgenerator which provides travel and flight restrictions. Then the human annotators are asked to play the role of a customer or an agent and interact with the goal of successfully booking a trip given the restrictions.",
-        "downloads": 422,
+        "downloads": 420,
         "tags": [
             "task_categories:conversational",
             "task_categories:text-generation",
@@ -612,9 +617,27 @@
             "size_categories:100K<n<1M",
             "source_datasets:original",
             "language:en",
-            "license:cc-by-nc-4.0"
+            "license:cc-by-nc-4.0",
+            "region:us"
         ],
-        "siblings": null,
+        "createdAt": "2022-03-02T23:29:22.000Z",
+        "key": ""
+    },
+    {
+        "_id": "621ffdd236468d709f182fdf",
+        "id": "bobbydylan/top2k",
+        "author": "bobbydylan",
+        "disabled": false,
+        "gated": false,
+        "lastModified": "2022-02-01T02:59:04.000Z",
+        "likes": 0,
+        "private": false,
+        "sha": "5e264a6bb7728ba1fd46e96ccc8c7a56461ad661",
+        "downloads": 164,
+        "tags": [
+            "region:us"
+        ],
+        "createdAt": "2022-03-02T23:29:22.000Z",
         "key": ""
     }
 ]

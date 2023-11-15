@@ -1,0 +1,15 @@
+{
+    "parquet_files": [
+        {
+            "dataset": "bobbydylan/top2k",
+            "config": "default",
+            "split": "train",
+            "url": "https://huggingface.co/datasets/bobbydylan/top2k/resolve/refs%2Fconvert%2Fparquet/default/train/0000.parquet",
+            "filename": "0000.parquet",
+            "size": 493181
+        }
+    ],
+    "pending": [],
+    "failed": [],
+    "partial": false
+}

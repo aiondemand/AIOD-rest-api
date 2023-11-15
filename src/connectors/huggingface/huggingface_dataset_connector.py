@@ -1,11 +1,10 @@
-import itertools
 import logging
 import typing
 
 import bibtexparser
-import datasets
-import dateutil.parser
 import requests
+from huggingface_hub import list_datasets
+from huggingface_hub.hf_api import DatasetInfo
 
 from connectors.abstract.resource_connector_on_start_up import ResourceConnectorOnStartUp
 from connectors.record_error import RecordError
@@ -14,6 +13,7 @@ from database.model import field_length
 from database.model.agent.person import Person
 from database.model.ai_asset.distribution import Distribution
 from database.model.ai_resource.text import Text
+from database.model.concept.aiod_entry import AIoDEntryCreate
 from database.model.dataset.dataset import Dataset
 from database.model.knowledge_asset.publication import Publication
 from database.model.platform.platform_names import PlatformName
@@ -51,15 +51,15 @@ class HuggingFaceDatasetConnector(ResourceConnectorOnStartUp[Dataset]):
     ) -> typing.Iterator[ResourceWithRelations[Dataset] | RecordError]:
         pydantic_class = resource_create(Dataset)
         pydantic_class_publication = resource_create(Publication)
-        for dataset in itertools.islice(datasets.list_datasets(with_details=True), limit):
+        for dataset in list_datasets(full=True, limit=limit):
             try:
                 yield self.fetch_dataset(dataset, pydantic_class, pydantic_class_publication)
             except Exception as e:
                 yield RecordError(identifier=dataset.id, error=e)
 
-    def fetch_dataset(self, dataset, pydantic_class, pydantic_class_publication):
+    def fetch_dataset(self, dataset: DatasetInfo, pydantic_class, pydantic_class_publication):
         citations = []
-        if dataset.citation is not None:
+        if hasattr(dataset, "citation") and dataset.citation:
             parsed_citations = bibtexparser.loads(dataset.citation).entries
             if len(parsed_citations) == 0:
                 if dataset.citation:
@@ -96,11 +96,11 @@ class HuggingFaceDatasetConnector(ResourceConnectorOnStartUp[Dataset]):
         ]
         size = None
         ds_license = None
-        if dataset.cardData is not None and "license" in dataset.cardData:
-            if isinstance(dataset.cardData["license"], str):
-                ds_license = dataset.cardData["license"]
+        if dataset.card_data is not None and "license" in dataset.card_data:
+            if isinstance(dataset.card_data["license"], str):
+                ds_license = dataset.card_data["license"]
             else:
-                (ds_license,) = dataset.cardData["license"]
+                (ds_license,) = dataset.card_data["license"]
 
             # TODO(issue 8): implement
             # if "dataset_info" in dataset.cardData:
@@ -111,8 +111,9 @@ class HuggingFaceDatasetConnector(ResourceConnectorOnStartUp[Dataset]):
         related_resources = {"citation": citations}
         if dataset.author is not None:
             related_resources["creator"] = [Person(name=dataset.author)]
-        description = dataset.description
-        if len(description) > field_length.LONG:
+
+        description = getattr(dataset, "description", None)
+        if description and len(description) > field_length.LONG:
             text_break = " [...]"
             description = description[: field_length.LONG - len(text_break)] + text_break
         if description:
@@ -120,12 +121,13 @@ class HuggingFaceDatasetConnector(ResourceConnectorOnStartUp[Dataset]):
 
         return ResourceWithRelations[Dataset](
             resource=pydantic_class(
+                aiod_entry=AIoDEntryCreate(status="published"),
                 platform_resource_identifier=dataset.id,
                 platform=self.platform_name,
-                description=description,
                 name=dataset.id,
                 same_as=f"https://huggingface.co/datasets/{dataset.id}",
-                date_modified=dateutil.parser.parse(dataset.lastModified),
+                description=description,
+                date_published=dataset.createdAt if hasattr(dataset, "createdAt") else None,
                 license=ds_license,
                 distributions=distributions,
                 is_accessible_for_free=True,

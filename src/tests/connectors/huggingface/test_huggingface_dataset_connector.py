@@ -1,6 +1,5 @@
 import json
 
-import pytest
 import responses
 
 from connectors.huggingface.huggingface_dataset_connector import HuggingFaceDatasetConnector
@@ -10,7 +9,6 @@ from tests.testutils.paths import path_test_resources
 HUGGINGFACE_URL = "https://datasets-server.huggingface.co"
 
 
-@pytest.mark.skip(reason="We'll fix this in a separate PR")
 def test_fetch_all_happy_path():
     ids_expected = {
         "0n1xus/codexglue",
@@ -18,6 +16,7 @@ def test_fetch_all_happy_path():
         "rotten_tomatoes",
         "acronym_identification",
         "air_dialogue",
+        "bobbydylan/top2k",
     }
     connector = HuggingFaceDatasetConnector()
     with responses.RequestsMock() as mocked_requests:
@@ -34,15 +33,17 @@ def test_fetch_all_happy_path():
             mock_parquet(mocked_requests, dataset_id)
         resources_with_relations = list(connector.fetch())
 
-    assert len(resources_with_relations) == 5
+    assert len(resources_with_relations) == len(ids_expected)
     assert all(type(r) == ResourceWithRelations for r in resources_with_relations)
+
     datasets = [r.resource for r in resources_with_relations]
-    ids = {d.platform_resource_identifier for d in datasets}
-    names = {d.name for d in datasets}
-    assert ids == ids_expected
-    assert names == ids_expected
+    assert {d.platform_resource_identifier for d in datasets} == ids_expected
+    assert {d.name for d in datasets} == ids_expected
+    assert all(d.date_published for d in datasets)
+    assert all(d.aiod_entry for d in datasets)
+
     assert all(len(r.related_resources) in (1, 2) for r in resources_with_relations)
-    assert all(len(r.related_resources["citation"]) == 1 for r in resources_with_relations)
+    assert all(len(r.related_resources["citation"]) == 1 for r in resources_with_relations[:5])
 
 
 def mock_parquet(mocked_requests: responses.RequestsMock, dataset_id: str):

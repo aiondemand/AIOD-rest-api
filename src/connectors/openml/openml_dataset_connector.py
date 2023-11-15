@@ -77,22 +77,23 @@ class OpenMlDatasetConnector(ResourceConnectorById[Dataset]):
             size = DatasetSize(value=_as_int(qualities_json["NumberOfInstances"]), unit="instances")
         return pydantic_class(
             aiod_entry=AIoDEntryCreate(
-                platform=self.platform_name,
-                platform_resource_identifier=identifier,
+                status="published",
             ),
+            platform_resource_identifier=identifier,
+            platform=self.platform_name,
             name=dataset_json["name"],
             same_as=url_data,
             description=description,
             date_published=dateutil.parser.parse(dataset_json["upload_date"]),
+            license=dataset_json["licence"] if "licence" in dataset_json else None,
             distribution=[
                 Distribution(
                     content_url=dataset_json["url"], encoding_format=dataset_json["format"]
                 )
             ],
-            size=size,
             is_accessible_for_free=True,
+            size=size,
             keyword=[tag for tag in dataset_json["tag"]] if "tag" in dataset_json else [],
-            license=dataset_json["licence"] if "licence" in dataset_json else None,
             version=dataset_json["version"],
         )
 
