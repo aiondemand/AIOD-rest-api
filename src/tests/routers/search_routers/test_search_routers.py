@@ -2,14 +2,19 @@ import os
 import json
 
 from unittest.mock import Mock
+
+from elasticsearch import Elasticsearch
 from starlette.testclient import TestClient
+
+from routers.search_routers.elasticsearch import ElasticsearchSingleton
 from tests.testutils.paths import path_test_resources
 import routers.search_routers as sr
 
 
 def test_search_happy_path(client: TestClient):
     """Tests the search router"""
-
+    mocked_elasticsearch = Elasticsearch("https://example.com:9200")
+    ElasticsearchSingleton().patch(mocked_elasticsearch)
     for search_router in sr.router_list:
 
         # Get the mocker results to test
@@ -20,7 +25,7 @@ def test_search_happy_path(client: TestClient):
             mocked_results = json.load(f)
 
         # Mock and launch
-        search_router.client.search = Mock(return_value=mocked_results)
+        mocked_elasticsearch.search = Mock(return_value=mocked_results)
         search_service = f"/search/{search_router.resource_name_plural}/v1"
         params = {"search_query": "description", "get_all": False}
         response = client.get(search_service, params=params)
@@ -37,7 +42,7 @@ def test_search_happy_path(client: TestClient):
         assert resource["aiod_entry"]["date_modified"] == "2023-09-01T00:00:00+00:00"
 
         # Test the extra fields
-        global_fields = set(["name", "plain", "html"])
+        global_fields = {"name", "plain", "html"}
         extra_fields = list(search_router.match_fields ^ global_fields)
         for field in extra_fields:
             assert resource[field]
@@ -45,6 +50,8 @@ def test_search_happy_path(client: TestClient):
 
 def test_search_bad_platform(client: TestClient):
     """Tests the search router bad platform error"""
+    mocked_elasticsearch = Elasticsearch("https://example.com:9200")
+    ElasticsearchSingleton().patch(mocked_elasticsearch)
 
     for search_router in sr.router_list:
 
@@ -56,7 +63,7 @@ def test_search_bad_platform(client: TestClient):
             mocked_results = json.load(f)
 
         # Mock and launch
-        search_router.client.search = Mock(return_value=mocked_results)
+        mocked_elasticsearch.search = Mock(return_value=mocked_results)
         search_service = f"/search/{search_router.resource_name_plural}/v1"
         params = {"search_query": "description", "platforms": ["bad_platform"]}
         response = client.get(search_service, params=params)
@@ -69,6 +76,8 @@ def test_search_bad_platform(client: TestClient):
 
 def test_search_bad_fields(client: TestClient):
     """Tests the search router bad fields error"""
+    mocked_elasticsearch = Elasticsearch("https://example.com:9200")
+    ElasticsearchSingleton().patch(mocked_elasticsearch)
 
     for search_router in sr.router_list:
 
@@ -80,7 +89,7 @@ def test_search_bad_fields(client: TestClient):
             mocked_results = json.load(f)
 
         # Mock and launch
-        search_router.client.search = Mock(return_value=mocked_results)
+        mocked_elasticsearch.search = Mock(return_value=mocked_results)
         search_service = f"/search/{search_router.resource_name_plural}/v1"
         params = {"search_query": "description", "search_fields": ["bad_field"]}
         response = client.get(search_service, params=params)
@@ -93,6 +102,8 @@ def test_search_bad_fields(client: TestClient):
 
 def test_search_bad_limit(client: TestClient):
     """Tests the search router bad fields error"""
+    mocked_elasticsearch = Elasticsearch("https://example.com:9200")
+    ElasticsearchSingleton().patch(mocked_elasticsearch)
 
     for search_router in sr.router_list:
 
@@ -104,7 +115,7 @@ def test_search_bad_limit(client: TestClient):
             mocked_results = json.load(f)
 
         # Mock and launch
-        search_router.client.search = Mock(return_value=mocked_results)
+        mocked_elasticsearch.search = Mock(return_value=mocked_results)
         search_service = f"/search/{search_router.resource_name_plural}/v1"
         params = {"search_query": "description", "limit": 1001}
         response = client.get(search_service, params=params)
@@ -117,6 +128,8 @@ def test_search_bad_limit(client: TestClient):
 
 def test_search_bad_offset(client: TestClient):
     """Tests the search router bad fields error"""
+    mocked_elasticsearch = Elasticsearch("https://example.com:9200")
+    ElasticsearchSingleton().patch(mocked_elasticsearch)
 
     for search_router in sr.router_list:
 
@@ -128,7 +141,7 @@ def test_search_bad_offset(client: TestClient):
             mocked_results = json.load(f)
 
         # Mock and launch
-        search_router.client.search = Mock(return_value=mocked_results)
+        mocked_elasticsearch.search = Mock(return_value=mocked_results)
         search_service = f"/search/{search_router.resource_name_plural}/v1"
         params = {"search_query": "description", "offset": -1}
         response = client.get(search_service, params=params)

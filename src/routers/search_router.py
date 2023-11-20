@@ -1,18 +1,18 @@
 import abc
 from typing import TypeVar, Generic, Any, Type, Annotated
 
-from elasticsearch import Elasticsearch
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
 from sqlalchemy.engine import Engine
 from sqlmodel import SQLModel, Session, select
 from starlette import status
 
-from database.model.concept.concept import AIoDConcept
 from database.model.concept.aiod_entry import AIoDEntryRead
-from database.model.resource_read_and_create import resource_read
+from database.model.concept.concept import AIoDConcept
 from database.model.platform.platform import Platform
+from database.model.resource_read_and_create import resource_read
 from .resource_router import _wrap_as_http_exception
+from .search_routers.elasticsearch import ElasticsearchSingleton
 
 SORT = {"identifier": "asc"}
 LIMIT_MAX = 1000
@@ -32,9 +32,6 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
     """
     Providing search functionality in ElasticSearch
     """
-
-    def __init__(self, client: Elasticsearch):
-        self.client: Elasticsearch = client
 
     @property
     @abc.abstractmethod
@@ -140,7 +137,7 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
             # Launch search query
             # -----------------------------------------------------------------
 
-            result = self.client.search(
+            result = ElasticsearchSingleton().client.search(
                 index=self.es_index, query=query, from_=offset, size=limit, sort=SORT
             )
 
