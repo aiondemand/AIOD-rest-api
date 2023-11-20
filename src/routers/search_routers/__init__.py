@@ -26,5 +26,5 @@ router_list: list[SearchRouter] = [
     SearchRouterOrganisations(client=es_client),
     SearchRouterProjects(client=es_client),
     SearchRouterPublications(client=es_client),
-    SearchRouterServices(client=es_client)
+    SearchRouterServices(client=es_client),
 ]

@@ -14,7 +14,7 @@ class SearchRouterPublications(SearchRouter[Publication]):
     @property
     def resource_class(self):
         return Publication
-    
+
     @property
     def match_fields(self):
-        return set(['name', 'plain', 'html', 'issn', 'isbn'])
+        return set(["name", "plain", "html", "issn", "isbn"])

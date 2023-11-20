@@ -14,7 +14,7 @@ class SearchRouterMLModels(SearchRouter[MLModel]):
     @property
     def resource_class(self):
         return MLModel
-    
+
     @property
     def match_fields(self):
-        return set(['name', 'plain', 'html'])
+        return set(["name", "plain", "html"])

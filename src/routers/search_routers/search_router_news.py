@@ -14,7 +14,7 @@ class SearchRouterNews(SearchRouter[News]):
     @property
     def resource_class(self):
         return News
-    
+
     @property
     def match_fields(self):
-        return set(['name', 'plain', 'html', 'headline', 'alternative_headline'])
+        return set(["name", "plain", "html", "headline", "alternative_headline"])

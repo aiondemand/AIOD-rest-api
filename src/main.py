@@ -21,8 +21,7 @@ from database.model.concept.concept import AIoDConcept
 from database.model.platform.platform import Platform
 from database.model.platform.platform_names import PlatformName
 from database.setup import sqlmodel_engine
-from routers import (resource_routers, parent_routers, enum_routers,
-                     search_routers)
+from routers import resource_routers, parent_routers, enum_routers, search_routers
 
 
 def _parse_args() -> argparse.Namespace:
