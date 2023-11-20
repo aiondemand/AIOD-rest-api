@@ -12,8 +12,22 @@ Launched by the es_logstash_setup container in the docker-compose file.
 
 import os
 
-import definitions
 from routers.search_routers import router_list
+from .definitions import (
+    BASE_FIELDS,
+    INFO,
+    CONF_BASE,
+    INIT_INPUT_BASE,
+    SYNC_INPUT_BASE,
+    FILTER,
+    INIT_OUTPUT_BASE,
+    SYNC_OUTPUT_BASE,
+    SQL_BASE,
+    SQL_RM_BASE,
+    INIT_CLAUSE,
+    SYNC_CLAUSE,
+)
+
 
 def generate_conf_file(conf_path, es_user, es_pass):
 
@@ -103,6 +117,7 @@ def generate_pipeline_sql_rm_files(pipeline_sql_path, entity):
 
         # SQL query
         f.write(SQL_RM_BASE.format(entity))
+
 
 def main():
 
