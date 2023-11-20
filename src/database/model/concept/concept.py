@@ -1,5 +1,6 @@
 import copy
 import datetime
+import os
 from typing import Optional, Tuple
 
 from sqlalchemy import CheckConstraint, Index
@@ -12,6 +13,9 @@ from database.model.field_length import SHORT, NORMAL
 from database.model.platform.platform_names import PlatformName
 from database.model.relationships import OneToOne
 from database.model.serializers import CastDeserializer
+
+IS_SQLITE = os.getenv("DB") == "SQLite"
+CONSTRAINT_LOWERCASE = f"{'platform' if IS_SQLITE else 'BINARY(platform)'} = LOWER(platform)"
 
 
 class AIoDConceptBase(SQLModel):
@@ -82,4 +86,5 @@ class AIoDConcept(AIoDConceptBase):
                 "(platform IS NULL) <> (platform_resource_identifier IS NOT NULL)",
                 name=f"{cls.__name__}_platform_xnor_platform_id_null",
             ),
+            CheckConstraint(CONSTRAINT_LOWERCASE, name=f"{cls.__name__}_platform_lowercase"),
         )

@@ -13,15 +13,15 @@ authors = [
     {name = "Taniya Das", email = "t.das@tue.nl"}
 ]
 dependencies = [
-    "urllib3== 2.0.7",
+    "urllib3== 2.1.0",
     "bibtexparser==1.4.1",
-    "huggingface_hub==0.19.1",
+    "huggingface_hub==0.19.4",
     "fastapi==0.104.1",
     "uvicorn==0.24.0.post1",
     "requests==2.31.0",
     "mysqlclient==2.2.0",
     "oic==1.6.0",
-    "python-keycloak==3.3.0",
+    "python-keycloak==3.7.0",
     "python-dotenv==1.0.0",
     "pytz==2023.3.post1",
     "pydantic_schemaorg==1.0.6",
@@ -43,7 +43,7 @@ dev = [
     "pytest-dotenv==0.5.2",
     "pytest-xdist==3.4.0",
     "pre-commit==3.5.0",
-    "responses==0.24.0",
+    "responses==0.24.1",
     "starlette==0.27.0"
 ]
 
@@ -60,7 +60,9 @@ filterwarnings = [
 env_override_existing_values = 1
 env_files = [
     "src/.env",
-    "src/tests/.env"
+    "src/tests/.env",
+    ".env",  # Only used if running from docker container
+    "tests/.env"  # Only used if running from docker container
 ]
 
 

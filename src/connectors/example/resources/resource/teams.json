@@ -4,9 +4,9 @@
     "description": {"plain": "This is a team of an organisation."},
     "date_published": "2022-01-01T15:15:00.000",
     "same_as": "https://www.example.com/resource/this_resource",
+    "platform": "example",
+    "platform_resource_identifier": "1",
     "aiod_entry": {
-      "platform": "example",
-      "platform_resource_identifier": "1",
       "editor": [],
       "status": "draft"
     },

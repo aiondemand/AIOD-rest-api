@@ -1,173 +1,2354 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<?xml-stylesheet type="text/xsl" href="/static/xsl/oai2.xsl"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
-   <responseDate>2023-05-25T12:30:03Z</responseDate>
-   <request from_="2000-01-01T12:00:00Z" verb="ListRecords" metadataPrefix="oai_datacite">https://zenodo.org/oai2d</request>
-   <ListRecords>
-      <record>
-         <header>
-            <identifier>oai:zenodo.org:7961614</identifier>
-            <datestamp>2023-05-23T08:05:46Z</datestamp>
-         </header>
-         <metadata>
-            <oai_datacite xmlns="http://schema.datacite.org/oai/oai-1.0/" xsi:schemaLocation="http://schema.datacite.org/oai/oai-1.0/ oai_datacite.xsd">
-               <isReferenceQuality>true</isReferenceQuality>
-               <schemaVersion>3.1</schemaVersion>
-               <datacentreSymbol>CERN.ZENODO</datacentreSymbol>
-               <payload>
-                  <resource xmlns="http://datacite.org/schema/kernel-3" xsi:schemaLocation="http://datacite.org/schema/kernel-3 http://schema.datacite.org/meta/kernel-3/metadata.xsd">
-                     <identifier identifierType="DOI">10.5281/zenodo.7961614</identifier>
-                     <creators>
-                        <creator>
-                           <creatorName>Hansen, Peter Martin</creatorName>
-                           <affiliation>Odense University Hospital</affiliation>
-                        </creator>
-                        <creator>
-                           <creatorName>Alstrøm, henrik</creatorName>
-                           <affiliation>Copenhagen University Hopsital</affiliation>
-                        </creator>
-                        <creator>
-                           <creatorName>Damm-Hejmdal, Anders</creatorName>
-                           <affiliation>Copenhagen Emergency Medical Services</affiliation>
-                        </creator>
-                        <creator>
-                           <creatorName>Mikkelsen, Søren</creatorName>
-                           <affiliation>Odense University Hospital</affiliation>
-                        </creator>
-                     </creators>
-                     <titles>
-                        <title>THE FIELD'S MALL MASS SHOOTING: EMERGENCY MEDICAL SERVICES RESPONSE</title>
-                     </titles>
-                     <publisher>Zenodo</publisher>
-                     <publicationYear>2023</publicationYear>
-                     <subjects>
-                        <subject>Major incident</subject>
-                        <subject>Disaster</subject>
-                        <subject>Mass shooting</subject>
-                        <subject>Mass casualty</subject>
-                        <subject>Management and leadership</subject>
-                     </subjects>
-                     <dates>
-                        <date dateType="Issued">2023-05-06</date>
-                     </dates>
-                     <resourceType resourceTypeGeneral="Dataset" />
-                     <relatedIdentifiers>
-                        <relatedIdentifier relatedIdentifierType="DOI" relationType="IsPartOf">10.5281/zenodo.7902672</relatedIdentifier>
-                     </relatedIdentifiers>
-                     <rightsList>
-                        <rights rightsURI="https://creativecommons.org/licenses/by/4.0/legalcode">Creative Commons Attribution 4.0 International</rights>
-                        <rights rightsURI="info:eu-repo/semantics/openAccess">Open Access</rights>
-                     </rightsList>
-                     <descriptions>
-                        <description descriptionType="Abstract">This is a description paragraph</descriptions>
-                  </resource>
-               </payload>
-            </oai_datacite>
-         </metadata>
-      </record>
-      <record xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	<header>
-		<identifier>oai:zenodo.org:7960898</identifier>
-		<datestamp>2023-05-23T06:03:15Z</datestamp>
-	</header>
-	<metadata>
-		<oai_datacite xmlns="http://schema.datacite.org/oai/oai-1.0/" xsi:schemaLocation="http://schema.datacite.org/oai/oai-1.0/ oai_datacite.xsd">
-			<isReferenceQuality>true</isReferenceQuality>
-			<schemaVersion>3.1</schemaVersion>
-			<datacentreSymbol>CERN.ZENODO</datacentreSymbol>
-			<payload>
-				<resource xmlns="http://datacite.org/schema/kernel-3" xsi:schemaLocation="http://datacite.org/schema/kernel-3 http://schema.datacite.org/meta/kernel-3/metadata.xsd">
-					<identifier identifierType="DOI">10.5281/zenodo.7960898</identifier>
-					<creators>
-						<creator>
-							<creatorName>Azamova Barno</creatorName>
-						</creator>
-					</creators>
-					<titles>
-						<title>THE USE OF A MULTIMEDIA BOARD AS A FACTOR INFLUENCING THE ASSIMILATION OF GEOMETRIC MATERIAL IN ELEMENTARY SCHOOL</title>
-					</titles>
-					<publisher>Zenodo</publisher>
-					<publicationYear>2023</publicationYear>
-					<dates>
-						<date dateType="Issued">2023-05-23</date>
-					</dates>
-					<resourceType resourceTypeGeneral="JournalArticle"/>
-					<relatedIdentifiers>
-						<relatedIdentifier relatedIdentifierType="DOI" relationType="IsPartOf">10.5281/zenodo.7960897</relatedIdentifier>
-					</relatedIdentifiers>
-					<rightsList>
-						<rights rightsURI="https://creativecommons.org/licenses/by/4.0/legalcode">Creative Commons Attribution 4.0 International</rights>
-						<rights rightsURI="info:eu-repo/semantics/openAccess">Open Access</rights>
-					</rightsList>
-					<descriptions>
-						<description descriptionType="Abstract">&lt;p&gt;The use of various information tools in teaching makes the lesson non-standard, increases the motivation of children, allows them to be involved in various forms of work and, of course, teaches them to learn and acquire knowledge on their own.&lt;/p&gt;</description>
-					</descriptions>
-				</resource>
-			</payload>
-		</oai_datacite>
-	</metadata>
-</record>
-<record xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	<header>
-		<identifier>oai:zenodo.org:7947746</identifier>
-		<datestamp>2023-05-23T08:03:55Z</datestamp>
-		<setSpec>software</setSpec>
-	</header>
-	<metadata>
-		<oai_datacite xmlns="http://schema.datacite.org/oai/oai-1.0/" xsi:schemaLocation="http://schema.datacite.org/oai/oai-1.0/ oai_datacite.xsd">
-			<isReferenceQuality>true</isReferenceQuality>
-			<schemaVersion>3.1</schemaVersion>
-			<datacentreSymbol>CERN.ZENODO</datacentreSymbol>
-			<payload>
-				<resource xmlns="http://datacite.org/schema/kernel-3" xsi:schemaLocation="http://datacite.org/schema/kernel-3 http://schema.datacite.org/meta/kernel-3/metadata.xsd">
-					<identifier identifierType="DOI">10.5281/zenodo.7947746</identifier>
-					<creators>
-						<creator>
-							<creatorName>Jonge, Niek N.F.</creatorName>
-							<nameIdentifier nameIdentifierScheme="ORCID" schemeURI="http://orcid.org/">0000-0002-3054-6210</nameIdentifier>
-							<affiliation>Wageningen University and Research</affiliation>
-						</creator>
-						<creator>
-							<creatorName>Louwen, Joris J. R.</creatorName>
-							<affiliation>Wageningen University and Research</affiliation>
-						</creator>
-						<creator>
-							<creatorName>Huber, Florian</creatorName>
-							<nameIdentifier nameIdentifierScheme="ORCID" schemeURI="http://orcid.org/">0000-0002-3535-9406</nameIdentifier>
-							<affiliation>Netherlands eScience Center</affiliation>
-						</creator>
-						<creator>
-							<creatorName>Hooft, Justin J. J.</creatorName>
-							<nameIdentifier nameIdentifierScheme="ORCID" schemeURI="http://orcid.org/">0000-0002-9340-5511</nameIdentifier>
-							<affiliation>Wageningen University and Research</affiliation>
-						</creator>
-					</creators>
-					<titles>
-						<title>MS2Query</title>
-					</titles>
-					<publisher>Zenodo</publisher>
-					<publicationYear>2023</publicationYear>
-					<dates>
-						<date dateType="Issued">2023-05-18</date>
-					</dates>
-					<resourceType resourceTypeGeneral="Software"/>
-					<relatedIdentifiers>
-						<relatedIdentifier relatedIdentifierType="URL" relationType="IsSupplementTo">https://github.com/iomega/ms2query/tree/1.0.1</relatedIdentifier>
-						<relatedIdentifier relatedIdentifierType="DOI" relationType="IsPartOf">10.5281/zenodo.7695011</relatedIdentifier>
-					</relatedIdentifiers>
-					<version>1.0.1</version>
-					<rightsList>
-						<rights rightsURI="https://opensource.org/licenses/Apache-2.0">Apache License 2.0</rights>
-						<rights rightsURI="info:eu-repo/semantics/openAccess">Open Access</rights>
-					</rightsList>
-					<descriptions>
-						<description descriptionType="Abstract">Machine learning assisted library querying of MS/MS spectra.</description>
-						<description descriptionType="Other">If you use this software, please cite it using these metadata.</description>
-					</descriptions>
-				</resource>
-			</payload>
-		</oai_datacite>
-	</metadata>
-</record>
-      </ListRecords>
+  <responseDate>2023-11-14T18:31:59Z</responseDate>
+  <request verb="ListRecords" from_="2023-05-23T08:00:00Z" until="2023-05-23T09:00:00Z" metadataPrefix="oai_datacite">https://zenodo.org/oai2d</request>
+  <ListRecords>
+    <record>
+      <header>
+        <identifier>oai:zenodo.org:7961720</identifier>
+        <datestamp>2023-05-23T08:43:15Z</datestamp>
+      </header>
+      <metadata>
+        <oai_datacite xmlns="http://schema.datacite.org/oai/oai-1.1/" xsi:schemaLocation="http://schema.datacite.org/oai/oai-1.1/ http://schema.datacite.org/oai/oai-1.1/oai.xsd">
+          <schemaVersion>4.3</schemaVersion>
+          <datacentreSymbol></datacentreSymbol>
+          <payload>
+            <resource xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.3/metadata.xsd">
+              <identifier identifierType="DOI">10.5281/zenodo.7961720</identifier>
+              <alternateIdentifiers>
+                <alternateIdentifier alternateIdentifierType="oai">oai:zenodo.org:7961720</alternateIdentifier>
+              </alternateIdentifiers>
+              <creators>
+                <creator>
+                  <creatorName nameType="Personal">Yoko Ito</creatorName>
+                  <familyName>Yoko Ito</familyName>
+                  <affiliation>Tokai University School o Medicine</affiliation>
+                </creator>
+              </creators>
+              <titles>
+                <title>Supplementary Figure 1</title>
+              </titles>
+              <publisher>Zenodo</publisher>
+              <publicationYear>2023</publicationYear>
+              <dates>
+                <date dateType="Issued">2023-05-23</date>
+              </dates>
+              <resourceType resourceTypeGeneral="JournalArticle"></resourceType>
+              <relatedIdentifiers>
+                <relatedIdentifier relatedIdentifierType="DOI" relationType="IsVersionOf">10.5281/zenodo.7961719</relatedIdentifier>
+              </relatedIdentifiers>
+              <descriptions>
+                <description descriptionType="Abstract">Supplementary Figure 1A and B to submit our research manuscript into AJP Lung</description>
+              </descriptions>
+            </resource>
+          </payload>
+        </oai_datacite>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>oai:zenodo.org:7961708</identifier>
+        <datestamp>2023-05-23T08:26:48Z</datestamp>
+      </header>
+      <metadata>
+        <oai_datacite xmlns="http://schema.datacite.org/oai/oai-1.1/" xsi:schemaLocation="http://schema.datacite.org/oai/oai-1.1/ http://schema.datacite.org/oai/oai-1.1/oai.xsd">
+          <schemaVersion>4.3</schemaVersion>
+          <datacentreSymbol></datacentreSymbol>
+          <payload>
+            <resource xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.3/metadata.xsd">
+              <identifier identifierType="DOI">10.58473/JBS0022</identifier>
+              <alternateIdentifiers>
+                <alternateIdentifier alternateIdentifierType="oai">oai:zenodo.org:7961708</alternateIdentifier>
+              </alternateIdentifiers>
+              <creators>
+                <creator>
+                  <creatorName nameType="Personal">Liu Huan</creatorName>
+                  <familyName>Liu Huan</familyName>
+                  <nameIdentifier nameIdentifierScheme="ORCID">0000-0003-4881-8509</nameIdentifier>
+                  <affiliation>江西省诚筑环保工程有限公司</affiliation>
+                </creator>
+              </creators>
+              <titles>
+                <title>Original review of specificity in the interaction between pathogen invasion and host organism</title>
+              </titles>
+              <publisher>Zenodo</publisher>
+              <publicationYear>2023</publicationYear>
+              <dates>
+                <date dateType="Issued">2023-05-23</date>
+              </dates>
+              <resourceType resourceTypeGeneral="JournalArticle"></resourceType>
+              <descriptions>
+                <description descriptionType="Abstract">Article 14. Original review of specificity in the interaction between pathogen invasion and host organism
+
+
+Author: Liu Huan (1983- ), Master of Science (First Class Honours), The University of Auckland.</description>
+              </descriptions>
+            </resource>
+          </payload>
+        </oai_datacite>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>oai:zenodo.org:7947283</identifier>
+        <datestamp>2023-05-23T08:38:27Z</datestamp>
+      </header>
+      <metadata>
+        <oai_datacite xmlns="http://schema.datacite.org/oai/oai-1.1/" xsi:schemaLocation="http://schema.datacite.org/oai/oai-1.1/ http://schema.datacite.org/oai/oai-1.1/oai.xsd">
+          <schemaVersion>4.3</schemaVersion>
+          <datacentreSymbol></datacentreSymbol>
+          <payload>
+            <resource xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.3/metadata.xsd">
+              <identifier identifierType="DOI">10.5281/zenodo.7947283</identifier>
+              <alternateIdentifiers>
+                <alternateIdentifier alternateIdentifierType="oai">oai:zenodo.org:7947283</alternateIdentifier>
+              </alternateIdentifiers>
+              <creators>
+                <creator>
+                  <creatorName nameType="Personal">Nobuyasu Koga</creatorName>
+                  <familyName>Nobuyasu Koga</familyName>
+                  <affiliation>Institute for Protein Research, Osaka University</affiliation>
+                </creator>
+              </creators>
+              <titles>
+                <title>kogalab21/all-alpha_design</title>
+              </titles>
+              <publisher>Zenodo</publisher>
+              <publicationYear>2023</publicationYear>
+              <dates>
+                <date dateType="Issued">2023-05-18</date>
+              </dates>
+              <resourceType resourceTypeGeneral="Dataset"></resourceType>
+              <relatedIdentifiers>
+                <relatedIdentifier relatedIdentifierType="URL" relationType="IsSupplementTo">https://github.com/kogalab21/all-alpha_design/tree/v0.1.0</relatedIdentifier>
+                <relatedIdentifier relatedIdentifierType="DOI" relationType="IsVersionOf">10.5281/zenodo.7947261</relatedIdentifier>
+              </relatedIdentifiers>
+              <version>v1.0.0</version>
+              <rightsList>
+                <rights rightsIdentifier="other-open">Other (Open)</rights>
+              </rightsList>
+              <descriptions>
+                <description descriptionType="Abstract">Source data and demos for the research article entitled “Design of complicated all-α protein structures” by Koya Sakuma, Naohiro Kobayashi, Toshihiko Sugiki, Toshio Nagashima, Toshimichi Fujiwara, Kano Suzuki, Naoya Kobayashi, Takeshi Murata, Takahiro Kosugi, Rie Koga, and Nobuyasu Koga.</description>
+              </descriptions>
+            </resource>
+          </payload>
+        </oai_datacite>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>oai:zenodo.org:7902673</identifier>
+        <datestamp>2023-05-23T08:05:45Z</datestamp>
+      </header>
+      <metadata>
+        <oai_datacite xmlns="http://schema.datacite.org/oai/oai-1.1/" xsi:schemaLocation="http://schema.datacite.org/oai/oai-1.1/ http://schema.datacite.org/oai/oai-1.1/oai.xsd">
+          <schemaVersion>4.3</schemaVersion>
+          <datacentreSymbol></datacentreSymbol>
+          <payload>
+            <resource xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.3/metadata.xsd">
+              <identifier identifierType="DOI">10.5281/zenodo.7902673</identifier>
+              <alternateIdentifiers>
+                <alternateIdentifier alternateIdentifierType="oai">oai:zenodo.org:7902673</alternateIdentifier>
+              </alternateIdentifiers>
+              <creators>
+                <creator>
+                  <creatorName nameType="Personal">Hansen, Peter Martin</creatorName>
+                  <givenName>Peter Martin</givenName>
+                  <familyName>Hansen</familyName>
+                  <affiliation>Odense University Hospital</affiliation>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Alstrøm, henrik</creatorName>
+                  <givenName>henrik</givenName>
+                  <familyName>Alstrøm</familyName>
+                  <affiliation>Copenhagen University Hopsital</affiliation>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Damm-Hejmdal, Anders</creatorName>
+                  <givenName>Anders</givenName>
+                  <familyName>Damm-Hejmdal</familyName>
+                  <affiliation>Copenhagen Emergency Medical Services</affiliation>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Mikkelsen, Søren</creatorName>
+                  <givenName>Søren</givenName>
+                  <familyName>Mikkelsen</familyName>
+                  <affiliation>Odense University Hospital</affiliation>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Rehn, Marius</creatorName>
+                  <givenName>Marius</givenName>
+                  <familyName>Rehn</familyName>
+                  <affiliation>Oslo University Hospital</affiliation>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Berlac, Peter Anthony</creatorName>
+                  <givenName>Peter Anthony</givenName>
+                  <familyName>Berlac</familyName>
+                  <affiliation>Copenhagen University Hospital</affiliation>
+                </creator>
+              </creators>
+              <titles>
+                <title>THE FIELD'S MALL MASS SHOOTING: EMERGENCY MEDICAL SERVICES RESPONSE</title>
+              </titles>
+              <publisher>Zenodo</publisher>
+              <publicationYear>2023</publicationYear>
+              <subjects>
+                <subject>Major incident</subject>
+                <subject>Disaster</subject>
+                <subject>Mass shooting</subject>
+                <subject>Mass casualty</subject>
+                <subject>Management and leadership</subject>
+              </subjects>
+              <dates>
+                <date dateType="Issued">2023-05-06</date>
+              </dates>
+              <resourceType resourceTypeGeneral="Dataset"></resourceType>
+              <relatedIdentifiers>
+                <relatedIdentifier relatedIdentifierType="DOI" relationType="IsVersionOf">10.5281/zenodo.7902672</relatedIdentifier>
+              </relatedIdentifiers>
+              <rightsList>
+                <rights rightsURI="https://creativecommons.org/licenses/by/4.0/legalcode" rightsIdentifierScheme="spdx" rightsIdentifier="cc-by-4.0">Creative Commons Attribution 4.0 International</rights>
+              </rightsList>
+              <descriptions>
+                <description descriptionType="Abstract">Case report describing the mass shooting at the Field's shopping mall in Copenhagen, July 3rd, 2022.
+
+
+Dataset to support the findings of the case report, hopefully to be published after peer-review in Scandinavian Journal of Trauma, Resuscitation and Emergency Medicine.</description>
+              </descriptions>
+            </resource>
+          </payload>
+        </oai_datacite>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>oai:zenodo.org:7555467</identifier>
+        <datestamp>2023-05-23T08:09:18Z</datestamp>
+      </header>
+      <metadata>
+        <oai_datacite xmlns="http://schema.datacite.org/oai/oai-1.1/" xsi:schemaLocation="http://schema.datacite.org/oai/oai-1.1/ http://schema.datacite.org/oai/oai-1.1/oai.xsd">
+          <schemaVersion>4.3</schemaVersion>
+          <datacentreSymbol></datacentreSymbol>
+          <payload>
+            <resource xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.3/metadata.xsd">
+              <identifier identifierType="DOI">10.5281/zenodo.7555467</identifier>
+              <alternateIdentifiers>
+                <alternateIdentifier alternateIdentifierType="oai">oai:zenodo.org:7555467</alternateIdentifier>
+              </alternateIdentifiers>
+              <creators>
+                <creator>
+                  <creatorName nameType="Personal">Akshay Akshay</creatorName>
+                  <familyName>Akshay Akshay</familyName>
+                  <nameIdentifier nameIdentifierScheme="ORCID">0000-0003-3186-7478</nameIdentifier>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Mitali Katoch</creatorName>
+                  <familyName>Mitali Katoch</familyName>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Masoud Abedi</creatorName>
+                  <familyName>Masoud Abedi</familyName>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Mustafa Besic</creatorName>
+                  <familyName>Mustafa Besic</familyName>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Navid Shekarchizadeh</creatorName>
+                  <familyName>Navid Shekarchizadeh</familyName>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Fiona C. Burkhard</creatorName>
+                  <familyName>Fiona C. Burkhard</familyName>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Alex Bigger-Allen</creatorName>
+                  <familyName>Alex Bigger-Allen</familyName>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Rosalyn M. Adam</creatorName>
+                  <familyName>Rosalyn M. Adam</familyName>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Katia Monastyrskaya</creatorName>
+                  <familyName>Katia Monastyrskaya</familyName>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Ali Hashemi Gheinani</creatorName>
+                  <familyName>Ali Hashemi Gheinani</familyName>
+                </creator>
+              </creators>
+              <titles>
+                <title>Supporting data for "SpheroScan: A User-Friendly Deep Learning Tool for Spheroid Image Analysis"</title>
+              </titles>
+              <publisher>Zenodo</publisher>
+              <publicationYear>2023</publicationYear>
+              <dates>
+                <date dateType="Issued">2023-01-20</date>
+              </dates>
+              <resourceType resourceTypeGeneral="Dataset"></resourceType>
+              <relatedIdentifiers>
+                <relatedIdentifier relatedIdentifierType="DOI" relationType="IsVersionOf">10.5281/zenodo.7555466</relatedIdentifier>
+              </relatedIdentifiers>
+              <rightsList>
+                <rights rightsURI="https://creativecommons.org/publicdomain/zero/1.0/legalcode" rightsIdentifierScheme="spdx" rightsIdentifier="cc0-1.0">Creative Commons Zero v1.0 Universal</rights>
+              </rightsList>
+              <descriptions>
+                <description descriptionType="Abstract">In recent years, three-dimensional (3D) spheroid models have become increasingly popular in scientific research as they provide a more physiologically relevant microenvironment that mimics in vivo conditions. The use of 3D spheroid assays has proven to be advantageous as it offers a better understanding of the cellular behavior, drug efficacy, and toxicity as compared to traditional two-dimensional cell culture methods. However, the use of 3D spheroid assays is impeded by the absence of automated and user-friendly tools for spheroid image analysis, which adversely affects the reproducibility and throughput of these assays.
+
+
+To address these issues, we have developed a fully automated, web-based tool called SpheroScan, which uses the deep learning framework called Mask Regions with Convolutional Neural Networks (R-CNN) for image detection and segmentation. To develop a deep learning model that could be applied to spheroid images from a range of experimental conditions, we trained the model using spheroid images captured using IncuCyte Live-Cell Analysis System and a conventional microscope. Performance evaluation of the trained model using validation and test datasets shows promising results.
+
+
+SpheroScan allows for easy analysis of large numbers of images and provides interactive visualization features for a more in-depth understanding of the data. Our tool represents a significant advancement in the analysis of spheroid images and will facilitate the widespread adoption of 3D spheroid models in scientific research. The source code and a detailed tutorial for SpheroScan are available at https://github.com/FunctionalUrology/SpheroScan.
+Enable GingerCannot connect to Ginger Check your internet connection
+or reload the browserDisable in this text fieldRephraseRephrase current sentenceEdit in Ginger×</description>
+              </descriptions>
+            </resource>
+          </payload>
+        </oai_datacite>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>oai:zenodo.org:7525202</identifier>
+        <datestamp>2023-05-23T08:29:23Z</datestamp>
+      </header>
+      <metadata>
+        <oai_datacite xmlns="http://schema.datacite.org/oai/oai-1.1/" xsi:schemaLocation="http://schema.datacite.org/oai/oai-1.1/ http://schema.datacite.org/oai/oai-1.1/oai.xsd">
+          <schemaVersion>4.3</schemaVersion>
+          <datacentreSymbol></datacentreSymbol>
+          <payload>
+            <resource xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.3/metadata.xsd">
+              <identifier identifierType="DOI">10.5281/zenodo.7525202</identifier>
+              <alternateIdentifiers>
+                <alternateIdentifier alternateIdentifierType="oai">oai:zenodo.org:7525202</alternateIdentifier>
+              </alternateIdentifiers>
+              <creators>
+                <creator>
+                  <creatorName nameType="Personal">Hofmann, Fabian</creatorName>
+                  <givenName>Fabian</givenName>
+                  <familyName>Hofmann</familyName>
+                  <nameIdentifier nameIdentifierScheme="ORCID">0000-0002-6604-5450</nameIdentifier>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Hampp, Johannes</creatorName>
+                  <givenName>Johannes</givenName>
+                  <familyName>Hampp</familyName>
+                  <nameIdentifier nameIdentifierScheme="ORCID">0000-0002-1776-116X</nameIdentifier>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Neumann, Fabian</creatorName>
+                  <givenName>Fabian</givenName>
+                  <familyName>Neumann</familyName>
+                  <nameIdentifier nameIdentifierScheme="ORCID">0000-0001-8551-1480</nameIdentifier>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Brown, Tom</creatorName>
+                  <givenName>Tom</givenName>
+                  <familyName>Brown</familyName>
+                  <nameIdentifier nameIdentifierScheme="ORCID">0000-0001-5898-1911</nameIdentifier>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Hörsch, Jonas</creatorName>
+                  <givenName>Jonas</givenName>
+                  <familyName>Hörsch</familyName>
+                  <nameIdentifier nameIdentifierScheme="ORCID">0000-0001-9438-767X</nameIdentifier>
+                </creator>
+              </creators>
+              <titles>
+                <title>atlite: A Lightweight Python Package for Calculating Renewable Power Potentials and Time Series</title>
+              </titles>
+              <publisher>Zenodo</publisher>
+              <publicationYear>2021</publicationYear>
+              <dates>
+                <date dateType="Issued">2021-06-24</date>
+              </dates>
+              <resourceType resourceTypeGeneral="Software"></resourceType>
+              <relatedIdentifiers>
+                <relatedIdentifier relatedIdentifierType="URL" relationType="IsSupplementTo">https://github.com/PyPSA/atlite/tree/v0.2.10</relatedIdentifier>
+                <relatedIdentifier relatedIdentifierType="DOI" relationType="IsVersionOf">10.5281/zenodo.5026364</relatedIdentifier>
+              </relatedIdentifiers>
+              <version>0.2.5</version>
+              <rightsList>
+                <rights rightsURI="https://www.gnu.org/licenses/gpl-3.0-standalone.html" rightsIdentifierScheme="spdx" rightsIdentifier="gpl-3.0-or-later">GNU General Public License v3.0 or later</rights>
+              </rightsList>
+              <descriptions>
+                <description descriptionType="Abstract">What's Changed
+
+
+[pre-commit.ci] pre-commit autoupdate by @pre-commit-ci in https://github.com/PyPSA/atlite/pull/251
+
+[pre-commit.ci] pre-commit autoupdate by @pre-commit-ci in https://github.com/PyPSA/atlite/pull/258
+
+Always shift solar influx by 30 minutes by @zoltanmaric in https://github.com/PyPSA/atlite/pull/257
+
+hydro inflow unit conversion corrected by @hailiangliu89 in https://github.com/PyPSA/atlite/pull/254
+
+Issue227 - Turbine, Panel and CSP Installation Configs from local path by @LukasFrankenQ in https://github.com/PyPSA/atlite/pull/250
+
+add discord reference by @pz-max in https://github.com/PyPSA/atlite/pull/260
+
+ease rasterio restriction by @pz-max in https://github.com/PyPSA/atlite/pull/262
+
+[pre-commit.ci] pre-commit autoupdate by @pre-commit-ci in https://github.com/PyPSA/atlite/pull/264
+
+Combine ERA5 and ERA5T data by @zoltanmaric in https://github.com/PyPSA/atlite/pull/261
+
+[pre-commit.ci] pre-commit autoupdate by @pre-commit-ci in https://github.com/PyPSA/atlite/pull/266
+
+[pre-commit.ci] pre-commit autoupdate by @pre-commit-ci in https://github.com/PyPSA/atlite/pull/268
+
+gis: use wkt for object identifyer (shapely &gt;= v2.0 compat) by @FabianHofmann in https://github.com/PyPSA/atlite/pull/270
+
+New Contributors
+
+
+
+@zoltanmaric made their first contribution in https://github.com/PyPSA/atlite/pull/257
+
+@LukasFrankenQ made their first contribution in https://github.com/PyPSA/atlite/pull/250
+
+
+Full Changelog: https://github.com/PyPSA/atlite/compare/v0.2.9...v0.2.10</description>
+                <description descriptionType="Other">If you use this package, please cite our corresponding paper in JOSS (The Journal of Open Source Software).</description>
+              </descriptions>
+            </resource>
+          </payload>
+        </oai_datacite>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>oai:zenodo.org:7901584</identifier>
+        <datestamp>2023-05-23T08:12:44Z</datestamp>
+      </header>
+      <metadata>
+        <oai_datacite xmlns="http://schema.datacite.org/oai/oai-1.1/" xsi:schemaLocation="http://schema.datacite.org/oai/oai-1.1/ http://schema.datacite.org/oai/oai-1.1/oai.xsd">
+          <schemaVersion>4.3</schemaVersion>
+          <datacentreSymbol></datacentreSymbol>
+          <payload>
+            <resource xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.3/metadata.xsd">
+              <identifier identifierType="DOI">10.5281/zenodo.7901584</identifier>
+              <alternateIdentifiers>
+                <alternateIdentifier alternateIdentifierType="oai">oai:zenodo.org:7901584</alternateIdentifier>
+              </alternateIdentifiers>
+              <creators>
+                <creator>
+                  <creatorName nameType="Personal">Chao  Gao</creatorName>
+                  <familyName>Chao  Gao</familyName>
+                </creator>
+              </creators>
+              <titles>
+                <title>Inter-comparison of multiple two-way coupled meteorology and air quality models (WRF v4.1.1-CMAQ v5.3.1, WRF-Chem v4.1.1 and WRF v3.7.1-CHIMERE v2020r1) in eastern China</title>
+              </titles>
+              <publisher>Zenodo</publisher>
+              <publicationYear>2023</publicationYear>
+              <subjects>
+                <subject>Two-way coupled meteorology and air quality model</subject>
+                <subject>WRF-CMAQ</subject>
+                <subject>WRF-CHIMERE</subject>
+                <subject>WRF-Chem</subject>
+                <subject>Inter-comparisons</subject>
+              </subjects>
+              <dates>
+                <date dateType="Issued">2023-05-05</date>
+              </dates>
+              <language>eng</language>
+              <resourceType resourceTypeGeneral="Software"></resourceType>
+              <relatedIdentifiers>
+                <relatedIdentifier relatedIdentifierType="DOI" relationType="IsVersionOf">10.5281/zenodo.7900754</relatedIdentifier>
+              </relatedIdentifiers>
+              <version>0.0.1</version>
+              <rightsList>
+                <rights rightsURI="https://creativecommons.org/licenses/by/4.0/legalcode" rightsIdentifierScheme="spdx" rightsIdentifier="cc-by-4.0">Creative Commons Attribution 4.0 International</rights>
+              </rightsList>
+              <descriptions>
+                <description descriptionType="Abstract">Here presented all related source codes for the two-way coupled WRF-CMAQ, WRF-Chem and WRF-CHIMERE models, and even the pre- and post- processing scripts used for paper of "Inter-comparison of multiple two-way coupled meteorology and air quality models (WRF v4.1.1-CMAQ v5.3.1, WRF-Chem v4.1.1 and WRF v3.7.1-CHIMERE v2020r1) in eastern China", https://doi.org/10.5194/gmd-2023-21.</description>
+              </descriptions>
+            </resource>
+          </payload>
+        </oai_datacite>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>oai:zenodo.org:7947262</identifier>
+        <datestamp>2023-05-23T08:38:27Z</datestamp>
+      </header>
+      <metadata>
+        <oai_datacite xmlns="http://schema.datacite.org/oai/oai-1.1/" xsi:schemaLocation="http://schema.datacite.org/oai/oai-1.1/ http://schema.datacite.org/oai/oai-1.1/oai.xsd">
+          <schemaVersion>4.3</schemaVersion>
+          <datacentreSymbol></datacentreSymbol>
+          <payload>
+            <resource xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.3/metadata.xsd">
+              <identifier identifierType="DOI">10.5281/zenodo.7947262</identifier>
+              <alternateIdentifiers>
+                <alternateIdentifier alternateIdentifierType="oai">oai:zenodo.org:7947262</alternateIdentifier>
+              </alternateIdentifiers>
+              <creators>
+                <creator>
+                  <creatorName nameType="Personal">Nobuyasu Koga</creatorName>
+                  <familyName>Nobuyasu Koga</familyName>
+                </creator>
+              </creators>
+              <titles>
+                <title>kogalab21/all-alpha_design: Initial release</title>
+              </titles>
+              <publisher>Zenodo</publisher>
+              <publicationYear>2023</publicationYear>
+              <dates>
+                <date dateType="Issued">2023-05-18</date>
+              </dates>
+              <resourceType resourceTypeGeneral="Software"></resourceType>
+              <relatedIdentifiers>
+                <relatedIdentifier relatedIdentifierType="URL" relationType="IsSupplementTo">https://github.com/kogalab21/all-alpha_design/tree/v0.1.0</relatedIdentifier>
+                <relatedIdentifier relatedIdentifierType="DOI" relationType="IsVersionOf">10.5281/zenodo.7947261</relatedIdentifier>
+              </relatedIdentifiers>
+              <version>v0.1.0</version>
+              <rightsList>
+                <rights rightsIdentifier="other-open">Other (Open)</rights>
+              </rightsList>
+              <descriptions>
+                <description descriptionType="Abstract">-</description>
+              </descriptions>
+            </resource>
+          </payload>
+        </oai_datacite>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>oai:zenodo.org:7961678</identifier>
+        <datestamp>2023-05-23T08:24:21Z</datestamp>
+      </header>
+      <metadata>
+        <oai_datacite xmlns="http://schema.datacite.org/oai/oai-1.1/" xsi:schemaLocation="http://schema.datacite.org/oai/oai-1.1/ http://schema.datacite.org/oai/oai-1.1/oai.xsd">
+          <schemaVersion>4.3</schemaVersion>
+          <datacentreSymbol></datacentreSymbol>
+          <payload>
+            <resource xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.3/metadata.xsd">
+              <identifier identifierType="DOI">10.5281/zenodo.7961678</identifier>
+              <alternateIdentifiers>
+                <alternateIdentifier alternateIdentifierType="oai">oai:zenodo.org:7961678</alternateIdentifier>
+              </alternateIdentifiers>
+              <creators>
+                <creator>
+                  <creatorName nameType="Personal">S. Gnanam, K. Jaya Surya, G. Hasina Beevi, V. Uma Mageswari,  J. Gajendiran, S. Rajagopal, J. Ramana Ramya, S. Gokul Raj</creatorName>
+                  <familyName>S. Gnanam, K. Jaya Surya, G. Hasina Beevi, V. Uma Mageswari,  J. Gajendiran, S. Rajagopal, J. Ramana Ramya, S. Gokul Raj</familyName>
+                  <affiliation>Department of Physics, School of Basic Sciences, Vels Institute of Science, Technology &amp; Advanced Studies (VISTAS), Pallavaram, Chennai-600 117, India.</affiliation>
+                </creator>
+              </creators>
+              <titles>
+                <title>Study of Structural and Optical Properties of Azadirachta Indica assisted Green Synthesized Silver Nanoparticles</title>
+              </titles>
+              <publisher>Scientific Research Reports</publisher>
+              <publicationYear>2023</publicationYear>
+              <subjects>
+                <subject>Nanoparticles; Silver; Green synthesis process; Structural studies; Optical studies</subject>
+              </subjects>
+              <dates>
+                <date dateType="Issued">2023-05-28</date>
+              </dates>
+              <language>eng</language>
+              <resourceType resourceTypeGeneral="BookChapter"></resourceType>
+              <relatedIdentifiers>
+                <relatedIdentifier relatedIdentifierType="DOI" relationType="IsVersionOf">10.5281/zenodo.7961677</relatedIdentifier>
+              </relatedIdentifiers>
+              <rightsList>
+                <rights rightsURI="https://creativecommons.org/licenses/by/4.0/legalcode" rightsIdentifierScheme="spdx" rightsIdentifier="cc-by-4.0">Creative Commons Attribution 4.0 International</rights>
+              </rightsList>
+              <descriptions>
+                <description descriptionType="Abstract">In this chapter, Azadirachta indica-assisted nanostructured silver particles were attempted via green route followed by testing their crystalline structure, crystallite size, vibrational bands, optical energy gap values using standard tools powder XRD, FT-IR and UV spectrum characterization.</description>
+              </descriptions>
+            </resource>
+          </payload>
+        </oai_datacite>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>oai:zenodo.org:6302891</identifier>
+        <datestamp>2023-05-23T08:29:23Z</datestamp>
+      </header>
+      <metadata>
+        <oai_datacite xmlns="http://schema.datacite.org/oai/oai-1.1/" xsi:schemaLocation="http://schema.datacite.org/oai/oai-1.1/ http://schema.datacite.org/oai/oai-1.1/oai.xsd">
+          <schemaVersion>4.3</schemaVersion>
+          <datacentreSymbol></datacentreSymbol>
+          <payload>
+            <resource xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.3/metadata.xsd">
+              <identifier identifierType="DOI">10.5281/zenodo.6302891</identifier>
+              <alternateIdentifiers>
+                <alternateIdentifier alternateIdentifierType="oai">oai:zenodo.org:6302891</alternateIdentifier>
+              </alternateIdentifiers>
+              <creators>
+                <creator>
+                  <creatorName nameType="Personal">Hofmann, Fabian</creatorName>
+                  <givenName>Fabian</givenName>
+                  <familyName>Hofmann</familyName>
+                  <nameIdentifier nameIdentifierScheme="ORCID">0000-0002-6604-5450</nameIdentifier>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Hampp, Johannes</creatorName>
+                  <givenName>Johannes</givenName>
+                  <familyName>Hampp</familyName>
+                  <nameIdentifier nameIdentifierScheme="ORCID">0000-0002-1776-116X</nameIdentifier>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Neumann, Fabian</creatorName>
+                  <givenName>Fabian</givenName>
+                  <familyName>Neumann</familyName>
+                  <nameIdentifier nameIdentifierScheme="ORCID">0000-0001-8551-1480</nameIdentifier>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Brown, Tom</creatorName>
+                  <givenName>Tom</givenName>
+                  <familyName>Brown</familyName>
+                  <nameIdentifier nameIdentifierScheme="ORCID">0000-0001-5898-1911</nameIdentifier>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Hörsch, Jonas</creatorName>
+                  <givenName>Jonas</givenName>
+                  <familyName>Hörsch</familyName>
+                  <nameIdentifier nameIdentifierScheme="ORCID">0000-0001-9438-767X</nameIdentifier>
+                </creator>
+              </creators>
+              <titles>
+                <title>atlite: A Lightweight Python Package for Calculating Renewable Power Potentials and Time Series</title>
+              </titles>
+              <publisher>Zenodo</publisher>
+              <publicationYear>2021</publicationYear>
+              <dates>
+                <date dateType="Issued">2021-06-24</date>
+              </dates>
+              <resourceType resourceTypeGeneral="Software"></resourceType>
+              <relatedIdentifiers>
+                <relatedIdentifier relatedIdentifierType="URL" relationType="IsSupplementTo">https://github.com/PyPSA/atlite/tree/v0.2.7</relatedIdentifier>
+                <relatedIdentifier relatedIdentifierType="DOI" relationType="IsVersionOf">10.5281/zenodo.5026364</relatedIdentifier>
+              </relatedIdentifiers>
+              <version>0.2.5</version>
+              <rightsList>
+                <rights rightsURI="https://www.gnu.org/licenses/gpl-3.0-standalone.html" rightsIdentifierScheme="spdx" rightsIdentifier="gpl-3.0-or-later">GNU General Public License v3.0 or later</rights>
+              </rightsList>
+              <descriptions>
+                <description descriptionType="Abstract">See Release Notes for details.</description>
+                <description descriptionType="Other">If you use this package, please cite our corresponding paper in JOSS (The Journal of Open Source Software).</description>
+              </descriptions>
+            </resource>
+          </payload>
+        </oai_datacite>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>oai:zenodo.org:6884943</identifier>
+        <datestamp>2023-05-23T08:50:26Z</datestamp>
+      </header>
+      <metadata>
+        <oai_datacite xmlns="http://schema.datacite.org/oai/oai-1.1/" xsi:schemaLocation="http://schema.datacite.org/oai/oai-1.1/ http://schema.datacite.org/oai/oai-1.1/oai.xsd">
+          <schemaVersion>4.3</schemaVersion>
+          <datacentreSymbol></datacentreSymbol>
+          <payload>
+            <resource xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.3/metadata.xsd">
+              <identifier identifierType="DOI">10.5281/zenodo.6884943</identifier>
+              <alternateIdentifiers>
+                <alternateIdentifier alternateIdentifierType="oai">oai:zenodo.org:6884943</alternateIdentifier>
+              </alternateIdentifiers>
+              <creators>
+                <creator>
+                  <creatorName nameType="Personal">Obaid, Hadeel S.</creatorName>
+                  <givenName>Hadeel S.</givenName>
+                  <familyName>Obaid</familyName>
+                  <nameIdentifier nameIdentifierScheme="ORCID">0000-0003-0859-6315</nameIdentifier>
+                  <affiliation>Tampere University</affiliation>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Sun, Bo</creatorName>
+                  <givenName>Bo</givenName>
+                  <familyName>Sun</familyName>
+                  <nameIdentifier nameIdentifierScheme="ORCID">0000-0002-5803-4778</nameIdentifier>
+                  <affiliation>Tampere University</affiliation>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Morlaas, Christophe</creatorName>
+                  <givenName>Christophe</givenName>
+                  <familyName>Morlaas</familyName>
+                  <nameIdentifier nameIdentifierScheme="ORCID">0000-0003-4533-1711</nameIdentifier>
+                  <affiliation>ENAC</affiliation>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Tan, Bo</creatorName>
+                  <givenName>Bo</givenName>
+                  <familyName>Tan</familyName>
+                  <nameIdentifier nameIdentifierScheme="ORCID">0000-0002-6855-6270</nameIdentifier>
+                  <affiliation>Tampere University</affiliation>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Lohan, Elena-Simona</creatorName>
+                  <givenName>Elena-Simona</givenName>
+                  <familyName>Lohan</familyName>
+                  <nameIdentifier nameIdentifierScheme="ORCID">0000-0003-1718-6924</nameIdentifier>
+                  <affiliation>Tampere University</affiliation>
+                </creator>
+              </creators>
+              <titles>
+                <title>Angle measurements with 3D Vector antenna for localization purposes – open-access datasets</title>
+              </titles>
+              <publisher>Zenodo</publisher>
+              <publicationYear>2022</publicationYear>
+              <subjects>
+                <subject>AoA, DoA, Positioning, 3D Vector Antenna, MUSIC Algorithm</subject>
+              </subjects>
+              <dates>
+                <date dateType="Issued">2022-07-22</date>
+              </dates>
+              <resourceType resourceTypeGeneral="Dataset"></resourceType>
+              <relatedIdentifiers>
+                <relatedIdentifier relatedIdentifierType="DOI" relationType="IsVersionOf">10.5281/zenodo.6884942</relatedIdentifier>
+                <relatedIdentifier relatedIdentifierType="URL" relationType="IsPartOf">https://zenodo.org/communities/tau_wireless</relatedIdentifier>
+              </relatedIdentifiers>
+              <rightsList>
+                <rights rightsURI="https://creativecommons.org/licenses/by/4.0/legalcode" rightsIdentifierScheme="spdx" rightsIdentifier="cc-by-4.0">Creative Commons Attribution 4.0 International</rights>
+              </rightsList>
+              <descriptions>
+                <description descriptionType="Abstract">This dataset contains data on positioning measurements of the angle of arrival (AoA) as well as the azimuth angle estimation using the MUSIC Algorithm. The data was collected from four ports (p1,p2,p3,p4) of a 3D Vector Antenna (3D VA) provided by ENAC. Data were captured in a laboratory environment with conditions that affect the positioning performance. </description>
+              </descriptions>
+              <fundingReferences>
+                <fundingReference>
+                  <funderName>European Commission</funderName>
+                  <funderIdentifier funderIdentifierType="ROR">00k4n6c32</funderIdentifier>
+                  <awardNumber>893917</awardNumber>
+                  <awardTitle>Evaluation of 5G Network and mmWave Radar Sensors to Enhance Surveillance of the Airport Surface</awardTitle>
+                </fundingReference>
+                <fundingReference>
+                  <funderName>Academy of Finland</funderName>
+                  <funderIdentifier funderIdentifierType="ROR">05k73zm37</funderIdentifier>
+                  <awardNumber>328226</awardNumber>
+                  <awardTitle>Ubiquitous Localization, communication, and sensing infrastrucTuRe for Autonomous systems (ULTRA) / Consortium: ULTRA</awardTitle>
+                </fundingReference>
+              </fundingReferences>
+            </resource>
+          </payload>
+        </oai_datacite>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>oai:zenodo.org:7793917</identifier>
+        <datestamp>2023-05-23T08:37:37Z</datestamp>
+      </header>
+      <metadata>
+        <oai_datacite xmlns="http://schema.datacite.org/oai/oai-1.1/" xsi:schemaLocation="http://schema.datacite.org/oai/oai-1.1/ http://schema.datacite.org/oai/oai-1.1/oai.xsd">
+          <schemaVersion>4.3</schemaVersion>
+          <datacentreSymbol></datacentreSymbol>
+          <payload>
+            <resource xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.3/metadata.xsd">
+              <identifier identifierType="DOI">10.5281/zenodo.7793917</identifier>
+              <alternateIdentifiers>
+                <alternateIdentifier alternateIdentifierType="oai">oai:zenodo.org:7793917</alternateIdentifier>
+              </alternateIdentifiers>
+              <creators>
+                <creator>
+                  <creatorName nameType="Personal">Tongwen Li</creatorName>
+                  <familyName>Tongwen Li</familyName>
+                  <affiliation>Sun Yat-sen University</affiliation>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Jingan Wu</creatorName>
+                  <familyName>Jingan Wu</familyName>
+                  <affiliation>Sun Yat-sen University</affiliation>
+                </creator>
+              </creators>
+              <titles>
+                <title>Daily Gapless 0.1° XCO2 Dataset for China</title>
+              </titles>
+              <publisher>Zenodo</publisher>
+              <publicationYear>2023</publicationYear>
+              <subjects>
+                <subject>XCO2, gapless, deep learning</subject>
+              </subjects>
+              <dates>
+                <date dateType="Issued">2023-04-03</date>
+              </dates>
+              <resourceType resourceTypeGeneral="Dataset"></resourceType>
+              <relatedIdentifiers>
+                <relatedIdentifier relatedIdentifierType="DOI" relationType="IsVersionOf">10.5281/zenodo.7793916</relatedIdentifier>
+              </relatedIdentifiers>
+              <version>V1</version>
+              <rightsList>
+                <rights rightsURI="https://creativecommons.org/licenses/by/4.0/legalcode" rightsIdentifierScheme="spdx" rightsIdentifier="cc-by-4.0">Creative Commons Attribution 4.0 International</rights>
+              </rightsList>
+              <descriptions>
+                <description descriptionType="Abstract">This is the daily gapless column-averaged dry-air mole fraction of CO2 (XCO2) dataset with a high spatial resolution of 0.1° in China from 2015 to 2020. This dataset was generated by the deep learning-based multisource data fusion, including satellite XCO2, reanalyzed XCO2, satellite vegetation data, and meteorological fields. This dataset yields a high accuracy in terms of cross-validation and ground-based validation.
+
+
+This data set is stored in Geotiff format and can be opened with ArcGIS, ENVI, etc.</description>
+              </descriptions>
+            </resource>
+          </payload>
+        </oai_datacite>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>oai:zenodo.org:7961633</identifier>
+        <datestamp>2023-05-23T08:05:43Z</datestamp>
+      </header>
+      <metadata>
+        <oai_datacite xmlns="http://schema.datacite.org/oai/oai-1.1/" xsi:schemaLocation="http://schema.datacite.org/oai/oai-1.1/ http://schema.datacite.org/oai/oai-1.1/oai.xsd">
+          <schemaVersion>4.3</schemaVersion>
+          <datacentreSymbol></datacentreSymbol>
+          <payload>
+            <resource xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.3/metadata.xsd">
+              <identifier identifierType="DOI">10.5281/zenodo.7961633</identifier>
+              <alternateIdentifiers>
+                <alternateIdentifier alternateIdentifierType="oai">oai:zenodo.org:7961633</alternateIdentifier>
+              </alternateIdentifiers>
+              <creators>
+                <creator>
+                  <creatorName nameType="Personal">S. Santhi, S. Sandihya, K. Srinivasan</creatorName>
+                  <familyName>S. Santhi, S. Sandihya, K. Srinivasan</familyName>
+                  <affiliation>Department of Mathematics, Vels Institute of Science Technology and Advanced Studies, Pallavaram, Tamil Nadu, India.</affiliation>
+                </creator>
+              </creators>
+              <titles>
+                <title>Analysis of Transportation Problem under Fuzzy Environment</title>
+              </titles>
+              <publisher>Scientific Research Reports</publisher>
+              <publicationYear>2023</publicationYear>
+              <subjects>
+                <subject>fuzzy algorithms, Transportation Problem, Operation Research</subject>
+              </subjects>
+              <dates>
+                <date dateType="Issued">2023-05-28</date>
+              </dates>
+              <language>eng</language>
+              <resourceType resourceTypeGeneral="BookChapter"></resourceType>
+              <relatedIdentifiers>
+                <relatedIdentifier relatedIdentifierType="DOI" relationType="IsVersionOf">10.5281/zenodo.7961632</relatedIdentifier>
+              </relatedIdentifiers>
+              <rightsList>
+                <rights rightsURI="https://creativecommons.org/licenses/by/4.0/legalcode" rightsIdentifierScheme="spdx" rightsIdentifier="cc-by-4.0">Creative Commons Attribution 4.0 International</rights>
+              </rightsList>
+              <descriptions>
+                <description descriptionType="Abstract">Transportation model provides an essential service of relating a company to its suppliers and customers. These transportation models make certain efficient movement and timely availability of raw materials and finished goods. Transportation model has broad practical applications, not only in transportation problem but also in such problems as production planning, communication network, transportation scheduling and allotment etc. The parameters of a transportation problem are unit costs, capacity (product, supply) and demand (requirement) values. In practice, these parameters are not always precisely known. Fuzzy sets and fuzzy logic are powerful mathematical tools for controlling uncertain systems in industry, humanity and nature; they are facilitators of approximate reasoning with imprecise and incomplete information. Here propose a new kind of approach to solve the fuzzy transportation problem with an imprecise environment, where the transportation costs are in the form of trapezoidal fuzzy numbers. In real life situation, because of many reasons, supply, demand, and unit transportation costs may become inconsistent. These inaccurate data can be represented as fuzzy numbers. The fuzzy numbers and values were majorly used in various fields such as experimental sciences, artificial intelligence, etc. Here, converted the  trapezoidal fuzzy numbers into crisp values by using the magnitude ranking function and by applying Max-min method the initial basic feasible solution to the fuzzy transportation problem were obtained. The numerical illustration demonstrates the new projected way for managing transportation problems on fuzzy algorithms.</description>
+              </descriptions>
+            </resource>
+          </payload>
+        </oai_datacite>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>oai:zenodo.org:7958493</identifier>
+        <datestamp>2023-05-23T08:36:50Z</datestamp>
+      </header>
+      <metadata>
+        <oai_datacite xmlns="http://schema.datacite.org/oai/oai-1.1/" xsi:schemaLocation="http://schema.datacite.org/oai/oai-1.1/ http://schema.datacite.org/oai/oai-1.1/oai.xsd">
+          <schemaVersion>4.3</schemaVersion>
+          <datacentreSymbol></datacentreSymbol>
+          <payload>
+            <resource xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.3/metadata.xsd">
+              <identifier identifierType="DOI">10.5281/zenodo.7958493</identifier>
+              <alternateIdentifiers>
+                <alternateIdentifier alternateIdentifierType="oai">oai:zenodo.org:7958493</alternateIdentifier>
+              </alternateIdentifiers>
+              <creators>
+                <creator>
+                  <creatorName nameType="Personal">Hale, Sarah H</creatorName>
+                  <givenName>Sarah H</givenName>
+                  <familyName>Hale</familyName>
+                  <nameIdentifier nameIdentifierScheme="ORCID">0000-0002-7743-9199</nameIdentifier>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Arp, Hans Peter H.</creatorName>
+                  <givenName>Hans Peter H.</givenName>
+                  <familyName>Arp</familyName>
+                  <nameIdentifier nameIdentifierScheme="ORCID">0000-0002-0747-8838</nameIdentifier>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Cousins, Ian</creatorName>
+                  <givenName>Ian</givenName>
+                  <familyName>Cousins</familyName>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Figuière, Romain</creatorName>
+                  <givenName>Romain</givenName>
+                  <familyName>Figuière</familyName>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Lennquist, Anna</creatorName>
+                  <givenName>Anna</givenName>
+                  <familyName>Lennquist</familyName>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Pahl, Sabine</creatorName>
+                  <givenName>Sabine</givenName>
+                  <familyName>Pahl</familyName>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">White, Mathew</creatorName>
+                  <givenName>Mathew</givenName>
+                  <familyName>White</familyName>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Suffill, Ellise</creatorName>
+                  <givenName>Ellise</givenName>
+                  <familyName>Suffill</familyName>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Schymanski, Emma</creatorName>
+                  <givenName>Emma</givenName>
+                  <familyName>Schymanski</familyName>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Peters, Greg</creatorName>
+                  <givenName>Greg</givenName>
+                  <familyName>Peters</familyName>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Aggarwal, Rahul</creatorName>
+                  <givenName>Rahul</givenName>
+                  <familyName>Aggarwal</familyName>
+                </creator>
+              </creators>
+              <titles>
+                <title>Making the essential-use concept enforceable, effective and understandable</title>
+              </titles>
+              <publisher>Zenodo</publisher>
+              <publicationYear>2022</publicationYear>
+              <subjects>
+                <subject>PFAS</subject>
+                <subject>essential-use</subject>
+                <subject>chemical policy</subject>
+                <subject>regulation</subject>
+              </subjects>
+              <dates>
+                <date dateType="Issued">2022-11-23</date>
+              </dates>
+              <language>eng</language>
+              <resourceType resourceTypeGeneral="Other"></resourceType>
+              <relatedIdentifiers>
+                <relatedIdentifier relatedIdentifierType="DOI" relationType="IsVersionOf">10.5281/zenodo.7958492</relatedIdentifier>
+                <relatedIdentifier relatedIdentifierType="URL" relationType="IsPartOf">https://zenodo.org/communities/zeropm-h2020</relatedIdentifier>
+              </relatedIdentifiers>
+              <rightsList>
+                <rights rightsURI="https://creativecommons.org/licenses/by/4.0/legalcode" rightsIdentifierScheme="spdx" rightsIdentifier="cc-by-4.0">Creative Commons Attribution 4.0 International</rights>
+              </rightsList>
+              <descriptions>
+                <description descriptionType="Abstract">Submitted to CARACAL regarding feedback for implementing the Essential-Use concept within European Chemical legislation. 
+
+
+The concept of essential use in policy can be traced back to the Montreal Protocol signed in 1987. The agreement protects the Earth’s ozone layer by phasing out chemicals that deplete it and by limiting the use of ozone-depleting chemicals to only essential uses. The scientific community picked up on this concept in 2019 when a peer-reviewed publication applied the essential use concept to per- and polyfluoroalkyl substances (PFASs).
+
+
+ 
+
+
+When is it justified to use the most harmful substances?
+
+
+The essential-use concept gained further regulatory momentum in 2020 with the publication of the Chemicals Strategy for Sustainability towards a Toxic free environment (CSS). Here, the essential-use concept was extended to restrict the use of "the most harmful chemicals" which "are only allowed if their use is necessary for health, safety or is critical for the functioning of society and if there are no alternatives available from the standpoint of environment and health." 
+
+
+ 
+
+
+The “essential-use” concept versus broader concepts of “essentiality”
+
+
+From a theoretical point of view, there are several levels of “essentiality” that involve different stakeholder groups such as industry, policy makers, consumers and academics. These levels also include the essentiality of a given chemical, the essentiality of a given chemical's function in a product (or end use), and the essentiality of a given product (or end use). In addition, function can be considered from the perspective of the chemical, the end use, or as a service.
+
+
+ 
+
+
+This communication aims to disentangle the complexity caused by the different levels of “essentiality” and move towards making the essential-use approach enforceable, effective and understandable.</description>
+              </descriptions>
+              <fundingReferences>
+                <fundingReference>
+                  <funderName>European Commission</funderName>
+                  <funderIdentifier funderIdentifierType="ROR">00k4n6c32</funderIdentifier>
+                  <awardNumber>101036756</awardNumber>
+                  <awardTitle>ZeroPM: Zero pollution of Persistent, Mobile substances</awardTitle>
+                </fundingReference>
+              </fundingReferences>
+            </resource>
+          </payload>
+        </oai_datacite>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>oai:zenodo.org:7901682</identifier>
+        <datestamp>2023-05-23T08:12:45Z</datestamp>
+      </header>
+      <metadata>
+        <oai_datacite xmlns="http://schema.datacite.org/oai/oai-1.1/" xsi:schemaLocation="http://schema.datacite.org/oai/oai-1.1/ http://schema.datacite.org/oai/oai-1.1/oai.xsd">
+          <schemaVersion>4.3</schemaVersion>
+          <datacentreSymbol></datacentreSymbol>
+          <payload>
+            <resource xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.3/metadata.xsd">
+              <identifier identifierType="DOI">10.5281/zenodo.7901682</identifier>
+              <alternateIdentifiers>
+                <alternateIdentifier alternateIdentifierType="oai">oai:zenodo.org:7901682</alternateIdentifier>
+              </alternateIdentifiers>
+              <creators>
+                <creator>
+                  <creatorName nameType="Personal">Chao  Gao</creatorName>
+                  <familyName>Chao  Gao</familyName>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Xuelei Zhang</creatorName>
+                  <familyName>Xuelei Zhang</familyName>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Aijun Xiu</creatorName>
+                  <familyName>Aijun Xiu</familyName>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Qingqing Tong</creatorName>
+                  <familyName>Qingqing Tong</familyName>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Hongmei Zhao</creatorName>
+                  <familyName>Hongmei Zhao</familyName>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Guangyi Yang</creatorName>
+                  <familyName>Guangyi Yang</familyName>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Mengduo Zhang</creatorName>
+                  <familyName>Mengduo Zhang</familyName>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Shengjin Xie</creatorName>
+                  <familyName>Shengjin Xie</familyName>
+                </creator>
+              </creators>
+              <titles>
+                <title>Source codes of WRF v4.1.1-CMAQ v5.3.1, WRF-Chem v4.1.1 and WRF v3.7.1-CHIMERE v2020r1</title>
+              </titles>
+              <publisher>Zenodo</publisher>
+              <publicationYear>2023</publicationYear>
+              <subjects>
+                <subject>Two-way coupled meteorology and air quality model</subject>
+                <subject>WRF-CMAQ</subject>
+                <subject>WRF-CHIMERE</subject>
+                <subject>WRF-Chem</subject>
+                <subject>Inter-comparisons</subject>
+              </subjects>
+              <dates>
+                <date dateType="Issued">2023-05-05</date>
+              </dates>
+              <language>eng</language>
+              <resourceType resourceTypeGeneral="Software"></resourceType>
+              <relatedIdentifiers>
+                <relatedIdentifier relatedIdentifierType="DOI" relationType="IsVersionOf">10.5281/zenodo.7900754</relatedIdentifier>
+              </relatedIdentifiers>
+              <version>0.0.1</version>
+              <rightsList>
+                <rights rightsURI="https://creativecommons.org/licenses/by/4.0/legalcode" rightsIdentifierScheme="spdx" rightsIdentifier="cc-by-4.0">Creative Commons Attribution 4.0 International</rights>
+              </rightsList>
+              <descriptions>
+                <description descriptionType="Abstract">Here presented all related source codes for the two-way coupled WRF-CMAQ, WRF-Chem and WRF-CHIMERE models, and the pre- and post-processing scripts used for the paper of "Inter-comparison of multiple two-way coupled meteorology and air quality models (WRF v4.1.1-CMAQ v5.3.1, WRF-Chem v4.1.1 and WRF v3.7.1-CHIMERE v2020r1) in eastern China".  We investigate the performance of each coupled model over eastern China during 2017, and related configurations of each coupled model regarding aerosol-radiation interactions (ARI) and/or aerosol-cloud interactions (ACI) effects as presented in the following Table1.
+
+
+
+	Table 1. Summary of scenarios setting in three coupled models.
+
+
+			Model
+			Scenario
+			Configuration option
+			Description
+
+
+			WRF-CMAQ
+			(1) WRF-CMAQ_NO
+			DO_SW_CAL=F
+			Without aerosol feedbacks
+
+
+			 
+			(2) WRF-CMAQ_ARI
+			DO_SW_CAL=T
+			ARI
+
+
+			WRF-Chem
+			(3) WRF-Chem_NO
+
+
+aer_ra_feedback=0
+
+
+wetscav_onoff=0
+			cldchem_onoff=0
+			Without aerosol feedbacks
+
+
+			 
+			(4) WRF-Chem_ARI
+
+
+aer_ra_feedback=1
+
+
+wetscav_onoff=0
+			cldchem_onoff=0
+			ARI
+
+
+			 
+			(5) WRF-Chem_BOTH
+
+
+aer_ra_feedback=1
+
+
+wetscav_onoff=1
+			cldchem_onoff=1
+			ARI and ACI
+
+
+			WRF-CHIMERE
+			(6) WRF-CHIMERE_NO
+
+
+direct_feed_chimere=0
+			indirect_feed_chimere=0
+			Without aerosol feedbacks
+
+
+			 
+			(7) WRF-CHIMERE_ARI
+
+
+direct_feed_chimere=1
+			indirect_feed_chimere=0
+			ARI
+
+
+			 
+			(8) WRF-CHIMERE_BOTH
+
+
+direct_feed_chimere=1
+			indirect_feed_chimere=1
+			ARI and ACI
+
+
+
+
+
+More detailed information on model configuration of WRF-CMAQ, WRF-Chem and WRF-CHIMERE are in 201701icbc.csh, namelist.input and chimere.par files, respectively. Table 2 lists several configurations of these three coupled models, as follows.
+
+
+Table 2. Model configurations and parameterization schemes.
+
+
+
+
+
+
+
+Configurations
+
+
+
+WRF-CMAQ
+
+
+
+WRF-Chem
+
+
+
+WRF-CHIMERE
+
+
+
+
+
+Horizontal grid spacing
+
+
+
+27 km (110 × 150)
+
+
+
+27 km (120 × 160)
+
+
+
+27 km (120 × 170)
+
+
+
+
+
+Vertical resolution
+
+
+
+29 layers from surface (23.2 m) to 100 hPa (16 km) with 11 layers in the bottom 1 km
+
+			29 layers from surface (23.2 m) to 100 hPa (16 km) with 11 layers in the bottom 1 km
+			29 layers from surface (23.2 m) to 100 hPa (16 km) with 11 layers in the bottom 1 km
+
+
+
+
+Shortwave radiation
+
+
+
+RRTMG
+
+
+
+RRTMG
+
+
+
+RRTMG
+
+
+
+
+
+Longwave radiation
+
+
+
+RRTMG
+
+
+
+RRTMG
+
+
+
+RRTMG
+
+
+
+
+
+Aerosol mixing state
+
+
+
+Core-Shell
+
+
+
+Core-Shell
+
+
+
+Core-Shell
+
+
+
+
+
+Cloud microphysics
+
+
+
+Morrison
+
+
+
+Morrison
+
+
+
+Thompson
+
+
+
+
+
+PBL
+
+
+
+ACM2
+
+
+
+YSU
+
+
+
+YSU
+
+
+
+
+
+Cumulus
+
+
+
+Kain-Fritsch
+
+
+
+Grell-Freitas
+
+
+
+Grell-Freitas
+
+
+
+
+
+Surface
+
+
+
+Pleim-Xiu
+
+
+
+Monin-Obukhov
+
+
+
+Monin-Obukhov
+
+
+
+
+
+Land surface
+
+
+
+Pleim-Xiu LSM
+
+
+
+Noah LSM
+
+
+
+Noah LSM
+
+
+
+
+
+Gas-phase chemistry
+
+
+
+CB6
+
+
+
+CBMZ
+
+
+
+MELCHIOR2
+
+
+
+
+
+Photolysis
+
+
+
+Fast-JX
+
+
+
+Fast-JX
+
+
+
+Fast-JX
+
+
+
+
+
+Aerosol mechanism
+
+
+
+AERO6
+
+
+
+MOSAIC
+
+
+
+SAM
+
+
+
+
+
+Aerosol size distribution
+
+
+
+Modal (3 modes)
+
+
+
+Sectional (4 bins)
+
+
+
+Sectional (10 bins)
+
+
+
+
+
+Biogenic emission
+
+
+
+MEGAN v3.0
+
+
+
+MEGAN v3.0
+
+
+
+MEGAN v3.0
+
+
+
+
+
+Biomass burning emission
+
+
+
+FINN v1.5
+
+
+
+FINN v1.5
+
+
+
+FINN v1.5
+
+
+
+
+
+Dust emission
+
+
+
+Foroutan
+
+
+
+GOCART
+
+
+
+Menut
+
+
+
+
+
+Sea-salt emission
+
+
+
+Gong
+
+
+
+Gong
+
+
+
+Monahan
+
+
+
+
+
+Meteorological ICs and lateral BCs
+
+
+
+FNL
+
+
+
+FNL
+
+
+
+FNL
+
+
+
+
+
+Chemical ICs and lateral BCs
+
+
+
+MOZART
+
+
+
+MOZART
+
+
+
+LMDZ-INCA
+
+
+
+
+
+
+Automated run scripts:
+
+
+WRF-CMAQ: ${YYYMM}icbc.csh
+
+
+WRF-Chem: batch.sh
+
+
+WRF-CHIMERE: ${YYYYMM}.sh
+
+
+ </description>
+              </descriptions>
+            </resource>
+          </payload>
+        </oai_datacite>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>oai:zenodo.org:7900755</identifier>
+        <datestamp>2023-05-23T08:12:44Z</datestamp>
+      </header>
+      <metadata>
+        <oai_datacite xmlns="http://schema.datacite.org/oai/oai-1.1/" xsi:schemaLocation="http://schema.datacite.org/oai/oai-1.1/ http://schema.datacite.org/oai/oai-1.1/oai.xsd">
+          <schemaVersion>4.3</schemaVersion>
+          <datacentreSymbol></datacentreSymbol>
+          <payload>
+            <resource xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.3/metadata.xsd">
+              <identifier identifierType="DOI">10.5281/zenodo.7900755</identifier>
+              <alternateIdentifiers>
+                <alternateIdentifier alternateIdentifierType="oai">oai:zenodo.org:7900755</alternateIdentifier>
+              </alternateIdentifiers>
+              <creators>
+                <creator>
+                  <creatorName nameType="Personal">Chao  Gao</creatorName>
+                  <familyName>Chao  Gao</familyName>
+                </creator>
+              </creators>
+              <titles>
+                <title>Inter-comparison of multiple two-way coupled meteorology and air quality models (WRF v4.1.1-CMAQ v5.3.1, WRF-Chem v4.1.1 and WRF v3.7.1-CHIMERE v2020r1) in eastern China</title>
+              </titles>
+              <publisher>Zenodo</publisher>
+              <publicationYear>2023</publicationYear>
+              <subjects>
+                <subject>Two-way coupled meteorology and air quality model</subject>
+                <subject>WRF-CMAQ</subject>
+                <subject>WRF-CHIMERE</subject>
+                <subject>WRF-Chem</subject>
+                <subject>Inter-comparisons</subject>
+              </subjects>
+              <dates>
+                <date dateType="Issued">2023-05-05</date>
+              </dates>
+              <language>eng</language>
+              <resourceType resourceTypeGeneral="Software"></resourceType>
+              <relatedIdentifiers>
+                <relatedIdentifier relatedIdentifierType="DOI" relationType="IsVersionOf">10.5281/zenodo.7900754</relatedIdentifier>
+              </relatedIdentifiers>
+              <version>0.0.1</version>
+              <rightsList>
+                <rights rightsURI="https://creativecommons.org/licenses/by/4.0/legalcode" rightsIdentifierScheme="spdx" rightsIdentifier="cc-by-4.0">Creative Commons Attribution 4.0 International</rights>
+              </rightsList>
+              <descriptions>
+                <description descriptionType="Abstract">Here presented all related source codes for the two-way coupled WRF-CMAQ, WRF-Chem and WRF-CHIMERE models, and even the pre- and post- processing scripts used for paper of "Inter-comparison of multiple two-way coupled meteorology and air quality models (WRF v4.1.1-CMAQ v5.3.1, WRF-Chem v4.1.1 and WRF v3.7.1-CHIMERE v2020r1) in eastern China", https://doi.org/10.5194/gmd-2023-21.</description>
+              </descriptions>
+            </resource>
+          </payload>
+        </oai_datacite>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>oai:zenodo.org:7901630</identifier>
+        <datestamp>2023-05-23T08:12:44Z</datestamp>
+      </header>
+      <metadata>
+        <oai_datacite xmlns="http://schema.datacite.org/oai/oai-1.1/" xsi:schemaLocation="http://schema.datacite.org/oai/oai-1.1/ http://schema.datacite.org/oai/oai-1.1/oai.xsd">
+          <schemaVersion>4.3</schemaVersion>
+          <datacentreSymbol></datacentreSymbol>
+          <payload>
+            <resource xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.3/metadata.xsd">
+              <identifier identifierType="DOI">10.5281/zenodo.7901630</identifier>
+              <alternateIdentifiers>
+                <alternateIdentifier alternateIdentifierType="oai">oai:zenodo.org:7901630</alternateIdentifier>
+              </alternateIdentifiers>
+              <creators>
+                <creator>
+                  <creatorName nameType="Personal">Chao  Gao</creatorName>
+                  <familyName>Chao  Gao</familyName>
+                </creator>
+              </creators>
+              <titles>
+                <title>Inter-comparison of multiple two-way coupled meteorology and air quality models (WRF v4.1.1-CMAQ v5.3.1, WRF-Chem v4.1.1 and WRF v3.7.1-CHIMERE v2020r1) in eastern China</title>
+              </titles>
+              <publisher>Zenodo</publisher>
+              <publicationYear>2023</publicationYear>
+              <subjects>
+                <subject>Two-way coupled meteorology and air quality model</subject>
+                <subject>WRF-CMAQ</subject>
+                <subject>WRF-CHIMERE</subject>
+                <subject>WRF-Chem</subject>
+                <subject>Inter-comparisons</subject>
+              </subjects>
+              <dates>
+                <date dateType="Issued">2023-05-05</date>
+              </dates>
+              <language>eng</language>
+              <resourceType resourceTypeGeneral="Software"></resourceType>
+              <relatedIdentifiers>
+                <relatedIdentifier relatedIdentifierType="DOI" relationType="IsVersionOf">10.5281/zenodo.7900754</relatedIdentifier>
+              </relatedIdentifiers>
+              <version>0.0.1</version>
+              <rightsList>
+                <rights rightsURI="https://creativecommons.org/licenses/by/4.0/legalcode" rightsIdentifierScheme="spdx" rightsIdentifier="cc-by-4.0">Creative Commons Attribution 4.0 International</rights>
+              </rightsList>
+              <descriptions>
+                <description descriptionType="Abstract">Here presented all related source codes for the two-way coupled WRF-CMAQ, WRF-Chem and WRF-CHIMERE models, and even the pre- and post- processing scripts used for paper of "Inter-comparison of multiple two-way coupled meteorology and air quality models (WRF v4.1.1-CMAQ v5.3.1, WRF-Chem v4.1.1 and WRF v3.7.1-CHIMERE v2020r1) in eastern China", https://doi.org/10.5194/gmd-2023-21.</description>
+              </descriptions>
+            </resource>
+          </payload>
+        </oai_datacite>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>oai:zenodo.org:7949712</identifier>
+        <datestamp>2023-05-23T08:38:28Z</datestamp>
+      </header>
+      <metadata>
+        <oai_datacite xmlns="http://schema.datacite.org/oai/oai-1.1/" xsi:schemaLocation="http://schema.datacite.org/oai/oai-1.1/ http://schema.datacite.org/oai/oai-1.1/oai.xsd">
+          <schemaVersion>4.3</schemaVersion>
+          <datacentreSymbol></datacentreSymbol>
+          <payload>
+            <resource xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.3/metadata.xsd">
+              <identifier identifierType="DOI">10.5281/zenodo.7949712</identifier>
+              <alternateIdentifiers>
+                <alternateIdentifier alternateIdentifierType="oai">oai:zenodo.org:7949712</alternateIdentifier>
+              </alternateIdentifiers>
+              <creators>
+                <creator>
+                  <creatorName nameType="Personal">Nobuyasu Koga</creatorName>
+                  <familyName>Nobuyasu Koga</familyName>
+                  <affiliation>Osaka Univeristy</affiliation>
+                </creator>
+              </creators>
+              <titles>
+                <title>kogalab21/all-alpha_design: Second release</title>
+              </titles>
+              <publisher>Zenodo</publisher>
+              <publicationYear>2023</publicationYear>
+              <dates>
+                <date dateType="Issued">2023-05-19</date>
+              </dates>
+              <resourceType resourceTypeGeneral="Software"></resourceType>
+              <relatedIdentifiers>
+                <relatedIdentifier relatedIdentifierType="URL" relationType="IsSupplementTo">https://github.com/kogalab21/all-alpha_design/tree/v1.0.0</relatedIdentifier>
+                <relatedIdentifier relatedIdentifierType="DOI" relationType="IsVersionOf">10.5281/zenodo.7947261</relatedIdentifier>
+              </relatedIdentifiers>
+              <version>v1.0.0</version>
+              <rightsList>
+                <rights rightsIdentifier="other-open">Other (Open)</rights>
+              </rightsList>
+              <descriptions>
+                <description descriptionType="Abstract">No description provided.</description>
+              </descriptions>
+            </resource>
+          </payload>
+        </oai_datacite>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>oai:zenodo.org:7552508</identifier>
+        <datestamp>2023-05-23T08:10:53Z</datestamp>
+      </header>
+      <metadata>
+        <oai_datacite xmlns="http://schema.datacite.org/oai/oai-1.1/" xsi:schemaLocation="http://schema.datacite.org/oai/oai-1.1/ http://schema.datacite.org/oai/oai-1.1/oai.xsd">
+          <schemaVersion>4.3</schemaVersion>
+          <datacentreSymbol></datacentreSymbol>
+          <payload>
+            <resource xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.3/metadata.xsd">
+              <identifier identifierType="DOI">10.5281/zenodo.7552508</identifier>
+              <alternateIdentifiers>
+                <alternateIdentifier alternateIdentifierType="oai">oai:zenodo.org:7552508</alternateIdentifier>
+              </alternateIdentifiers>
+              <creators>
+                <creator>
+                  <creatorName nameType="Personal">Akshay Akshay</creatorName>
+                  <familyName>Akshay Akshay</familyName>
+                  <nameIdentifier nameIdentifierScheme="ORCID">0000-0003-3186-7478</nameIdentifier>
+                  <affiliation>University of Bern</affiliation>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Mitali Katoch</creatorName>
+                  <familyName>Mitali Katoch</familyName>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Masoud Abedi</creatorName>
+                  <familyName>Masoud Abedi</familyName>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Mustafa Besic</creatorName>
+                  <familyName>Mustafa Besic</familyName>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Navid Shekarchizadeh</creatorName>
+                  <familyName>Navid Shekarchizadeh</familyName>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Fiona C. Burkhard</creatorName>
+                  <familyName>Fiona C. Burkhard</familyName>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Alex Bigger-Allen</creatorName>
+                  <familyName>Alex Bigger-Allen</familyName>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Rosalyn M. Adam</creatorName>
+                  <familyName>Rosalyn M. Adam</familyName>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Katia Monastyrskaya</creatorName>
+                  <familyName>Katia Monastyrskaya</familyName>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Ali Hashemi Gheinani</creatorName>
+                  <familyName>Ali Hashemi Gheinani</familyName>
+                </creator>
+              </creators>
+              <titles>
+                <title>Trained Model Weights for "SpheroScan: A User-Friendly Deep Learning Tool for Spheroid Image Analysis"</title>
+              </titles>
+              <publisher>Zenodo</publisher>
+              <publicationYear>2023</publicationYear>
+              <dates>
+                <date dateType="Issued">2023-01-19</date>
+              </dates>
+              <resourceType resourceTypeGeneral="Other"></resourceType>
+              <relatedIdentifiers>
+                <relatedIdentifier relatedIdentifierType="DOI" relationType="IsVersionOf">10.5281/zenodo.7552507</relatedIdentifier>
+              </relatedIdentifiers>
+              <version>0.0.1</version>
+              <rightsList>
+                <rights rightsURI="https://creativecommons.org/publicdomain/zero/1.0/legalcode" rightsIdentifierScheme="spdx" rightsIdentifier="cc0-1.0">Creative Commons Zero v1.0 Universal</rights>
+              </rightsList>
+              <descriptions>
+                <description descriptionType="Abstract">In recent years, three-dimensional (3D) spheroid models have become increasingly popular in scientific research as they provide a more physiologically relevant microenvironment that mimics in vivo conditions. The use of 3D spheroid assays has proven to be advantageous as it offers a better understanding of the cellular behavior, drug efficacy, and toxicity as compared to traditional two-dimensional cell culture methods. However, the use of 3D spheroid assays is impeded by the absence of automated and user-friendly tools for spheroid image analysis, which adversely affects the reproducibility and throughput of these assays.
+
+
+To address these issues, we have developed a fully automated, web-based tool called SpheroScan, which uses the deep learning framework called Mask Regions with Convolutional Neural Networks (R-CNN) for image detection and segmentation. To develop a deep learning model that could be applied to spheroid images from a range of experimental conditions, we trained the model using spheroid images captured using IncuCyte Live-Cell Analysis System and a conventional microscope. Performance evaluation of the trained model using validation and test datasets shows promising results.
+
+
+SpheroScan allows for easy analysis of large numbers of images and provides interactive visualization features for a more in-depth understanding of the data. Our tool represents a significant advancement in the analysis of spheroid images and will facilitate the widespread adoption of 3D spheroid models in scientific research. The source code and a detailed tutorial for SpheroScan are available at https://github.com/FunctionalUrology/SpheroScan.</description>
+              </descriptions>
+            </resource>
+          </payload>
+        </oai_datacite>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>oai:zenodo.org:7157434</identifier>
+        <datestamp>2023-05-23T08:29:23Z</datestamp>
+      </header>
+      <metadata>
+        <oai_datacite xmlns="http://schema.datacite.org/oai/oai-1.1/" xsi:schemaLocation="http://schema.datacite.org/oai/oai-1.1/ http://schema.datacite.org/oai/oai-1.1/oai.xsd">
+          <schemaVersion>4.3</schemaVersion>
+          <datacentreSymbol></datacentreSymbol>
+          <payload>
+            <resource xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.3/metadata.xsd">
+              <identifier identifierType="DOI">10.5281/zenodo.7157434</identifier>
+              <alternateIdentifiers>
+                <alternateIdentifier alternateIdentifierType="oai">oai:zenodo.org:7157434</alternateIdentifier>
+              </alternateIdentifiers>
+              <creators>
+                <creator>
+                  <creatorName nameType="Personal">Hofmann, Fabian</creatorName>
+                  <givenName>Fabian</givenName>
+                  <familyName>Hofmann</familyName>
+                  <nameIdentifier nameIdentifierScheme="ORCID">0000-0002-6604-5450</nameIdentifier>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Hampp, Johannes</creatorName>
+                  <givenName>Johannes</givenName>
+                  <familyName>Hampp</familyName>
+                  <nameIdentifier nameIdentifierScheme="ORCID">0000-0002-1776-116X</nameIdentifier>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Neumann, Fabian</creatorName>
+                  <givenName>Fabian</givenName>
+                  <familyName>Neumann</familyName>
+                  <nameIdentifier nameIdentifierScheme="ORCID">0000-0001-8551-1480</nameIdentifier>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Brown, Tom</creatorName>
+                  <givenName>Tom</givenName>
+                  <familyName>Brown</familyName>
+                  <nameIdentifier nameIdentifierScheme="ORCID">0000-0001-5898-1911</nameIdentifier>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Hörsch, Jonas</creatorName>
+                  <givenName>Jonas</givenName>
+                  <familyName>Hörsch</familyName>
+                  <nameIdentifier nameIdentifierScheme="ORCID">0000-0001-9438-767X</nameIdentifier>
+                </creator>
+              </creators>
+              <titles>
+                <title>atlite: A Lightweight Python Package for Calculating Renewable Power Potentials and Time Series</title>
+              </titles>
+              <publisher>Zenodo</publisher>
+              <publicationYear>2021</publicationYear>
+              <dates>
+                <date dateType="Issued">2021-06-24</date>
+              </dates>
+              <resourceType resourceTypeGeneral="Software"></resourceType>
+              <relatedIdentifiers>
+                <relatedIdentifier relatedIdentifierType="URL" relationType="IsSupplementTo">https://github.com/PyPSA/atlite/tree/v0.2.9</relatedIdentifier>
+                <relatedIdentifier relatedIdentifierType="DOI" relationType="IsVersionOf">10.5281/zenodo.5026364</relatedIdentifier>
+              </relatedIdentifiers>
+              <version>0.2.5</version>
+              <rightsList>
+                <rights rightsURI="https://www.gnu.org/licenses/gpl-3.0-standalone.html" rightsIdentifierScheme="spdx" rightsIdentifier="gpl-3.0-or-later">GNU General Public License v3.0 or later</rights>
+              </rightsList>
+              <descriptions>
+                <description descriptionType="Abstract">What's Changed
+
+
+gis: extend allowed time frame to 1959 by @fneum in https://github.com/PyPSA/atlite/pull/247
+
+[pre-commit.ci] pre-commit autoupdate by @pre-commit-ci in https://github.com/PyPSA/atlite/pull/248
+
+Rasterio update to 1.3.0 by @pz-max in https://github.com/PyPSA/atlite/pull/249
+
+
+Full Changelog: https://github.com/PyPSA/atlite/compare/v0.2.8...v0.2.9</description>
+                <description descriptionType="Other">If you use this package, please cite our corresponding paper in JOSS (The Journal of Open Source Software).</description>
+              </descriptions>
+            </resource>
+          </payload>
+        </oai_datacite>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>oai:zenodo.org:5026365</identifier>
+        <datestamp>2023-05-23T08:29:22Z</datestamp>
+      </header>
+      <metadata>
+        <oai_datacite xmlns="http://schema.datacite.org/oai/oai-1.1/" xsi:schemaLocation="http://schema.datacite.org/oai/oai-1.1/ http://schema.datacite.org/oai/oai-1.1/oai.xsd">
+          <schemaVersion>4.3</schemaVersion>
+          <datacentreSymbol></datacentreSymbol>
+          <payload>
+            <resource xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.3/metadata.xsd">
+              <identifier identifierType="DOI">10.5281/zenodo.5026365</identifier>
+              <alternateIdentifiers>
+                <alternateIdentifier alternateIdentifierType="oai">oai:zenodo.org:5026365</alternateIdentifier>
+              </alternateIdentifiers>
+              <creators>
+                <creator>
+                  <creatorName nameType="Personal">Fabian Hofmann</creatorName>
+                  <familyName>Fabian Hofmann</familyName>
+                  <nameIdentifier nameIdentifierScheme="ORCID">0000-0002-6604-5450</nameIdentifier>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Johannes Hammp</creatorName>
+                  <familyName>Johannes Hammp</familyName>
+                  <nameIdentifier nameIdentifierScheme="ORCID">0000-0002-1776-116X</nameIdentifier>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Fabian Neumann</creatorName>
+                  <familyName>Fabian Neumann</familyName>
+                  <nameIdentifier nameIdentifierScheme="ORCID">0000-0001-8551-1480</nameIdentifier>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Tom Brown</creatorName>
+                  <familyName>Tom Brown</familyName>
+                  <nameIdentifier nameIdentifierScheme="ORCID">0000-0001-5898-1911</nameIdentifier>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Jonas Hörsch</creatorName>
+                  <familyName>Jonas Hörsch</familyName>
+                  <nameIdentifier nameIdentifierScheme="ORCID">0000-0001-9438-767X</nameIdentifier>
+                </creator>
+              </creators>
+              <titles>
+                <title>atlite: A Lightweight Python Package for Calculating Renewable Power Potentials and Time Series</title>
+              </titles>
+              <publisher>Zenodo</publisher>
+              <publicationYear>2021</publicationYear>
+              <dates>
+                <date dateType="Issued">2021-06-24</date>
+              </dates>
+              <language>eng</language>
+              <resourceType resourceTypeGeneral="Software"></resourceType>
+              <relatedIdentifiers>
+                <relatedIdentifier relatedIdentifierType="URL" relationType="IsSupplementTo">https://github.com/PyPSA/atlite/tree/v0.2.5.0</relatedIdentifier>
+                <relatedIdentifier relatedIdentifierType="DOI" relationType="IsVersionOf">10.5281/zenodo.5026364</relatedIdentifier>
+              </relatedIdentifiers>
+              <version>v0.2.5.0</version>
+              <rightsList>
+                <rights></rights>
+              </rightsList>
+              <descriptions>
+                <description descriptionType="Abstract">Atlite is a free software, xarray-based Python library for converting weather data (like wind speeds, solar influx) into energy systems data. It has a lightweight design and works with big weather datasets while keeping the resource requirements especially on CPU and RAM resources low.
+
+
+Atlite can process the weather data fields like solar influx, wind speed, temperature and can convert them into power-system relevant time series like solar PV power output, wind turbine power output etc. for any subsets of a full weather database.</description>
+              </descriptions>
+            </resource>
+          </payload>
+        </oai_datacite>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>oai:zenodo.org:6642180</identifier>
+        <datestamp>2023-05-23T08:29:23Z</datestamp>
+      </header>
+      <metadata>
+        <oai_datacite xmlns="http://schema.datacite.org/oai/oai-1.1/" xsi:schemaLocation="http://schema.datacite.org/oai/oai-1.1/ http://schema.datacite.org/oai/oai-1.1/oai.xsd">
+          <schemaVersion>4.3</schemaVersion>
+          <datacentreSymbol></datacentreSymbol>
+          <payload>
+            <resource xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.3/metadata.xsd">
+              <identifier identifierType="DOI">10.5281/zenodo.6642180</identifier>
+              <alternateIdentifiers>
+                <alternateIdentifier alternateIdentifierType="oai">oai:zenodo.org:6642180</alternateIdentifier>
+              </alternateIdentifiers>
+              <creators>
+                <creator>
+                  <creatorName nameType="Personal">Hofmann, Fabian</creatorName>
+                  <givenName>Fabian</givenName>
+                  <familyName>Hofmann</familyName>
+                  <nameIdentifier nameIdentifierScheme="ORCID">0000-0002-6604-5450</nameIdentifier>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Hampp, Johannes</creatorName>
+                  <givenName>Johannes</givenName>
+                  <familyName>Hampp</familyName>
+                  <nameIdentifier nameIdentifierScheme="ORCID">0000-0002-1776-116X</nameIdentifier>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Neumann, Fabian</creatorName>
+                  <givenName>Fabian</givenName>
+                  <familyName>Neumann</familyName>
+                  <nameIdentifier nameIdentifierScheme="ORCID">0000-0001-8551-1480</nameIdentifier>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Brown, Tom</creatorName>
+                  <givenName>Tom</givenName>
+                  <familyName>Brown</familyName>
+                  <nameIdentifier nameIdentifierScheme="ORCID">0000-0001-5898-1911</nameIdentifier>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Hörsch, Jonas</creatorName>
+                  <givenName>Jonas</givenName>
+                  <familyName>Hörsch</familyName>
+                  <nameIdentifier nameIdentifierScheme="ORCID">0000-0001-9438-767X</nameIdentifier>
+                </creator>
+              </creators>
+              <titles>
+                <title>atlite: A Lightweight Python Package for Calculating Renewable Power Potentials and Time Series</title>
+              </titles>
+              <publisher>Zenodo</publisher>
+              <publicationYear>2021</publicationYear>
+              <dates>
+                <date dateType="Issued">2021-06-24</date>
+              </dates>
+              <resourceType resourceTypeGeneral="Software"></resourceType>
+              <relatedIdentifiers>
+                <relatedIdentifier relatedIdentifierType="URL" relationType="IsSupplementTo">https://github.com/PyPSA/atlite/tree/v0.2.8</relatedIdentifier>
+                <relatedIdentifier relatedIdentifierType="DOI" relationType="IsVersionOf">10.5281/zenodo.5026364</relatedIdentifier>
+              </relatedIdentifiers>
+              <version>0.2.5</version>
+              <rightsList>
+                <rights rightsURI="https://www.gnu.org/licenses/gpl-3.0-standalone.html" rightsIdentifierScheme="spdx" rightsIdentifier="gpl-3.0-or-later">GNU General Public License v3.0 or later</rights>
+              </rightsList>
+              <descriptions>
+                <description descriptionType="Abstract">What's Changed
+
+
+Fix bad comparison for sarah datafiles. by @euronion in https://github.com/PyPSA/atlite/pull/224
+
+Fix/exclusioncalculator filehandling by @euronion in https://github.com/PyPSA/atlite/pull/226
+
+[pre-commit.ci] pre-commit autoupdate by @pre-commit-ci in https://github.com/PyPSA/atlite/pull/229
+
+[pre-commit.ci] pre-commit autoupdate by @pre-commit-ci in https://github.com/PyPSA/atlite/pull/234
+
+Add pretty-format-yaml pre-commit hook. by @euronion in https://github.com/PyPSA/atlite/pull/235
+
+Add NREL turbine data to atlite by @thesethtruth in https://github.com/PyPSA/atlite/pull/233
+
+[pre-commit.ci] pre-commit autoupdate by @pre-commit-ci in https://github.com/PyPSA/atlite/pull/237
+
+fix: use explicit rasterio resample method for averaging by @FabianHofmann in https://github.com/PyPSA/atlite/pull/239
+
+Fix rasterio reprojection bug. Appears with 1.2.10 by @pz-max in https://github.com/PyPSA/atlite/pull/240
+
+Fix NaN values into inflow by @davide-f in https://github.com/PyPSA/atlite/pull/242
+
+[pre-commit.ci] pre-commit autoupdate by @pre-commit-ci in https://github.com/PyPSA/atlite/pull/246
+
+Improve memory load efficiency for shape_availability calculation by @calvintr in https://github.com/PyPSA/atlite/pull/243
+
+New Contributors
+
+
+
+@thesethtruth made their first contribution in https://github.com/PyPSA/atlite/pull/233
+
+@pz-max made their first contribution in https://github.com/PyPSA/atlite/pull/240
+
+@davide-f made their first contribution in https://github.com/PyPSA/atlite/pull/242
+
+@calvintr made their first contribution in https://github.com/PyPSA/atlite/pull/243
+
+
+Full Changelog: https://github.com/PyPSA/atlite/compare/v0.2.7...v0.2.8</description>
+                <description descriptionType="Other">If you use this package, please cite our corresponding paper in JOSS (The Journal of Open Source Software).</description>
+              </descriptions>
+            </resource>
+          </payload>
+        </oai_datacite>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>oai:zenodo.org:7956832</identifier>
+        <datestamp>2023-05-23T08:26:28Z</datestamp>
+      </header>
+      <metadata>
+        <oai_datacite xmlns="http://schema.datacite.org/oai/oai-1.1/" xsi:schemaLocation="http://schema.datacite.org/oai/oai-1.1/ http://schema.datacite.org/oai/oai-1.1/oai.xsd">
+          <schemaVersion>4.3</schemaVersion>
+          <datacentreSymbol></datacentreSymbol>
+          <payload>
+            <resource xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.3/metadata.xsd">
+              <identifier identifierType="DOI">10.1109/LWC.2022.3233475</identifier>
+              <alternateIdentifiers>
+                <alternateIdentifier alternateIdentifierType="oai">oai:zenodo.org:7956832</alternateIdentifier>
+              </alternateIdentifiers>
+              <creators>
+                <creator>
+                  <creatorName nameType="Personal">Steven Rivetti</creatorName>
+                  <familyName>Steven Rivetti</familyName>
+                  <affiliation>Chalmers University of Technology</affiliation>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">José Miguel Mateos-Ramos</creatorName>
+                  <familyName>José Miguel Mateos-Ramos</familyName>
+                  <affiliation>Chalmers University of Technology</affiliation>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Yibo Wu</creatorName>
+                  <familyName>Yibo Wu</familyName>
+                  <affiliation>Chalmers University of Technology</affiliation>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Jinxiang Song</creatorName>
+                  <familyName>Jinxiang Song</familyName>
+                  <affiliation>Chalmers University of Technology</affiliation>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Musa Furkan Keskin</creatorName>
+                  <familyName>Musa Furkan Keskin</familyName>
+                  <affiliation>Chalmers University of Technology</affiliation>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Vijaya Yajnanarayana</creatorName>
+                  <familyName>Vijaya Yajnanarayana</familyName>
+                  <affiliation>Ericsson Research</affiliation>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Christian Häger</creatorName>
+                  <familyName>Christian Häger</familyName>
+                  <affiliation>Chalmers University of Technology</affiliation>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Henk Wymeersch</creatorName>
+                  <familyName>Henk Wymeersch</familyName>
+                  <affiliation>Chalmers University of Technology</affiliation>
+                </creator>
+              </creators>
+              <titles>
+                <title>Spatial Signal Design for Positioning via End-to-End Learning</title>
+              </titles>
+              <publisher>Zenodo</publisher>
+              <publicationYear>2023</publicationYear>
+              <subjects>
+                <subject>mmWave positioning, precoder optimization, end-to-end learning.</subject>
+              </subjects>
+              <dates>
+                <date dateType="Issued">2023-01-02</date>
+              </dates>
+              <resourceType resourceTypeGeneral="JournalArticle"></resourceType>
+              <relatedIdentifiers>
+                <relatedIdentifier relatedIdentifierType="URL" relationType="IsPartOf">https://zenodo.org/communities/hexa-x</relatedIdentifier>
+              </relatedIdentifiers>
+              <rightsList>
+                <rights rightsURI="https://creativecommons.org/licenses/by/4.0/legalcode" rightsIdentifierScheme="spdx" rightsIdentifier="cc-by-4.0">Creative Commons Attribution 4.0 International</rights>
+              </rightsList>
+              <descriptions>
+                <description descriptionType="Abstract">This letter considers the problem of end-to-end (E2E) learning for joint optimization of transmitter precoding and receiver processing for mmWave downlink positioning. Considering a multiple-input single-output (MISO) scenario, we propose a novel autoencoder (AE) architecture to estimate user equipment (UE) position with multiple base stations (BSs) and demonstrate that E2E learning can match model-based design, both for angle-of-departure (AoD) and position estimation, under ideal conditions without model deficits and outperform it in the presence of hardware impairments.</description>
+              </descriptions>
+              <fundingReferences>
+                <fundingReference>
+                  <funderName>European Commission</funderName>
+                  <funderIdentifier funderIdentifierType="ROR">00k4n6c32</funderIdentifier>
+                  <awardNumber>101015956</awardNumber>
+                  <awardTitle>A flagship for B5G/6G vision and intelligent fabric of technology enablers connecting human, physical, and digital worlds</awardTitle>
+                </fundingReference>
+                <fundingReference>
+                  <funderName>European Commission</funderName>
+                  <funderIdentifier funderIdentifierType="ROR">00k4n6c32</funderIdentifier>
+                  <awardNumber>888913</awardNumber>
+                  <awardTitle>A New Waveform for Joint Radar and Communications Beyond 5G</awardTitle>
+                </fundingReference>
+              </fundingReferences>
+            </resource>
+          </payload>
+        </oai_datacite>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>oai:zenodo.org:7199024</identifier>
+        <datestamp>2023-05-23T08:49:11Z</datestamp>
+      </header>
+      <metadata>
+        <oai_datacite xmlns="http://schema.datacite.org/oai/oai-1.1/" xsi:schemaLocation="http://schema.datacite.org/oai/oai-1.1/ http://schema.datacite.org/oai/oai-1.1/oai.xsd">
+          <schemaVersion>4.3</schemaVersion>
+          <datacentreSymbol></datacentreSymbol>
+          <payload>
+            <resource xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.3/metadata.xsd">
+              <identifier identifierType="DOI">10.5281/zenodo.7199024</identifier>
+              <alternateIdentifiers>
+                <alternateIdentifier alternateIdentifierType="oai">oai:zenodo.org:7199024</alternateIdentifier>
+              </alternateIdentifiers>
+              <creators>
+                <creator>
+                  <creatorName nameType="Personal">Obaid, Hadeel</creatorName>
+                  <givenName>Hadeel</givenName>
+                  <familyName>Obaid</familyName>
+                  <nameIdentifier nameIdentifierScheme="ORCID">0000-0003-0859-6315</nameIdentifier>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Tan, Bo</creatorName>
+                  <givenName>Bo</givenName>
+                  <familyName>Tan</familyName>
+                  <nameIdentifier nameIdentifierScheme="ORCID">0000-0002-6855-6270</nameIdentifier>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Morlaas, Christophe</creatorName>
+                  <givenName>Christophe</givenName>
+                  <familyName>Morlaas</familyName>
+                  <nameIdentifier nameIdentifierScheme="ORCID">0000-0003-4533-1711</nameIdentifier>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Lohan, Elena Simona</creatorName>
+                  <givenName>Elena Simona</givenName>
+                  <familyName>Lohan</familyName>
+                  <nameIdentifier nameIdentifierScheme="ORCID">0000-0003-1718-6924</nameIdentifier>
+                </creator>
+              </creators>
+              <titles>
+                <title>I/Q measurements with 5G SRS signals and receiver 4-port 3D Vector Antenna for positioning studies</title>
+              </titles>
+              <publisher>Zenodo</publisher>
+              <publicationYear>2022</publicationYear>
+              <dates>
+                <date dateType="Issued">2022-10-14</date>
+              </dates>
+              <resourceType resourceTypeGeneral="Dataset"></resourceType>
+              <relatedIdentifiers>
+                <relatedIdentifier relatedIdentifierType="DOI" relationType="IsVersionOf">10.5281/zenodo.7199023</relatedIdentifier>
+                <relatedIdentifier relatedIdentifierType="URL" relationType="IsPartOf">https://zenodo.org/communities/tau_wireless</relatedIdentifier>
+              </relatedIdentifiers>
+              <rightsList>
+                <rights rightsURI="https://creativecommons.org/licenses/by/4.0/legalcode" rightsIdentifierScheme="spdx" rightsIdentifier="cc-by-4.0">Creative Commons Attribution 4.0 International</rights>
+              </rightsList>
+              <descriptions>
+                <description descriptionType="Abstract">This dataset contains the I\Q data of four received signals from a 4-port 3D Vector Antenna (3D VA) as well as *fig and *png examples of the angle of arrival (AoA)/azimuth angle estimation using the MUSIC algorithm based on the raw data. The data was collected from four ports (p5, p6, p7, p8) of a 3D VA provided by ENAC. A single Yagi antenna has been used as a transmitter at 2.1GHz carrier frequency and horizontal polarization.</description>
+              </descriptions>
+              <fundingReferences>
+                <fundingReference>
+                  <funderName>European Commission</funderName>
+                  <funderIdentifier funderIdentifierType="ROR">00k4n6c32</funderIdentifier>
+                  <awardNumber>893917</awardNumber>
+                  <awardTitle>Evaluation of 5G Network and mmWave Radar Sensors to Enhance Surveillance of the Airport Surface</awardTitle>
+                </fundingReference>
+                <fundingReference>
+                  <funderName>Academy of Finland</funderName>
+                  <funderIdentifier funderIdentifierType="ROR">05k73zm37</funderIdentifier>
+                  <awardNumber>328226</awardNumber>
+                  <awardTitle>Ubiquitous Localization, communication, and sensing infrastrucTuRe for Autonomous systems (ULTRA) / Consortium: ULTRA</awardTitle>
+                </fundingReference>
+              </fundingReferences>
+            </resource>
+          </payload>
+        </oai_datacite>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>oai:zenodo.org:7915849</identifier>
+        <datestamp>2023-05-23T08:56:15Z</datestamp>
+      </header>
+      <metadata>
+        <oai_datacite xmlns="http://schema.datacite.org/oai/oai-1.1/" xsi:schemaLocation="http://schema.datacite.org/oai/oai-1.1/ http://schema.datacite.org/oai/oai-1.1/oai.xsd">
+          <schemaVersion>4.3</schemaVersion>
+          <datacentreSymbol></datacentreSymbol>
+          <payload>
+            <resource xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.3/metadata.xsd">
+              <identifier identifierType="DOI">10.5281/zenodo.7915849</identifier>
+              <alternateIdentifiers>
+                <alternateIdentifier alternateIdentifierType="oai">oai:zenodo.org:7915849</alternateIdentifier>
+              </alternateIdentifiers>
+              <creators>
+                <creator>
+                  <creatorName nameType="Personal">Rücknagel, Jesko</creatorName>
+                  <givenName>Jesko</givenName>
+                  <familyName>Rücknagel</familyName>
+                  <nameIdentifier nameIdentifierScheme="ORCID">0000-0001-8824-8390</nameIdentifier>
+                  <affiliation>Technische Informationsbibliothek</affiliation>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Schmeja, Stefan</creatorName>
+                  <givenName>Stefan</givenName>
+                  <familyName>Schmeja</familyName>
+                  <nameIdentifier nameIdentifierScheme="ORCID">0000-0001-6130-9472</nameIdentifier>
+                  <affiliation>Technische Informationsbibliothek</affiliation>
+                </creator>
+              </creators>
+              <titles>
+                <title>Good open access: minimum requirements vs best practice</title>
+              </titles>
+              <publisher>Zenodo</publisher>
+              <publicationYear>2023</publicationYear>
+              <subjects>
+                <subject>open access</subject>
+              </subjects>
+              <dates>
+                <date dateType="Issued">2023-05-09</date>
+              </dates>
+              <language>eng</language>
+              <resourceType resourceTypeGeneral="Text">Presentation</resourceType>
+              <relatedIdentifiers>
+                <relatedIdentifier relatedIdentifierType="DOI" relationType="IsVersionOf">10.5281/zenodo.7915848</relatedIdentifier>
+                <relatedIdentifier relatedIdentifierType="URL" relationType="IsPartOf">https://zenodo.org/communities/open-access_network</relatedIdentifier>
+              </relatedIdentifiers>
+              <rightsList>
+                <rights rightsURI="https://creativecommons.org/licenses/by/4.0/legalcode" rightsIdentifierScheme="spdx" rightsIdentifier="cc-by-4.0">Creative Commons Attribution 4.0 International</rights>
+              </rightsList>
+              <descriptions>
+                <description descriptionType="Abstract">Open Access aims to enable people worldwide to access scholarly information without barriers. To achieve this, various publication channels exist, and the number of possible publication venues continues to grow. The presentation will focus on explaining which selection criteria should be applied when choosing a publication venue in order to best achieve the goals of the Open Access movement. For this purpose, we take a closer look at the myths that still exist regarding Open Access.
+
+
+The following questions will be discussed:
+
+
+
+
+What best practices should I follow in publishing open access?
+
+What initiatives are there to push forward the publishing system's transformation?
+
+Which tools can help me to find a suitable publication venue?</description>
+              </descriptions>
+            </resource>
+          </payload>
+        </oai_datacite>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>oai:zenodo.org:7878530</identifier>
+        <datestamp>2023-05-23T08:00:47Z</datestamp>
+      </header>
+      <metadata>
+        <oai_datacite xmlns="http://schema.datacite.org/oai/oai-1.1/" xsi:schemaLocation="http://schema.datacite.org/oai/oai-1.1/ http://schema.datacite.org/oai/oai-1.1/oai.xsd">
+          <schemaVersion>4.3</schemaVersion>
+          <datacentreSymbol></datacentreSymbol>
+          <payload>
+            <resource xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.3/metadata.xsd">
+              <identifier identifierType="DOI">10.5281/zenodo.7878530</identifier>
+              <alternateIdentifiers>
+                <alternateIdentifier alternateIdentifierType="oai">oai:zenodo.org:7878530</alternateIdentifier>
+              </alternateIdentifiers>
+              <creators>
+                <creator>
+                  <creatorName nameType="Personal">Akhmetzyanova Diana Ratmirovna</creatorName>
+                  <familyName>Akhmetzyanova Diana Ratmirovna</familyName>
+                  <affiliation>-</affiliation>
+                </creator>
+                <creator>
+                  <creatorName nameType="Personal">Sheikin Sergey Dmitrievich</creatorName>
+                  <familyName>Sheikin Sergey Dmitrievich</familyName>
+                  <affiliation>-</affiliation>
+                </creator>
+              </creators>
+              <titles>
+                <title>Oribatida</title>
+              </titles>
+              <publisher>Zenodo</publisher>
+              <publicationYear>2023</publicationYear>
+              <dates>
+                <date dateType="Issued">2023-04-29</date>
+              </dates>
+              <resourceType resourceTypeGeneral="Image">Photo</resourceType>
+              <relatedIdentifiers>
+                <relatedIdentifier relatedIdentifierType="DOI" relationType="IsVersionOf">10.5281/zenodo.7878529</relatedIdentifier>
+              </relatedIdentifiers>
+              <descriptions>
+                <description descriptionType="Abstract">Oribatid mites photo</description>
+              </descriptions>
+            </resource>
+          </payload>
+        </oai_datacite>
+      </metadata>
+    </record>
+  </ListRecords>
 </OAI-PMH>

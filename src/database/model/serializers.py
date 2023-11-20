@@ -102,10 +102,10 @@ class FindByIdentifierDeserializer(DeSerializer[SQLModel]):
 @dataclasses.dataclass
 class FindByNameDeserializer(DeSerializer[NamedRelation]):
     """
-    Deserialization of NamedValues: uniquely identified by their name.
+    Deserialization of NamedRelations: uniquely identified by their name.
 
     In case of a single name, this deserializer returns the identifier. In case of a list of
-    names, it returns the list of NamedValues.
+    names, it returns the list of NamedRelations.
     """
 
     clazz: type[NamedRelation]
@@ -114,6 +114,7 @@ class FindByNameDeserializer(DeSerializer[NamedRelation]):
         self, session: Session, name: str | list[str]
     ) -> NamedRelation | list[NamedRelation]:
         if not isinstance(name, list):
+            name = name.lower()
             query = select(self.clazz.identifier).where(self.clazz.name == name)
             identifier = session.scalars(query).first()
             if identifier is None:
@@ -122,10 +123,10 @@ class FindByNameDeserializer(DeSerializer[NamedRelation]):
                 session.flush()
                 identifier = new_object.identifier
             return identifier
-
-        query = select(self.clazz).where(self.clazz.name.in_(name))  # type: ignore[attr-defined]
+        names = [n.lower() for n in name]
+        query = select(self.clazz).where(self.clazz.name.in_(names))  # type: ignore[attr-defined]
         existing = session.scalars(query).all()
-        names_not_found = set(name) - {e.name for e in existing}
+        names_not_found = set(names) - {e.name for e in existing}
         new_objects = [self.clazz(name=name) for name in names_not_found]
         if any(names_not_found):
             session.add_all(new_objects)

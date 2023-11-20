@@ -8,7 +8,7 @@ import sys
 from datetime import datetime
 from typing import Optional
 
-from sqlmodel import Session
+from sqlmodel import Session, select
 
 from connectors.abstract.resource_connector import ResourceConnector, RESOURCE
 from connectors.record_error import RecordError
@@ -50,7 +50,7 @@ def _parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--from-date",
-        type=lambda d: datetime.strptime(d, "%Y-%m-%d").date(),
+        type=lambda d: datetime.strptime(d, "%Y-%m-%d"),
         help="The start date. Only relevant for the first run of date-based connectors. "
         "In subsequent runs, date-based connectors will synchronize from the previous "
         "end-time. Format: YYYY-MM-DD",
@@ -136,22 +136,26 @@ def main():
     module = importlib.import_module(module_path)
     connector: ResourceConnector = getattr(module, connector_cls_name)()
 
+    working_dir.mkdir(parents=True, exist_ok=True)
     error_path = working_dir / RELATIVE_PATH_ERROR_CSV
     state_path = working_dir / RELATIVE_PATH_STATE_JSON
-    error_path.parents[0].mkdir(parents=True, exist_ok=True)
-    state_path.parents[0].mkdir(parents=True, exist_ok=True)
     first_run = not state_path.exists()
 
-    if first_run:
+    engine = sqlmodel_engine(rebuild_db="never")
+    with Session(engine) as session:
+        db_empty = session.scalars(select(connector.resource_class)).first() is None
+
+    if first_run or db_empty:
         state = {}
+        state_path.unlink(missing_ok=True)
+        error_path.unlink(missing_ok=True)
     else:
         with open(state_path, "r") as f:
             state = json.load(f)
-
     items = connector.run(
         state=state,
         from_identifier=args.from_identifier,
-        from_date=args.from_date,
+        from_incl=args.from_date,
         limit=args.limit,
     )
 
@@ -160,8 +164,6 @@ def main():
         for router in resource_routers.router_list + enum_routers.router_list
         if router.resource_class == connector.resource_class
     ]
-
-    engine = sqlmodel_engine(rebuild_db="never")
 
     with Session(engine) as session:
         for i, item in enumerate(items):
@@ -183,9 +185,7 @@ def main():
                 logging.info(f"Saving state after handling {i}th result: {json.dumps(state)}")
                 with open(state_path, "w") as f:
                     json.dump(state, f, indent=4)
-                session.commit()
     with open(state_path, "w") as f:
-        session.commit()
         json.dump(state, f, indent=4)
     logging.info("Done")
 

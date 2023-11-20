@@ -15,7 +15,7 @@ def test_happy_path(client: TestClient, mocked_privileged_token: Mock, body_asse
     body = copy.deepcopy(body_asset)
     body["name"] = "Contact name"
     body["email"] = ["a@b.com"]
-    body["telephone"] = ["0032 XXXX XXXX"]
+    body["telephone"] = ["0032 xxxx xxxx"]
     body["location"] = [
         {
             "address": {"country": "NED", "street": "Street Name 10", "postal_code": "1234AB"},
@@ -33,7 +33,7 @@ def test_happy_path(client: TestClient, mocked_privileged_token: Mock, body_asse
     response_json = response.json()
     assert response_json["name"] == "Contact name"
     assert response_json["email"] == ["a@b.com"]
-    assert response_json["telephone"] == ["0032 XXXX XXXX"]
+    assert response_json["telephone"] == ["0032 xxxx xxxx"]
     assert response_json["location"] == [
         {
             "address": {"country": "NED", "street": "Street Name 10", "postal_code": "1234AB"},

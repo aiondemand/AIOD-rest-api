@@ -1,5 +1,11 @@
 [
     {
+      "platform": "example",
+      "platform_resource_identifier": "1",
+      "aiod_entry": {
+        "editor": [],
+        "status": "draft"
+      },
       "email": ["a@b.com"],
       "telephone": ["0032 XXXX XXXX"],
       "location": [

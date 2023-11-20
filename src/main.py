@@ -67,6 +67,15 @@ def add_routes(app: FastAPI, engine: Engine, url_prefix=""):
         """
         return {"msg": "success", "user": user}
 
+    @app.get(url_prefix + "/counts/v1")
+    def counts() -> dict:
+        return {
+            router.resource_name_plural: count
+            for router in resource_routers.router_list
+            if issubclass(router.resource_class, AIoDConcept)
+            and (count := router.get_resource_count_func(engine)(detailed=True))
+        }
+
     for router in (
         resource_routers.router_list
         + routers.other_routers

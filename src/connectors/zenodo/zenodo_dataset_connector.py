@@ -6,12 +6,14 @@ import requests
 import xmltodict
 from sickle import Sickle
 from sqlmodel import SQLModel
+from starlette import status
 
 from connectors.abstract.resource_connector_by_date import ResourceConnectorByDate
 from connectors.record_error import RecordError
 from connectors.resource_with_relations import ResourceWithRelations
 from database.model import field_length
 from database.model.agent.person import Person
+from database.model.ai_asset.distribution import Distribution
 from database.model.ai_resource.text import Text
 from database.model.concept.aiod_entry import AIoDEntryCreate
 from database.model.dataset.dataset import Dataset
@@ -40,44 +42,10 @@ class ZenodoDatasetConnector(ResourceConnectorByDate[Dataset]):
         code shows no similarities.
         """
 
-        response = requests.get(f"https://zenodo.org/api/records/{_id}")
-        if not response.ok:
-            msg = response.json()["error"]["message"]
-            return RecordError(
-                identifier=str(_id),
-                error=f"Error while fetching data from Zenodo: '{msg}'.",
-            )
-
-        record = response.json()
-        creator_names = [item["name"] for item in record["metadata"]["creators"]]
-        creators = []
-        for name in creator_names:
-            name_splits = name.split(", ")
-            if len(name_splits) == 2:
-                creators.append(Person(given_name=name_splits[1], surname=name_splits[0]))
-            else:
-                creators.append(Person(name=name))
-
-        description = record.get("metadata").get("description")
-        if len(description) > field_length.LONG:
-            text_break = " [...]"
-            description = description[: field_length.LONG - len(text_break)] + text_break
-        if description:
-            description = Text(plain=description)
-
-        pydantic_class = resource_create(Dataset)
-        dataset = pydantic_class(
-            aiod_entry=AIoDEntryCreate(status="published"),
-            platform="zenodo",
-            platform_resource_identifier=_id,
-            date_published=record.get("created"),
-            name=record.get("metadata").get("title"),
-            description=description,
-            license=record.get("metadata").get("license").get("id"),
-            keyword=record.get("metadata").get("keywords"),
-        )
-        return ResourceWithRelations[Dataset](
-            resource=dataset, related_resources={"creator": creators}
+        raise NotImplementedError(
+            "Currently not implemented. See git history for an earlier "
+            "implementation, that needs to be brought up-to-date (ideally "
+            "using the same code as fetch)."
         )
 
     @staticmethod
@@ -90,9 +58,9 @@ class ZenodoDatasetConnector(ResourceConnectorByDate[Dataset]):
     ) -> ResourceWithRelations[Dataset] | RecordError:
         error_fmt = ZenodoDatasetConnector._error_msg_bad_format
         if isinstance(record["creators"]["creator"], list):
-            creator_names = [item["creatorName"] for item in record["creators"]["creator"]]
-        elif isinstance(record["creators"]["creator"]["creatorName"], str):
-            creator_names = [record["creators"]["creator"]["creatorName"]]
+            creator_names = [item["creatorName"]["#text"] for item in record["creators"]["creator"]]
+        elif isinstance(record["creators"]["creator"]["creatorName"]["#text"], str):
+            creator_names = [record["creators"]["creator"]["creatorName"]["#text"]]
         else:
             error_fmt("")
             return RecordError(identifier=identifier, error=error_fmt("creator"))
@@ -142,17 +110,21 @@ class ZenodoDatasetConnector(ResourceConnectorByDate[Dataset]):
         else:
             return RecordError(identifier=identifier, error=error_fmt("date_published"))
 
-        if isinstance(record["publisher"], str):
-            publisher = record["publisher"]
-        else:
-            return RecordError(identifier=identifier, error=error_fmt("publisher"))
+        publisher = None
+        if "publisher" in record:
+            if isinstance(record["publisher"], str):
+                publisher = record["publisher"]
+            else:
+                return RecordError(identifier=identifier, error=error_fmt("publisher"))
 
-        if isinstance(record["rightsList"]["rights"], list):
-            license_ = record["rightsList"]["rights"][0]["@rightsURI"]
-        elif isinstance(record["rightsList"]["rights"]["@rightsURI"], str):
-            license_ = record["rightsList"]["rights"]["@rightsURI"]
-        else:
-            return RecordError(identifier=identifier, error=error_fmt("license"))
+        license_ = None
+        if "rightsList" in record:
+            if isinstance(record["rightsList"]["rights"], list):
+                license_ = record["rightsList"]["rights"][0]["#text"]
+            elif isinstance(record["rightsList"]["rights"]["#text"], str):
+                license_ = record["rightsList"]["rights"]["#text"]
+            else:
+                return RecordError(identifier=identifier, error=error_fmt("license"))
 
         keywords = []
         if "subjects" in record:
@@ -162,6 +134,26 @@ class ZenodoDatasetConnector(ResourceConnectorByDate[Dataset]):
                 keywords = [item for item in record["subjects"]["subject"] if isinstance(item, str)]
             else:
                 return RecordError(identifier=identifier, error=error_fmt("keywords"))
+
+        response = requests.get(f"https://zenodo.org/api/records/{id_number}/files")
+        if response.status_code == status.HTTP_200_OK:
+            entries = response.json()["entries"]
+            distributions = [
+                Distribution(
+                    name=entry["key"],
+                    content_url=entry["links"]["content"],
+                    encoding_format=entry["mimetype"],
+                    checksum_algorithm=entry["checksum"].split(":")[0]
+                    if "checksum" in entry
+                    else None,
+                    checksum=entry["checksum"].split(":")[1] if "checksum" in entry else None,
+                )
+                for entry in entries
+            ]
+        elif response.status_code in (status.HTTP_403_FORBIDDEN, status.HTTP_410_GONE):
+            distributions = []  # Private files, or deleted files
+        else:
+            response.raise_for_status()
 
         pydantic_class = resource_create(Dataset)
         dataset = pydantic_class(
@@ -175,6 +167,7 @@ class ZenodoDatasetConnector(ResourceConnectorByDate[Dataset]):
             publisher=publisher,
             license=license_,
             keyword=keywords,
+            distribution=distributions,
         )
 
         return ResourceWithRelations[Dataset](
@@ -205,7 +198,7 @@ class ZenodoDatasetConnector(ResourceConnectorByDate[Dataset]):
             }
         )
 
-        while record := next(records, None):
+        for record in records:
             id_ = None
             datetime_ = None
             resource_type = ZenodoDatasetConnector._resource_type(record)

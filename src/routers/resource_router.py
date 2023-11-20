@@ -9,7 +9,7 @@ from wsgiref.handlers import format_date_time
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
-from sqlalchemy import and_
+from sqlalchemy import and_, func
 from sqlalchemy.engine import Engine
 from sqlalchemy.sql.operators import is_
 from sqlmodel import SQLModel, Session, select
@@ -128,7 +128,7 @@ class ResourceRouter(abc.ABC):
         router.add_api_route(
             path=f"{url_prefix}/counts/{self.resource_name_plural}/v1",
             endpoint=self.get_resource_count_func(engine),
-            response_model=int,  # type: ignore
+            response_model=int | dict[str, int],
             name=f"Count of {self.resource_name_plural}",
             **default_kwargs,
         )
@@ -250,15 +250,30 @@ class ResourceRouter(abc.ABC):
         docstring and the variables are dynamic, and used in Swagger.
         """
 
-        def get_resource_count():
+        def get_resource_count(detailed=False):
             f"""Retrieve the number of {self.resource_name_plural}."""
             try:
                 with Session(engine) as session:
-                    return (
-                        session.query(self.resource_class)
-                        .where(is_(self.resource_class.date_deleted, None))
-                        .count()
-                    )
+                    if not detailed:
+                        return (
+                            session.query(self.resource_class)
+                            .where(is_(self.resource_class.date_deleted, None))
+                            .count()
+                        )
+                    else:
+                        count_list = (
+                            session.query(
+                                self.resource_class.platform,
+                                func.count(self.resource_class.identifier),
+                            )
+                            .where(is_(self.resource_class.date_deleted, None))
+                            .group_by(self.resource_class.platform)
+                            .all()
+                        )
+                        return {
+                            platform if platform else "aiod": count
+                            for platform, count in count_list
+                        }
             except Exception as e:
                 raise _wrap_as_http_exception(e)
 
@@ -360,8 +375,6 @@ class ResourceRouter(abc.ABC):
         deserialize_resource_relationships(
             session, self.resource_class, resource, resource_create_instance
         )
-        # if isinstance(resource, AbstractAIResource) and resource.ai_:
-        #     resource.ai_resource.type = self.resource_name
         session.add(resource)
         session.commit()
         return resource

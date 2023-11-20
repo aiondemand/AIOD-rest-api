@@ -10,9 +10,9 @@ def test_happy_path(
     client: TestClient,
     engine: Engine,
 ):
-    expertise_a = Expertise(name="Just")
-    expertise_b = Expertise(name="An")
-    expertise_c = Expertise(name="Example")
+    expertise_a = Expertise(name="just")
+    expertise_b = Expertise(name="an")
+    expertise_c = Expertise(name="example")
     person_a = Person(
         name="person a",
         expertise=[expertise_a, expertise_b],

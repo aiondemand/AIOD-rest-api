@@ -13,79 +13,49 @@ def test_fetch_happy_path():
     with responses.RequestsMock() as mocked_requests:
         mock_zenodo_responses(mocked_requests)
 
-        from_incl = datetime.datetime(2000, 1, 1, 12, 0, 0)
-        to_excl = datetime.datetime(2000, 1, 2, 12, 0, 0)
-        resources = list(connector.run(state={}, from_date=from_incl, to_excl=to_excl))
+        from_incl = datetime.datetime(2023, 5, 23, 8, 0, 0)
+        to_excl = datetime.datetime(2023, 5, 23, 9, 0, 0)
+        resources = list(connector.run(state={}, from_incl=from_incl, to_excl=to_excl))
     datasets = [r for r in resources if not isinstance(r, RecordError)]
-    assert len(datasets) == 1
+    errors = [r for r in resources if isinstance(r, RecordError)]
+    assert {error.error for error in errors} == {"Wrong type"}
+    assert len(datasets) == 6
+    assert len(errors) == 20
     dataset = datasets[0].resource
-    assert dataset.name == "THE FIELD'S MALL MASS SHOOTING: EMERGENCY MEDICAL SERVICES RESPONSE"
-    assert dataset.description.plain == "This is a description paragraph"
-    assert dataset.date_published == datetime.datetime(2023, 5, 6)
-    assert dataset.license == "https://creativecommons.org/licenses/by/4.0/legalcode"
+    assert dataset.name == "kogalab21/all-alpha_design"
+    expected = (
+        "Source data and demos for the research article entitled “Design of "
+        "complicated all-α protein structures” by Koya Sakuma, Naohiro Kobayashi, "
+        "Toshihiko Sugiki, Toshio Nagashima, Toshimichi Fujiwara, Kano Suzuki, Naoya "
+        "Kobayashi, Takeshi Murata, Takahiro Kosugi, Rie Koga, and Nobuyasu Koga."
+    )
+    assert dataset.description.plain == expected
+    assert dataset.date_published == datetime.datetime(2023, 5, 18)
+    assert dataset.license == "Other (Open)"
     assert dataset.platform == "zenodo"
-    assert dataset.platform_resource_identifier == "zenodo.org:7961614"
-    assert set(dataset.keyword) == {
-        "Mass casualty",
-        "Major incident",
-        "Management and leadership",
-        "Disaster",
-        "Mass shooting",
-    }
+    assert dataset.platform_resource_identifier == "zenodo.org:7947283"
+    assert set(dataset.keyword) == set()
 
     creators: list[Person] = datasets[0].related_resources["creator"]
-    assert len(creators) == 4
-    for given, sur in [
-        ("Peter Martin", "Hansen"),
-        ("henrik", "Alstrøm"),
-        ("Anders", "Damm-Hejmdal"),
-        ("Søren", "Mikkelsen"),
-    ]:
-        assert any(c for c in creators if c.given_name == given and c.surname == sur)
+    assert len(creators) == 1
+    assert creators[0].name == "Nobuyasu Koga"
 
-
-def test_retry_happy_path():
-    connector = ZenodoDatasetConnector()
-    with responses.RequestsMock() as mocked_requests:
-        with open(path_test_resources() / "connectors" / "zenodo" / "dataset.json", "r") as f:
-            dataset = f.read()
-        mocked_requests.add(
-            responses.GET,
-            "https://zenodo.org/api/records/7902672",  # noqa E501
-            body=dataset,
-            status=200,
-        )
-        id_ = "7902672"
-        resource_with_relations = connector.retry(id_)
-    dataset = resource_with_relations.resource
-    assert dataset.name == "THE FIELD'S MALL MASS SHOOTING: EMERGENCY MEDICAL SERVICES RESPONSE"
-    assert dataset.description.plain == "This is a description paragraph"
-    assert dataset.date_published == datetime.datetime(
-        2023, 5, 23, 7, 56, 17, 414652, tzinfo=datetime.timezone.utc
+    (dataset_7902673,) = [
+        d.resource
+        for d in datasets
+        if d.resource.platform_resource_identifier == "zenodo.org:7902673"
+    ]
+    distributions = dataset_7902673.distribution
+    assert len(distributions) == 3
+    distribution = distributions[0]
+    assert distribution.name == "FIELDS_CONFIDE_CHECLIST.docx"
+    assert distribution.encoding_format == "application/octet-stream"
+    assert distribution.checksum == "97f511d24f8867405a8f87afbc76939d"
+    assert distribution.checksum_algorithm == "md5"
+    assert (
+        distribution.content_url
+        == "https://zenodo.org/api/records/7902673/files/FIELDS_CONFIDE_CHECLIST.docx/content"
     )
-    assert dataset.license == "CC-BY-4.0"
-    assert dataset.platform == "zenodo"
-    assert dataset.platform_resource_identifier == "7902672"
-
-    assert len(dataset.keyword) == 5
-    assert set(dataset.keyword) == {
-        "Mass casualty",
-        "Major incident",
-        "Management and leadership",
-        "Disaster",
-        "Mass shooting",
-    }
-    creators: list[Person] = resource_with_relations.related_resources["creator"]
-    assert len(creators) == 6
-    for given, sur in [
-        ("Peter Martin", "Hansen"),
-        ("henrik", "Alstrøm"),
-        ("Anders", "Damm-Hejmdal"),
-        ("Søren", "Mikkelsen"),
-        ("Marius", "Rehn"),
-        ("Peter Anthony", "Berlac"),
-    ]:
-        assert any(c for c in creators if c.given_name == given and c.surname == sur)
 
 
 def mock_zenodo_responses(mocked_requests: responses.RequestsMock):
@@ -96,7 +66,17 @@ def mock_zenodo_responses(mocked_requests: responses.RequestsMock):
         records_list = f.read()
     mocked_requests.add(
         responses.GET,
-        "https://zenodo.org/oai2d?metadataPrefix=oai_datacite&from=2000-01-01T00%3A00%3A00&until=2000-01-02T12%3A00%3A00&verb=ListRecords",  # noqa E501
+        "https://zenodo.org/oai2d?"
+        "metadataPrefix=oai_datacite&"
+        "from=2023-05-23T08%3A00%3A00&"
+        "until=2023-05-23T09%3A00%3A00&"
+        "verb=ListRecords",
         body=records_list,
         status=200,
     )
+    for id_ in (6884943, 7793917, 7199024, 7947283, 7555467, 7902673):
+        with open(path_test_resources() / "connectors" / "zenodo" / f"{id_}.json", "r") as f:
+            body = f.read()
+        mocked_requests.add(
+            responses.GET, f"https://zenodo.org/api/records/{id_}/files", body=body, status=200
+        )

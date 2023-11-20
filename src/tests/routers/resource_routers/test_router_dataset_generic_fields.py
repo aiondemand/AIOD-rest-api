@@ -79,10 +79,10 @@ def test_happy_path(
     }
     assert response_json["is_accessible_for_free"]
 
-    assert response_json["application_area"] == ["Voice Assistance"]
-    assert response_json["industrial_sector"] == ["eCommerce"]
-    assert response_json["research_area"] == ["Explainable AI"]
-    assert response_json["scientific_domain"] == ["Voice Recognition"]
+    assert response_json["application_area"] == ["voice assistance"]
+    assert response_json["industrial_sector"] == ["ecommerce"]
+    assert response_json["research_area"] == ["explainable ai"]
+    assert response_json["scientific_domain"] == ["voice recognition"]
     assert response_json["contact"] == [1]
     assert response_json["creator"] == [1]
     assert response_json["citation"] == [1]
@@ -192,8 +192,8 @@ def test_post_duplicate_named_relations(
     assert response.status_code == 200, response.json()
     response = client.get("/news/v1/2")
     assert set(response.json()["keyword"]) == {
-        "AI",
-        "ArtificialIntelligence",
+        "ai",
+        "artificialintelligence",
         "digitaltransformation",
         "smartcities",
         "mobility",
@@ -207,16 +207,33 @@ def test_post_duplicate_named_relations(
     client.post("/news/v1", json=body4, headers={"Authorization": "Fake token"})
     response = client.get("/news/v1/4")
     assert set(response.json()["keyword"]) == {
-        "AI4EU Experiments",
+        "ai4eu experiments",
         "solutions",
         "pipelines",
-        "hybrid AI",
-        "modular AI",
+        "hybrid ai",
+        "modular ai",
         "reliability",
         "explainability",
         "trustworthiness",
-        "ArtificialIntelligence",
+        "artificialintelligence",
     }
+
+
+def test_post_duplicate_named_relations_with_different_capitals(
+    client: TestClient,
+    engine: Engine,
+    mocked_privileged_token: Mock,
+):
+    keycloak_openid.userinfo = mocked_privileged_token
+
+    def create_body(i: int, *keywords):
+        return {"name": f"dataset{i}", "keyword": keywords}
+
+    body1 = create_body(1, "AI")
+    body2 = create_body(2, "ai")
+    client.post("/news/v1", json=body1, headers={"Authorization": "Fake token"})
+    response = client.post("/news/v1", json=body2, headers={"Authorization": "Fake token"})
+    assert response.status_code == 200, response.json()
 
 
 def test_post_editors(

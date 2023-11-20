@@ -29,4 +29,5 @@ class EnumConnector(ResourceConnectorOnStartUp[RESOURCE]):
     def fetch(self, limit: int | None = None) -> Iterator[RESOURCE]:
         with open(self.json_path) as f:
             json_data = json.load(f)
-        yield from json_data[:limit]
+        for value in json_data[:limit]:
+            yield value.lower()

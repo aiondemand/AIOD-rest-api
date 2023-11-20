@@ -12,6 +12,7 @@
         "editor": [],
         "status": "draft"
       },
+      "access_mode": ["textual"],
       "alternate_name": [
         "alias 1",
         "alias 2"
@@ -23,7 +24,7 @@
       ],
       "citation": [],
       "contact": [],
-      "content": [{"plain": "An alternative to using .distribution.content_url"}],
+      "content": {"plain": "An alternative to using .distribution.content_url"},
       "creator": [],
       "distribution": [
         {
@@ -39,7 +40,9 @@
           "technology_readiness_level": 1
         }
       ],
+      "educational_level": ["primary school", "secondary school", "university"],
       "has_part": [],
+      "in_language": ["eng", "fra", "spa"],
       "industrial_sector": [
         "Finance",
         "eCommerce",
@@ -50,6 +53,22 @@
         "keyword1",
         "keyword2"
       ],
+      "location": [{
+        "address": {
+          "region": "California",
+          "locality": "Paris",
+          "street": "Wetstraat 170",
+          "postal_code": "1040 AA",
+          "address": "Wetstraat 170, 1040 Brussel",
+          "country": "BEL"
+        },
+        "geo": {
+          "latitude": 37.42242,
+          "longitude": -122.08585,
+          "elevation_millimeters": 0
+        }
+      }],
+      "prerequisite": ["undergraduate knowledge of statistics", "graduate knowledge of linear algebra"],
       "relevant_link": ["https://www.example.com/a_relevant_link", "https://www.example.com/another_relevant_link"],
       "license": "https://creativecommons.org/share-your-work/public-domain/cc0/",
       "media": [
@@ -80,6 +99,11 @@
         "Computer Vision."
       ],
       "level": "EQF level 3",
+      "target_audience": [
+        "professionals",
+        "students in higher education",
+        "teachers in secondary school"
+      ],
       "type": "presentation"
     }
 ]

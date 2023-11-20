@@ -15,7 +15,7 @@ def test_happy_path(
     body = copy.deepcopy(body_resource)
     body["headline"] = "A headline to show on top of the page."
     body["alternative_headline"] = "An alternative headline."
-    body["category"] = ["Research: Education", "Research: Awards", "Business: Health"]
+    body["category"] = ["research: education", "research: awards", "business: health"]
     body["content"] = {"plain": "plain content"}
 
     response = client.post("/news/v1", json=body, headers={"Authorization": "Fake token"})
@@ -28,8 +28,8 @@ def test_happy_path(
     assert response_json["headline"] == "A headline to show on top of the page."
     assert response_json["alternative_headline"] == "An alternative headline."
     assert set(response_json["category"]) == {
-        "Research: Education",
-        "Research: Awards",
-        "Business: Health",
+        "research: education",
+        "research: awards",
+        "business: health",
     }
     assert response_json["content"] == {"plain": "plain content"}

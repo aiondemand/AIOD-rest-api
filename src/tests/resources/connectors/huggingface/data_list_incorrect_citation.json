@@ -1,0 +1,91 @@
+[
+  {
+    "_id": "621ffdd236468d709f181d6f",
+    "id": "bigIR/ar_cov19",
+    "author": "bigIR",
+    "sha": "447b2a5a20c9e8ffaee0f14b31697be7b0dec403",
+    "lastModified": "2023-09-19T06:52:17.000Z",
+    "private": false,
+    "gated": false,
+    "disabled": false,
+    "tags": [
+        "task_categories:other",
+        "annotations_creators:no-annotation",
+        "language_creators:found",
+        "multilinguality:monolingual",
+        "size_categories:1M<n<10M",
+        "source_datasets:original",
+        "language:ar",
+        "data-mining",
+        "arxiv:2004.05861",
+        "region:us"
+    ],
+    "citation": "@article{haouari2020arcov19,\n  title={ArCOV-19: The First Arabic COVID-19 Twitter Dataset with Propagation Networks},\n  author={Fatima Haouari and Maram Hasanain and Reem Suwaileh and Tamer Elsayed},\n  journal={arXiv preprint arXiv:2004.05861},\n  year={2020}",
+    "description": "ArCOV-19 is an Arabic COVID-19 Twitter dataset that covers the period from 27th of January till 30th of April 2020. ArCOV-19 is designed to enable research under several domains including natural language processing, information retrieval, and social computing, among others",
+    "paperswithcode_id": "arcov-19",
+    "downloads": 201,
+    "likes": 1,
+    "cardData": {
+        "annotations_creators": [
+            "no-annotation"
+        ],
+        "language_creators": [
+            "found"
+        ],
+        "language": [
+            "ar"
+        ],
+        "multilinguality": [
+            "monolingual"
+        ],
+        "size_categories": [
+            "1M<n<10M"
+        ],
+        "source_datasets": [
+            "original"
+        ],
+        "task_categories": [
+            "other"
+        ],
+        "task_ids": [],
+        "paperswithcode_id": "arcov-19",
+        "pretty_name": "ArCOV19",
+        "tags": [
+            "data-mining"
+        ],
+        "dataset_info": {
+            "config_name": "ar_cov19",
+            "features": [
+                {
+                    "name": "tweetID",
+                    "dtype": "string"
+                }
+            ],
+            "splits": [
+                {
+                    "name": "train",
+                    "num_bytes": 72223634,
+                    "num_examples": 3140158
+                }
+            ],
+            "download_size": 23678407,
+            "dataset_size": 72223634
+        }
+    },
+    "siblings": [
+        {
+            "rfilename": ".gitattributes"
+        },
+        {
+            "rfilename": "README.md"
+        },
+        {
+            "rfilename": "ar_cov19.py"
+        },
+        {
+            "rfilename": "dataset-all_tweets.zip"
+        }
+    ],
+    "createdAt": "2022-03-02T23:29:22.000Z"
+  }
+]

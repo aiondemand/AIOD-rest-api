@@ -1,11 +1,10 @@
 import abc
 import logging
-from datetime import datetime, date
+from datetime import datetime, timedelta
 from typing import Generic, Iterator, Tuple
+
 from connectors.abstract.resource_connector import ResourceConnector
 from connectors.record_error import RecordError
-
-
 from connectors.resource_with_relations import ResourceWithRelations
 from routers.resource_router import RESOURCE
 
@@ -27,9 +26,10 @@ class ResourceConnectorByDate(ResourceConnector, Generic[RESOURCE]):
     def run(
         self,
         state: dict,
-        from_date: date | None = None,
         limit: int | None = None,
+        from_incl: datetime | None = None,
         to_excl: datetime | None = None,
+        time_per_loop: timedelta = timedelta(days=1),
         **kwargs,
     ) -> Iterator[RESOURCE | ResourceWithRelations[RESOURCE] | RecordError]:
         if limit is not None:
@@ -44,17 +44,19 @@ class ResourceConnectorByDate(ResourceConnector, Generic[RESOURCE]):
 
         first_run = not state
         if first_run:
-            if from_date is None:
-                raise ValueError("In the first run, the from-date needs to be set")
-            from_incl = datetime.combine(from_date, datetime.min.time())
+            if from_incl is None:
+                raise ValueError("In the first run, from_incl needs to be set")
         else:
             from_incl = datetime.fromtimestamp(state["last"] + 0.001)
 
-        logging.info(f"Starting synchronisation {from_incl=}, {to_excl=}.")
-        state["from_incl"] = from_incl.timestamp()
-        state["to_excl"] = to_excl.timestamp()
-        for datetime_, result in self.fetch(from_incl=from_incl, to_excl=to_excl):
-            yield result
-            if datetime_:
-                state["last"] = datetime_.timestamp()
+        while from_incl < to_excl:
+            to_excl_current = min(from_incl + time_per_loop, to_excl)
+            logging.info(f"Starting synchronisation {from_incl=}, {to_excl_current=}.")
+            state["from_incl"] = from_incl.timestamp()
+            state["to_excl"] = to_excl_current.timestamp()
+            for datetime_, result in self.fetch(from_incl=from_incl, to_excl=to_excl_current):
+                yield result
+                if datetime_:
+                    state["last"] = datetime_.timestamp()
+            from_incl = to_excl_current
         state["result"] = "Complete run done (although there might be errors)."

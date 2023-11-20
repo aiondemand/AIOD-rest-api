@@ -1,0 +1,15 @@
+{
+    "parquet_files": [
+        {
+            "dataset": "bigIR/ar_cov19",
+            "config": "ar_cov19",
+            "split": "train",
+            "url": "https://huggingface.co/datasets/bigIR/ar_cov19/resolve/refs%2Fconvert%2Fparquet/ar_cov19/train/0000.parquet",
+            "filename": "0000.parquet",
+            "size": 46593048
+        }
+    ],
+    "pending": [],
+    "failed": [],
+    "partial": false
+}
