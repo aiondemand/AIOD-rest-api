@@ -13,7 +13,7 @@ Launched by the es_logstash_setup container in the docker-compose file.
 import os
 
 from routers.search_routers import router_list
-from .definitions import (
+from definitions import (
     BASE_FIELDS,
     INFO,
     CONF_BASE,
