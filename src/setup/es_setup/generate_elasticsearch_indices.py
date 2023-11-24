@@ -13,6 +13,7 @@ from elasticsearch import Elasticsearch
 from routers.search_routers import router_list
 from definitions import BASE_MAPPING
 
+
 def add_field(base_mapping, field):
     new_mapping = copy.deepcopy(base_mapping)
     new_mapping["mappings"]["properties"][field] = {

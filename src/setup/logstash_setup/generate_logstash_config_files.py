@@ -28,6 +28,7 @@ def generate_file(file_path, template, file_data):
         f.write(Template(FILE_IS_GENERATED_COMMENT).render(file_data))
         f.write(Template(template).render(file_data))
 
+
 def main():
     base_path = "/logstash"
     db_user = "root"
@@ -45,36 +46,56 @@ def main():
     pipeline_sql_path = os.path.join(base_path, "pipeline", "sql")
     os.makedirs(pipeline_sql_path, exist_ok=True)
     config_file_data = {
-        'comment_tag': "#",
-        'es_user': es_user,
-        'es_pass': es_pass
+        "file": os.path.basename(__file__),
+        "path": os.path.dirname(__file__).replace("/app", "src"),
+        "comment_tag": "#",
+        "es_user": es_user,
+        "es_pass": es_pass,
     }
     config_file_path = os.path.join(config_path, "logstash.yml")
     generate_file(config_file_path, CONFIG_FILE_TEMPLATE, config_file_data)
     pipeline_config_files_data = {
-        'comment_tag': "#",
-        'es_user': es_user,
-        'es_pass': es_pass,
-        'db_user': db_user,
-        'db_pass': db_pass,
-        'entities': entities.keys()
+        "file": os.path.basename(__file__),
+        "path": os.path.dirname(__file__).replace("/app", "src"),
+        "comment_tag": "#",
+        "es_user": es_user,
+        "es_pass": es_pass,
+        "db_user": db_user,
+        "db_pass": db_pass,
+        "entities": entities.keys(),
     }
     pipeline_config_init_file_path = os.path.join(pipeline_config_path, "init_table.conf")
-    generate_file(pipeline_config_init_file_path, PIPELINE_CONFIG_INIT_FILE_TEMPLATE, pipeline_config_files_data)
+    generate_file(
+        pipeline_config_init_file_path,
+        PIPELINE_CONFIG_INIT_FILE_TEMPLATE,
+        pipeline_config_files_data,
+    )
     pipeline_config_sync_file_path = os.path.join(pipeline_config_path, "sync_table.conf")
-    generate_file(pipeline_config_sync_file_path, PIPELINE_CONFIG_SYNC_FILE_TEMPLATE, pipeline_config_files_data)
+    generate_file(
+        pipeline_config_sync_file_path,
+        PIPELINE_CONFIG_SYNC_FILE_TEMPLATE,
+        pipeline_config_files_data,
+    )
     for entity, extra_fields in entities.items():
         pipeline_sql_files_data = {
-            'comment_tag': "--",
-            'entity_name': entity,
-            'extra_fields': ", " + ", ".join(extra_fields) if extra_fields else ""
+            "file": os.path.basename(__file__),
+            "path": os.path.dirname(__file__).replace("/app", "src"),
+            "comment_tag": "--",
+            "entity_name": entity,
+            "extra_fields": ",\n    " + ",\n    ".join(extra_fields) if extra_fields else "",
         }
         pipeline_sql_init_file_path = os.path.join(pipeline_sql_path, f"init_{entity}.sql")
-        generate_file(pipeline_sql_init_file_path, PIPELINE_SQL_INIT_FILE_TEMPLATE, pipeline_sql_files_data)
+        generate_file(
+            pipeline_sql_init_file_path, PIPELINE_SQL_INIT_FILE_TEMPLATE, pipeline_sql_files_data
+        )
         pipeline_sql_sync_file_path = os.path.join(pipeline_sql_path, f"sync_{entity}.sql")
-        generate_file(pipeline_sql_sync_file_path, PIPELINE_SQL_SYNC_FILE_TEMPLATE, pipeline_sql_files_data)
+        generate_file(
+            pipeline_sql_sync_file_path, PIPELINE_SQL_SYNC_FILE_TEMPLATE, pipeline_sql_files_data
+        )
         pipeline_sql_rm_file_path = os.path.join(pipeline_sql_path, f"rm_{entity}.sql")
-        generate_file(pipeline_sql_rm_file_path, PIPELINE_SQL_RM_FILE_TEMPLATE, pipeline_sql_files_data)
+        generate_file(
+            pipeline_sql_rm_file_path, PIPELINE_SQL_RM_FILE_TEMPLATE, pipeline_sql_files_data
+        )
 
 
 if __name__ == "__main__":
