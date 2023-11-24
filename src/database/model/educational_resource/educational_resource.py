@@ -14,7 +14,13 @@ from database.model.educational_resource.target_audience import TargetAudience
 from database.model.field_length import NORMAL
 from database.model.helper_functions import many_to_many_link_factory
 from database.model.relationships import ManyToOne, ManyToMany, OneToOne
-from database.model.serializers import AttributeSerializer, FindByNameDeserializer, CastDeserializer
+from database.model.serializers import (
+    AttributeSerializer,
+    FindByNameDeserializer,
+    CastDeserializer,
+    CastDeserializerList,
+    FindByNameDeserializerList,
+)
 
 
 class EducationalResourceBase(AIResourceBase):
@@ -97,7 +103,7 @@ class EducationalResource(
         access_mode: list[str] = ManyToMany(
             description="The primary mode of accessing this educational resource.",
             _serializer=AttributeSerializer("name"),
-            deserializer=FindByNameDeserializer(AccessMode),
+            deserializer=FindByNameDeserializerList(AccessMode),
             example=["textual"],
             default_factory_pydantic=list,
         )
@@ -108,26 +114,26 @@ class EducationalResource(
         educational_level: list[str] = ManyToMany(
             description="The level or levels of education for which this resource is intended.",
             _serializer=AttributeSerializer("name"),
-            deserializer=FindByNameDeserializer(EducationalLevel),
+            deserializer=FindByNameDeserializerList(EducationalLevel),
             example=["primary school", "secondary school", "university"],
             default_factory_pydantic=list,
         )
         in_language: list[str] = ManyToMany(
             description="The language(s) of the educational resource, in ISO639-3.",
             _serializer=AttributeSerializer("name"),
-            deserializer=FindByNameDeserializer(Language),
+            deserializer=FindByNameDeserializerList(Language),
             example=["eng", "fra", "spa"],
             default_factory_pydantic=list,
         )
         location: list[Location] = ManyToMany(
-            deserializer=CastDeserializer(LocationORM),
+            deserializer=CastDeserializerList(LocationORM),
             default_factory_pydantic=list,
         )
         prerequisite: list[str] = ManyToMany(
             description="Minimum or recommended requirements to make use of this "
             "educational resource.",
             _serializer=AttributeSerializer("name"),
-            deserializer=FindByNameDeserializer(Prerequisite),
+            deserializer=FindByNameDeserializerList(Prerequisite),
             example=[
                 "undergraduate knowledge of statistics",
                 "graduate knowledge of linear algebra",
@@ -140,7 +146,7 @@ class EducationalResource(
         target_audience: list[str] = ManyToMany(
             description="The intended users of this educational resource.",
             _serializer=AttributeSerializer("name"),
-            deserializer=FindByNameDeserializer(TargetAudience),
+            deserializer=FindByNameDeserializerList(TargetAudience),
             example=[
                 "professionals",
                 "students in higher education",

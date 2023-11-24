@@ -8,8 +8,8 @@ from database.model.helper_functions import many_to_many_link_factory
 from database.model.relationships import ManyToOne, ManyToMany
 from database.model.serializers import (
     AttributeSerializer,
-    FindByNameDeserializer,
     create_getter_dict,
+    FindByNameDeserializer,
 )
 
 if TYPE_CHECKING:

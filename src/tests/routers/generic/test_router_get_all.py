@@ -1,21 +1,16 @@
-from sqlalchemy.future import Engine
-from sqlmodel import Session
 from starlette.testclient import TestClient
 
 from database.model.concept.status import Status
-from tests.testutils.test_resource import test_resource_factory
+from database.session import DbSession
+from tests.testutils.test_resource import factory
 
 
-def test_get_all_happy_path(
-    client_test_resource: TestClient, engine_test_resource: Engine, draft: Status
-):
-    with Session(engine_test_resource) as session:
+def test_get_all_happy_path(client_test_resource: TestClient, draft: Status):
+    with DbSession() as session:
         session.add_all(
             [
-                test_resource_factory(
-                    title="my_test_resource_1", status=draft, platform_resource_identifier="2"
-                ),
-                test_resource_factory(
+                factory(title="my_test_resource_1", status=draft, platform_resource_identifier="2"),
+                factory(
                     title="My second test resource", status=draft, platform_resource_identifier="3"
                 ),
             ]

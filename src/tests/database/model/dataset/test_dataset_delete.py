@@ -1,5 +1,4 @@
-from sqlalchemy.engine import Engine
-from sqlmodel import Session, select
+from sqlmodel import select
 from starlette.testclient import TestClient
 
 from database.model.agent.agent_table import AgentTable
@@ -7,12 +6,10 @@ from database.model.agent.location import LocationORM, AddressORM, GeoORM
 from database.model.ai_asset.ai_asset_table import AIAssetTable
 from database.model.dataset.dataset import Dataset
 from database.model.dataset.size import DatasetSizeORM
+from database.session import DbSession
 
 
-def test_happy_path(
-    client: TestClient,
-    engine: Engine,
-):
+def test_happy_path(client: TestClient):
 
     dataset = Dataset(
         ai_asset_identifier=AIAssetTable(type="dataset"),
@@ -24,7 +21,7 @@ def test_happy_path(
         funder=[AgentTable(type="person")],
     )
 
-    with Session(engine) as session:
+    with DbSession() as session:
         session.add(dataset)
         session.commit()
         assert len(session.scalars(select(Dataset)).all()) == 1

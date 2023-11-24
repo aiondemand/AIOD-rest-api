@@ -1,4 +1,3 @@
-from collections import ChainMap
 from typing import Type, TYPE_CHECKING
 
 from sqlalchemy import Column, Integer, ForeignKey
@@ -6,16 +5,6 @@ from sqlmodel import SQLModel, Field
 
 if TYPE_CHECKING:
     from database.model.relationships import _ResourceRelationship
-
-
-def all_annotations(cls) -> ChainMap:
-    """Returns a dictionary-like ChainMap that includes annotations for all
-    attributes defined in cls or inherited from superclasses.
-
-    From
-    https://stackoverflow.com/questions/63903901/how-can-i-access-to-annotations-of-parent-class
-    """
-    return ChainMap(*(c.__annotations__ for c in cls.__mro__ if "__annotations__" in c.__dict__))
 
 
 def many_to_many_link_factory(

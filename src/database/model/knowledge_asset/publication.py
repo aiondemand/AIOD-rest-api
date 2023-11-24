@@ -11,8 +11,8 @@ from database.model.relationships import ManyToOne, OneToOne
 from database.model.serializers import (
     AttributeSerializer,
     FindByNameDeserializer,
-    FindByIdentifierDeserializer,
     CastDeserializer,
+    FindByIdentifierDeserializerList,
 )
 
 
@@ -70,5 +70,5 @@ class Publication(PublicationBase, KnowledgeAsset, table=True):  # type: ignore 
         )
 
 
-deserializer = FindByIdentifierDeserializer(Publication)
+deserializer = FindByIdentifierDeserializerList(Publication)
 AIAsset.RelationshipConfig.citation.deserializer = deserializer  # type: ignore

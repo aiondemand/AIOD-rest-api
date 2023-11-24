@@ -7,7 +7,7 @@ from database.model.ai_asset.ai_asset_table import AIAssetTable
 from database.model.helper_functions import many_to_many_link_factory
 from database.model.knowledge_asset.knowledge_asset_table import KnowledgeAssetTable
 from database.model.relationships import ManyToMany
-from database.model.serializers import AttributeSerializer, FindByIdentifierDeserializer
+from database.model.serializers import AttributeSerializer, FindByIdentifierDeserializerList
 
 
 class KnowledgeAssetBase(AIAssetBase):
@@ -42,7 +42,7 @@ class KnowledgeAsset(KnowledgeAssetBase, AIAsset):
             description="The identifier of an AI asset for which the Knowledge Asset acts as an "
             "information source",
             _serializer=AttributeSerializer("identifier"),
-            deserializer=FindByIdentifierDeserializer(AIAssetTable),
+            deserializer=FindByIdentifierDeserializerList(AIAssetTable),
             example=[],
             default_factory_pydantic=list,
         )

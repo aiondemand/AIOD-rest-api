@@ -133,7 +133,7 @@ class Example(ExampleBase, table=True):  # type: ignore [call-arg]
         alternate_names: List[str] = ManyToMany(
             example=["alias 1", "alias 2"],
             serializer=AttributeSerializer("name"),
-            deserializer=FindByNameDeserializer(ExampleEnum),
+            deserializer=FindByNameDeserializerList(ExampleEnum),
         )
 ```
 ### Deletion

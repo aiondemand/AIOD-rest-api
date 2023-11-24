@@ -9,7 +9,7 @@ from database.model.ai_resource.resource import AIResourceBase
 from database.model.ai_resource.resource import AbstractAIResource
 from database.model.helper_functions import many_to_many_link_factory
 from database.model.relationships import ManyToOne, ManyToMany
-from database.model.serializers import AttributeSerializer, FindByIdentifierDeserializer
+from database.model.serializers import AttributeSerializer, FindByIdentifierDeserializerList
 
 
 class TeamBase(AIResourceBase):
@@ -46,7 +46,7 @@ class Team(TeamBase, AbstractAIResource, table=True):  # type: ignore [call-arg]
             description="The persons that are a member of this team. The leader should "
             "also be added as contact.",
             _serializer=AttributeSerializer("identifier"),
-            deserializer=FindByIdentifierDeserializer(Person),
+            deserializer=FindByIdentifierDeserializerList(Person),
             example=[],
             default_factory_pydantic=list,
         )

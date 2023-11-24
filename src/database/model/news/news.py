@@ -8,7 +8,11 @@ from database.model.field_length import NORMAL
 from database.model.helper_functions import many_to_many_link_factory
 from database.model.news.news_category import NewsCategory
 from database.model.relationships import ManyToMany, OneToOne
-from database.model.serializers import AttributeSerializer, FindByNameDeserializer, CastDeserializer
+from database.model.serializers import (
+    AttributeSerializer,
+    CastDeserializer,
+    FindByNameDeserializerList,
+)
 
 
 class NewsBase(AIResourceBase):
@@ -44,7 +48,7 @@ class News(NewsBase, AbstractAIResource, table=True):  # type: ignore [call-arg]
         category: list[str] = ManyToMany(
             description="News categories related to this item.",
             _serializer=AttributeSerializer("name"),
-            deserializer=FindByNameDeserializer(NewsCategory),
+            deserializer=FindByNameDeserializerList(NewsCategory),
             example=["research: education", "research: awards", "business: robotics"],
             default_factory_pydantic=list,
         )

@@ -1,21 +1,19 @@
-from sqlalchemy.engine import Engine
-from sqlmodel import Session, select
+from sqlmodel import select
 from starlette.testclient import TestClient
 
 from database.model.ai_resource.alternate_name import AlternateName
 from database.model.ai_resource.keyword import Keyword
 from database.model.ai_resource.relevantlink import RelevantLink
 from database.model.ai_resource.resource_table import AIResourceORM
+from database.model.annotations import datatype_of_field
 from database.model.dataset.dataset import Dataset
 from database.model.knowledge_asset.publication import Publication
+from database.session import DbSession
 
 
-def test_happy_path(
-    client: TestClient,
-    engine: Engine,
-):
-    dataset_media = Dataset.__annotations__["media"].__args__[0]
-    dataset_note = Dataset.__annotations__["note"].__args__[0]
+def test_happy_path(client: TestClient):
+    dataset_media = datatype_of_field(Dataset, "media")
+    dataset_note = datatype_of_field(Dataset, "note")
 
     alternate_name_a = AlternateName(name="a")
     alternate_name_b = AlternateName(name="b")
@@ -62,7 +60,7 @@ def test_happy_path(
         ai_resource_identifier=AIResourceORM(type="publication"),
     )
 
-    with Session(engine) as session:
+    with DbSession() as session:
         session.add_all([dataset_1, dataset_2, publication])
         session.commit()
         session.delete(dataset_1)

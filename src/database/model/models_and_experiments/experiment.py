@@ -6,7 +6,7 @@ from database.model.helper_functions import many_to_many_link_factory
 from database.model.models_and_experiments.badge import Badge
 from database.model.models_and_experiments.runnable_distribution import RunnableDistribution
 from database.model.relationships import ManyToMany, OneToMany
-from database.model.serializers import AttributeSerializer, FindByNameDeserializer
+from database.model.serializers import AttributeSerializer, FindByNameDeserializerList
 
 
 class ExperimentBase(AIAssetBase):
@@ -51,7 +51,7 @@ class Experiment(ExperimentBase, AIAsset, table=True):  # type: ignore [call-arg
         badge: list[str] = ManyToMany(
             description="Labels awarded on the basis of the reproducibility of this experiment.",
             _serializer=AttributeSerializer("name"),
-            deserializer=FindByNameDeserializer(Badge),
+            deserializer=FindByNameDeserializerList(Badge),
             default_factory_pydantic=list,
             example=["ACM Artifacts Evaluated - Reusable"],
         )

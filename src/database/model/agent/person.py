@@ -13,8 +13,9 @@ from database.model.helper_functions import many_to_many_link_factory
 from database.model.relationships import ManyToMany, OneToOne
 from database.model.serializers import (
     AttributeSerializer,
-    FindByNameDeserializer,
     FindByIdentifierDeserializer,
+    FindByIdentifierDeserializerList,
+    FindByNameDeserializerList,
 )
 
 
@@ -64,7 +65,7 @@ class Person(PersonBase, Agent, table=True):  # type: ignore [call-arg]
         expertise: list[str] = ManyToMany(
             description="A skill this person masters.",
             _serializer=AttributeSerializer("name"),
-            deserializer=FindByNameDeserializer(Expertise),
+            deserializer=FindByNameDeserializerList(Expertise),
             example=["transfer learning"],
             default_factory_pydantic=list,
             on_delete_trigger_orphan_deletion=list,
@@ -72,12 +73,13 @@ class Person(PersonBase, Agent, table=True):  # type: ignore [call-arg]
         language: list[str] = ManyToMany(
             description="A language this person masters, in ISO639-3",
             _serializer=AttributeSerializer("name"),
-            deserializer=FindByNameDeserializer(Language),
+            deserializer=FindByNameDeserializerList(Language),
             example=["eng", "fra", "spa"],
             default_factory_pydantic=list,
         )
 
 
-deserializer = FindByIdentifierDeserializer(Person)
-AIoDEntryORM.RelationshipConfig.editor.deserializer = deserializer  # type: ignore
-Contact.RelationshipConfig.person.deserializer = deserializer  # type: ignore
+deserializer_list = FindByIdentifierDeserializerList(Person)
+AIoDEntryORM.RelationshipConfig.editor.deserializer = deserializer_list  # type: ignore
+deserializer_single = FindByIdentifierDeserializer(Person)
+Contact.RelationshipConfig.person.deserializer = deserializer_single  # type: ignore

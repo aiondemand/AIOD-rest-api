@@ -12,8 +12,8 @@ from database.model.helper_functions import many_to_many_link_factory
 from database.model.relationships import ManyToMany, OneToMany, OneToOne
 from database.model.serializers import (
     AttributeSerializer,
-    CastDeserializer,
-    FindByNameDeserializer,
+    CastDeserializerList,
+    FindByNameDeserializerList,
 )
 
 if TYPE_CHECKING:
@@ -63,18 +63,18 @@ class Contact(ContactBase, AIoDConcept, table=True):  # type: ignore [call-arg]
         email: list[str] = ManyToMany(
             description="An email address.",
             _serializer=AttributeSerializer("name"),
-            deserializer=FindByNameDeserializer(Email),
+            deserializer=FindByNameDeserializerList(Email),
             on_delete_trigger_orphan_deletion=lambda: ["contact_email_link"],
             default_factory_pydantic=list,
         )
         location: list[Location] = OneToMany(
-            deserializer=CastDeserializer(LocationORM),
+            deserializer=CastDeserializerList(LocationORM),
             default_factory_pydantic=list,  # no deletion trigger: cascading delete is used
         )
         telephone: list[str] = ManyToMany(
             description="A telephone number, including the land code.",
             _serializer=AttributeSerializer("name"),
-            deserializer=FindByNameDeserializer(Telephone),
+            deserializer=FindByNameDeserializerList(Telephone),
             on_delete_trigger_orphan_deletion=lambda: ["contact_telephone_link"],
             default_factory_pydantic=list,
         )

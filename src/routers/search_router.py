@@ -3,14 +3,14 @@ from typing import TypeVar, Generic, Any, Type, Annotated
 
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
-from sqlalchemy.engine import Engine
-from sqlmodel import SQLModel, Session, select
+from sqlmodel import SQLModel, select
 from starlette import status
 
 from database.model.concept.aiod_entry import AIoDEntryRead
 from database.model.concept.concept import AIoDConcept
 from database.model.platform.platform import Platform
 from database.model.resource_read_and_create import resource_read
+from database.session import DbSession
 from .resource_router import _wrap_as_http_exception
 from .search_routers.elasticsearch import ElasticsearchSingleton
 
@@ -61,7 +61,7 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
     def match_fields(self) -> set:
         """The set of indexed fields"""
 
-    def create(self, engine: Engine, url_prefix: str) -> APIRouter:
+    def create(self, url_prefix: str) -> APIRouter:
         router = APIRouter()
         read_class = resource_read(self.resource_class)  # type: ignore
 
@@ -82,7 +82,7 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
             # -----------------------------------------------------------------
 
             try:
-                with Session(engine) as session:
+                with DbSession() as session:
                     query = select(Platform)
                     database_platforms = session.scalars(query).all()
                     platform_names = set([p.name for p in database_platforms])
@@ -146,9 +146,7 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
 
                 # Launch database query
                 resources: list[SQLModel] = [
-                    self._db_query(
-                        engine, read_class, self.resource_class, hit["_source"]["identifier"]
-                    )
+                    self._db_query(read_class, self.resource_class, hit["_source"]["identifier"])
                     for hit in result["hits"]["hits"]
                 ]
 
@@ -171,13 +169,12 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
 
     def _db_query(
         self,
-        engine: Engine,
         read_class: Type[SQLModel],
         resource_class: RESOURCE,
         identifier: int,
     ) -> SQLModel:
         try:
-            with Session(engine) as session:
+            with DbSession() as session:
                 query = select(resource_class).where(resource_class.identifier == identifier)
                 resource = session.scalars(query).first()
                 if not resource:
@@ -185,10 +182,9 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
                         status_code=status.HTTP_404_NOT_FOUND,
                         detail="Resource not found in the database.",
                     )
-                resource_read = read_class.from_orm(resource)
+                return read_class.from_orm(resource)
         except Exception as e:
             raise _wrap_as_http_exception(e)
-        return resource_read
 
     def _cast_resource(
         self, read_class: Type[SQLModel], resource_dict: dict[str, Any]

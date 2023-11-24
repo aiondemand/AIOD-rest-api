@@ -14,9 +14,10 @@ from database.model.helper_functions import many_to_many_link_factory
 from database.model.relationships import ManyToMany, ManyToOne, OneToMany, OneToOne
 from database.model.serializers import (
     AttributeSerializer,
-    FindByIdentifierDeserializer,
     FindByNameDeserializer,
     CastDeserializer,
+    CastDeserializerList,
+    FindByIdentifierDeserializerList,
 )
 
 
@@ -79,14 +80,14 @@ class Event(EventBase, AbstractAIResource, table=True):  # type: ignore [call-ar
             on_delete_trigger_deletion_by="content_identifier",
         )
         location: list[Location] = OneToMany(
-            deserializer=CastDeserializer(LocationORM),
+            deserializer=CastDeserializerList(LocationORM),
             default_factory_pydantic=list,
         )
         performer: list[int] = ManyToMany(
             description="Links to identifiers of the agents (person or organization) that is "
             "contributing to this event ",
             _serializer=AttributeSerializer("identifier"),
-            deserializer=FindByIdentifierDeserializer(AgentTable),
+            deserializer=FindByIdentifierDeserializerList(AgentTable),
             default_factory_pydantic=list,
             example=[],
         )

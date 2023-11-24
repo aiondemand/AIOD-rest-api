@@ -6,18 +6,13 @@ from sqlmodel import Field, Relationship
 
 from database.model.agent.organisation import Organisation
 from database.model.ai_asset.ai_asset_table import AIAssetTable
-
-
-from database.model.ai_resource.resource import AbstractAIResource
-
 from database.model.ai_resource.resource import AIResourceBase
+from database.model.ai_resource.resource import AbstractAIResource
 from database.model.helper_functions import many_to_many_link_factory
 from database.model.relationships import ManyToMany, ManyToOne
-
-
 from database.model.serializers import (
     AttributeSerializer,
-    FindByIdentifierDeserializer,
+    FindByIdentifierDeserializerList,
 )
 
 
@@ -72,14 +67,14 @@ class Project(ProjectBase, AbstractAIResource, table=True):  # type: ignore [cal
             description="Identifiers of organizations that support this project through some kind "
             "of financial contribution. ",
             _serializer=AttributeSerializer("identifier"),
-            deserializer=FindByIdentifierDeserializer(Organisation),
+            deserializer=FindByIdentifierDeserializerList(Organisation),
             default_factory_pydantic=list,
             example=[],
         )
         participant: list[int] = ManyToMany(
             description="Identifiers of members of this project. ",
             _serializer=AttributeSerializer("identifier"),
-            deserializer=FindByIdentifierDeserializer(Organisation),
+            deserializer=FindByIdentifierDeserializerList(Organisation),
             default_factory_pydantic=list,
             example=[],
         )
@@ -91,14 +86,14 @@ class Project(ProjectBase, AbstractAIResource, table=True):  # type: ignore [cal
         produced: list[int] = ManyToMany(
             description="Identifiers of AIAssets that are created in this project.",
             _serializer=AttributeSerializer("identifier"),
-            deserializer=FindByIdentifierDeserializer(AIAssetTable),
+            deserializer=FindByIdentifierDeserializerList(AIAssetTable),
             default_factory_pydantic=list,
             example=[],
         )
         used: list[int] = ManyToMany(
             description="Identifiers of AIAssets that are used (but not created) in this project.",
             _serializer=AttributeSerializer("identifier"),
-            deserializer=FindByIdentifierDeserializer(AIAssetTable),
+            deserializer=FindByIdentifierDeserializerList(AIAssetTable),
             default_factory_pydantic=list,
             example=[],
         )

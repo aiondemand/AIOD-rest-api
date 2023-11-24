@@ -1,15 +1,12 @@
-from sqlalchemy.engine import Engine
-from sqlmodel import Session, select
+from sqlmodel import select
 from starlette.testclient import TestClient
 
 from database.model.agent.expertise import Expertise
 from database.model.agent.person import Person
+from database.session import DbSession
 
 
-def test_happy_path(
-    client: TestClient,
-    engine: Engine,
-):
+def test_happy_path(client: TestClient):
     expertise_a = Expertise(name="just")
     expertise_b = Expertise(name="an")
     expertise_c = Expertise(name="example")
@@ -22,7 +19,7 @@ def test_happy_path(
         expertise=[expertise_a, expertise_c],
     )
 
-    with Session(engine) as session:
+    with DbSession() as session:
         session.add(person_a)
         session.add(person_b)
         session.commit()

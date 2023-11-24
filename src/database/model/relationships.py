@@ -8,8 +8,6 @@ See src/README.md for additional information.
 
 import abc
 import dataclasses
-import typing
-from types import UnionType
 from typing import Any, Type, Callable
 
 from pydantic.utils import Representation
@@ -17,6 +15,7 @@ from sqlmodel import Field, SQLModel
 
 from database.deletion import triggers
 from database.model import serializers
+from database.model.annotations import datatype_of_field
 from database.model.serializers import GetPathSerializer
 
 
@@ -131,14 +130,12 @@ class OneToOne(_ResourceRelationshipSingle):
 
     def create_triggers(self, parent_class: Type[SQLModel], field_name: str):
         if self.on_delete_trigger_deletion_by is not None:
-            to_delete = parent_class.__annotations__[field_name]
-            is_optional = typing.get_origin(to_delete) in (typing.Union, UnionType) and type(
-                None
-            ) in typing.get_args(to_delete)
-            if is_optional:
-                (to_delete,) = [
-                    type_ for type_ in to_delete.__args__ if not isinstance(None, type_)
-                ]
+            to_delete = datatype_of_field(parent_class, field_name)
+            if not issubclass(to_delete, SQLModel):
+                raise ValueError(
+                    "The deletion trigger is configured wrongly: the field doesn't "
+                    f"point to a SQLModel class: {parent_class} . {field_name}"
+                )
             triggers.create_deletion_trigger_one_to_one(
                 trigger=parent_class,
                 trigger_identifier_link=self.on_delete_trigger_deletion_by,
@@ -196,7 +193,13 @@ class ManyToMany(_ResourceRelationshipList):
     def create_triggers(self, parent_class: Type[SQLModel], field_name: str):
         if self.on_delete_trigger_orphan_deletion is not None:
             link = parent_class.__sqlmodel_relationships__[field_name].link_model
-            to_delete = parent_class.__annotations__[field_name].__args__[0]
+            to_delete = datatype_of_field(parent_class, field_name)
+            if not issubclass(to_delete, SQLModel):
+                raise ValueError(
+                    "The deletion trigger is configured wrongly: the field doesn't "
+                    f"point to a SQLModel class: {parent_class} . {field_name}"
+                )
+
             other_links = self.on_delete_trigger_orphan_deletion()
             triggers.create_deletion_trigger_many_to_many(
                 trigger=parent_class, link=link, to_delete=to_delete, other_links=other_links

@@ -1,83 +1,78 @@
 import io
+
 import huggingface_hub
 from fastapi import HTTPException, UploadFile, status
 from requests import HTTPError
-from sqlalchemy.engine import Engine
-from sqlalchemy.orm import joinedload
 from sqlmodel import Session
 
 from database.model.dataset.dataset import Dataset
+from database.session import DbSession
 from .utils import huggingface_license_identifiers
 
 
 def handle_upload(
-    engine: Engine,
     identifier: int,
     file: UploadFile,
     token: str,
     username: str,
 ):
-    dataset = _get_resource(engine=engine, identifier=identifier)  # TODO: place this inside session
-    dataset_name_cleaned = "".join(c if c.isalnum() else "_" for c in dataset.name)
-    repo_id = f"{username}/{dataset_name_cleaned}"
+    with DbSession() as session:
+        dataset = _get_resource(session=session, identifier=identifier)
+        dataset_name_cleaned = "".join(c if c.isalnum() else "_" for c in dataset.name)
+        repo_id = f"{username}/{dataset_name_cleaned}"
 
-    url = _create_or_get_repo_url(repo_id, token)
-    metadata_file = _generate_metadata_file(dataset)
-    try:
-        huggingface_hub.upload_file(
-            path_or_fileobj=metadata_file,
-            path_in_repo="README.md",
-            repo_id=repo_id,
-            repo_type="dataset",
-            token=token,
-        )
-    except HTTPError:
-        msg = "Error updating the metadata, huggingface api returned a http error: {e.strerror}"
-        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=msg)
+        url = _create_or_get_repo_url(repo_id, token)
+        metadata_file = _generate_metadata_file(dataset)
+        try:
+            huggingface_hub.upload_file(
+                path_or_fileobj=metadata_file,
+                path_in_repo="README.md",
+                repo_id=repo_id,
+                repo_type="dataset",
+                token=token,
+            )
+        except HTTPError:
+            msg = "Error updating the metadata, huggingface api returned a http error: {e.strerror}"
+            raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=msg)
 
-    except ValueError as e:
-        msg = f"Error updating the metadata, bad format: {e}"
-        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=msg)
-    except Exception:
-        msg = "Error updating the metadata, unexpected error"
-        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=msg)
+        except ValueError as e:
+            msg = f"Error updating the metadata, bad format: {e}"
+            raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=msg)
+        except Exception:
+            msg = "Error updating the metadata, unexpected error"
+            raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=msg)
 
-    try:
-        huggingface_hub.upload_file(
-            path_or_fileobj=io.BufferedReader(file.file),
-            path_in_repo=f"/data/{file.filename}",
-            repo_id=repo_id,
-            repo_type="dataset",
-            token=token,
-        )
-    except HTTPError as e:
-        msg = f"Error uploading the file, huggingface api returned a http error: {e.strerror}"
-        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=msg)
+        try:
+            huggingface_hub.upload_file(
+                path_or_fileobj=io.BufferedReader(file.file),
+                path_in_repo=f"/data/{file.filename}",
+                repo_id=repo_id,
+                repo_type="dataset",
+                token=token,
+            )
+        except HTTPError as e:
+            msg = f"Error uploading the file, huggingface api returned a http error: {e.strerror}"
+            raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=msg)
 
-    except ValueError:
-        msg = "Error uploading the file, bad format"
-        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=msg)
-    except Exception as e:
-        msg = f"Error uploading the file, unexpected error: {e.with_traceback}"
-        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=msg)
+        except ValueError:
+            msg = "Error uploading the file, bad format"
+            raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=msg)
+        except Exception as e:
+            msg = f"Error uploading the file, unexpected error: {e.with_traceback}"
+            raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=msg)
 
-    if not any(data.name == repo_id for data in dataset.distribution):
-        _store_resource_updated(engine, dataset, url, repo_id)
+        if not any(data.name == repo_id for data in dataset.distribution):
+            _store_resource_updated(session, dataset, url, repo_id)
 
-    return dataset.identifier
+        return dataset.identifier
 
 
-def _get_resource(engine: Engine, identifier: int) -> Dataset:
+def _get_resource(session: Session, identifier: int) -> Dataset:
     """
     Get the resource identified by AIoD identifier
     """
 
-    with Session(engine) as session:
-        query = (
-            session.query(Dataset)  # TODO: remove these joinedloads
-            .options(joinedload(Dataset.keyword), joinedload(Dataset.distribution))
-            .filter(Dataset.identifier == identifier)
-        )
+    query = session.query(Dataset).filter(Dataset.identifier == identifier)
 
     resource = query.first()
     if not resource:
@@ -86,21 +81,20 @@ def _get_resource(engine: Engine, identifier: int) -> Dataset:
     return resource
 
 
-def _store_resource_updated(engine: Engine, resource: Dataset, url: str, repo_id: str):
-    with Session(engine) as session:
-        try:
-            # Hack to get the right DistributionORM class (for each class, such as Dataset
-            # and Publication, there is a different DistributionORM table).
-            dist = resource.RelationshipConfig.distribution.deserializer.clazz  # type: ignore
-            distribution = dist(content_url=url, name=repo_id, dataset=resource)
-            resource.distribution.append(distribution)
-            session.merge(resource)
-            session.commit()
-        except Exception as e:
-            raise HTTPException(
-                status_code=status.HTTP_502_BAD_GATEWAY,
-                detail="Dataset metadata could not be uploaded",
-            ) from e
+def _store_resource_updated(session: Session, resource: Dataset, url: str, repo_id: str):
+    try:
+        # Hack to get the right DistributionORM class (for each class, such as Dataset
+        # and Publication, there is a different DistributionORM table).
+        dist = resource.RelationshipConfig.distribution.deserializer.clazz  # type: ignore
+        distribution = dist(content_url=url, name=repo_id, dataset=resource)
+        resource.distribution.append(distribution)
+        session.merge(resource)
+        session.commit()
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="Dataset metadata could not be uploaded",
+        ) from e
 
 
 def _create_or_get_repo_url(repo_id, token):

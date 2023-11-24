@@ -20,7 +20,7 @@ class TestResource(TestResourceBase, AIoDConcept, table=True):  # type: ignore [
     identifier: int = Field(default=None, primary_key=True)
 
 
-def test_resource_factory(
+def factory(
     title=None, status=None, platform="example", platform_resource_identifier="1", date_deleted=None
 ):
     if status is None:

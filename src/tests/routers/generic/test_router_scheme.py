@@ -37,11 +37,11 @@ class RouterWithOtherSchema(RouterTestResource):
 
 
 @pytest.fixture(scope="module")
-def client_test_resource_other_schema(engine_test_resource: Engine) -> TestClient:
+def client_test_resource_other_schema() -> TestClient:
     """A Startlette TestClient including routes to the TestResource, using schemas "aiod" and
     "other-schema" """
     app = FastAPI()
-    app.include_router(RouterWithOtherSchema().create(engine_test_resource, ""))
+    app.include_router(RouterWithOtherSchema().create(""))
     return TestClient(app)
 
 

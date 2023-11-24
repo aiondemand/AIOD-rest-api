@@ -14,6 +14,7 @@ from database.model.serializers import (
     AttributeSerializer,
     FindByNameDeserializer,
     FindByIdentifierDeserializer,
+    FindByIdentifierDeserializerList,
 )
 
 
@@ -64,6 +65,6 @@ class Organisation(OrganisationBase, Agent, table=True):  # type: ignore [call-a
             description="The identifier of an agent (e.g. organisation or person) that is a "
             "member of this organisation.",
             _serializer=AttributeSerializer("identifier"),
-            deserializer=FindByIdentifierDeserializer(AgentTable),
+            deserializer=FindByIdentifierDeserializerList(AgentTable),
             default_factory_pydantic=list,
         )

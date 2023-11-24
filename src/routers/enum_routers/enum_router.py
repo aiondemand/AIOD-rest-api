@@ -2,10 +2,10 @@ import abc
 from typing import Type
 
 from fastapi import APIRouter
-from sqlalchemy.engine import Engine
 from sqlmodel import select, Session
 
 from database.model.named_relation import NamedRelation
+from database.session import DbSession
 
 
 class EnumRouter(abc.ABC):
@@ -21,7 +21,7 @@ class EnumRouter(abc.ABC):
             self.resource_name + "s" if not self.resource_name.endswith("s") else self.resource_name
         )
 
-    def create(self, engine: Engine, url_prefix: str) -> APIRouter:
+    def create(self, url_prefix: str) -> APIRouter:
         router = APIRouter()
         version = "v1"
         default_kwargs = {
@@ -30,16 +30,16 @@ class EnumRouter(abc.ABC):
         }
         router.add_api_route(
             path=url_prefix + f"/{self.resource_name_plural}/{version}",
-            endpoint=self.get_resources_func(engine),
+            endpoint=self.get_resources_func(),
             response_model=list[str],
             name=self.resource_name,
             **default_kwargs,
         )
         return router
 
-    def get_resources_func(self, engine: Engine):
+    def get_resources_func(self):
         def get_resources():
-            with Session(engine) as session:
+            with DbSession() as session:
                 query = select(self.resource_class)
                 resources = session.scalars(query).all()
                 return [r.name for r in resources]

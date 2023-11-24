@@ -31,8 +31,9 @@ from database.model.relationships import OneToMany, OneToOne, ManyToMany
 from database.model.serializers import (
     AttributeSerializer,
     CastDeserializer,
-    FindByNameDeserializer,
-    FindByIdentifierDeserializer,
+    CastDeserializerList,
+    FindByIdentifierDeserializerList,
+    FindByNameDeserializerList,
 )
 
 
@@ -111,7 +112,7 @@ class AbstractAIResource(AIResourceBase, AIoDConcept, metaclass=abc.ABCMeta):
             description="An alias for the item, commonly used for the resource instead of the "
             "name.",
             _serializer=AttributeSerializer("name"),
-            deserializer=FindByNameDeserializer(AlternateName),
+            deserializer=FindByNameDeserializerList(AlternateName),
             example=["alias 1", "alias 2"],
             default_factory_pydantic=list,
             on_delete_trigger_orphan_deletion=lambda: [
@@ -123,7 +124,7 @@ class AbstractAIResource(AIResourceBase, AIoDConcept, metaclass=abc.ABCMeta):
             description="Keywords or tags used to describe this resource, providing additional "
             "context.",
             _serializer=AttributeSerializer("name"),
-            deserializer=FindByNameDeserializer(Keyword),
+            deserializer=FindByNameDeserializerList(Keyword),
             example=["keyword1", "keyword2"],
             default_factory_pydantic=list,
             on_delete_trigger_orphan_deletion=lambda: [
@@ -136,7 +137,7 @@ class AbstractAIResource(AIResourceBase, AIoDConcept, metaclass=abc.ABCMeta):
             "use relevant_resource otherwise). This field should only be used if there "
             "is no more specific field.",
             _serializer=AttributeSerializer("name"),
-            deserializer=FindByNameDeserializer(RelevantLink),
+            deserializer=FindByNameDeserializerList(RelevantLink),
             example=[
                 "https://www.example.com/a_relevant_link",
                 "https://www.example.com/another_relevant_link",
@@ -150,14 +151,14 @@ class AbstractAIResource(AIResourceBase, AIoDConcept, metaclass=abc.ABCMeta):
         application_area: list[str] = ManyToMany(
             description="The objective of this AI resource.",
             _serializer=AttributeSerializer("name"),
-            deserializer=FindByNameDeserializer(ApplicationArea),
+            deserializer=FindByNameDeserializerList(ApplicationArea),
             example=["Fraud Prevention", "Voice Assistance", "Disease Classification"],
             default_factory_pydantic=list,
         )
         industrial_sector: list[str] = ManyToMany(
             description="A business domain where a resource is or can be used.",
             _serializer=AttributeSerializer("name"),
-            deserializer=FindByNameDeserializer(IndustrialSector),
+            deserializer=FindByNameDeserializerList(IndustrialSector),
             example=["Finance", "eCommerce", "Healthcare"],
             default_factory_pydantic=list,
         )
@@ -165,7 +166,7 @@ class AbstractAIResource(AIResourceBase, AIoDConcept, metaclass=abc.ABCMeta):
             description="The research area is similar to the scientific_domain, but more "
             "high-level.",
             _serializer=AttributeSerializer("name"),
-            deserializer=FindByNameDeserializer(ResearchArea),
+            deserializer=FindByNameDeserializerList(ResearchArea),
             example=["Explainable AI", "Physical AI"],
             default_factory_pydantic=list,
         )
@@ -173,7 +174,7 @@ class AbstractAIResource(AIResourceBase, AIoDConcept, metaclass=abc.ABCMeta):
             description="The scientific domain is related to the methods with which an objective "
             "is reached.",
             _serializer=AttributeSerializer("name"),
-            deserializer=FindByNameDeserializer(ScientificDomain),
+            deserializer=FindByNameDeserializerList(ScientificDomain),
             example=["Anomaly Detection", "Voice Recognition", "Computer Vision."],
             default_factory_pydantic=list,
         )
@@ -182,13 +183,13 @@ class AbstractAIResource(AIResourceBase, AIoDConcept, metaclass=abc.ABCMeta):
             description="Contact information of persons/organisations that can be contacted about "
             "this resource.",
             _serializer=AttributeSerializer("identifier"),
-            deserializer=FindByIdentifierDeserializer(Contact),
+            deserializer=FindByIdentifierDeserializerList(Contact),
             default_factory_pydantic=list,
         )
         creator: list[int] = ManyToMany(
             description="Contact information of persons/organisations that created this resource.",
             _serializer=AttributeSerializer("identifier"),
-            deserializer=FindByIdentifierDeserializer(Contact),
+            deserializer=FindByIdentifierDeserializerList(Contact),
             default_factory_pydantic=list,
         )
         media: list[Distribution] = OneToMany(
@@ -202,25 +203,25 @@ class AbstractAIResource(AIResourceBase, AIoDConcept, metaclass=abc.ABCMeta):
 
         is_part_of: list[int] = ManyToMany(
             default_factory_pydantic=list,
-            deserializer=FindByIdentifierDeserializer(AIResourceORM),
+            deserializer=FindByIdentifierDeserializerList(AIResourceORM),
             _serializer=AttributeSerializer("identifier"),
             deserialized_path="ai_resource_identifier",
         )
         has_part: list[int] = ManyToMany(
             default_factory_pydantic=list,
-            deserializer=FindByIdentifierDeserializer(AIResourceORM),
+            deserializer=FindByIdentifierDeserializerList(AIResourceORM),
             _serializer=AttributeSerializer("identifier"),
             deserialized_path="ai_resource_identifier",
         )
         relevant_resource: list[int] = ManyToMany(
             default_factory_pydantic=list,
-            deserializer=FindByIdentifierDeserializer(AIResourceORM),
+            deserializer=FindByIdentifierDeserializerList(AIResourceORM),
             _serializer=AttributeSerializer("identifier"),
             deserialized_path="ai_resource_identifier",
         )
         relevant_to: list[int] = ManyToMany(
             default_factory_pydantic=list,
-            deserializer=FindByIdentifierDeserializer(AIResourceORM),
+            deserializer=FindByIdentifierDeserializerList(AIResourceORM),
             _serializer=AttributeSerializer("identifier"),
             deserialized_path="ai_resource_identifier",
         )
@@ -232,12 +233,13 @@ class AbstractAIResource(AIResourceBase, AIoDConcept, metaclass=abc.ABCMeta):
         )
         cls.__annotations__["media"] = list[distribution]
         cls.RelationshipConfig.media = copy.copy(cls.RelationshipConfig.media)
-        cls.RelationshipConfig.media.deserializer = CastDeserializer(distribution)  # type: ignore
+        distribution_deserializer = CastDeserializerList(distribution)
+        cls.RelationshipConfig.media.deserializer = distribution_deserializer  # type: ignore
 
         note: Any = note_factory(table_from=cls.__tablename__)
         cls.__annotations__["note"] = list[note]
         cls.RelationshipConfig.note = copy.copy(cls.RelationshipConfig.note)
-        cls.RelationshipConfig.note.deserializer = CastDeserializer(note)  # type: ignore
+        cls.RelationshipConfig.note.deserializer = CastDeserializerList(note)  # type: ignore
 
         for table_to in (
             "alternate_name",

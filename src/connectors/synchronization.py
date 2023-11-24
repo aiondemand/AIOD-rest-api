@@ -8,13 +8,14 @@ import sys
 from datetime import datetime
 from typing import Optional
 
-from sqlmodel import Session, select
+from sqlmodel import select, Session
 
 from connectors.abstract.resource_connector import ResourceConnector, RESOURCE
 from connectors.record_error import RecordError
 from connectors.resource_with_relations import ResourceWithRelations
 from database.model.concept.concept import AIoDConcept
-from database.setup import _create_or_fetch_related_objects, _get_existing_resource, sqlmodel_engine
+from database.session import DbSession
+from database.setup import _create_or_fetch_related_objects, _get_existing_resource
 from routers import ResourceRouter, resource_routers, enum_routers
 
 RELATIVE_PATH_STATE_JSON = pathlib.Path("state.json")
@@ -141,8 +142,7 @@ def main():
     state_path = working_dir / RELATIVE_PATH_STATE_JSON
     first_run = not state_path.exists()
 
-    engine = sqlmodel_engine(rebuild_db="never")
-    with Session(engine) as session:
+    with DbSession() as session:
         db_empty = session.scalars(select(connector.resource_class)).first() is None
 
     if first_run or db_empty:
@@ -165,7 +165,7 @@ def main():
         if router.resource_class == connector.resource_class
     ]
 
-    with Session(engine) as session:
+    with DbSession() as session:
         for i, item in enumerate(items):
             error = save_to_database(router=router, connector=connector, session=session, item=item)
             if error:

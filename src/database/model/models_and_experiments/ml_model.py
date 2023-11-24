@@ -11,8 +11,8 @@ from database.model.models_and_experiments.runnable_distribution import Runnable
 from database.model.relationships import OneToMany, ManyToOne, ManyToMany
 from database.model.serializers import (
     AttributeSerializer,
-    FindByIdentifierDeserializer,
     FindByNameDeserializer,
+    FindByIdentifierDeserializerList,
 )
 
 
@@ -47,7 +47,7 @@ class MLModel(MLModelBase, AIAsset, table=True):  # type: ignore [call-arg]
         related_experiment: list[int] = ManyToMany(
             description="Related experiments.",
             _serializer=AttributeSerializer("identifier"),
-            deserializer=FindByIdentifierDeserializer(Experiment),
+            deserializer=FindByIdentifierDeserializerList(Experiment),
             default_factory_pydantic=list,
             example=[],
         )

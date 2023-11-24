@@ -12,19 +12,17 @@ from datetime import timedelta
 from typing import Type
 
 from sqlalchemy import delete, and_
-from sqlalchemy.engine import Engine
 from sqlalchemy.sql.operators import is_not
-from sqlmodel import Session
 
 from database.model.concept.concept import AIoDConcept
 from database.model.helper_functions import non_abstract_subclasses
-from database.setup import sqlmodel_engine
+from database.session import DbSession
 
 
-def hard_delete_older_than(engine: Engine, time_threshold: timedelta):
+def hard_delete_older_than(time_threshold: timedelta):
     classes: list[Type[AIoDConcept]] = non_abstract_subclasses(AIoDConcept)
     date_threshold = datetime.datetime.now() - time_threshold
-    with Session(engine) as session:
+    with DbSession() as session:
         for concept in classes:
             filter_ = and_(
                 is_not(concept.date_deleted, None),
@@ -50,10 +48,8 @@ def _parse_args() -> argparse.Namespace:
 
 def main():
     args = _parse_args()
-
-    engine = sqlmodel_engine(rebuild_db="never")
     time_threshold = timedelta(minutes=args.time_threshold_minutes)
-    hard_delete_older_than(engine=engine, time_threshold=time_threshold)
+    hard_delete_older_than(time_threshold=time_threshold)
 
 
 if __name__ == "__main__":

@@ -1,15 +1,13 @@
-from fastapi.responses import Response
-from fastapi import APIRouter, HTTPException, status
 import requests
-from sqlalchemy.engine import Engine
+from fastapi import APIRouter, HTTPException, status
+from fastapi.responses import Response
 
 from database.model.ai_asset.ai_asset import AIAsset
-
 from .resource_router import ResourceRouter, _wrap_as_http_exception
 
 
 class ResourceAIAssetRouter(ResourceRouter):
-    def create(self, engine: Engine, url_prefix: str) -> APIRouter:
+    def create(self, url_prefix: str) -> APIRouter:
         version = "v1"
         default_kwargs = {
             "response_model_exclude_none": True,
@@ -17,11 +15,11 @@ class ResourceAIAssetRouter(ResourceRouter):
             "tags": [self.resource_name_plural],
         }
 
-        router = super().create(engine, url_prefix)
+        router = super().create(url_prefix)
 
         router.add_api_route(
             path=f"{url_prefix}/{self.resource_name_plural}/{version}/{{identifier}}/content",
-            endpoint=self.get_resource_content_func(engine, default=True),
+            endpoint=self.get_resource_content_func(default=True),
             name=self.resource_name,
             response_model=str,
             **default_kwargs,
@@ -30,7 +28,7 @@ class ResourceAIAssetRouter(ResourceRouter):
         router.add_api_route(
             path=f"{url_prefix}/{self.resource_name_plural}/{version}/{{identifier}}/content/"
             f"{{distribution_idx}}",
-            endpoint=self.get_resource_content_func(engine, default=False),
+            endpoint=self.get_resource_content_func(default=False),
             name=self.resource_name,
             response_model=str,
             **default_kwargs,
@@ -38,19 +36,23 @@ class ResourceAIAssetRouter(ResourceRouter):
 
         return router
 
-    def get_resource_content_func(self, engine: Engine, default: bool):
+    def get_resource_content_func(self, default: bool):
         """
         Returns a function to download the content from resources.
         This function returns a function (instead of being that function directly) because the
         docstring and the variables are dynamic, and used in Swagger.
         """
 
-        def get_resource_content(identifier: str, distribution_idx: int, default: bool = False):
+        def get_resource_content(
+            identifier: str,
+            distribution_idx: int,
+            default: bool = False,
+        ):
             f"""Retrieve a distribution of the content for {self.resource_name}
             identified by its identifier."""
 
             metadata: AIAsset = self.get_resource(
-                engine=engine, identifier=identifier, schema="aiod", platform=None
+                identifier=identifier, schema="aiod", platform=None
             )  # type: ignore
 
             distributions = metadata.distribution

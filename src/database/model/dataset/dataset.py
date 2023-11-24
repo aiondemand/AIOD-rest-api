@@ -12,8 +12,8 @@ from database.model.helper_functions import many_to_many_link_factory
 from database.model.relationships import ManyToMany, OneToOne
 from database.model.serializers import (
     AttributeSerializer,
-    FindByIdentifierDeserializer,
     CastDeserializer,
+    FindByIdentifierDeserializerList,
 )
 
 
@@ -67,7 +67,7 @@ class Dataset(DatasetBase, AIAsset, table=True):  # type: ignore [call-arg]
             description="Links to identifiers of the agents (person or organization) that supports "
             "this dataset through some kind of financial contribution. ",
             _serializer=AttributeSerializer("identifier"),
-            deserializer=FindByIdentifierDeserializer(AgentTable),
+            deserializer=FindByIdentifierDeserializerList(AgentTable),
             default_factory_pydantic=list,
             example=[],
         )

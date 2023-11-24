@@ -2,12 +2,12 @@ import abc
 from typing import Union
 
 from fastapi import APIRouter, HTTPException
-from sqlalchemy.engine import Engine
-from sqlmodel import SQLModel, select, Session
+from sqlmodel import SQLModel, select
 from starlette.status import HTTP_404_NOT_FOUND, HTTP_500_INTERNAL_SERVER_ERROR
 
 from database.model.concept.concept import AIoDConcept
 from database.model.helper_functions import non_abstract_subclasses
+from database.session import DbSession
 from routers import resource_routers
 
 
@@ -38,7 +38,7 @@ class ParentRouter(abc.ABC):
     def parent_class_table(self):
         """The table class of the resource. E.g. AgentTable"""
 
-    def create(self, engine: Engine, url_prefix: str) -> APIRouter:
+    def create(self, url_prefix: str) -> APIRouter:
         router = APIRouter()
         version = "v1"
         default_kwargs = {
@@ -53,16 +53,16 @@ class ParentRouter(abc.ABC):
 
         router.add_api_route(
             path=url_prefix + f"/{self.resource_name_plural}/{version}/{{identifier}}",
-            endpoint=self.get_resource_func(engine, classes_dict, read_classes_dict),
+            endpoint=self.get_resource_func(classes_dict, read_classes_dict),
             response_model=response_model,  # type: ignore
             name=self.resource_name,
             **default_kwargs,
         )
         return router
 
-    def get_resource_func(self, engine: Engine, classes_dict: dict, read_classes_dict: dict):
+    def get_resource_func(self, classes_dict: dict, read_classes_dict: dict):
         def get_resource(identifier: int):
-            with Session(engine) as session:
+            with DbSession() as session:
                 query = select(self.parent_class_table).where(
                     self.parent_class_table.identifier == identifier
                 )

@@ -1,18 +1,16 @@
 import copy
 from unittest.mock import Mock
 
-from sqlalchemy.engine import Engine
-from sqlmodel import Session
 from starlette.testclient import TestClient
 
 from authentication import keycloak_openid
 from database.model.agent.organisation import Organisation
 from database.model.agent.person import Person
+from database.session import DbSession
 
 
 def test_happy_path(
     client: TestClient,
-    engine: Engine,
     mocked_privileged_token: Mock,
     body_resource: dict,
     person: Person,
@@ -20,7 +18,7 @@ def test_happy_path(
 ):
     keycloak_openid.userinfo = mocked_privileged_token
 
-    with Session(engine) as session:
+    with DbSession() as session:
         session.add(person)
         session.merge(organisation)
         session.commit()

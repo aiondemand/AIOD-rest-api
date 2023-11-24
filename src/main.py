@@ -10,8 +10,7 @@ import uvicorn
 from fastapi import Depends, FastAPI
 from fastapi.responses import HTMLResponse
 from pydantic import Json
-from sqlalchemy.engine import Engine
-from sqlmodel import Session, select
+from sqlmodel import select
 
 import routers
 from authentication import get_current_user
@@ -20,8 +19,10 @@ from database.deletion.triggers import add_delete_triggers
 from database.model.concept.concept import AIoDConcept
 from database.model.platform.platform import Platform
 from database.model.platform.platform_names import PlatformName
-from database.setup import sqlmodel_engine
-from routers import resource_routers, parent_routers, enum_routers, search_routers
+from database.session import EngineSingleton, DbSession
+from database.setup import drop_or_create_database
+from routers import resource_routers, parent_routers, enum_routers
+from routers import search_routers
 
 
 def _parse_args() -> argparse.Namespace:
@@ -42,7 +43,7 @@ def _parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def add_routes(app: FastAPI, engine: Engine, url_prefix=""):
+def add_routes(app: FastAPI, url_prefix=""):
     """Add routes to the FastAPI application"""
 
     @app.get(url_prefix + "/", response_class=HTMLResponse)
@@ -73,7 +74,7 @@ def add_routes(app: FastAPI, engine: Engine, url_prefix=""):
             router.resource_name_plural: count
             for router in resource_routers.router_list
             if issubclass(router.resource_class, AIoDConcept)
-            and (count := router.get_resource_count_func(engine)(detailed=True))
+            and (count := router.get_resource_count_func()(detailed=True))
         }
 
     for router in (
@@ -83,7 +84,7 @@ def add_routes(app: FastAPI, engine: Engine, url_prefix=""):
         + enum_routers.router_list
         + search_routers.router_list
     ):
-        app.include_router(router.create(engine, url_prefix))
+        app.include_router(router.create(url_prefix))
 
 
 def create_app() -> FastAPI:
@@ -101,11 +102,9 @@ def create_app() -> FastAPI:
             "scopes": KEYCLOAK_CONFIG.get("scopes"),
         },
     )
-    engine = sqlmodel_engine(args.rebuild_db)
-    with engine.connect() as connection:
-        AIoDConcept.metadata.create_all(connection, checkfirst=True)
-        connection.commit()
-    with Session(engine) as session:
+    drop_or_create_database(delete_first=args.rebuild_db == "always")
+    AIoDConcept.metadata.create_all(EngineSingleton().engine, checkfirst=True)
+    with DbSession() as session:
         existing_platforms = session.scalars(select(Platform)).all()
         if not any(existing_platforms):
             session.add_all([Platform(name=name) for name in PlatformName])
@@ -116,7 +115,7 @@ def create_app() -> FastAPI:
             # empty, and so the triggers should still be added.
             add_delete_triggers(AIoDConcept)
 
-    add_routes(app, engine, url_prefix=args.url_prefix)
+    add_routes(app, url_prefix=args.url_prefix)
     return app
 
 

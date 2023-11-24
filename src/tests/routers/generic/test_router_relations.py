@@ -3,7 +3,7 @@ from unittest.mock import Mock
 
 import pytest
 from fastapi import FastAPI
-from sqlmodel import Session, Field, Relationship, SQLModel
+from sqlmodel import Field, Relationship, SQLModel
 from starlette.testclient import TestClient
 
 from authentication import keycloak_openid
@@ -12,7 +12,13 @@ from database.model.concept.concept import AIoDConceptBase, AIoDConcept
 from database.model.concept.status import Status
 from database.model.named_relation import NamedRelation
 from database.model.relationships import ManyToOne, ManyToMany
-from database.model.serializers import AttributeSerializer, FindByNameDeserializer, CastDeserializer
+from database.model.serializers import (
+    AttributeSerializer,
+    FindByNameDeserializer,
+    CastDeserializerList,
+    FindByNameDeserializerList,
+)
+from database.session import DbSession
 from routers import ResourceRouter
 
 
@@ -98,12 +104,12 @@ class TestObject(TestObjectBase, AIoDConcept, table=True):  # type: ignore [call
         named_string_list: List[str] = ManyToMany(
             description="this is a test for a list of strings",
             _serializer=AttributeSerializer("name"),
-            deserializer=FindByNameDeserializer(TestEnum2),
+            deserializer=FindByNameDeserializerList(TestEnum2),
             example=["test1", "test2"],
         )
         related_objects: List[TestRelatedObject] = ManyToMany(
             description="this is a test for a list of objects",
-            deserializer=CastDeserializer(TestRelatedObjectOrm),
+            deserializer=CastDeserializerList(TestRelatedObjectOrm),
         )
 
 
@@ -126,8 +132,8 @@ class RouterTestObject(ResourceRouter):
 
 
 @pytest.fixture
-def client_with_testobject(engine_test_resource) -> TestClient:
-    with Session(engine_test_resource) as session:
+def client_with_testobject() -> TestClient:
+    with DbSession() as session:
         named1, named2 = TestEnum(name="named_string1"), TestEnum(name="named_string2")
         enum1, enum2, enum3 = TestEnum2(name="1"), TestEnum2(name="2"), TestEnum2(name="3")
         draft = Status(name="draft")
@@ -158,7 +164,7 @@ def client_with_testobject(engine_test_resource) -> TestClient:
         )
         session.commit()
     app = FastAPI()
-    app.include_router(RouterTestObject().create(engine_test_resource, ""))
+    app.include_router(RouterTestObject().create(""))
     return TestClient(app)
 
 

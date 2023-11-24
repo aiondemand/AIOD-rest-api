@@ -1,8 +1,6 @@
 import copy
 from unittest.mock import Mock
 
-from sqlalchemy.engine import Engine
-from sqlmodel import Session
 from starlette.testclient import TestClient
 
 from authentication import keycloak_openid
@@ -10,11 +8,11 @@ from database.model.agent.organisation import Organisation
 from database.model.agent.person import Person
 from database.model.dataset.dataset import Dataset
 from database.model.knowledge_asset.publication import Publication
+from database.session import DbSession
 
 
 def test_happy_path(
     client: TestClient,
-    engine: Engine,
     mocked_privileged_token: Mock,
     body_resource: dict,
     person: Person,
@@ -24,7 +22,7 @@ def test_happy_path(
 ):
     keycloak_openid.userinfo = mocked_privileged_token
 
-    with Session(engine) as session:
+    with DbSession() as session:
         session.add(person)
         session.merge(organisation)
         session.merge(dataset)
@@ -56,3 +54,12 @@ def test_happy_path(
     assert response_json["coordinator"] == 1
     assert response_json["produced"] == [1]  # the dataset
     assert response_json["used"] == [2]  # the publication
+
+    # Cleanup, so that all resources can be deleted in the teardown
+    body["funder"] = []
+    body["participant"] = []
+    body["coordinator"] = None
+    body["produced"] = []
+    body["used"] = []
+    response = client.put("/projects/v1/1", json=body, headers={"Authorization": "Fake token"})
+    assert response.status_code == 200, response.json()

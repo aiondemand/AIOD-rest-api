@@ -11,7 +11,8 @@ from pydantic import create_model
 from sqlmodel import SQLModel, Field
 from sqlmodel.main import FieldInfo
 
-from database.model.helper_functions import all_annotations, get_relationships
+from database.model.annotations import all_annotations
+from database.model.helper_functions import get_relationships
 from database.model.serializers import create_getter_dict
 
 if TYPE_CHECKING:

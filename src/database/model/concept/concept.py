@@ -48,9 +48,6 @@ class AIoDConcept(AIoDConceptBase):
     )
     aiod_entry: AIoDEntryORM = Relationship()
 
-    # body_identifier: int | None = Field(foreign_key=Body.__tablename__ + ".identifier")
-    # body: Body | None = Relationship()
-
     def __init_subclass__(cls):
         """Fixing problems with the inheritance of relationships."""
         cls.__annotations__.update(AIoDConcept.__annotations__)
@@ -65,9 +62,6 @@ class AIoDConcept(AIoDConceptBase):
             class_create=Optional[AIoDEntryCreate],
             on_delete_trigger_deletion_by="aiod_entry_identifier",
         )
-        # body: Optional[Body] = ResourceRelationshipSingle(
-        #     deserializer=CastDeserializer(Body),
-        # )
 
     @declared_attr
     def __table_args__(cls) -> Tuple:

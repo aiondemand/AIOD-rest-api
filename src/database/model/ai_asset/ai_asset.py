@@ -17,8 +17,8 @@ from database.model.models_and_experiments.runnable_distribution import (
 from database.model.relationships import OneToMany, ManyToOne, ManyToMany, OneToOne
 from database.model.serializers import (
     AttributeSerializer,
-    CastDeserializer,
     FindByNameDeserializer,
+    CastDeserializerList,
 )
 
 if TYPE_CHECKING:
@@ -95,7 +95,7 @@ class AIAsset(AIAssetBase, AbstractAIResource, metaclass=abc.ABCMeta):
         distribution: Any = factory(table_from=cls.__tablename__)
         cls.__annotations__["distribution"] = list[distribution]
         cls.RelationshipConfig.distribution = copy.copy(AIAsset.RelationshipConfig.distribution)
-        deserializer = CastDeserializer(distribution)
+        deserializer = CastDeserializerList(distribution)
         cls.RelationshipConfig.distribution.deserializer = deserializer  # type: ignore
 
         relationships["citation"].link_model = many_to_many_link_factory(

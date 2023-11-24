@@ -1,16 +1,13 @@
-from sqlalchemy.engine import Engine
-from sqlmodel import Session, select
+from sqlmodel import select
 from starlette.testclient import TestClient
 
 from database.model.agent.agent_table import AgentTable
 from database.model.agent.organisation import Organisation
 from database.model.agent.person import Person
+from database.session import DbSession
 
 
-def test_happy_path(
-    client: TestClient,
-    engine: Engine,
-):
+def test_happy_path(client: TestClient):
     organisation = Organisation(
         name="organisation",
         agent_identifier=AgentTable(type="organisation"),
@@ -20,7 +17,7 @@ def test_happy_path(
         agent_identifier=AgentTable(type="person"),
     )
 
-    with Session(engine) as session:
+    with DbSession() as session:
         session.add(person)
         session.merge(organisation)
         session.commit()
