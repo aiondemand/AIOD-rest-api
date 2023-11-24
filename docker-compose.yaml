@@ -203,8 +203,8 @@ services:
       - ./src:/app
       - ./logstash:/logstash
     command: >
-      /bin/bash -c "python setup/logstash/generate_logstash_config_files.py &&
-      python setup/es/generate_elasticsearch_indices.py"
+      /bin/bash -c "python setup/logstash_setup/generate_logstash_config_files.py &&
+      python setup/es_setup/generate_elasticsearch_indices.py"
     restart: "no"
     depends_on:
       elasticsearch:
