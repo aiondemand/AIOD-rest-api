@@ -16,5 +16,5 @@ class SearchRouterOrganisations(SearchRouter[Organisation]):
         return Organisation
 
     @property
-    def match_fields(self):
-        return set(["name", "legal_name", "plain", "html"])
+    def indexed_fields(self):
+        return {"name", "legal_name", "plain", "html"}

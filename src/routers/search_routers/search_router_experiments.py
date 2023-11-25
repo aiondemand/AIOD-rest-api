@@ -16,5 +16,5 @@ class SearchRouterExperiments(SearchRouter[Experiment]):
         return Experiment
 
     @property
-    def match_fields(self):
-        return set(["name", "plain", "html"])
+    def indexed_fields(self):
+        return {"name", "plain", "html"}

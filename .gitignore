@@ -115,6 +115,12 @@ env.bak/
 venv.bak/
 **.DS_Store
 
+# Logstash configuration
+logstash/pipeline/conf/*
+!logstash/pipeline/conf/.gitkeep
+logstash/pipeline/sql/*
+!logstash/pipeline/sql/.gitkeep
+
 # Spyder project settings
 .spyderproject
 .spyproject

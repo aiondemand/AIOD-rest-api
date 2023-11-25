@@ -16,5 +16,5 @@ class SearchRouterNews(SearchRouter[News]):
         return News
 
     @property
-    def match_fields(self):
-        return set(["name", "plain", "html", "headline", "alternative_headline"])
+    def indexed_fields(self):
+        return {"name", "plain", "html", "headline", "alternative_headline"}

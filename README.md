@@ -60,7 +60,7 @@ For development:
 
 ## Production environment
 
-For production environments elasticsearch recomends -Xss4G and -Xmx8G for the JVM settings.\
+For production environments elasticsearch recommends -Xss4G and -Xmx8G for the JVM settings.\
 This parameters can be defined in the .env file.
 See the [elasticsearch guide](https://www.elastic.co/guide/en/logstash/current/jvm-settings.html).
 

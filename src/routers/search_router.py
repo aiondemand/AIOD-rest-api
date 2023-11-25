@@ -18,7 +18,6 @@ SORT = {"identifier": "asc"}
 LIMIT_MAX = 1000
 
 RESOURCE = TypeVar("RESOURCE", bound=AIoDConcept)
-# RESOURCE = TypeVar("RESOURCE")
 
 
 class SearchResult(BaseModel, Generic[RESOURCE]):
@@ -58,7 +57,7 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
 
     @property
     @abc.abstractmethod
-    def match_fields(self) -> set:
+    def indexed_fields(self) -> set[str]:
         """The set of indexed fields"""
 
     def create(self, url_prefix: str) -> APIRouter:
@@ -77,15 +76,11 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
             f"""
             Search for {self.resource_name_plural}.
             """
-
-            # Parameter correctness
-            # -----------------------------------------------------------------
-
             try:
                 with DbSession() as session:
                     query = select(Platform)
                     database_platforms = session.scalars(query).all()
-                    platform_names = set([p.name for p in database_platforms])
+                    platform_names = {p.name for p in database_platforms}
             except Exception as e:
                 raise _wrap_as_http_exception(e)
 
@@ -94,70 +89,45 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail=f"The available platforms are: {platform_names}",
                 )
-
-            fields = search_fields if search_fields else self.match_fields
-            if not set(fields).issubset(self.match_fields):
+            fields = search_fields if search_fields else self.indexed_fields
+            if not set(fields).issubset(self.indexed_fields):
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail=f"The available search fields for this entity "
-                    f"are: {self.match_fields}",
+                    f"are: {self.indexed_fields}",
                 )
-
             if limit > LIMIT_MAX:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail=f"The limit should be maximum {LIMIT_MAX}. "
                     f"If you want more results, use pagination.",
                 )
-
             if offset < 0:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail="The offset should be greater or equal than 0.",
                 )
-
-            # Prepare query
-            # -----------------------------------------------------------------
-
-            # Matches of the search concept for each field
             query_matches = [{"match": {f: search_query}} for f in fields]
-
-            # Must match search concept on at least one field
             query = {"bool": {"should": query_matches, "minimum_should_match": 1}}
             if platforms:
-
-                # Matches of the platform field for each selected platform
                 platform_matches = [{"match": {"platform": p}} for p in platforms]
-
-                # Must match platform and search query on at least one field
                 query["bool"]["must"] = {
                     "bool": {"should": platform_matches, "minimum_should_match": 1}
                 }
-
-            # Launch search query
-            # -----------------------------------------------------------------
-
             result = ElasticsearchSingleton().client.search(
                 index=self.es_index, query=query, from_=offset, size=limit, sort=SORT
             )
-
             total_hits = result["hits"]["total"]["value"]
             if get_all:
-
-                # Launch database query
                 resources: list[SQLModel] = [
                     self._db_query(read_class, self.resource_class, hit["_source"]["identifier"])
                     for hit in result["hits"]["hits"]
                 ]
-
             else:
-
-                # Return just the elasticsearch contents
                 resources: list[Type[RESOURCE]] = [  # type: ignore
                     self._cast_resource(read_class, hit["_source"])
                     for hit in result["hits"]["hits"]
                 ]
-
             return SearchResult[RESOURCE](  # type: ignore
                 total_hits=total_hits,
                 resources=resources,
@@ -194,7 +164,7 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
             for key, val in resource_dict.items()
             if key != "type" and not key.startswith("@")
         }
-        resource = read_class(**kwargs)  # type: ignore
+        resource = read_class(**kwargs)
         resource.aiod_entry = AIoDEntryRead(date_modified=resource_dict["date_modified"])
         resource.description = {"plain": resource_dict["plain"], "html": resource_dict["html"]}
         return self._clean_structure(dict(resource))

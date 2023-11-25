@@ -16,5 +16,5 @@ class SearchRouterDatasets(SearchRouter[Dataset]):
         return Dataset
 
     @property
-    def match_fields(self):
-        return set(["name", "plain", "html", "issn"])
+    def indexed_fields(self):
+        return {"name", "plain", "html", "issn"}
