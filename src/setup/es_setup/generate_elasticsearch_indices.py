@@ -27,7 +27,7 @@ def main():
     es_client = ElasticsearchSingleton().client
     global_fields = {"name", "plain", "html"}
     entities = {
-        router.es_index: list(router.match_fields ^ global_fields) for router in router_list
+        router.es_index: list(router.indexed_fields ^ global_fields) for router in router_list
     }
     for es_index, fields in entities.items():
         mapping = generate_mapping(fields)

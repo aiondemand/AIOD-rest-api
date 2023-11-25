@@ -30,8 +30,8 @@ PIPELINE_CONFIG_PATH = BASE_PATH / "pipeline" / "conf"
 pipeline_sql_path = BASE_PATH / "pipeline" / "sql"
 DB_USER = "root"
 DB_PASS = os.environ["MYSQL_ROOT_PASSWORD"]
-ES_PASS = os.environ["ES_USER"]
-ES_USER = os.environ["ES_PASSWORD"]
+ES_USER = os.environ["ES_USER"]
+ES_PASS = os.environ["ES_PASSWORD"]
 GLOBAL_FIELDS = {"name", "plain", "html"}
 
 
@@ -45,7 +45,7 @@ def main():
     for path in (CONFIG_PATH, PIPELINE_CONFIG_PATH, pipeline_sql_path):
         path.mkdir(parents=True, exist_ok=True)
     entities = {
-        router.es_index: list(router.match_fields ^ GLOBAL_FIELDS) for router in router_list
+        router.es_index: list(router.indexed_fields ^ GLOBAL_FIELDS) for router in router_list
     }
     render_parameters = {
         "file": os.path.basename(__file__),
