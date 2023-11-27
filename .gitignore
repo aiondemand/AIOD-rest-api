@@ -118,10 +118,8 @@ venv.bak/
 # Logstash configuration
 logstash/config/config/*
 !logstash/config/config/pipelines.yml
-logstash/config/pipeline/*
-!logstash/config/pipeline/.gitkeep
-logstash/config/sql/*
-!logstash/config/sql/.gitkeep
+logstash/config/pipeline
+logstash/config/sql
 
 # Spyder project settings
 .spyderproject
