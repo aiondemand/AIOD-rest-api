@@ -1,215 +1,215 @@
+  
 version: '3.9'
 
 services:
-  # app:
-  #   build:
-  #     context: ./
-  #     dockerfile: Dockerfile
-  #   image: ai4eu_server
-  #   container_name: apiserver
-  #   env_file: .env
-  #   environment:
-  #     - KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET
-  #   ports:
-  #     - 8000:8000
-  #   volumes:
-  #     - ./src:/app:ro
-  #   command: >
-  #     python main.py
-  #     --rebuild-db only-if-empty
-  #     --reload
-  #   healthcheck:
-  #     test: ["CMD", "python", "-c",  "import requests; requests.get('http://localhost:8000')"]
-  #     start_interval: 1s
-  #     start_period: 30s
-  #     interval: 5s
-  #     timeout: 120s
-  #     retries: 24
-  #   depends_on:
-  #     sqlserver:
-  #       condition: service_healthy
+  app:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    image: ai4eu_server
+    container_name: apiserver
+    env_file: .env
+    environment:
+      - KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET
+    ports:
+      - 8000:8000
+    volumes:
+      - ./src:/app:ro
+    command: >
+      python main.py
+      --rebuild-db only-if-empty
+      --reload
+    healthcheck:
+      test: ["CMD", "python", "-c",  "import requests; requests.get('http://localhost:8000')"]
+      start_interval: 1s
+      start_period: 30s
+      interval: 5s
+      timeout: 120s
+      retries: 24
+    depends_on:
+      sqlserver:
+        condition: service_healthy
 
-  # fill-db-with-examples:
-  #   profiles: ["examples"]
-  #   image: ai4eu_server
-  #   container_name: fill-db-with-examples
-  #   env_file: .env
-  #   environment:
-  #     - KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET
-  #   volumes:
-  #     - ./src:/app:ro
-  #     - ./data/connectors:/opt/connectors/data
-  #     - ./connectors:/opt/connectors/script:ro
-  #   command: >
-  #     /bin/bash -c "/opt/connectors/script/fill-examples.sh"
-  #   depends_on:
-  #     app:
-  #       condition: service_healthy
+  fill-db-with-examples:
+    profiles: ["examples"]
+    image: ai4eu_server
+    container_name: fill-db-with-examples
+    env_file: .env
+    environment:
+      - KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET
+    volumes:
+      - ./src:/app:ro
+      - ./data/connectors:/opt/connectors/data
+      - ./connectors:/opt/connectors/script:ro
+    command: >
+      /bin/bash -c "/opt/connectors/script/fill-examples.sh"
+    depends_on:
+      app:
+        condition: service_healthy
   
-  # deletion:
-  #   build:
-  #     context: deletion
-  #     dockerfile: Dockerfile
-  #   image: ai4eu_deletion
-  #   container_name: deletion
-  #   env_file: .env
-  #   volumes:
-  #     - ./src:/app
-  #     - ./data/deletion:/opt/deletion/data
-  #   command: >
-  #     /bin/bash -c "/opt/deletion/script/entry.sh"
-  #   depends_on:
-  #     app:
-  #       condition: service_healthy
+  deletion:
+    build:
+      context: deletion
+      dockerfile: Dockerfile
+    image: ai4eu_deletion
+    container_name: deletion
+    env_file: .env
+    volumes:
+      - ./src:/app
+      - ./data/deletion:/opt/deletion/data
+    command: >
+      /bin/bash -c "/opt/deletion/script/entry.sh"
+    depends_on:
+      app:
+        condition: service_healthy
 
-  # huggingface-dataset-connector:
-  #   profiles: ["huggingface-datasets"]
-  #   image: ai4eu_server
-  #   container_name: huggingface-dataset-connector
-  #   env_file: .env
-  #   environment:
-  #     - KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET
-  #   volumes:
-  #     - ./src:/app:ro
-  #     - ./data/connectors:/opt/connectors/data
-  #     - ./connectors/huggingface/:/opt/connectors/script:ro
-  #   command: >
-  #     /bin/bash -c "/opt/connectors/script/datasets.sh"
-  #   depends_on:
-  #     app:
-  #       condition: service_healthy
+  huggingface-dataset-connector:
+    profiles: ["huggingface-datasets"]
+    image: ai4eu_server
+    container_name: huggingface-dataset-connector
+    env_file: .env
+    environment:
+      - KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET
+    volumes:
+      - ./src:/app:ro
+      - ./data/connectors:/opt/connectors/data
+      - ./connectors/huggingface/:/opt/connectors/script:ro
+    command: >
+      /bin/bash -c "/opt/connectors/script/datasets.sh"
+    depends_on:
+      app:
+        condition: service_healthy
 
-  # openml-dataset-connector:
-  #   profiles: ["openml-datasets"]
-  #   build:
-  #     context: connectors/openml
-  #     dockerfile: Dockerfile
-  #   image: ai4eu_openml_connector
-  #   container_name: openml-dataset-connector
-  #   env_file: .env
-  #   environment:
-  #     - KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET
-  #   volumes:
-  #     - ./src:/app:ro
-  #     - ./data/connectors:/opt/connectors/data
-  #     - ./connectors/openml/:/opt/connectors/script:ro
-  #   command: >
-  #     /bin/bash -c "/opt/connectors/script/entry.sh"
-  #   depends_on:
-  #     app:
-  #       condition: service_healthy
+  openml-dataset-connector:
+    profiles: ["openml-datasets"]
+    build:
+      context: connectors/openml
+      dockerfile: Dockerfile
+    image: ai4eu_openml_connector
+    container_name: openml-dataset-connector
+    env_file: .env
+    environment:
+      - KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET
+    volumes:
+      - ./src:/app:ro
+      - ./data/connectors:/opt/connectors/data
+      - ./connectors/openml/:/opt/connectors/script:ro
+    command: >
+      /bin/bash -c "/opt/connectors/script/entry.sh"
+    depends_on:
+      app:
+        condition: service_healthy
 
-  # zenodo-dataset-connector:
-  #   profiles: ["zenodo-datasets"]
-  #   build:
-  #     context: connectors/zenodo
-  #     dockerfile: Dockerfile
-  #   image: ai4eu_zenodo_connector
-  #   container_name: zenodo-dataset-connector
-  #   env_file: .env
-  #   environment:
-  #     - KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET
-  #   volumes:
-  #     - ./src:/app
-  #     - ./data/connectors:/opt/connectors/data
-  #     - ./connectors/zenodo/:/opt/connectors/script
-  #   command: >
-  #     /bin/bash -c "/opt/connectors/script/entry.sh"
-  #   depends_on:
-  #     app:
-  #       condition: service_healthy
+  zenodo-dataset-connector:
+    profiles: ["zenodo-datasets"]
+    build:
+      context: connectors/zenodo
+      dockerfile: Dockerfile
+    image: ai4eu_zenodo_connector
+    container_name: zenodo-dataset-connector
+    env_file: .env
+    environment:
+      - KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET
+    volumes:
+      - ./src:/app
+      - ./data/connectors:/opt/connectors/data
+      - ./connectors/zenodo/:/opt/connectors/script
+    command: >
+      /bin/bash -c "/opt/connectors/script/entry.sh"
+    depends_on:
+      app:
+        condition: service_healthy
 
-  # sqlserver:
-  #   image: mysql
-  #   container_name: sqlserver
-  #   env_file: .env
-  #   environment:
-  #     - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-  #   volumes:
-  #     - ./data/mysql:/var/lib/mysql
-  #   healthcheck:
-  #     test: ["CMD", "mysqladmin", "-uroot", "-p$MYSQL_ROOT_PASSWORD", "ping", "-h", "localhost", "--protocol","tcp"]
-  #     start_interval: 1s
-  #     start_period: 10s
-  #     interval: 5s
-  #     timeout: 30s
-  #     retries: 30
+  sqlserver:
+    image: mysql
+    container_name: sqlserver
+    env_file: .env
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - ./data/mysql:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "-uroot", "-p$MYSQL_ROOT_PASSWORD", "ping", "-h", "localhost", "--protocol","tcp"]
+      start_interval: 1s
+      start_period: 10s
+      interval: 5s
+      timeout: 30s
+      retries: 30
 
-  # keycloak:
-  #   image: quay.io/keycloak/keycloak
-  #   container_name: keycloak
-  #   env_file: .env
-  #   environment:
-  #     - REDIRECT_URIS=$REDIRECT_URIS
-  #     - POST_LOGOUT_REDIRECT_URIS=$POST_LOGOUT_REDIRECT_URIS
-  #   ports:
-  #     - 8080:8080
-  #   volumes:
-  #    - ./quay-keycloak:/opt/keycloak/data/import:ro
-  #   command: >
-  #     start-dev
-  #     --hostname-url http://${HOSTNAME}/aiod-auth
-  #     --hostname-admin-url http://${HOSTNAME}/aiod-auth
-  #     --http-relative-path=/aiod-auth
-  #     --http-enabled=true
-  #     --hostname-strict-https=false
-  #     --import-realm
+  keycloak:
+    image: quay.io/keycloak/keycloak
+    container_name: keycloak
+    env_file: .env
+    environment:
+      - REDIRECT_URIS=$REDIRECT_URIS
+      - POST_LOGOUT_REDIRECT_URIS=$POST_LOGOUT_REDIRECT_URIS
+    ports:
+      - 8080:8080
+    volumes:
+     - ./quay-keycloak:/opt/keycloak/data/import:ro
+    command: >
+      start-dev
+      --hostname-url http://${HOSTNAME}/aiod-auth
+      --hostname-admin-url http://${HOSTNAME}/aiod-auth
+      --http-relative-path=/aiod-auth
+      --http-enabled=true
+      --hostname-strict-https=false
+      --import-realm
 
-  # nginx:
-  #   image: nginx
-  #   container_name: nginx
-  #   restart: unless-stopped
-  #   volumes:
-  #     - ./nginx:/etc/nginx/conf.d:ro
-  #   ports:
-  #     - 80:80
-  #   depends_on:
-  #     app:
-  #       condition: service_healthy
+  nginx:
+    image: nginx
+    container_name: nginx
+    restart: unless-stopped
+    volumes:
+      - ./nginx:/etc/nginx/conf.d:ro
+    ports:
+      - 80:80
+    depends_on:
+      app:
+        condition: service_healthy
 
-  # elasticsearch:
-  #   image: docker.elastic.co/elasticsearch/elasticsearch:8.8.2
-  #   container_name: elasticsearch
-  #   env_file: .env
-  #   environment:
-  #     - ES_JAVA_OPTS=$ES_JAVA_OPTS
-  #     - ELASTIC_USER=$ES_USER
-  #     - ELASTIC_PASSWORD=$ES_PASSWORD
-  #     - discovery.type=$ES_DISCOVERY_TYPE
-  #   ports:
-  #     - 9200:9200
-  #     - 9300:9300
-  #   volumes:
-  #     - type: bind
-  #       source: ./es/elasticsearch.yml
-  #       target: /usr/share/elasticsearch/config/elasticsearch.yml
-  #       read_only: true
-  #     - ./data/elasticsearch:/usr/share/elasticsearch/data
-  #   healthcheck:
-  #     test: ["CMD-SHELL", "curl -u $ES_USER:$ES_PASSWORD --silent --fail localhost:9200/_cluster/health || exit 1"]
-  #     interval: 5s
-  #     timeout: 30s
-  #     retries: 30
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.8.2
+    container_name: elasticsearch
+    env_file: .env
+    environment:
+      - ES_JAVA_OPTS=$ES_JAVA_OPTS
+      - ELASTIC_USER=$ES_USER
+      - ELASTIC_PASSWORD=$ES_PASSWORD
+      - discovery.type=$ES_DISCOVERY_TYPE
+    ports:
+      - 9200:9200
+      - 9300:9300
+    volumes:
+      - type: bind
+        source: ./es/elasticsearch.yml
+        target: /usr/share/elasticsearch/config/elasticsearch.yml
+        read_only: true
+      - ./data/elasticsearch:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -u $ES_USER:$ES_PASSWORD --silent --fail localhost:9200/_cluster/health || exit 1"]
+      interval: 5s
+      timeout: 30s
+      retries: 30
   
-  # es_logstash_setup:
-  #   image: ai4eu_server
-  #   container_name:  es_logstash_setup
-  #   env_file: .env
-  #   environment:
-  #     - MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD
-  #     - ES_USER=$ES_USER
-  #     - ES_PASSWORD=$ES_PASSWORD
-  #   volumes:
-  #     - ./src:/app
-  #     - ./logstash:/logstash
-  #   command: >
-  #     /bin/bash -c "python setup/logstash_setup/generate_logstash_config_files.py &&
-  #     python setup/es_setup/generate_elasticsearch_indices.py"
-  #   restart: "no"
-  #   depends_on:
-  #     elasticsearch:
-  #       condition: service_healthy
-  
+  es_logstash_setup:
+    image: ai4eu_server
+    container_name:  es_logstash_setup
+    env_file: .env
+    environment:
+      - MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD
+      - ES_USER=$ES_USER
+      - ES_PASSWORD=$ES_PASSWORD
+    volumes:
+      - ./src:/app
+      - ./logstash:/logstash
+    command: >
+      /bin/bash -c "python setup/logstash_setup/generate_logstash_config_files.py &&
+      python setup/es_setup/generate_elasticsearch_indices.py"
+    restart: "no"
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
   logstash:
     build:
       context: logstash/
@@ -224,9 +224,9 @@ services:
       - 5000:5000/udp
       - 9600:9600
     volumes:
-      - ./logstash/config:/jos
-    # volumes:
-    #   - ./logstash/config:/usr/share/logstash:ro
-    # depends_on:
-    #   es_logstash_setup:
-    #     condition: service_completed_successfully
+      - ./logstash/config/config:/usr/share/logstash/config:ro
+      - ./logstash/config/pipeline:/usr/share/logstash/pipeline:ro
+      - ./logstash/config/sql:/usr/share/logstash/sql:ro
+    depends_on:
+      es_logstash_setup:
+        condition: service_completed_successfully
