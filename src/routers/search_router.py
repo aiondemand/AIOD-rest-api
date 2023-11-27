@@ -69,8 +69,8 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
             platforms: Annotated[list[str] | None, Query()] = None,
             search_query: str = "",
             search_fields: Annotated[list[str] | None, Query()] = None,
-            limit: int = 10,
-            offset: int = 0,
+            limit: Annotated[int | None, Query(ge=1, le=LIMIT_MAX)] = 10,
+            offset: Annotated[int | None, Query(ge=0)] = 0,
             get_all: bool = True,
         ) -> SearchResult[read_class]:  # type: ignore
             f"""
@@ -95,17 +95,6 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail=f"The available search fields for this entity "
                     f"are: {self.indexed_fields}",
-                )
-            if limit > LIMIT_MAX:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail=f"The limit should be maximum {LIMIT_MAX}. "
-                    f"If you want more results, use pagination.",
-                )
-            if offset < 0:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="The offset should be greater or equal than 0.",
                 )
             query_matches = [{"match": {f: search_query}} for f in fields]
             query = {"bool": {"should": query_matches, "minimum_should_match": 1}}
