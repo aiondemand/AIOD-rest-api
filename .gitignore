@@ -1,6 +1,17 @@
 # Project Specific
+
 # data/ is intended for database data from the mysql container
 data/
+
+# Generated Logstash configuration
+logstash/config/config/logstash.yml
+logstash/config/config/pipelines.yml
+logstash/config/pipeline
+logstash/config/sql
+
+
+
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -114,12 +125,6 @@ ENV/
 env.bak/
 venv.bak/
 **.DS_Store
-
-# Logstash configuration
-logstash/config/config/*
-!logstash/config/config/pipelines.yml
-logstash/config/pipeline
-logstash/config/sql
 
 # Spyder project settings
 .spyderproject
