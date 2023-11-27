@@ -225,23 +225,9 @@ services:
       - 9600:9600
     volumes:
       - type: bind
-        source: ./logstash/config/logstash.yml
-        target: /usr/share/logstash/config/logstash.yml
-        read_only: true
-      - type: bind
-        source: ./logstash/pipeline/pipelines.yml
-        target: /usr/share/logstash/config/pipelines.yml
-        read_only: true
-      - type: bind
-        source: ./logstash/pipeline/conf
-        target: /usr/share/logstash/pipeline
-        read_only: true
-      - type: bind
-        source: ./logstash/pipeline/sql
-        target: /usr/share/logstash/sql
+        source: ./logstash/config
+        target: /usr/share/logstash/
         read_only: true
     depends_on:
-      fill-db-with-examples:
-        condition: service_completed_successfully
       es_logstash_setup:
         condition: service_completed_successfully

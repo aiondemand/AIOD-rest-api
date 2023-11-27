@@ -7,10 +7,12 @@ Launched by the es_logstash_setup container in the docker-compose file.
 """
 
 import copy
+import logging
 
-from routers.search_routers.elasticsearch import ElasticsearchSingleton
-from routers.search_routers import router_list
 from definitions import BASE_MAPPING
+from routers.search_routers import router_list
+from routers.search_routers.elasticsearch import ElasticsearchSingleton
+from setup_logger import setup_logger
 
 
 def generate_mapping(fields):
@@ -24,16 +26,19 @@ def generate_mapping(fields):
 
 
 def main():
+    setup_logger()
     es_client = ElasticsearchSingleton().client
     global_fields = {"name", "plain", "html"}
     entities = {
         router.es_index: list(router.indexed_fields ^ global_fields) for router in router_list
     }
+    logging.info("Generating indices...")
     for es_index, fields in entities.items():
         mapping = generate_mapping(fields)
 
         # ignore 400 cause by IndexAlreadyExistsException when creating an index
         es_client.indices.create(index=es_index, body=mapping, ignore=400)
+    logging.info("Generating indices completed.")
 
 
 if __name__ == "__main__":

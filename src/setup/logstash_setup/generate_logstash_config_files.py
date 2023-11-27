@@ -9,25 +9,25 @@ sql sentences in logstash/pipelines/sql.
 
 Launched by the es_logstash_setup container in the docker-compose file.
 """
-
+import logging
 import os
 from pathlib import Path
 from jinja2 import Template
 
 from routers.search_routers import router_list
-from templates.file_generated_comment import FILE_IS_GENERATED_COMMENT
-from templates.config_file_template import CONFIG_FILE_TEMPLATE
-from templates.pipeline_config_init_file_template import PIPELINE_CONFIG_INIT_FILE_TEMPLATE
-from templates.pipeline_config_sync_file_template import PIPELINE_CONFIG_SYNC_FILE_TEMPLATE
-from templates.pipeline_sql_init_file_template import PIPELINE_SQL_INIT_FILE_TEMPLATE
-from templates.pipeline_sql_sync_file_template import PIPELINE_SQL_SYNC_FILE_TEMPLATE
-from templates.pipeline_sql_rm_file_template import PIPELINE_SQL_RM_FILE_TEMPLATE
+from setup.logstash_setup.templates.config import TEMPLATE_CONFIG
+from setup.logstash_setup.templates.file_header import FILE_IS_GENERATED_COMMENT
+from setup.logstash_setup.templates.init_table import TEMPLATE_INIT_TABLE
+from setup.logstash_setup.templates.sql_init import TEMPLATE_SQL_INIT
+from setup.logstash_setup.templates.sql_rm import TEMPLATE_SQL_RM
+from setup.logstash_setup.templates.sql_sync import TEMPLATE_SQL_SYNC
+from setup.logstash_setup.templates.sync_table import TEMPLATE_SYNC_TABLE
+from setup_logger import setup_logger
 
-
-BASE_PATH = Path("/logstash")
-CONFIG_PATH = BASE_PATH / "config"
-PIPELINE_CONFIG_PATH = BASE_PATH / "pipeline" / "conf"
-PIPELINE_SQL_PATH = BASE_PATH / "pipeline" / "sql"
+PATH_BASE = Path("/logstash/config")
+PATH_CONFIG = PATH_BASE / "config"
+PATH_PIPELINE = PATH_BASE / "pipeline"
+PATH_SQL = PATH_BASE / "sql"
 
 DB_USER = "root"
 DB_PASS = os.environ["MYSQL_ROOT_PASSWORD"]
@@ -44,7 +44,8 @@ def generate_file(file_path, template, file_data):
 
 
 def main():
-    for path in (CONFIG_PATH, PIPELINE_CONFIG_PATH, PIPELINE_SQL_PATH):
+    setup_logger()
+    for path in (PATH_CONFIG, PATH_PIPELINE, PATH_SQL):
         path.mkdir(parents=True, exist_ok=True)
     entities = {
         router.es_index: list(router.indexed_fields ^ GLOBAL_FIELDS) for router in router_list
@@ -59,26 +60,30 @@ def main():
         "db_pass": DB_PASS,
         "entities": entities.keys(),
     }
-    config_file = os.path.join(CONFIG_PATH, "logstash.yml")
-    config_init_file = os.path.join(PIPELINE_CONFIG_PATH, "init_table.conf")
-    config_sync_file = os.path.join(PIPELINE_CONFIG_PATH, "sync_table.conf")
-    generate_file(config_file, CONFIG_FILE_TEMPLATE, render_parameters)
-    generate_file(config_init_file, PIPELINE_CONFIG_INIT_FILE_TEMPLATE, render_parameters)
-    generate_file(config_sync_file, PIPELINE_CONFIG_SYNC_FILE_TEMPLATE, render_parameters)
+    logging.info("Generating configuration files...")
+    config_file = os.path.join(PATH_CONFIG, "logstash.yml")
+    config_init_file = os.path.join(PATH_PIPELINE, "init_table.conf")
+    config_sync_file = os.path.join(PATH_PIPELINE, "sync_table.conf")
+    generate_file(config_file, TEMPLATE_CONFIG, render_parameters)
+    generate_file(config_init_file, TEMPLATE_INIT_TABLE, render_parameters)
+    generate_file(config_sync_file, TEMPLATE_SYNC_TABLE, render_parameters)
 
     render_parameters["comment_tag"] = "--"
+    logging.info("Generating configuration files completed.")
+    logging.info("Generating sql files...")
     for es_index, extra_fields in entities.items():
         render_parameters["entity_name"] = es_index
         render_parameters["extra_fields"] = (
             ",\n    " + ",\n    ".join(extra_fields) if extra_fields else ""
         )
 
-        sql_init_file = os.path.join(PIPELINE_SQL_PATH, f"init_{es_index}.sql")
-        sql_sync_file = os.path.join(PIPELINE_SQL_PATH, f"sync_{es_index}.sql")
-        sql_rm_file = os.path.join(PIPELINE_SQL_PATH, f"rm_{es_index}.sql")
-        generate_file(sql_init_file, PIPELINE_SQL_INIT_FILE_TEMPLATE, render_parameters)
-        generate_file(sql_sync_file, PIPELINE_SQL_SYNC_FILE_TEMPLATE, render_parameters)
-        generate_file(sql_rm_file, PIPELINE_SQL_RM_FILE_TEMPLATE, render_parameters)
+        sql_init_file = os.path.join(PATH_SQL, f"init_{es_index}.sql")
+        sql_sync_file = os.path.join(PATH_SQL, f"sync_{es_index}.sql")
+        sql_rm_file = os.path.join(PATH_SQL, f"rm_{es_index}.sql")
+        generate_file(sql_init_file, TEMPLATE_SQL_INIT, render_parameters)
+        generate_file(sql_sync_file, TEMPLATE_SQL_SYNC, render_parameters)
+        generate_file(sql_rm_file, TEMPLATE_SQL_RM, render_parameters)
+    logging.info("Generating configuration files completed.")
 
 
 if __name__ == "__main__":

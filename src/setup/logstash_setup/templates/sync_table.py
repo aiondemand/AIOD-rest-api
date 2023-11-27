@@ -1,4 +1,4 @@
-PIPELINE_CONFIG_SYNC_FILE_TEMPLATE = """
+TEMPLATE_SYNC_TABLE = """
 input {
 {% for entity in entities %}
   jdbc {

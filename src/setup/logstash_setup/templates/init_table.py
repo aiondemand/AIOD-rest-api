@@ -1,4 +1,4 @@
-PIPELINE_CONFIG_INIT_FILE_TEMPLATE = """
+TEMPLATE_INIT_TABLE = """
 input {
 {% for entity in entities %}
   jdbc {

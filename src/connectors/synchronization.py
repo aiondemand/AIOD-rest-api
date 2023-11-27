@@ -17,6 +17,7 @@ from database.model.concept.concept import AIoDConcept
 from database.session import DbSession
 from database.setup import _create_or_fetch_related_objects, _get_existing_resource
 from routers import ResourceRouter, resource_routers, enum_routers
+from setup_logger import setup_logger
 
 RELATIVE_PATH_STATE_JSON = pathlib.Path("state.json")
 RELATIVE_PATH_ERROR_CSV = pathlib.Path("errors.csv")
@@ -125,11 +126,7 @@ def main():
         shutil.rmtree(working_dir)
     working_dir.mkdir(parents=True, exist_ok=True)
 
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s.%(msecs)03d %(levelname)s %(module)s - %(funcName)s: %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S",
-    )
+    setup_logger()
     sys.excepthook = exception_handler
 
     module_path = ".".join(args.connector.split(".")[0:-1])
