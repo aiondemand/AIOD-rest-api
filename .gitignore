@@ -116,6 +116,8 @@ venv.bak/
 **.DS_Store
 
 # Logstash configuration
+logstash/config/*
+!logstash/config/.gitkeep
 logstash/pipeline/conf/*
 !logstash/pipeline/conf/.gitkeep
 logstash/pipeline/sql/*
