@@ -154,15 +154,8 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
             if key != "type" and not key.startswith("@")
         }
         resource = read_class(**kwargs)
-        resource.aiod_entry = AIoDEntryRead(date_modified=resource_dict["date_modified"])
+        resource.aiod_entry = AIoDEntryRead(
+            date_modified=resource_dict["date_modified"], status=None
+        )
         resource.description = {"plain": resource_dict["plain"], "html": resource_dict["html"]}
-        return self._clean_structure(dict(resource))
-
-    def _clean_structure(self, structure: dict):
-        new_structure = {}
-        for key, value in structure.items():
-            if isinstance(value, dict):
-                value = self._clean_structure(value)
-            if value:
-                new_structure[key] = value
-        return new_structure
+        return resource

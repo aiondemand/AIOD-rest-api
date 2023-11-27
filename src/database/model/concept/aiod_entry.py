@@ -32,7 +32,7 @@ class AIoDEntryORM(AIoDEntryBase, table=True):  # type: ignore [call-arg]
         link_model=many_to_many_link_factory("aiod_entry", "person", table_prefix="editor"),
     )
     status_identifier: int | None = Field(foreign_key=Status.__tablename__ + ".identifier")
-    status: Status = Relationship()
+    status: Status | None = Relationship()
 
     # date_modified is updated in the resource_router
     date_modified: datetime | None = Field(default_factory=datetime.utcnow)
@@ -40,7 +40,7 @@ class AIoDEntryORM(AIoDEntryBase, table=True):  # type: ignore [call-arg]
 
     class RelationshipConfig:
         editor: list[int] = ManyToMany()  # No deletion triggers: "orphan" Persons should be kept
-        status: str = ManyToOne(
+        status: str | None = ManyToOne(
             example="draft",
             identifier_name="status_identifier",
             deserializer=FindByNameDeserializer(Status),
@@ -53,7 +53,7 @@ class AIoDEntryCreate(AIoDEntryBase):
         default_factory=list,
         schema_extra={"example": []},
     )
-    status: str = Field(
+    status: str | None = Field(
         description="Status of the entry (published, draft, rejected)",
         schema_extra={"example": "published"},
         default="draft",
@@ -66,7 +66,7 @@ class AIoDEntryRead(AIoDEntryBase):
         default_factory=list,
         schema_extra={"example": []},
     )
-    status: str = Field(
+    status: str | None = Field(
         description="Status of the entry (published, draft, rejected)",
         schema_extra={"example": "published"},
         default="draft",

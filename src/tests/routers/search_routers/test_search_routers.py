@@ -37,6 +37,7 @@ def test_search_happy_path(client: TestClient, search_router):
     assert resource["description"]["plain"] == "A plain text description."
     assert resource["description"]["html"] == "An html description."
     assert resource["aiod_entry"]["date_modified"] == "2023-09-01T00:00:00+00:00"
+    assert resource["aiod_entry"]["status"] is None
 
     global_fields = {"name", "plain", "html"}
     extra_fields = list(search_router.indexed_fields ^ global_fields)
