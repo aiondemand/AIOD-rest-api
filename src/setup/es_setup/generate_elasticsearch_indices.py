@@ -12,6 +12,7 @@ import logging
 from definitions import BASE_MAPPING
 from routers.search_routers import router_list
 from routers.search_routers.elasticsearch import ElasticsearchSingleton
+from setup.logstash_setup.generate_logstash_config_files import GLOBAL_FIELDS
 from setup_logger import setup_logger
 
 
@@ -28,9 +29,8 @@ def generate_mapping(fields):
 def main():
     setup_logger()
     es_client = ElasticsearchSingleton().client
-    global_fields = {"name", "plain", "html"}
     entities = {
-        router.es_index: list(router.indexed_fields ^ global_fields) for router in router_list
+        router.es_index: list(router.indexed_fields ^ GLOBAL_FIELDS) for router in router_list
     }
     logging.info("Generating indices...")
     for es_index, fields in entities.items():

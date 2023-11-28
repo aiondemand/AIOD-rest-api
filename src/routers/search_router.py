@@ -1,9 +1,10 @@
 import abc
-from typing import TypeVar, Generic, Any, Type, Annotated
+from typing import TypeVar, Generic, Any, Type, Annotated, Literal
 
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
-from sqlmodel import SQLModel, select
+from pydantic.generics import GenericModel
+from sqlmodel import SQLModel, select, Field
 from starlette import status
 
 from database.model.concept.aiod_entry import AIoDEntryRead
@@ -18,13 +19,16 @@ SORT = {"identifier": "asc"}
 LIMIT_MAX = 1000
 
 RESOURCE = TypeVar("RESOURCE", bound=AIoDConcept)
+RESOURCE_READ = TypeVar("RESOURCE_READ", bound=BaseModel)
 
 
-class SearchResult(BaseModel, Generic[RESOURCE]):
-    total_hits: int
-    resources: list
-    limit: int
-    offset: int
+class SearchResult(GenericModel, Generic[RESOURCE_READ]):
+    total_hits: int = Field(description="The total number of results.")
+    resources: list[RESOURCE_READ] = Field(description="The resources matching the search query.")
+    limit: int = Field(
+        description="The maximum number of returned results, as specified in the " "input."
+    )
+    offset: int = Field(description="The offset, as specified in the input.")
 
 
 class SearchRouter(Generic[RESOURCE], abc.ABC):
@@ -63,19 +67,49 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
     def create(self, url_prefix: str) -> APIRouter:
         router = APIRouter()
         read_class = resource_read(self.resource_class)  # type: ignore
+        indexed_fields = Literal[tuple(self.indexed_fields)]  # type: ignore
 
-        @router.get(f"{url_prefix}/search/{self.resource_name_plural}/v1", tags=["search"])
+        @router.get(
+            f"{url_prefix}/search/{self.resource_name_plural}/v1",
+            tags=["search"],
+            description=f"""Search for {self.resource_name_plural}.""",
+            # response_model=SearchResult[read_class],  # This gives errors, so not used.
+        )
         def search(
-            platforms: Annotated[list[str] | None, Query()] = None,
-            search_query: str = "",
-            search_fields: Annotated[list[str] | None, Query()] = None,
+            search_query: Annotated[
+                str,
+                Query(
+                    description="Text you wish to find. It is used in an ElasticSearch match "
+                    "query.",
+                    examples=["Name of the resource"],
+                ),
+            ],
+            search_fields: Annotated[  # type: ignore
+                list[indexed_fields] | None,
+                Query(
+                    description="A list of field names to include in the search. If empty, "
+                    "all fields will be used. Do not use the '--' option in Swagger, "
+                    "it is a Swagger artifact.",
+                ),
+            ] = None,
+            platforms: Annotated[
+                list[str] | None,
+                Query(
+                    description="A list of platform names to include. If empty, results from all "
+                    "platforms will be returned.",
+                    examples=["huggingface", "openml"],
+                ),
+            ] = None,
             limit: Annotated[int | None, Query(ge=1, le=LIMIT_MAX)] = 10,
             offset: Annotated[int | None, Query(ge=0)] = 0,
-            get_all: bool = True,
-        ) -> SearchResult[read_class]:  # type: ignore
-            f"""
-            Search for {self.resource_name_plural}.
-            """
+            get_all: Annotated[
+                bool,
+                Query(
+                    description="If true, a request to the database is made to retrieve all data. "
+                    "If false, only the indexed information is returned."
+                ),
+            ] = False,
+        ):
             try:
                 with DbSession() as session:
                     query = select(Platform)
@@ -90,12 +124,6 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
                     detail=f"The available platforms are: {platform_names}",
                 )
             fields = search_fields if search_fields else self.indexed_fields
-            if not set(fields).issubset(self.indexed_fields):
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail=f"The available search fields for this entity "
-                    f"are: {self.indexed_fields}",
-                )
             query_matches = [{"match": {f: search_query}} for f in fields]
             query = {"bool": {"should": query_matches, "minimum_should_match": 1}}
             if platforms:
@@ -103,6 +131,7 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
                 query["bool"]["must"] = {
                     "bool": {"should": platform_matches, "minimum_should_match": 1}
                 }
+
             result = ElasticsearchSingleton().client.search(
                 index=self.es_index, query=query, from_=offset, size=limit, sort=SORT
             )
@@ -113,11 +142,11 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
                     for hit in result["hits"]["hits"]
                 ]
             else:
-                resources: list[Type[RESOURCE]] = [  # type: ignore
+                resources: list[Type[read_class]] = [  # type: ignore
                     self._cast_resource(read_class, hit["_source"])
                     for hit in result["hits"]["hits"]
                 ]
-            return SearchResult[RESOURCE](  # type: ignore
+            return SearchResult[read_class](  # type: ignore
                 total_hits=total_hits,
                 resources=resources,
                 limit=limit,
@@ -157,5 +186,8 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
         resource.aiod_entry = AIoDEntryRead(
             date_modified=resource_dict["date_modified"], status=None
         )
-        resource.description = {"plain": resource_dict["plain"], "html": resource_dict["html"]}
+        resource.description = {
+            "plain": resource_dict["description_plain"],
+            "html": resource_dict["description_html"],
+        }
         return resource

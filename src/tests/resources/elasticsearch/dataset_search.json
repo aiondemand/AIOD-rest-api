@@ -22,10 +22,10 @@
           "identifier" : 1,
           "date_modified" : "2023-09-01T00:00:00.000Z",
           "name" : "A name.",
-          "plain" : "A plain text description.",
+          "description_plain" : "A plain text description.",
           "issn" : "20493630",
           "type" : "dataset",
-          "html" : "An html description."
+          "description_html" : "An html description."
         },
         "sort" : [
           1

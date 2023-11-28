@@ -23,9 +23,9 @@
           "slogan" : "A slogan.",
           "date_modified" : "2023-09-01T00:00:00.000Z",
           "name" : "A name.",
-          "plain" : "A plain text description.",
+          "description_plain" : "A plain text description.",
           "type" : "service",
-          "html" : "An html description."
+          "description_html" : "An html description."
         },
         "sort" : [
           1

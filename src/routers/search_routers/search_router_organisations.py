@@ -17,4 +17,4 @@ class SearchRouterOrganisations(SearchRouter[Organisation]):
 
     @property
     def indexed_fields(self):
-        return {"name", "legal_name", "plain", "html"}
+        return {"name", "legal_name", "description_plain", "description_html"}

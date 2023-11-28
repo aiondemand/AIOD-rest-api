@@ -39,7 +39,7 @@ def test_search_happy_path(client: TestClient, search_router):
     assert resource["aiod_entry"]["date_modified"] == "2023-09-01T00:00:00+00:00"
     assert resource["aiod_entry"]["status"] is None
 
-    global_fields = {"name", "plain", "html"}
+    global_fields = {"name", "description_plain", "description_html"}
     extra_fields = list(search_router.indexed_fields ^ global_fields)
     for field in extra_fields:
         assert resource[field]
@@ -84,9 +84,9 @@ def test_search_bad_fields(client: TestClient, search_router):
     params = {"search_query": "description", "search_fields": ["bad_field"]}
     response = client.get(search_service, params=params)
 
-    assert response.status_code == 400, response.json()
-    err_msg = "The available search fields for this entity are"
-    assert response.json()["detail"][: len(err_msg)] == err_msg
+    assert response.status_code == 422, response.json()
+
+    assert response.json()["detail"][0]["msg"].startswith("unexpected value; permitted: ")
 
 
 @pytest.mark.parametrize("search_router", sr.router_list)

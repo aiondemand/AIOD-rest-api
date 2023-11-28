@@ -34,7 +34,7 @@ DB_PASS = os.environ["MYSQL_ROOT_PASSWORD"]
 ES_USER = os.environ["ES_USER"]
 ES_PASS = os.environ["ES_PASSWORD"]
 
-GLOBAL_FIELDS = {"name", "plain", "html"}
+GLOBAL_FIELDS = {"name", "description_plain", "description_html"}
 
 
 def generate_file(file_path, template, file_data):

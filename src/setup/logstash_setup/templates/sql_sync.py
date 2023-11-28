@@ -1,8 +1,8 @@
 TEMPLATE_SQL_SYNC = """SELECT
     {{entity_name}}.identifier,
     {{entity_name}}.name,
-    text.plain as 'plain',
-    text.html as 'html',
+    text.plain as 'description_plain',
+    text.html as 'description_html',
     aiod_entry.date_modified{{extra_fields}}
 FROM aiod.{{entity_name}}
 INNER JOIN aiod.aiod_entry ON aiod.{{entity_name}}.aiod_entry_identifier=aiod.aiod_entry.identifier
