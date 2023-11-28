@@ -8,7 +8,11 @@ DIR_DATA=$DIR_ROOT/data
 DIR_MYSQL=$DIR_DATA/mysql
 DIR_CONNECTORS=$DIR_DATA/connectors
 DIR_DELETION=$DIR_DATA/deletion
+DIR_ELASTIC=$DIR_DATA/elasticsearch
 
-find $DIR_CONNECTORS -type f ! -name .gitkeep -delete
-find $DIR_DELETION -type f ! -name .gitkeep -delete
+sudo find $DIR_CONNECTORS -type f ! -name .gitkeep -delete
+sudo find $DIR_DELETION -type f ! -name .gitkeep -delete
 sudo rm -rf $DIR_MYSQL/*
+touch $DIR_MYSQL/.gitkeep
+sudo rm -rf $DIR_ELASTIC/*
+touch $DIR_ELASTIC/.gitkeep
