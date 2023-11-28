@@ -90,7 +90,7 @@ class DcatAPDistribution(DcatAPObject):
 
 class DcatAPDataset(DcatAPObject):
     type_: str = Field(default="dcat:Dataset", alias="@type", const=True)
-    description: str = Field(
+    description: str | None = Field(
         alias="dct:description",
         description="This property contains a free-text account of the Dataset",
     )
