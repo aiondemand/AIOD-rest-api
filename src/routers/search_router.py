@@ -137,10 +137,10 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
             )
             total_hits = result["hits"]["total"]["value"]
             if get_all:
-                resources: list[SQLModel] = [
-                    self._db_query(read_class, self.resource_class, hit["_source"]["identifier"])
-                    for hit in result["hits"]["hits"]
-                ]
+                identifiers = [hit["_source"]["identifier"] for hit in result["hits"]["hits"]]
+                resources: list[SQLModel] = self._db_query(
+                    read_class, self.resource_class, identifiers
+                )
             else:
                 resources: list[Type[read_class]] = [  # type: ignore
                     self._cast_resource(read_class, hit["_source"])
@@ -159,18 +159,23 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
         self,
         read_class: Type[SQLModel],
         resource_class: RESOURCE,
-        identifier: int,
-    ) -> SQLModel:
+        identifiers: list[int],
+    ) -> list[SQLModel]:
         try:
             with DbSession() as session:
-                query = select(resource_class).where(resource_class.identifier == identifier)
-                resource = session.scalars(query).first()
-                if not resource:
+                filter_ = resource_class.identifier.in_(identifiers)  # type: ignore[attr-defined]
+                query = select(resource_class).where(filter_)
+                resources = session.scalars(query).all()
+                identifiers_found = {resource.identifier for resource in resources}
+                identifiers_missing = set(identifiers) - identifiers_found
+                if identifiers_missing:
                     raise HTTPException(
                         status_code=status.HTTP_404_NOT_FOUND,
-                        detail="Resource not found in the database.",
+                        detail="Some resources, with identifiers "
+                        f"{', '.join(map(str, identifiers_missing))}, could not be found in "
+                        "the database.",
                     )
-                return read_class.from_orm(resource)
+                return [read_class.from_orm(resource) for resource in resources]
         except Exception as e:
             raise _wrap_as_http_exception(e)
 
