@@ -87,16 +87,16 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
             search_fields: Annotated[  # type: ignore
                 list[indexed_fields] | None,
                 Query(
-                    description="A list of field names to include in the search. If empty, "
-                    "all fields will be used. Do not use the '--' option in Swagger, "
-                    "it is a Swagger artifact.",
+                    description="Search in these fields. If empty, the query will be matched "
+                    "against all fields. Do not use the '--' option in Swagger, it is a Swagger "
+                    "artifact.",
                 ),
             ] = None,
             platforms: Annotated[
                 list[str] | None,
                 Query(
-                    description="A list of platform names to include. If empty, results from all "
-                    "platforms will be returned.",
+                    description="Search for resources of these platforms. If empty, results from "
+                    "all platforms will be returned.",
                     examples=["huggingface", "openml"],
                 ),
             ] = None,
