@@ -16,7 +16,7 @@ authors = [
 dependencies = [
     "urllib3== 2.1.0",
     "bibtexparser==1.4.1",
-    "huggingface_hub==0.19.4",
+    "huggingface_hub==0.20.0",
     "fastapi==0.105.0",
     "uvicorn==0.24.0.post1",
     "requests==2.31.0",
