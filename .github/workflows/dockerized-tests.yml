@@ -27,16 +27,5 @@ jobs:
       
       - name: Run docker container and pytest tests
         run: |
-          docker run -d --name apiserver -e KEYCLOAK_CLIENT_SECRET="mocked_secret" aiod_metadata_catalogue
-          sleep 5
-          docker exec apiserver mkdir -p /scripts
-          docker cp scripts/ apiserver:/scripts
-          docker exec apiserver sh -c "pip install '.[dev]' && pytest tests -s"
-        
-  
-          
-  
-  
-    
-
+          docker run -v ./scripts:/scripts -e KEYCLOAK_CLIENT_SECRET="mocked_secret" --entrypoint "" aiod_metadata_catalogue sh -c "pip install \".[dev]\" && pytest tests -s"
 
