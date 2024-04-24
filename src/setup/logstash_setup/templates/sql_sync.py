@@ -1,6 +1,7 @@
 TEMPLATE_SQL_SYNC = """SELECT
     {{entity_name}}.identifier,
     {{entity_name}}.name,
+    {{entity_name}}.platform,
     text.plain as 'description_plain',
     text.html as 'description_html',
     aiod_entry.date_modified{{extra_fields}}
