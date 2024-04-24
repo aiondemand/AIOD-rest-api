@@ -24,6 +24,7 @@ def test_search_happy_path(client: TestClient, search_router):
 
     assert resource["identifier"] == 1
     assert resource["name"] == "A name."
+    assert resource["platform"] == "A platform."
     assert resource["description"]["plain"] == "A plain text description."
     assert resource["description"]["html"] == "An html description."
     assert resource["aiod_entry"]["date_modified"] == "2023-09-01T00:00:00+00:00"
