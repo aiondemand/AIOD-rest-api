@@ -3,7 +3,7 @@ from sqlmodel import SQLModel, Field
 from database.model.field_length import NORMAL
 
 
-class RelevantLink(SQLModel, table=True):
+class RelevantLink(SQLModel, table=True):  # type: ignore [call-arg]
     """An address of a resource on the web"""
 
     __tablename__ = "relevant_link"
