@@ -152,13 +152,14 @@ class FindByNameDeserializerList(DeSerializer[NamedRelation]):
     """Deserialization of NamedRelations: uniquely identified by their name."""
 
     clazz: type[NamedRelation]
+    case_sensitive: bool = False
 
     def deserialize(self, session: Session, name: list[str] | None) -> list[NamedRelation]:
         if name is None:
             return []
         if not isinstance(name, list):
             raise ValueError("Expected a list. Do you need to use FindByNameDeserializer instead?")
-        names = [n.lower() for n in name]
+        names = [n if self.case_sensitive else n.lower() for n in name]
         query = select(self.clazz).where(self.clazz.name.in_(names))  # type: ignore[attr-defined]
         existing = session.scalars(query).all()
         names_not_found = set(names) - {e.name for e in existing}

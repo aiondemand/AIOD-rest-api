@@ -137,7 +137,7 @@ class AbstractAIResource(AIResourceBase, AIoDConcept, metaclass=abc.ABCMeta):
             "use relevant_resource otherwise). This field should only be used if there "
             "is no more specific field.",
             _serializer=AttributeSerializer("name"),
-            deserializer=FindByNameDeserializerList(RelevantLink),
+            deserializer=FindByNameDeserializerList(RelevantLink, case_sensitive=True),
             example=[
                 "https://www.example.com/a_relevant_link",
                 "https://www.example.com/another_relevant_link",
