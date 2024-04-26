@@ -110,18 +110,22 @@ def create_app() -> FastAPI:
             "scopes": KEYCLOAK_CONFIG.get("scopes"),
         },
     )
-    drop_or_create_database(delete_first=args.rebuild_db == "always")
-    AIoDConcept.metadata.create_all(EngineSingleton().engine, checkfirst=True)
-    with DbSession() as session:
-        existing_platforms = session.scalars(select(Platform)).all()
-        if not any(existing_platforms):
-            session.add_all([Platform(name=name) for name in PlatformName])
-            session.commit()
+    if not args.rebuild_db == "no":
+        drop_or_create_database(delete_first=args.rebuild_db == "always")
+        AIoDConcept.metadata.create_all(EngineSingleton().engine, checkfirst=True)
+        with DbSession() as session:
+            existing_platforms = session.scalars(select(Platform)).all()
+            if not any(existing_platforms):
+                session.add_all([Platform(name=name) for name in PlatformName])
+                session.commit()
 
-            # this is a bit of a hack: instead of checking whether the triggers exist, we check
-            # whether platforms are already present. If platforms were not present, the db is
-            # empty, and so the triggers should still be added.
-            add_delete_triggers(AIoDConcept)
+                # this is a bit of a hack: instead of checking whether the triggers exist, we check
+                # whether platforms are already present. If platforms were not present, the db is
+                # empty, and so the triggers should still be added.
+                add_delete_triggers(AIoDConcept)
+    else:
+        # TODO: Check if database exists, if not then at least emit a warning to log
+        pass
 
     add_routes(app, url_prefix=args.url_prefix)
     return app
