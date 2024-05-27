@@ -5,6 +5,7 @@ Note: order matters for overloaded paths
 (https://fastapi.tiangolo.com/tutorial/path-params/#order-matters).
 """
 import argparse
+import logging
 
 import pkg_resources
 import uvicorn
@@ -19,7 +20,7 @@ from database.model.concept.concept import AIoDConcept
 from database.model.platform.platform import Platform
 from database.model.platform.platform_names import PlatformName
 from database.session import EngineSingleton, DbSession
-from database.setup import drop_or_create_database
+from database.setup import drop_or_create_database, database_exists
 from routers import resource_routers, parent_routers, enum_routers, uploader_routers
 from routers import search_routers
 from setup_logger import setup_logger
@@ -110,7 +111,15 @@ def create_app() -> FastAPI:
             "scopes": KEYCLOAK_CONFIG.get("scopes"),
         },
     )
-    if not args.rebuild_db == "no":
+    if args.rebuild_db == "no":
+        if not database_exists():
+            logging.warning(
+                "AI-on-Demand database does not exist on the MySQL server, "
+                "but `rebuild_db` is set to 'no'. If you are not creating the "
+                "database through other means, such as MySQL group replication, "
+                "this likely means that you will errors or undefined behavior."
+            )
+    else:
         drop_or_create_database(delete_first=args.rebuild_db == "always")
         AIoDConcept.metadata.create_all(EngineSingleton().engine, checkfirst=True)
         with DbSession() as session:
@@ -123,9 +132,6 @@ def create_app() -> FastAPI:
                 # whether platforms are already present. If platforms were not present, the db is
                 # empty, and so the triggers should still be added.
                 add_delete_triggers(AIoDConcept)
-    else:
-        # TODO: Check if database exists, if not then at least emit a warning to log
-        pass
 
     add_routes(app, url_prefix=args.url_prefix)
     return app
