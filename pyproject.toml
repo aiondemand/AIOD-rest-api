@@ -20,7 +20,7 @@ dependencies = [
     "fastapi==0.109.2",
     "uvicorn==0.25.0",
     "requests==2.31.0",
-    "mysqlclient==2.2.1",
+    "mysqlclient==2.2.4",
     "oic==1.6.0",
     "python-keycloak==3.7.0",
     "python-dotenv==1.0.0",
