@@ -1,0 +1,45 @@
+login-pf {
+    background: none;
+}
+
+.login-pf body {
+    background: #000613 none;
+}
+
+#kc-header-wrapper {
+   font-size: 0px;
+   padding: 124px 10px 20px;
+   background: url("../img/logo.svg") no-repeat center;
+   background-size: contain;
+}
+
+.card-pf {
+   background: transparent;
+}
+
+.pf-c-button.pf-m-control {
+    color: white;
+    background-color: var(--pf-c-button--m-primary--BackgroundColor);
+}
+
+.kc-social-gray {
+    color: white;
+}
+
+#kc-social-providers h4 {
+    font-size: medium;
+}
+
+.pf-c-button::after {
+    border: transparent;
+}
+
+h1#kc-page-title {
+    color: white;
+    font-size: large;
+}
+
+#kc-content {
+     color: white;
+     font-size: medium;
+}

@@ -146,7 +146,8 @@ services:
     ports:
       - 8080:8080
     volumes:
-     - ${DATA_PATH}/keycloak:/opt/keycloak/data
+     - ${DATA_PATH}/keycloak/data:/opt/keycloak/data
+     - ${DATA_PATH}/keycloak/themes/aiod:/opt/keycloak/themes/aiod
     command: >
       start
       --hostname-url http://${HOSTNAME}/aiod-auth
