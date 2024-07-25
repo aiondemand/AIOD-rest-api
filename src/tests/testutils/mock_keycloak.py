@@ -11,6 +11,7 @@ from tests.testutils.paths import path_test_resources
 
 
 class TestUserType(enum.Enum):
+    __test__ = False
     user = "user.json"
     privileged = "user_privileged.json"
     inactive = "user_inactive.json"
