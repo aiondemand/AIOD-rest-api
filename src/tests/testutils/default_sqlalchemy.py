@@ -5,7 +5,7 @@ from unittest.mock import Mock
 
 import pytest
 from fastapi import FastAPI
-from pytest_asyncio.plugin import SubRequest
+from pytest import FixtureRequest
 from sqlalchemy import event
 from sqlalchemy.engine import Engine
 from sqlmodel import create_engine, SQLModel, Session, select
@@ -122,7 +122,7 @@ def _user_with_roles(*roles: str) -> dict[str, Any]:
 
 
 @pytest.fixture()
-def mocked_token(request: SubRequest) -> Mock:
+def mocked_token(request: FixtureRequest) -> Mock:
     """
     Return a mocked function that returns a user, to mock the authentication.
 
