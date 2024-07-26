@@ -26,7 +26,7 @@ dependencies = [
     "python-dotenv==1.0.0",
     "pytz==2023.3.post1",
     "pydantic_schemaorg==1.0.6",
-    "python-dateutil==2.8.2",
+    "python-dateutil==2.9.0.post0",
     "ratelimit==2.2.1",
     "sqlmodel==0.0.14",
     "typing_inspect==0.9.0",
