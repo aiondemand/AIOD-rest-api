@@ -3,15 +3,13 @@ from typing import Type
 from sqlalchemy import Column, Integer, ForeignKey
 from sqlmodel import Field, SQLModel
 
-from database.model.field_length import LONG
-
 
 class NoteBase(SQLModel):
     value: str = Field(
         index=False,
         unique=False,
         description="The string value",
-        max_length=LONG,
+        max_length=10_000,
         schema_extra={"example": "A brief record of points or ideas about this AI resource."},
     )
 
