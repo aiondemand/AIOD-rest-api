@@ -11,6 +11,8 @@ from alembic import op
 import sqlalchemy as sa
 from sqlalchemy import String
 
+from database.model.field_length import LONG
+
 # revision identifiers, used by Alembic.
 revision: str = "0a23b40cc09c"
 down_revision: Union[str, None] = None
@@ -22,7 +24,7 @@ def upgrade() -> None:
     op.alter_column(
         "note_organisation",
         "value",
-        type_=String(10_000),
+        type_=String(LONG * 4),
     )
 
 
