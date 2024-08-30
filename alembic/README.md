@@ -19,5 +19,12 @@ docker run -v $(pwd):/alembic:ro -it --network aiod_default  aiod-migration
 ```
 Make sure that the specifid `--network` is the docker network that has the `sqlserver` container.
 
+## Update the Database
+> [!Caution]
+> Database migrations may be irreversible. Always make sure there is a backup of the old database.
+
+Following the usage commands above, on a new release we should run alembic to ensure the latest schema changes are applied.
+The default entrypoint of the container specifies to upgrade the database to the latest schema.
+
 ## TODO
  - set up support for auto-generating migration scripts: https://alembic.sqlalchemy.org/en/latest/autogenerate.html

@@ -291,4 +291,5 @@ To create a new release,
    - Check which services currently work (before the update). It's a sanity check for if a service _doesn't_ work later.
    - Update the code on the server by checking out the release
    - Merge configurations as necessary
+   - Make sure the latest database migrations are applied: see ["Schema Migrations"](alembic/readme.md#update-the-database)
 9. Notify everyone (e.g., in the API channel in Slack). 
