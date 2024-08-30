@@ -18,3 +18,6 @@ With the sqlserver container running, you can migrate to the latest schema with:
 docker run -v $(pwd):/alembic:ro -it --network aiod_default  aiod-migration
 ```
 Make sure that the specifid `--network` is the docker network that has the `sqlserver` container.
+
+## TODO
+ - set up support for auto-generating migration scripts: https://alembic.sqlalchemy.org/en/latest/autogenerate.html

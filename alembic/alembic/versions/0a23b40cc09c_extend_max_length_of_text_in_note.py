@@ -8,10 +8,9 @@ Create Date: 2024-08-29 11:37:20.827291
 from typing import Sequence, Union
 
 from alembic import op
-import sqlalchemy as sa
 from sqlalchemy import String
 
-from database.model.field_length import LONG
+from database.model.field_length import VERY_LONG
 
 # revision identifiers, used by Alembic.
 revision: str = "0a23b40cc09c"
@@ -21,11 +20,28 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    op.alter_column(
-        "note_organisation",
-        "value",
-        type_=String(LONG * 4),
-    )
+    # All models that derive from AIResourceBase
+    for table in [
+        "news",
+        "team",
+        "person",
+        "organisation",
+        "event",
+        "project",
+        "service",
+        "dataset",
+        "case_study",
+        "publication",
+        "computational_asset",
+        "ml_model",
+        "experiment",
+        "educational_resource",
+    ]:
+        op.alter_column(
+            f"note_{table}",
+            "value",
+            type_=String(VERY_LONG),
+        )
 
 
 def downgrade() -> None:
