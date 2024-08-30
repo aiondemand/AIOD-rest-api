@@ -15,9 +15,11 @@ docker build -f Dockerfile . -t aiod-migration
 With the sqlserver container running, you can migrate to the latest schema with:
 
 ```commandline
-docker run -v $(pwd):/alembic:ro -it --network aiod_default  aiod-migration
+docker run -v $(pwd)/alembic:/alembic:ro  -v $(pwd)/src:/app -it --network aiod_default  aiod-migration
 ```
 Make sure that the specifid `--network` is the docker network that has the `sqlserver` container.
+The alembic directory is mounted to ensure the latest migrations are available, 
+the src directory is mounted so the migration scripts can use defined classes and variable from the project.
 
 ## Update the Database
 > [!Caution]
