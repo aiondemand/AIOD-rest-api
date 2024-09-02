@@ -9,7 +9,7 @@ Commands below assume that the directory containing this readme is your current 
 
 Build the image with:
 ```commandline
-docker build -f Dockerfile . -t aiod-migration
+docker build -f alembic/Dockerfile . -t aiod-migration
 ```
 
 With the sqlserver container running, you can migrate to the latest schema with:
