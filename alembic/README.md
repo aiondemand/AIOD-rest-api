@@ -5,7 +5,7 @@ We use [Alembic](https://alembic.sqlalchemy.org/en/latest/tutorial.html#running-
 Please refer to the Alembic documentation for more information.
 
 ## Usage
-Commands below assume that the directory containing this readme is your current working directory.
+Commands below assume that the root directory of the project is your current working directory.
 
 Build the image with:
 ```commandline
