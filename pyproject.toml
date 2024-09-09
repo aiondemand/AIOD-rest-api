@@ -1,7 +1,7 @@
 [project]
 name = "aiod_metadata_catalogue"
 description = "A Metadata Catalogue for AI on Demand "
-version = "1.3.20240619"
+version = "1.3.20240909"
 requires-python = ">=3.11"
 authors = [
     { name = "Adrián Alcolea" },
@@ -16,11 +16,11 @@ authors = [
 dependencies = [
     "urllib3== 2.1.0",
     "bibtexparser==1.4.1",
-    "huggingface_hub==0.20.3",
+    "huggingface_hub==0.23.4",
     "fastapi==0.109.2",
     "uvicorn==0.25.0",
     "requests==2.31.0",
-    "mysqlclient==2.2.1",
+    "mysqlclient==2.2.4",
     "oic==1.6.0",
     "python-keycloak==3.7.0",
     "python-dotenv==1.0.0",
@@ -34,7 +34,7 @@ dependencies = [
     "sickle==0.7.0",
     "xmltodict==0.13.0",
     "python-multipart==0.0.6",
-    "mysql-connector-python==8.2.0",
+    "mysql-connector-python==9.0.0",
     "elasticsearch==8.11.1",
     "jinja2==3.1.3",
 ]
@@ -42,7 +42,7 @@ readme = "README.md"
 
 [project.optional-dependencies]
 dev = [
-    "types-python-dateutil==2.8.19.14",
+    "types-python-dateutil==2.9.0.20240316",
     "pytest==7.4.3",
     "pytest-asyncio==0.23.2",
     "pytest-dotenv==0.5.2",
