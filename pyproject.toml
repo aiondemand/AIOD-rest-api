@@ -24,7 +24,7 @@ dependencies = [
     "oic==1.6.0",
     "python-keycloak==3.7.0",
     "python-dotenv==1.0.0",
-    "pytz==2023.3.post1",
+    "pytz==2024.2",
     "pydantic_schemaorg==1.0.6",
     "python-dateutil==2.8.2",
     "ratelimit==2.2.1",
