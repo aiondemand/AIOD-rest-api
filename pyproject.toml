@@ -14,7 +14,7 @@ authors = [
     { name = "Taniya Das", email = "t.das@tue.nl" }
 ]
 dependencies = [
-    "urllib3== 2.1.0",
+    "urllib3== 2.2.3",
     "bibtexparser==1.4.1",
     "huggingface_hub==0.23.4",
     "fastapi==0.109.2",
