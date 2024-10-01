@@ -117,7 +117,7 @@ def create_app() -> FastAPI:
                 "AI-on-Demand database does not exist on the MySQL server, "
                 "but `rebuild_db` is set to 'no'. If you are not creating the "
                 "database through other means, such as MySQL group replication, "
-                "this likely means that you will errors or undefined behavior."
+                "this likely means that you will get errors or undefined behavior."
             )
     else:
         drop_or_create_database(delete_first=args.rebuild_db == "always")
