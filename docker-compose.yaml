@@ -15,9 +15,10 @@ services:
       - ${AIOD_REST_PORT}:8000
     volumes:
       - ./src:/app:ro
+    stdin_open: true # docker run -i
     command: >
       python main.py
-      --rebuild-db only-if-empty
+      --build-db if-absent
       --reload
     healthcheck:
       test: ["CMD", "python", "-c",  "import requests; requests.get('http://localhost:8000')"]
