@@ -17,7 +17,7 @@ from database.session import db_url
 from routers import resource_routers
 
 
-def drop_or_create_database(delete_first: bool):
+def create_database(*, delete_first: bool):
     url = db_url(including_db=False)
     engine = create_engine(url, echo=False)  # Temporary engine, not connected to a database
     with engine.connect() as connection:

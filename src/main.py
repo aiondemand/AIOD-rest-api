@@ -20,7 +20,7 @@ from database.model.concept.concept import AIoDConcept
 from database.model.platform.platform import Platform
 from database.model.platform.platform_names import PlatformName
 from database.session import EngineSingleton, DbSession
-from database.setup import drop_or_create_database, database_exists
+from database.setup import create_database, database_exists
 from routers import resource_routers, parent_routers, enum_routers, uploader_routers
 from routers import search_routers
 from setup_logger import setup_logger
@@ -31,10 +31,18 @@ def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Please refer to the README.")
     parser.add_argument("--url-prefix", default="", help="Prefix for the api url.")
     parser.add_argument(
-        "--rebuild-db",
-        default="only-if-empty",
-        choices=["no", "only-if-empty", "always"],
-        help="Determines if the database is recreated.",
+        "--build-db",
+        default="if-absent",
+        choices=["never", "if-absent", "drop-then-build"],
+        help="""
+        Determines if the database is created:\n
+            - never: *never* creates the database, not even if there does not exist one yet.
+                Use this only if you expect the database to be created through other means, such
+                as MySQL group replication.\n
+            - if-absent: Creates a database only if none exists.\n
+            - drop-then-build: Drops the database on startup to recreate it from scratch.
+                THIS REMOVES ALL DATA PERMANENTLY. NO RECOVERY POSSIBLE.
+        """,
     )
     parser.add_argument(
         "--reload",
@@ -111,16 +119,18 @@ def create_app() -> FastAPI:
             "scopes": KEYCLOAK_CONFIG.get("scopes"),
         },
     )
-    if args.rebuild_db == "no":
+    if args.build_db == "never":
         if not database_exists():
             logging.warning(
                 "AI-on-Demand database does not exist on the MySQL server, "
-                "but `rebuild_db` is set to 'no'. If you are not creating the "
+                "but `build_db` is set to 'never'. If you are not creating the "
                 "database through other means, such as MySQL group replication, "
                 "this likely means that you will get errors or undefined behavior."
             )
     else:
-        drop_or_create_database(delete_first=args.rebuild_db == "always")
+
+        drop_database = args.build_db == "drop-then-build"
+        create_database(delete_first=drop_database)
         AIoDConcept.metadata.create_all(EngineSingleton().engine, checkfirst=True)
         with DbSession() as session:
             existing_platforms = session.scalars(select(Platform)).all()
