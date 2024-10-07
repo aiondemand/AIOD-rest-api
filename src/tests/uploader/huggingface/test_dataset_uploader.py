@@ -196,8 +196,9 @@ ERROR_MSG_PREFIX = f"The platform_resource_identifier is invalid for {PlatformNa
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=(
                     ERROR_MSG_PREFIX
-                    + "The platform_resource_identifier for HuggingFace should be a valid repo_id. "
-                    "A repo_id should only contain [a-zA-Z0-9] or ”-”, ”_”, ”.”"
+                    + "Repo id must use alphanumeric chars or '-', '_', '.', '--' and '..' are "
+                    "forbidden, '-' and '.' cannot start or end the name, max length is 96: "
+                    "'user/Test name with ?'."
                 ),
             ),
         ),
@@ -221,10 +222,8 @@ ERROR_MSG_PREFIX = f"The platform_resource_identifier is invalid for {PlatformNa
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=(
                     ERROR_MSG_PREFIX
-                    + "The platform_resource_identifier for HuggingFace should be a valid repo_id. "
-                    "For new repositories, there should be a single forward slash in the repo_id "
-                    "(namespace/repo_name). Legacy repositories are without a namespace. This "
-                    "repo_id has too many forward slashes."
+                    + "Repo id must be in the form 'repo_name' or 'namespace/repo_name': "
+                    "'user/data/set'. Use `repo_type` argument if needed."
                 ),
             ),
         ),
@@ -235,8 +234,8 @@ ERROR_MSG_PREFIX = f"The platform_resource_identifier is invalid for {PlatformNa
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=(
                     ERROR_MSG_PREFIX
-                    + "The namespace (the first part of the platform_resource_identifier) should be"
-                    " equal to the username, but wrong-namespace != user."
+                    + "The namespace (the first part of the platform_resource_identifier) "
+                    "should be equal to the username, but wrong-namespace != user."
                 ),
             ),
         ),
@@ -247,8 +246,9 @@ ERROR_MSG_PREFIX = f"The platform_resource_identifier is invalid for {PlatformNa
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=(
                     ERROR_MSG_PREFIX
-                    + "The platform_resource_identifier for HuggingFace should be a valid repo_id. "
-                    "A repo_id should be between 1 and 96 characters."
+                    + "Repo id must use alphanumeric chars or '-', '_', '.', '--' and '..' are "
+                    "forbidden, '-' and '.' cannot start or end the name, max length is 96: "
+                    "'user/" + "a" * 200 + "'."
                 ),
             ),
         ),

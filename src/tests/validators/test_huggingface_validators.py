@@ -12,24 +12,24 @@ from database.validators import huggingface_validators
         (
             "user/data/set",
             ValueError(
-                "The platform_resource_identifier for HuggingFace should be a valid repo_id. For "
-                "new repositories, there should be a single forward slash in the repo_id "
-                "(namespace/repo_name). Legacy repositories are without a namespace. This repo_id "
-                "has too many forward slashes."
+                "Repo id must be in the form 'repo_name' or 'namespace/repo_name': "
+                "'user/data/set'. Use `repo_type` argument if needed."
             ),
         ),
         (
-            "a",
+            "",
             ValueError(
-                "The platform_resource_identifier for HuggingFace should be a valid repo_id. A "
-                "repo_id should be between 1 and 96 characters."
+                "Repo id must use alphanumeric chars or '-', '_', '.', '--' and '..' are "
+                "forbidden, '-' and '.' cannot start or end the name, max length is 96: "
+                "''."
             ),
         ),
         (
             "user/" + "a" * 200,
             ValueError(
-                "The platform_resource_identifier for HuggingFace should be a valid repo_id. A "
-                "repo_id should be between 1 and 96 characters."
+                "Repo id must use alphanumeric chars or '-', '_', '.', '--' and '..' are "
+                "forbidden, '-' and '.' cannot start or end the name, max length is 96: "
+                "'user/" + "a" * 200 + "'."
             ),
         ),
     ],

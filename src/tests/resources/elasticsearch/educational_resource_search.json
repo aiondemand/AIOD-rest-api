@@ -15,8 +15,8 @@
     "max_score" : null,
     "hits" : [
       {
-        "_index" : "project",
-        "_id" : "project_1",
+        "_index" : "educational_resource",
+        "_id" : "educational_resource_1",
         "_score" : null,
         "_source" : {
           "identifier" : 1,
@@ -24,11 +24,11 @@
           "name" : "A name.",
           "platform" : "A platform.",
           "description_plain" : "A plain text description.",
-          "type" : "project",
-          "description_html" : "An html description."
+          "description_html" : "An html description.",
+          "type" : "educational_resource"
         },
         "sort" : [
-          1
+            1
         ]
       }
     ]

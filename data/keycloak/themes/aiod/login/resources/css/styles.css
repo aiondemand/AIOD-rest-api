@@ -1,0 +1,80 @@
+body {
+  color: white;
+}
+
+login-pf {
+  background: none;
+}
+
+.form-group {
+  font-size: small;
+}
+
+.btn-group-lg {
+  font-size: small;
+}
+
+.login-pf body {
+  background: #000613 none;
+}
+
+#kc-header-wrapper {
+  font-size: 0px;
+  padding: 124px 10px 20px;
+  background: url("../img/logo.svg") no-repeat center;
+  background-size: contain;
+}
+
+.card-pf {
+  background: transparent;
+}
+
+.kc-form-toggle {
+  color: white;
+  text-align: center;
+}
+
+.kc-form-toggle::after {
+  content: '▶︎';
+  display: inline-block;
+  transform: rotate(0deg);
+  transition: transform 0.3s ease;
+}
+
+.kc-form-toggle.up::after {
+  transform: rotate(90deg);
+}
+
+.kc-form-wrapper {
+  display: none;
+}
+
+h1#kc-page-title {
+  color: white;
+}
+
+#social-egicheckin {
+  display: inline-block;
+  width: auto;
+  padding: 20px 30px 20px 80px;
+  border: 2px solid #005faa;
+  border-radius: 100vw;
+  background-color: #005faa;
+  background-image: url(../img/egi-logo-white.svg);
+  background-position: 30px 43%;
+  background-size: 36px;
+  background-repeat: no-repeat;
+  -webkit-transition: all 200ms ease-in-out;
+  transition: all 200ms ease-in-out;
+  font-family: 'DM Sans', sans-serif;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 700;
+  --pf-c-button--after--BorderColor: transparent;
+}
+
+#social-egicheckin:hover {
+  background-color: #fff;
+  background-image: url(../img/egi-logo-color.svg);
+  color: #005faa;
+}
