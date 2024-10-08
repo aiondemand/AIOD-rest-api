@@ -99,6 +99,20 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
                     examples=["huggingface", "openml"],
                 ),
             ] = None,
+            date_modified_from: Annotated[
+                str,
+                Query(
+                    description="Search for resources modified from this date.",
+                    examples=["2023-01-01"],
+                ),
+            ] = None,
+            date_modified_to: Annotated[
+                str,
+                Query(
+                    description="Search for resources modified to this date.",
+                    examples=["2023-01-01"],
+                ),
+            ] = None,
             limit: Annotated[int, Query(ge=1, le=LIMIT_MAX)] = 10,
             offset: Annotated[int, Query(ge=0)] = 0,
             get_all: Annotated[
@@ -130,6 +144,18 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
                 query["bool"]["must"] = {
                     "bool": {"should": platform_matches, "minimum_should_match": 1}
                 }
+            if date_modified_from or date_modified_to:
+                date_range ={}
+                if date_modified_from:
+                    date_range["gte"] = date_modified_from
+                if date_modified_to:
+                    date_range["lte"] = date_modified_to
+                if "must" in query["bool"].keys():
+                    query["bool"]["must"] = [query["bool"]["must"],
+                                             {"range": {"date_modified": date_range}}]
+                else:
+                    query["bool"]["must"] = {"range": {"date_modified": date_range}}
+            print(query)
 
             result = ElasticsearchSingleton().client.search(
                 index=self.es_index, query=query, from_=offset, size=limit, sort=SORT
