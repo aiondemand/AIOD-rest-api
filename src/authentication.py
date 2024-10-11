@@ -48,6 +48,9 @@ keycloak_openid = KeycloakOpenID(
 class User(BaseModel):
     name: str = Field(description="The username.")
     roles: set[str] = Field(description="The roles.")
+    subject_identifier: str = Field(
+        description="Unique identifier for the user that created the resource."
+    )
 
     def has_role(self, role: str) -> bool:
         return role in self.roles
@@ -85,7 +88,9 @@ async def _get_user(token) -> User:
             logging.error("Invalid userinfo or inactive user.")
             raise InvalidUserError("Invalid userinfo or inactive user")  # caught below
         return User(
-            name=userinfo["username"], roles=set(userinfo.get("realm_access", {}).get("roles", []))
+            name=userinfo["username"],
+            roles=set(userinfo.get("realm_access", {}).get("roles", [])),
+            subject_identifier=userinfo["sub"],
         )
     except InvalidUserError:
         raise

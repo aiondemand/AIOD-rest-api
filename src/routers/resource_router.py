@@ -403,7 +403,7 @@ class ResourceRouter(abc.ABC):
             try:
                 with DbSession() as session:
                     try:
-                        resource = self.create_resource(session, resource_create)
+                        resource = self.create_resource(session, resource_create, user)
                         return self._wrap_with_headers({"identifier": resource.identifier})
                     except Exception as e:
                         self._raise_clean_http_exception(e, session, resource_create)
@@ -412,12 +412,13 @@ class ResourceRouter(abc.ABC):
 
         return register_resource
 
-    def create_resource(self, session: Session, resource_create_instance: SQLModel):
+    def create_resource(self, session: Session, resource_create_instance: SQLModel, user: User):
         """Store a resource in the database"""
         resource = self.resource_class.from_orm(resource_create_instance)
         deserialize_resource_relationships(
             session, self.resource_class, resource, resource_create_instance
         )
+        resource.aiod_entry.creator_identifier = user.subject_identifier
         session.add(resource)
         session.commit()
         return resource
@@ -448,6 +449,14 @@ class ResourceRouter(abc.ABC):
             with DbSession() as session:
                 try:
                     resource: Any = self._retrieve_resource(session, identifier)
+                    if not resource.owned_by(user):
+                        raise HTTPException(
+                            status_code=status.HTTP_403_FORBIDDEN,
+                            detail=(
+                                f"You do not have permission to edit "
+                                f"{self.resource_name} {identifier}."
+                            ),
+                        )
                     for attribute_name in resource.schema()["properties"]:
                         if hasattr(resource_create_instance, attribute_name):
                             new_value = getattr(resource_create_instance, attribute_name)
@@ -492,6 +501,14 @@ class ResourceRouter(abc.ABC):
                 try:
                     # Raise error if it does not exist
                     resource: Any = self._retrieve_resource(session, identifier)
+                    if not resource.owned_by(user):
+                        raise HTTPException(
+                            status_code=status.HTTP_403_FORBIDDEN,
+                            detail=(
+                                f"You do not have permission to delete "
+                                f"{self.resource_name} {identifier}."
+                            ),
+                        )
                     if (
                         hasattr(self.resource_class, "__deletion_config__")
                         and not self.resource_class.__deletion_config__["soft_delete"]
