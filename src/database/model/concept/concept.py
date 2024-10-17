@@ -1,7 +1,7 @@
 import copy
 import datetime
 import os
-from typing import Optional, Tuple
+from typing import Optional, Tuple, TYPE_CHECKING
 
 from pydantic import validator
 from sqlalchemy import CheckConstraint, Index
@@ -15,6 +15,9 @@ from database.model.platform.platform_names import PlatformName
 from database.model.relationships import OneToOne
 from database.model.serializers import CastDeserializer
 from database.validators import huggingface_validators, openml_validators, zenodo_validators
+
+if TYPE_CHECKING:
+    from authentication import User
 
 IS_SQLITE = os.getenv("DB") == "SQLite"
 CONSTRAINT_LOWERCASE = f"{'platform' if IS_SQLITE else 'BINARY(platform)'} = LOWER(platform)"
@@ -112,3 +115,7 @@ class AIoDConcept(AIoDConceptBase):
             ),
             CheckConstraint(CONSTRAINT_LOWERCASE, name=f"{cls.__name__}_platform_lowercase"),
         ) + tuple(cls.table_arguments())
+
+    def owned_by(self, user: "User") -> bool:
+        assert self.aiod_entry is not None, f"Expected concept to have aiod_entry: {self}"
+        return self.aiod_entry.owned_by(user)

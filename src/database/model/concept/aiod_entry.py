@@ -14,6 +14,7 @@ from database.model.serializers import (
 
 if TYPE_CHECKING:
     from database.model.agent.person import Person
+    from authentication import User
 
 
 class AIoDEntryBase(SQLModel):
@@ -38,6 +39,8 @@ class AIoDEntryORM(AIoDEntryBase, table=True):  # type: ignore [call-arg]
     date_modified: datetime | None = Field(default_factory=datetime.utcnow)
     date_created: datetime | None = Field(default_factory=datetime.utcnow)
 
+    creator_identifier: str = Field(max_length=32 + 4, default="")
+
     class RelationshipConfig:
         editor: list[int] = ManyToMany()  # No deletion triggers: "orphan" Persons should be kept
         status: str | None = ManyToOne(
@@ -45,6 +48,9 @@ class AIoDEntryORM(AIoDEntryBase, table=True):  # type: ignore [call-arg]
             identifier_name="status_identifier",
             deserializer=FindByNameDeserializer(Status),
         )
+
+    def owned_by(self, user: "User") -> bool:
+        return self.creator_identifier == user.subject_identifier
 
 
 class AIoDEntryCreate(AIoDEntryBase):
