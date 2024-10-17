@@ -6,6 +6,7 @@ from operator import and_
 import sqlmodel
 from sqlalchemy import text, create_engine
 from sqlmodel import SQLModel, select
+from sqlalchemy.exc import OperationalError
 
 from config import DB_CONFIG
 from connectors.resource_with_relations import ResourceWithRelations
@@ -16,7 +17,7 @@ from database.session import db_url
 from routers import resource_routers
 
 
-def drop_or_create_database(delete_first: bool):
+def create_database(*, delete_first: bool):
     url = db_url(including_db=False)
     engine = create_engine(url, echo=False)  # Temporary engine, not connected to a database
     with engine.connect() as connection:
@@ -24,6 +25,23 @@ def drop_or_create_database(delete_first: bool):
         if delete_first:
             connection.execute(text(f"DROP DATABASE IF EXISTS {database}"))
         connection.execute(text(f"CREATE DATABASE IF NOT EXISTS {database}"))
+
+
+def database_exists() -> bool:
+    """Checks whether the database defined in the configuration exists."""
+    url = db_url(including_db=True)
+    # Using the singleton defined in `Session.py` may be cleaner, but I could
+    # not find documentation that ensures me that creating the engine there and
+    # then potentially re-creating the database later is safe.
+    # Since this function is only supposed to be called once, using a separate
+    # Engine object does not seem problematic.
+    engine = create_engine(url, echo=False)
+    try:
+        with engine.connect() as _:
+            pass
+    except OperationalError:
+        return False
+    return True
 
 
 def _get_existing_resource(

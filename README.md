@@ -178,33 +178,22 @@ for a production instance.
 
 See [authentication README](authentication/README.md) for more information.
 
+### Creating the Database
+
+By default, the app will create a database on the provided MySQL server.
+You can change this behavior through the **build-db** command-line parameter, 
+it takes the following options:
+  * never: *never* creates the database, not even if there does not exist one yet.
+    Use this only if you expect the database to be created through other means, such
+    as MySQL group replication.
+  * if-absent: Creates a database only if none exists. (default)
+  * drop-then-build: Drops the database on startup to recreate it from scratch.
+    **THIS REMOVES ALL DATA PERMANENTLY. NO RECOVERY POSSIBLE.**
+
 ### Populating the Database
-
-By default, the app will connect to the database and populate it with a few items if there is no data present.
-You can change this behavior through parameters of the script:
-
-* **rebuild-db**: "no", "only-if-empty", "always". Default is "only-if-empty".
-    * no: connect to the database but don't make any modifications on startup.
-    * only-if-empty: if the database does not exist, create it. Then, if the tables do not exist, create them.
-      Then, if the tables are empty, populate according to `populate`.
-    * always: drop the configured database and rebuild its structure from scratch.
-      Effectively a `DROP DATABASE` followed by a `CREATE DATABASE` and the creation of the tables.
-      The database is then repopulated according to `populate`.
-      **Important:** data in the database is not restored. All data will be lost. Do not use this option
-      if you are not sure if it is what you need.
-
-* **populate-datasets**: one or multiple of "example", "huggingface", "zenodo" or "openml". 
-  Default is nothing. Specifies what data to add the database, only used if `rebuild-db` is 
-  "only-if-empty" or "always".
-    * nothing: don't add any data.
-    * example: registers two datasets and two publications.
-    * openml: registers datasets of OpenML, this may take a while, depending on the limit (~30 
-      minutes).
-
-* **populate-publications**: similar to populate-datasets. Only "example" is currently implemented.
-
-* **limit**: limit the number of initial resources with which the database is populated. This 
-  limit is per resource and per platform.
+To populate the database with some examples, run the `connectors/fill-examples.sh` script.
+When using `docker compose` you can easily do this by running the "examples" profile:
+`docker compose --profile examples up`
 
 ## Usage
 
