@@ -11,6 +11,9 @@ from database.session import DbSession
 def test_happy_path(client: TestClient):
     dataset_distribution = datatype_of_field(Dataset, "distribution")
     publication_distribution = datatype_of_field(Publication, "distribution")
+    assert not isinstance(dataset_distribution, str)
+    assert not isinstance(publication_distribution, str)
+
     dataset_1 = Dataset(
         name="dataset 1",
         distribution=[
