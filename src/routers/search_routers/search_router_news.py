@@ -18,3 +18,7 @@ class SearchRouterNews(SearchRouter[News]):
     @property
     def indexed_fields(self):
         return {"name", "description_plain", "description_html", "headline", "alternative_headline"}
+    
+    @property
+    def linked_fields(self):
+        return {}

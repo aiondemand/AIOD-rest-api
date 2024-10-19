@@ -42,13 +42,25 @@ def generate_file(file_path, template, file_data):
         f.write(Template(FILE_IS_GENERATED_COMMENT).render(file_data))
         f.write(Template(template).render(file_data))
 
+def format_linked_field(linked_field):
+    return (f"GROUP_CONCAT(DISTINCT {linked_field}.name "
+            f"ORDER BY {linked_field}.name ASC SEPARATOR ',') {linked_field}")
+
+def format_linked_join(es_index, linked_field):
+    return (f"LEFT JOIN aiod.{es_index}_{linked_field}_link ON "
+            f"aiod.{es_index}.identifier=aiod.{es_index}_{linked_field}_link.from_identifier"
+            f"\nLEFT JOIN aiod.{linked_field} ON "
+            f"aiod.{es_index}_{linked_field}_link.linked_identifier=aiod.{linked_field}.identifier")
 
 def main():
     setup_logger()
     for path in (PATH_CONFIG, PATH_PIPELINE, PATH_SQL):
         path.mkdir(parents=True, exist_ok=True)
     entities = {
-        router.es_index: list(router.indexed_fields ^ GLOBAL_FIELDS) for router in router_list
+        router.es_index: (
+            list(router.indexed_fields ^ GLOBAL_FIELDS),
+            list(router.linked_fields)
+        ) for router in router_list
     }
     render_parameters = {
         "file": os.path.basename(__file__),
@@ -71,12 +83,32 @@ def main():
     render_parameters["comment_tag"] = "--"
     logging.info("Generating configuration files completed.")
     logging.info("Generating sql files...")
-    for es_index, extra_fields in entities.items():
+    for es_index, (extra_fields, linked_fields) in entities.items():
         render_parameters["entity_name"] = es_index
         render_parameters["extra_fields"] = (
             ",\n    " + ",\n    ".join(extra_fields) if extra_fields else ""
         )
-
+        if linked_fields:
+            formated_linked_fields = [
+                format_linked_field(linked_field)
+                for linked_field in linked_fields
+            ]
+            render_parameters["linked_fields"] = (
+                ",\n    " + ",\n    ".join(formated_linked_fields)
+            )
+            formated_linked_joins = [
+                format_linked_join(es_index, linked_field)
+                for linked_field in linked_fields
+            ]
+            render_parameters["linked_joins"] = (
+                "\n" + "\n".join(formated_linked_joins)
+            )
+            render_parameters["group_by"] = f"\nGROUP BY {es_index}.identifier"
+        else:
+            render_parameters["linked_fields"] = ""
+            render_parameters["linked_joins"] = ""
+            render_parameters["group_by"] = ""
+        
         sql_init_file = os.path.join(PATH_SQL, f"init_{es_index}.sql")
         sql_sync_file = os.path.join(PATH_SQL, f"sync_{es_index}.sql")
         sql_rm_file = os.path.join(PATH_SQL, f"rm_{es_index}.sql")

@@ -1,19 +1,19 @@
-from database.model.event.event import Event
+from database.model.case_study.case_study import CaseStudy
 from routers.search_router import SearchRouter
 
 
-class SearchRouterEvents(SearchRouter[Event]):
+class SearchRouterCaseStudies(SearchRouter[CaseStudy]):
     @property
     def es_index(self) -> str:
-        return "event"
+        return "case_study"
 
     @property
     def resource_name_plural(self) -> str:
-        return "events"
+        return "case_studies"
 
     @property
     def resource_class(self):
-        return Event
+        return CaseStudy
 
     @property
     def indexed_fields(self):
@@ -21,4 +21,4 @@ class SearchRouterEvents(SearchRouter[Event]):
     
     @property
     def linked_fields(self):
-        return {}
+        return {"alternate_name", "application_area", "industrial_sector", "research_area", "scientific_domain"}

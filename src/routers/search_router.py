@@ -63,7 +63,12 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
     @abc.abstractmethod
     def indexed_fields(self) -> set[str]:
         """The set of indexed fields"""
-
+    
+    @property
+    @abc.abstractmethod
+    def linked_fields(self) -> set[str]:
+        """The set of linked fields (those with aiod 'link' relations)"""
+    
     def create(self, url_prefix: str) -> APIRouter:
         router = APIRouter()
         read_class = resource_read(self.resource_class)  # type: ignore
@@ -210,7 +215,7 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
         kwargs = {
             self.key_translations.get(key, key): val
             for key, val in resource_dict.items()
-            if key != "type" and not key.startswith("@")
+            if key != "type" and not key.startswith("@") and key not in ["alternate_name", "application_area", "industrial_sector", "research_area", "scientific_domain"]
         }
         resource = read_class(**kwargs)
         resource.aiod_entry = AIoDEntryRead(
@@ -220,4 +225,14 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
             "plain": resource_dict["description_plain"],
             "html": resource_dict["description_html"],
         }
+        if "alternate_name" in resource_dict.keys():
+            resource.alternate_name = [resource_dict["alternate_name"].split(',')]
+        if "application_area" in resource_dict.keys():
+            resource.application_area = [resource_dict["application_area"].split(',')]
+        if "industrial_sector" in resource_dict.keys():
+            resource.industrial_sector = [resource_dict["industrial_sector"].split(',')]
+        if "research_area" in resource_dict.keys():
+            resource.research_area = [resource_dict["research_area"].split(',')]
+        if "scientific_domain" in resource_dict.keys():
+            resource.scientific_domain = [resource_dict["scientific_domain"].split(',')]
         return resource
