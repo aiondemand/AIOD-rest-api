@@ -212,10 +212,12 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
     def _cast_resource(
         self, read_class: Type[SQLModel], resource_dict: dict[str, Any]
     ) -> Type[RESOURCE]:
+        for key, val in resource_dict.items():
+            print(f"{key}: {val}")
         kwargs = {
             self.key_translations.get(key, key): val
             for key, val in resource_dict.items()
-            if key != "type" and not key.startswith("@") and key not in ["alternate_name", "application_area", "industrial_sector", "research_area", "scientific_domain"]
+            if key != "type" and not key.startswith("@") and key not in self.linked_fields
         }
         resource = read_class(**kwargs)
         resource.aiod_entry = AIoDEntryRead(
@@ -225,14 +227,8 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
             "plain": resource_dict["description_plain"],
             "html": resource_dict["description_html"],
         }
-        if "alternate_name" in resource_dict.keys():
-            resource.alternate_name = [resource_dict["alternate_name"].split(',')]
-        if "application_area" in resource_dict.keys():
-            resource.application_area = [resource_dict["application_area"].split(',')]
-        if "industrial_sector" in resource_dict.keys():
-            resource.industrial_sector = [resource_dict["industrial_sector"].split(',')]
-        if "research_area" in resource_dict.keys():
-            resource.research_area = [resource_dict["research_area"].split(',')]
-        if "scientific_domain" in resource_dict.keys():
-            resource.scientific_domain = [resource_dict["scientific_domain"].split(',')]
+        for linked_field in self.linked_fields:
+            if resource_dict[linked_field]:
+                setattr(resource, linked_field,
+                        [resource_dict[linked_field].split(',')])
         return resource
