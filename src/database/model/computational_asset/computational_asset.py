@@ -2,7 +2,11 @@ from sqlmodel import Field, Relationship
 from typing import Optional
 from database.model.field_length import NORMAL
 from database.model.relationships import ManyToOne, OneToMany
-from database.model.serializers import AttributeSerializer, CastDeserializerList, FindByNameDeserializer
+from database.model.serializers import (
+    AttributeSerializer,
+    CastDeserializerList,
+    FindByNameDeserializer,
+)
 
 from database.model.ai_asset.ai_asset import AIAssetBase, AIAsset
 from database.model.computational_asset.computational_asset_type import ComputationalAssetType
@@ -53,7 +57,9 @@ class ComputationalAsset(ComputationalAssetBase, AIAsset, table=True):  # type: 
     type: Optional[ComputationalAssetType] = Relationship()
     cpu: list[CpuORM] = Relationship(sa_relationship_kwargs={"cascade": "all, delete"})
     memory: list[MemoryORM] = Relationship(sa_relationship_kwargs={"cascade": "all, delete"})
-    accelerator: list[AcceleratorORM] = Relationship(sa_relationship_kwargs={"cascade": "all, delete"})
+    accelerator: list[AcceleratorORM] = Relationship(
+        sa_relationship_kwargs={"cascade": "all, delete"}
+    )
     storage: list[StorageORM] = Relationship(sa_relationship_kwargs={"cascade": "all, delete"})
 
     class RelationshipConfig(AIAsset.RelationshipConfig):
@@ -64,7 +70,7 @@ class ComputationalAsset(ComputationalAssetBase, AIAsset, table=True):  # type: 
             deserializer=FindByNameDeserializer(ComputationalAssetType),
             example="storage",
         )
-        
+
         cpu: list[Cpu] | None = OneToMany(
             default_factory_pydantic=list,  # no deletion trigger: cascading delete is used
             description="The CPU of the Computational Asset.",
