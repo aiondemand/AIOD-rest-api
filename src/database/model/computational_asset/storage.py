@@ -30,8 +30,7 @@ class StorageBase(SQLModel):
     schema_extra={"example": 100},
   )
   write_bandwidth: int | None = Field(
-    description=("The rate at which data can be transferred form the"
-                 " computer and stored onto the storage."),
+    description="Rate at which data can be transferred form computer and stored onto storage.",
     schema_extra={"example": 100},
   )
 
