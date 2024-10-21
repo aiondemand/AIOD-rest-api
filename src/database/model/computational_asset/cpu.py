@@ -36,7 +36,7 @@ class CpuBase(SQLModel):
     schema_extra={"example": 3.2},
   )
   
-class CpuORM(CpuBase, table=True):
+class CpuORM(CpuBase, table=True): # type: ignore [call-arg]
   __tablename__ = "cpu"
   identifier: int = Field(default=None, primary_key=True)
   computational_asset_identifier: int | None = Field(foreign_key="computational_asset.identifier")

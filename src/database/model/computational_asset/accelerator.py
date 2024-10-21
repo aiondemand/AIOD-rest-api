@@ -35,7 +35,7 @@ class AcceleratorBase(SQLModel):
     schema_extra={"example": 64},
   )
 
-class AcceleratorORM(AcceleratorBase, table=True):
+class AcceleratorORM(AcceleratorBase, table=True): # type: ignore [call-arg]
   __tablename__ = "accelerator"
   identifier: int = Field(default=None, primary_key=True)
   computational_asset_identifier: int | None = Field(foreign_key="computational_asset.identifier")

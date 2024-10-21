@@ -34,7 +34,7 @@ class StorageBase(SQLModel):
     schema_extra={"example": 100},
   )
 
-class StorageORM(StorageBase, table=True):
+class StorageORM(StorageBase, table=True): # type: ignore [call-arg]
   __tablename__ = "storage"
   identifier: int = Field(default=None, primary_key=True)
   computational_asset_identifier: int | None = Field(foreign_key="computational_asset.identifier")

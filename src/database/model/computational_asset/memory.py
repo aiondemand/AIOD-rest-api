@@ -29,7 +29,7 @@ class MemoryBase(SQLModel):
     schema_extra={"example": ""},
   )
 
-class MemoryORM(MemoryBase, table=True):
+class MemoryORM(MemoryBase, table=True): # type: ignore [call-arg]
   __tablename__ = "memory"
   identifier: int = Field(default=None, primary_key=True)
   computational_asset_identifier: int | None = Field(foreign_key="computational_asset.identifier")
