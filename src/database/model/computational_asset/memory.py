@@ -24,7 +24,7 @@ class MemoryBase(SQLModel):
     schema_extra={"example": 100},
   )
   rdma: str | None = Field(
-    description="Technology that enables 2 networked computers to exchange data in main memory.",
+    description="Tech. that enables 2 networked computers to exchange data in mainmemory.",
     max_length=NORMAL,
     schema_extra={"example": ""},
   )
