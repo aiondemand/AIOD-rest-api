@@ -21,6 +21,7 @@ from database.model.platform.platform import Platform
 from database.model.platform.platform_names import PlatformName
 from database.session import EngineSingleton, DbSession
 from database.setup import drop_or_create_database
+from database.model.concept.aiod_entry import AIoDEntryORM
 from routers import resource_routers, parent_routers, enum_routers, uploader_routers
 from routers import search_routers
 from setup_logger import setup_logger
@@ -68,6 +69,27 @@ def add_routes(app: FastAPI, url_prefix=""):
         Returns the user, if authenticated correctly.
         """
         return user
+
+    @app.get(url_prefix + "/my_resources")
+    def get_assets_by_user(user: User = Depends(get_user_or_raise)):
+        user_assets = {}
+        with DbSession() as session:
+            for router_ in resource_routers.router_list:
+                if router_.resource_class in [Platform]:
+                    continue  # doesn't have an aiod entry
+                query = (
+                    select(router_.resource_class)
+                    .join(AIoDEntryORM)
+                    .where(AIoDEntryORM.creator_identifier == user.subject_identifier)
+                )
+                user_orm_assets = session.scalars(query).all()
+                wrapped_assets = [
+                    router_.resource_class.from_orm(resource) for resource in user_orm_assets
+                ]
+                if wrapped_assets:
+                    user_assets[router_.resource_name_plural] = wrapped_assets
+        any_router = next(iter(resource_routers.router_list))
+        return any_router._wrap_with_headers(user_assets)
 
     @app.get(url_prefix + "/counts/v1")
     def counts() -> dict:
