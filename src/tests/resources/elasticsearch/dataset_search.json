@@ -24,9 +24,9 @@
           "name" : "A name.",
           "platform" : "A platform.",
           "description_plain" : "A plain text description.",
-          "issn" : "20493630",
+          "description_html" : "An html description.",
           "type" : "dataset",
-          "description_html" : "An html description."
+          "issn" : "20493630"
         },
         "sort" : [
           1
