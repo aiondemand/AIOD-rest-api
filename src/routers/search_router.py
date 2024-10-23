@@ -63,12 +63,12 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
     @abc.abstractmethod
     def indexed_fields(self) -> set[str]:
         """The set of indexed fields"""
-    
+
     @property
     @abc.abstractmethod
     def linked_fields(self) -> set[str]:
         """The set of linked fields (those with aiod 'link' relations)"""
-    
+
     def create(self, url_prefix: str) -> APIRouter:
         router = APIRouter()
         read_class = resource_read(self.resource_class)  # type: ignore
@@ -150,14 +150,16 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
                     "bool": {"should": platform_matches, "minimum_should_match": 1}
                 }
             if date_modified_from or date_modified_to:
-                date_range ={}
+                date_range = {}
                 if date_modified_from:
                     date_range["gte"] = date_modified_from
                 if date_modified_to:
                     date_range["lte"] = date_modified_to
                 if "must" in query["bool"].keys():
-                    query["bool"]["must"] = [query["bool"]["must"],
-                                             {"range": {"date_modified": date_range}}]
+                    query["bool"]["must"] = [
+                        query["bool"]["must"],
+                        {"range": {"date_modified": date_range}},
+                    ]
                 else:
                     query["bool"]["must"] = {"range": {"date_modified": date_range}}
 
@@ -226,6 +228,5 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
         }
         for linked_field in self.linked_fields:
             if resource_dict[linked_field]:
-                setattr(resource, linked_field,
-                        [resource_dict[linked_field].split(',')])
+                setattr(resource, linked_field, [resource_dict[linked_field].split(",")])
         return resource

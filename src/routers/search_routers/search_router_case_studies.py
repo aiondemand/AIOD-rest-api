@@ -18,7 +18,13 @@ class SearchRouterCaseStudies(SearchRouter[CaseStudy]):
     @property
     def indexed_fields(self):
         return {"name", "description_plain", "description_html"}
-    
+
     @property
     def linked_fields(self):
-        return {"alternate_name", "application_area", "industrial_sector", "research_area", "scientific_domain"}
+        return {
+            "alternate_name",
+            "application_area",
+            "industrial_sector",
+            "research_area",
+            "scientific_domain",
+        }
