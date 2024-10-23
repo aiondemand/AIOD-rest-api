@@ -105,14 +105,14 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
                 ),
             ] = None,
             date_modified_from: Annotated[
-                str,
+                str | None,
                 Query(
                     description="Search for resources modified from this date.",
                     examples=["2023-01-01"],
                 ),
             ] = None,
             date_modified_to: Annotated[
-                str,
+                str | None,
                 Query(
                     description="Search for resources modified to this date.",
                     examples=["2023-01-01"],
