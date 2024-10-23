@@ -160,7 +160,6 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
                                              {"range": {"date_modified": date_range}}]
                 else:
                     query["bool"]["must"] = {"range": {"date_modified": date_range}}
-            print(query)
 
             result = ElasticsearchSingleton().client.search(
                 index=self.es_index, query=query, from_=offset, size=limit, sort=SORT
@@ -212,8 +211,6 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
     def _cast_resource(
         self, read_class: Type[SQLModel], resource_dict: dict[str, Any]
     ) -> Type[RESOURCE]:
-        for key, val in resource_dict.items():
-            print(f"{key}: {val}")
         kwargs = {
             self.key_translations.get(key, key): val
             for key, val in resource_dict.items()
