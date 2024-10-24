@@ -151,7 +151,7 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail=f"The available platforms are: {platform_names}",
                 )
-            
+
             fields = search_fields if search_fields else self.indexed_fields
             query_matches = [{"match": {f: search_query}} for f in fields]
             query = {"bool": {"should": query_matches, "minimum_should_match": 1}}
@@ -170,7 +170,7 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
                 must_clause.append({"range": {"date_modified": date_range}})
             if must_clause:
                 query["bool"]["must"] = must_clause
-            
+
             result = ElasticsearchSingleton().client.search(
                 index=self.es_index, query=query, from_=offset, size=limit, sort=SORT
             )

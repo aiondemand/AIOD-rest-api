@@ -34,6 +34,7 @@ DB_PASS = os.environ["MYSQL_ROOT_PASSWORD"]
 ES_USER = os.environ["ES_USER"]
 ES_PASS = os.environ["ES_PASSWORD"]
 
+
 def generate_file(file_path, template, file_data):
     with open(file_path, "w") as f:
         f.write(Template(FILE_IS_GENERATED_COMMENT).render(file_data))
