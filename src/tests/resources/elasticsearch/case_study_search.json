@@ -1,5 +1,5 @@
 {
-  "took" : 1,
+  "took" : 3,
   "timed_out" : false,
   "_shards" : {
     "total" : 1,
@@ -15,8 +15,8 @@
     "max_score" : null,
     "hits" : [
       {
-        "_index" : "project",
-        "_id" : "project_1",
+        "_index" : "case_study",
+        "_id" : "case_study_1",
         "_score" : null,
         "_source" : {
           "identifier" : 1,
@@ -25,10 +25,15 @@
           "platform" : "A platform.",
           "description_plain" : "A plain text description.",
           "description_html" : "An html description.",
-          "type" : "project"
+          "type" : "case_study",
+          "alternate_name" : "An alternate name, Or more",
+          "industrial_sector" : "An industrial sector, Or more",
+          "application_area" : "An application area, Or more",
+          "scientific_domain" : "A scientific domain, Or more",
+          "research_area" : "A research area, Or more"
         },
         "sort" : [
-          1
+            1
         ]
       }
     ]

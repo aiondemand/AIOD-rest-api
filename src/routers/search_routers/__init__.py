@@ -1,3 +1,4 @@
+from .search_router_case_studies import SearchRouterCaseStudies
 from .search_router_datasets import SearchRouterDatasets
 from .search_router_educational_resources import SearchRouterEducationalResources
 from .search_router_events import SearchRouterEvents
@@ -11,6 +12,7 @@ from .search_router_services import SearchRouterServices
 from ..search_router import SearchRouter
 
 router_list: list[SearchRouter] = [
+    SearchRouterCaseStudies(),
     SearchRouterDatasets(),
     SearchRouterEducationalResources(),
     SearchRouterEvents(),
