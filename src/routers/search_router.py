@@ -60,14 +60,24 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
         """The resource class"""
 
     @property
-    @abc.abstractmethod
-    def indexed_fields(self) -> set[str]:
-        """The set of indexed fields"""
+    def global_indexed_fields(self) -> set[str]:
+        """The set of indexed fields that are mandatory for every entity"""
+        return {"name", "description_plain", "description_html"}
 
     @property
-    @abc.abstractmethod
+    def extra_indexed_fields(self) -> set[str]:
+        """The set of other indexed fields in addition to the global ones"""
+        return {}
+
+    @property
+    def indexed_fields(self) -> set[str]:
+        """The set of indexed fields"""
+        return set.union(self.global_indexed_fields, self.extra_indexed_fields)
+
+    @property
     def linked_fields(self) -> set[str]:
         """The set of linked fields (those with aiod 'link' relations)"""
+        return {}
 
     def create(self, url_prefix: str) -> APIRouter:
         router = APIRouter()
@@ -141,28 +151,26 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail=f"The available platforms are: {platform_names}",
                 )
+            
             fields = search_fields if search_fields else self.indexed_fields
             query_matches = [{"match": {f: search_query}} for f in fields]
             query = {"bool": {"should": query_matches, "minimum_should_match": 1}}
+            must_clause = []
             if platforms:
                 platform_matches = [{"match": {"platform": p}} for p in platforms]
-                query["bool"]["must"] = {
-                    "bool": {"should": platform_matches, "minimum_should_match": 1}
-                }
+                must_clause.append(
+                    {"bool": {"should": platform_matches, "minimum_should_match": 1}}
+                )
             if date_modified_after or date_modified_before:
                 date_range = {}
                 if date_modified_after:
                     date_range["gte"] = date_modified_after
                 if date_modified_before:
                     date_range["lt"] = date_modified_before
-                if "must" in query["bool"].keys():
-                    query["bool"]["must"] = [
-                        query["bool"]["must"],
-                        {"range": {"date_modified": date_range}},
-                    ]
-                else:
-                    query["bool"]["must"] = {"range": {"date_modified": date_range}}
-
+                must_clause.append({"range": {"date_modified": date_range}})
+            if must_clause:
+                query["bool"]["must"] = must_clause
+            
             result = ElasticsearchSingleton().client.search(
                 index=self.es_index, query=query, from_=offset, size=limit, sort=SORT
             )

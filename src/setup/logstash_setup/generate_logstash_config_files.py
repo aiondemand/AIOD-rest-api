@@ -34,9 +34,6 @@ DB_PASS = os.environ["MYSQL_ROOT_PASSWORD"]
 ES_USER = os.environ["ES_USER"]
 ES_PASS = os.environ["ES_PASSWORD"]
 
-GLOBAL_FIELDS = {"name", "description_plain", "description_html"}
-
-
 def generate_file(file_path, template, file_data):
     with open(file_path, "w") as f:
         f.write(Template(FILE_IS_GENERATED_COMMENT).render(file_data))
@@ -64,7 +61,7 @@ def main():
     for path in (PATH_CONFIG, PATH_PIPELINE, PATH_SQL):
         path.mkdir(parents=True, exist_ok=True)
     entities = {
-        router.es_index: (list(router.indexed_fields ^ GLOBAL_FIELDS), list(router.linked_fields))
+        router.es_index: (list(router.extra_indexed_fields), list(router.linked_fields))
         for router in router_list
     }
     render_parameters = {

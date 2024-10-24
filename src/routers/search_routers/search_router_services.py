@@ -16,9 +16,5 @@ class SearchRouterServices(SearchRouter[Service]):
         return Service
 
     @property
-    def indexed_fields(self):
-        return {"name", "description_plain", "description_html", "slogan"}
-
-    @property
-    def linked_fields(self):
-        return {}
+    def extra_indexed_fields(self) -> set[str]:
+        return {"slogan"}

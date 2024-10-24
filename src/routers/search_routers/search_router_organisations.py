@@ -16,9 +16,5 @@ class SearchRouterOrganisations(SearchRouter[Organisation]):
         return Organisation
 
     @property
-    def indexed_fields(self):
-        return {"name", "legal_name", "description_plain", "description_html"}
-
-    @property
-    def linked_fields(self):
-        return {}
+    def extra_indexed_fields(self) -> set[str]:
+        return {"legal_name"}

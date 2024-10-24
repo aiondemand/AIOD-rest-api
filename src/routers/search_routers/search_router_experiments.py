@@ -14,11 +14,3 @@ class SearchRouterExperiments(SearchRouter[Experiment]):
     @property
     def resource_class(self):
         return Experiment
-
-    @property
-    def indexed_fields(self):
-        return {"name", "description_plain", "description_html"}
-
-    @property
-    def linked_fields(self):
-        return {}

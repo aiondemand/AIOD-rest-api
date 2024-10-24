@@ -16,11 +16,7 @@ class SearchRouterCaseStudies(SearchRouter[CaseStudy]):
         return CaseStudy
 
     @property
-    def indexed_fields(self):
-        return {"name", "description_plain", "description_html"}
-
-    @property
-    def linked_fields(self):
+    def linked_fields(self) -> set[str]:
         return {
             "alternate_name",
             "application_area",
