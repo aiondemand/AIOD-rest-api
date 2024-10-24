@@ -28,9 +28,7 @@ def generate_mapping(fields):
 def main():
     setup_logger()
     es_client = ElasticsearchSingleton().client
-    entities = {
-        router.es_index: list(router.extra_indexed_fields) for router in router_list
-    }
+    entities = {router.es_index: list(router.extra_indexed_fields) for router in router_list}
     logging.info("Generating indices...")
     for es_index, fields in entities.items():
         mapping = generate_mapping(fields)
