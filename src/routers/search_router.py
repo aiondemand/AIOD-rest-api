@@ -104,17 +104,17 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
                     examples=["huggingface", "openml"],
                 ),
             ] = None,
-            date_modified_from: Annotated[
+            date_modified_after: Annotated[
                 str | None,
                 Query(
-                    description="Search for resources modified from this date.",
+                    description="Search for resources modified after this date (included).",
                     examples=["2023-01-01"],
                 ),
             ] = None,
-            date_modified_to: Annotated[
+            date_modified_before: Annotated[
                 str | None,
                 Query(
-                    description="Search for resources modified to this date.",
+                    description="Search for resources modified before this date (not included).",
                     examples=["2023-01-01"],
                 ),
             ] = None,
@@ -149,12 +149,12 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
                 query["bool"]["must"] = {
                     "bool": {"should": platform_matches, "minimum_should_match": 1}
                 }
-            if date_modified_from or date_modified_to:
+            if date_modified_after or date_modified_before:
                 date_range = {}
-                if date_modified_from:
-                    date_range["gte"] = date_modified_from
-                if date_modified_to:
-                    date_range["lte"] = date_modified_to
+                if date_modified_after:
+                    date_range["gte"] = date_modified_after
+                if date_modified_before:
+                    date_range["lt"] = date_modified_before
                 if "must" in query["bool"].keys():
                     query["bool"]["must"] = [
                         query["bool"]["must"],
@@ -228,5 +228,5 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
         }
         for linked_field in self.linked_fields:
             if resource_dict[linked_field]:
-                setattr(resource, linked_field, [resource_dict[linked_field].split(",")])
+                setattr(resource, linked_field, resource_dict[linked_field].split(","))
         return resource
