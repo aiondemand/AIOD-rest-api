@@ -67,7 +67,7 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
     @property
     def extra_indexed_fields(self) -> set[str]:
         """The set of other indexed fields in addition to the global ones"""
-        return {}
+        return set()
 
     @property
     def indexed_fields(self) -> set[str]:
@@ -77,7 +77,7 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
     @property
     def linked_fields(self) -> set[str]:
         """The set of linked fields (those with aiod 'link' relations)"""
-        return {}
+        return set()
 
     def create(self, url_prefix: str) -> APIRouter:
         router = APIRouter()
