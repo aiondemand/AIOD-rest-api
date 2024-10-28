@@ -11,6 +11,7 @@ from requests.exceptions import HTTPError
 from sqlmodel import SQLModel
 from typing import Iterator
 
+from config import REQUEST_TIMEOUT
 from connectors.abstract.resource_connector_by_id import ResourceConnectorById
 from connectors.record_error import RecordError
 from database.model import field_length
@@ -40,7 +41,7 @@ class OpenMlDatasetConnector(ResourceConnectorById[Dataset]):
 
     def retry(self, identifier: int) -> SQLModel | RecordError:
         url_qual = f"https://www.openml.org/api/v1/json/data/qualities/{identifier}"
-        response = requests.get(url_qual)
+        response = requests.get(url_qual, timeout=REQUEST_TIMEOUT)
         if not response.ok:
             msg = response.json()["error"]["message"]
             return RecordError(
@@ -54,7 +55,7 @@ class OpenMlDatasetConnector(ResourceConnectorById[Dataset]):
         self, identifier: int, qualities: list[dict[str, str]]
     ) -> SQLModel | RecordError:
         url_data = f"https://www.openml.org/api/v1/json/data/{identifier}"
-        response = requests.get(url_data)
+        response = requests.get(url_data, timeout=REQUEST_TIMEOUT)
         if not response.ok:
             msg = response.json()["error"]["message"]
             return RecordError(
@@ -105,7 +106,7 @@ class OpenMlDatasetConnector(ResourceConnectorById[Dataset]):
             "https://www.openml.org/api/v1/json/data/list/"
             f"limit/{self.limit_per_iteration}/offset/{offset}"
         )
-        response = requests.get(url_data)
+        response = requests.get(url_data, timeout=REQUEST_TIMEOUT)
         if not response.ok:
             status_code = response.status_code
             msg = response.json()["error"]["message"]

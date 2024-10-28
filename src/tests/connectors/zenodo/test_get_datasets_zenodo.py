@@ -9,6 +9,7 @@ from ratelimit import limits
 from ratelimit.exception import RateLimitException
 from requests.exceptions import HTTPError
 
+from config import REQUEST_TIMEOUT
 from connectors.record_error import RecordError
 from connectors.zenodo import zenodo_dataset_connector
 from connectors.zenodo.zenodo_dataset_connector import ZenodoDatasetConnector
@@ -168,7 +169,9 @@ def test_fetch_records_rate_limit(monkeypatch):
     @staticmethod
     @limits(calls=1, period=60)
     def mock_check(id_number):
-        response = requests.get(f"https://zenodo.org/api/records/{id_number}/files")
+        response = requests.get(
+            f"https://zenodo.org/api/records/{id_number}/files", timeout=REQUEST_TIMEOUT
+        )
         return response
 
     monkeypatch.setattr(ZenodoDatasetConnector, "_get_record", mock_check)

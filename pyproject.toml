@@ -58,6 +58,14 @@ py-modules = []
 [tool.black]
 line-length = 100
 
+[tool.ruff]
+exclude = [
+    "src/tests",
+]
+
+[tool.ruff.lint]
+select = ["S"]
+
 [tool.pytest.ini_options]
 filterwarnings = [
     "ignore::FutureWarning"
