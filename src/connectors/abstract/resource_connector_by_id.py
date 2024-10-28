@@ -42,8 +42,9 @@ class ResourceConnectorById(ResourceConnector, Generic[RESOURCE]):
             state["from_id"] = from_identifier if from_identifier is not None else 0
         else:
             state["from_id"] = state["last_id"] + 1
-            state["offset"] = state["offset"]  # TODO: what if datasets are deleted? Or updated?
-
+            # state["offset"] = state["offset"]  # TODO: what if datasets are deleted? 
+            state["offset"] = 0 # Setting offset to zero, to avoid "swiss-cheese" indexing (Issue: #372). 
+            
         logging.info(
             f"Starting synchronisation of records from id {state['from_id']} and"
             f" offset {state['offset']}"
