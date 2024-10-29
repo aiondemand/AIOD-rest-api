@@ -17,8 +17,8 @@ def test_first_run():
         for i in range(1, 4):
             mock_get_data(mocked_requests, str(i))
         mlmodels = list(connector.run(state, from_identifier=0, limit=None))
-
-    assert state["offset"] == 3, state
+    
+    assert state["last_id"] == 3, state
     assert {m.resource.name for m in mlmodels} == {
         "openml.evaluation.EuclideanDistance",
         "openml.evaluation.PolynomialKernel",
@@ -32,12 +32,12 @@ def test_first_run():
 
 def test_request_empty_list():
     """Tests if the state doesn't change after a request when OpenML returns an empty list."""
-    state = {"offset": 2, "last_id": 3}
+    state = {"last_id": 3}
     connector = OpenMlMLModelConnector(limit_per_iteration=2)
     with responses.RequestsMock() as mocked_requests:
         mocked_requests.add(
             responses.GET,
-            f"{OPENML_URL}/flow/list/limit/2/offset/2",
+            f"{OPENML_URL}/flow/list/limit/2/offset/0",
             json={"error": {"code": "500", "message": "No results"}},
             status=412,
         )
@@ -45,7 +45,6 @@ def test_request_empty_list():
 
         assert len(ml_models) == 1, ml_models
         assert "No results" in ml_models[0].error.args[0], ml_models
-        assert state["offset"] == 2, state
         assert state["last_id"] == 3, state
 
 
