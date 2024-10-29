@@ -117,14 +117,18 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
             date_modified_after: Annotated[
                 str | None,
                 Query(
-                    description="Search for resources modified after this date (included).",
+                    description="Search for resources modified after this date "
+                    "(yyyy-mm-dd, inclusive).",
+                    pattern="[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]",
                     examples=["2023-01-01"],
                 ),
             ] = None,
             date_modified_before: Annotated[
                 str | None,
                 Query(
-                    description="Search for resources modified before this date (not included).",
+                    description="Search for resources modified before this date "
+                    "(yyyy-mm-dd, not inclusive).",
+                    pattern="[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]",
                     examples=["2023-01-01"],
                 ),
             ] = None,
