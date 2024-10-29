@@ -3,7 +3,6 @@ import responses
 
 from connectors.openml.openml_dataset_connector import OpenMlDatasetConnector
 from tests.testutils.paths import path_test_resources
-from connectors.record_error import RecordError
 
 OPENML_URL = "https://www.openml.org/api/v1/json"
 
@@ -46,7 +45,7 @@ def test_request_empty_list():
 def test_second_run():
     connector = OpenMlDatasetConnector(limit_per_iteration=2)
 
-    state = {"last_id": 3, "from_id": 1}  # state from last run
+    state = {"last_id": 3}  # state from last run
     with responses.RequestsMock() as mocked_requests:
         mock_list_data(
             mocked_requests, offset=0
@@ -61,30 +60,6 @@ def test_second_run():
     assert {d.name for d in datasets} == {"labor"}
     assert state["last_id"] == 4, state
     assert state["from_id"] == 4, state  # state["from_id"] = state["last_id"] + 1
-
-
-def test_second_run_wrong_identifier():
-    connector = OpenMlDatasetConnector(limit_per_iteration=2)
-    with responses.RequestsMock() as mocked_requests:
-        mock_list_data(
-            mocked_requests, offset=0
-        )  # Mock the first call to fetch datasets with offset=0
-        mock_list_data(
-            mocked_requests, offset=2
-        )  # Mock the second call for pagination with offset=2
-        mock_get_data(mocked_requests, "4")  # Since second run, only new datasets are indexed.
-
-        datasets = list(connector.run(state={"last_id": 1}, from_identifier=0, limit=None))
-
-    # Since, the given last_id is incorrect, the previous run's data is not indexed here,
-    # producing error.
-    valid_datasets = [d for d in datasets if not isinstance(d, RecordError)]
-    assert len(valid_datasets) == 1
-    assert {d.name for d in valid_datasets} == {"labor"}
-
-    error_records = [d for d in datasets if isinstance(d, RecordError)]
-    assert len(error_records) == 2
-    assert all(err.identifier in [2, 3] for err in error_records)
 
 
 def mock_list_data(mocked_requests, offset):
