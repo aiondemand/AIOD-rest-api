@@ -15,7 +15,6 @@ services:
       - ${AIOD_REST_PORT}:8000
     volumes:
       - ./src:/app:ro
-    stdin_open: true # docker run -i
     command: >
       python main.py
       --build-db if-absent
