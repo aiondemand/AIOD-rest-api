@@ -35,15 +35,17 @@ class ResourceConnectorById(ResourceConnector, Generic[RESOURCE]):
             )
 
         first_run = not state
-        offset = 0 # Setting offset to zero, to avoid "swiss-cheese" indexing (Issue: #372). further, offset is not required to persist in disk anymore. 
-        
+        # Setting offset to zero, to avoid "swiss-cheese" indexing (Issue: #372).
+        # Further, offset is not required to persist in disk anymore.
+        offset = 0
+
         if first_run and from_identifier is None:
             raise ValueError("In the first run, the from-identifier needs to be set")
         elif first_run:
             state["from_id"] = from_identifier if from_identifier is not None else 0
         else:
             state["from_id"] = state["last_id"] + 1
-            
+
         logging.info(
             f"Starting synchronisation of records from id {state['from_id']} and"
             f" offset {offset}"

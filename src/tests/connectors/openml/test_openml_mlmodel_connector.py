@@ -4,6 +4,7 @@ import responses
 
 from connectors.openml.openml_mlmodel_connector import OpenMlMLModelConnector
 from tests.testutils.paths import path_test_resources
+from connectors.record_error import RecordError
 
 OPENML_URL = "https://www.openml.org/api/v1/json"
 
@@ -17,7 +18,7 @@ def test_first_run():
         for i in range(1, 4):
             mock_get_data(mocked_requests, str(i))
         mlmodels = list(connector.run(state, from_identifier=0, limit=None))
-    
+
     assert state["last_id"] == 3, state
     assert {m.resource.name for m in mlmodels} == {
         "openml.evaluation.EuclideanDistance",
@@ -50,12 +51,16 @@ def test_request_empty_list():
 
 def test_second_run():
     connector = OpenMlMLModelConnector(limit_per_iteration=2)
+
+    state = {"last_id": 2, "from_id": 0}
     with responses.RequestsMock() as mocked_requests:
+        mock_list_data(mocked_requests, offset=0)
         mock_list_data(mocked_requests, offset=2)
         mock_get_data(mocked_requests, "3")
-        mlmodels = list(
-            connector.run(state={"offset": 2, "last_id": 2}, from_identifier=0, limit=None)
-        )
+        mlmodels = list(connector.run(state=state, from_identifier=0, limit=None))
+    assert state["last_id"] == 3, state
+    assert state["from_id"] == 3, state
+
     assert len(mlmodels) == 1
     assert {m.resource.name for m in mlmodels} == {"openml.evaluation.RBFKernel"}
     mlmodel = mlmodels[0].resource
@@ -73,13 +78,21 @@ def test_second_run():
 def test_second_run_wrong_identifier():
     connector = OpenMlMLModelConnector(limit_per_iteration=2)
     with responses.RequestsMock() as mocked_requests:
+        mock_list_data(mocked_requests, offset=0)
         mock_list_data(mocked_requests, offset=2)
         mock_get_data(mocked_requests, "3")
-        mlmodels = list(
-            connector.run(state={"offset": 2, "last_id": 0}, from_identifier=0, limit=None)
-        )
-    assert len(mlmodels) == 1
-    assert {m.resource.name for m in mlmodels} == {"openml.evaluation.RBFKernel"}
+
+        mlmodels = list(connector.run(state={"last_id": 0}, from_identifier=0, limit=None))
+
+    # Since, the given last_id is incorrect, the previous run's mlmodel is not indexed here,
+    # producing error.
+    valid_mlmodels = [m for m in mlmodels if not isinstance(m, RecordError)]
+    assert len(valid_mlmodels) == 1
+    assert {m.resource.name for m in valid_mlmodels} == {"openml.evaluation.RBFKernel"}
+
+    error_records = [m for m in mlmodels if isinstance(m, RecordError)]
+    assert len(error_records) == 2
+    assert all(err.identifier in [1, 2] for err in error_records)
 
 
 def mock_list_data(mocked_requests, offset):

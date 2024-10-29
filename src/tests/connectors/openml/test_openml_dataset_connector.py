@@ -18,7 +18,7 @@ def test_first_run():
             mock_get_data(mocked_requests, str(i))
 
         datasets = list(connector.run(state, from_identifier=0, limit=None))
-     
+
     assert state["last_id"] == 4, state
     assert {d.name for d in datasets} == {"anneal", "labor", "kr-vs-kp"}
     assert len(datasets) == 3
@@ -37,7 +37,7 @@ def test_request_empty_list():
             status=412,
         )
         datasets = list(connector.run(state, from_identifier=0, limit=None))
-        
+
         assert len(datasets) == 1, datasets
         assert "No results" in datasets[0].error.args[0], datasets
         assert state["last_id"] == 3, state
@@ -45,47 +45,53 @@ def test_request_empty_list():
 
 def test_second_run():
     connector = OpenMlDatasetConnector(limit_per_iteration=2)
-    
-    state = {"last_id":3, "from_id":1} # state from last run 
+
+    state = {"last_id": 3, "from_id": 1}  # state from last run
     with responses.RequestsMock() as mocked_requests:
-        mock_list_data(mocked_requests, offset=0) # Mock the first call to fetch datasets with offset=0
-        mock_list_data(mocked_requests, offset=2) # Mock the second call for pagination with offset=2
+        mock_list_data(
+            mocked_requests, offset=0
+        )  # Mock the first call to fetch datasets with offset=0
+        mock_list_data(
+            mocked_requests, offset=2
+        )  # Mock the second call for pagination with offset=2
         mock_get_data(mocked_requests, "4")
-        datasets = list(
-            connector.run(state=state, from_identifier=1, limit=None)
-        )
-    
+        datasets = list(connector.run(state=state, from_identifier=1, limit=None))
+
     assert len(datasets) == 1
     assert {d.name for d in datasets} == {"labor"}
     assert state["last_id"] == 4, state
-    assert state["from_id"] == 4, state # state["from_id"] = state["last_id"] + 1
+    assert state["from_id"] == 4, state  # state["from_id"] = state["last_id"] + 1
 
 
 def test_second_run_wrong_identifier():
     connector = OpenMlDatasetConnector(limit_per_iteration=2)
     with responses.RequestsMock() as mocked_requests:
-        mock_list_data(mocked_requests, offset=0) # Mock the first call to fetch datasets with offset=0
-        mock_list_data(mocked_requests, offset=2) # Mock the second call for pagination with offset=2
-        mock_get_data(mocked_requests, "4") # Since second run, only new datasets are indexed.
-        
-        datasets = list(
-            connector.run(state={"last_id": 1}, from_identifier=0, limit=None)
-        )
-    
-    # Since, the given last_id is incorrect, the previous run's data is not indexed here, producing error. 
+        mock_list_data(
+            mocked_requests, offset=0
+        )  # Mock the first call to fetch datasets with offset=0
+        mock_list_data(
+            mocked_requests, offset=2
+        )  # Mock the second call for pagination with offset=2
+        mock_get_data(mocked_requests, "4")  # Since second run, only new datasets are indexed.
+
+        datasets = list(connector.run(state={"last_id": 1}, from_identifier=0, limit=None))
+
+    # Since, the given last_id is incorrect, the previous run's data is not indexed here,
+    # producing error.
     valid_datasets = [d for d in datasets if not isinstance(d, RecordError)]
     assert len(valid_datasets) == 1
     assert {d.name for d in valid_datasets} == {"labor"}
-    
+
     error_records = [d for d in datasets if isinstance(d, RecordError)]
     assert len(error_records) == 2
     assert all(err.identifier in [2, 3] for err in error_records)
+
 
 def mock_list_data(mocked_requests, offset):
     """
     Mocking requests to the OpenML dependency, so that we test only our own services
     """
-    
+
     with open(
         path_test_resources() / "connectors" / "openml" / f"list_offset_{offset}.json",
         "r",
