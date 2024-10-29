@@ -141,3 +141,14 @@ def mocked_token(request: SubRequest) -> Mock:
 def mocked_privileged_token() -> Mock:
     roles = ["offline_access", "uma_authorization", "default-roles-aiod", "edit_aiod_resources"]
     return Mock(return_value=_user_with_roles(*roles))
+
+
+@pytest.fixture()
+def mocked_ai4europe_cms_token() -> Mock:
+    roles = [
+        "offline_access",
+        "uma_authorization",
+        "default-roles-aiod",
+        "full_view_ai4europe_cms_resources",
+    ]
+    return Mock(return_value=_user_with_roles(*roles))

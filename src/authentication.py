@@ -17,6 +17,7 @@ should therefore request a new token every X minutes. This is not needed when th
 performs a separate authorization request. The only downside is the overhead of the additional
 keycloak requests - if that becomes prohibitive in the future, we should reevaluate this design.
 """
+
 import logging
 import os
 
@@ -55,15 +56,15 @@ class User(BaseModel):
         return bool(set(roles) & self.roles)
 
 
-async def get_current_user(token=Security(oidc)) -> User:
+async def _get_user(token) -> User:
     """
-    Use this function in Depends() to force authentication. Check the roles of the user for
-    authorization.
+    Check the roles of the user for authorization.
 
     Raises:
-        HTTPException with status 401 on missing token (unauthorized message), also status 401 on
-            any problem with the token (we don't want to leak information), status 500 on any
-            request if Keycloak is configured incorrectly.
+        NoTokenError on missing token (unauthorized message) and InvalidUserError on inactive user.
+        Also HTTPException with status 401 on any problem with the token
+        (we don't want to leak information), and status 500 on any request
+        if Keycloak is configured incorrectly.
     """
     if not client_secret:
         raise HTTPException(
@@ -73,11 +74,7 @@ async def get_current_user(token=Security(oidc)) -> User:
             "from a Keycloak Administrator of AIoD.",
         )
     if not token:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="This endpoint requires authorization. You need to be logged in.",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+        raise NoTokenError("No token found")
     try:
         token = token.replace("Bearer ", "")
         # query the authorization server to determine the active state of this token and to
@@ -86,10 +83,12 @@ async def get_current_user(token=Security(oidc)) -> User:
 
         if not userinfo.get("active", False):
             logging.error("Invalid userinfo or inactive user.")
-            raise RuntimeError("Invalid userinfo or inactive user.")  # caught below
+            raise InvalidUserError("Invalid userinfo or inactive user")  # caught below
         return User(
             name=userinfo["username"], roles=set(userinfo.get("realm_access", {}).get("roles", []))
         )
+    except InvalidUserError:
+        raise
     except Exception as e:
         logging.error(f"Error while checking the access token: '{e}'")
         raise HTTPException(
@@ -97,3 +96,45 @@ async def get_current_user(token=Security(oidc)) -> User:
             detail="Invalid authentication token",
             headers={"WWW-Authenticate": "Bearer"},
         )
+
+
+async def get_user_or_none(token=Security(oidc)) -> User | None:
+    """
+    Use this function in Depends() to ask for authentication.
+    This method should be only used to get the current user
+    without raising exception when the token is not found,
+    or the user is not active, or the userinfo is invalid.
+    """
+    try:
+        return await _get_user(token)
+    except (NoTokenError, InvalidUserError):
+        return None
+
+
+async def get_user_or_raise(token=Security(oidc)) -> User:
+    """
+    Use this function in Depends() to force authentication. Check the roles of the user for
+    authorization.
+
+    Raises:
+        HTTPException with status 401 on missing token (unauthorized message), or invalid user.
+        It also raises a HTTPException with status 401 on
+        any problem with the token (we don't want to leak information),
+        status 500 on any request if Keycloak is configured incorrectly.
+    """
+    try:
+        return await _get_user(token)
+    except (InvalidUserError, NoTokenError) as err:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=f"{err} - This endpoint requires authorization. You need to be logged in.",
+            headers={"WWW-Authenticate": "Bearer"},
+        ) from err
+
+
+class InvalidUserError(Exception):
+    """Raise an error on invalid userinfo or inactive user."""
+
+
+class NoTokenError(Exception):
+    """Raise an error when no token is found."""

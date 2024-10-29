@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from fastapi import File, Query, UploadFile
 
-from authentication import User, get_current_user
+from authentication import User, get_user_or_raise
 from routers.uploader_router import UploaderRouter
 from uploaders.hugging_face_uploader import HuggingfaceUploader
 
@@ -24,7 +24,7 @@ class UploadRouterHuggingface(UploaderRouter):
             username: str = Query(
                 ..., title="Huggingface username", description="The username of HuggingFace"
             ),
-            user: User = Depends(get_current_user),
+            user: User = Depends(get_user_or_raise),
         ) -> int:
             """
             Use this endpoint to upload a file (content) to Hugging Face using

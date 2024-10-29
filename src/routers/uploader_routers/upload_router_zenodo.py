@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends
 from fastapi import File, Query, UploadFile, Path
 
-from authentication import User, get_current_user
+from authentication import User, get_user_or_raise
 from uploaders.zenodo_uploader import ZenodoUploader
 from routers.uploader_router import UploaderRouter
 
@@ -32,7 +32,7 @@ class UploadRouterZenodo(UploaderRouter):
                 ),
             ] = False,
             token: str = Query(title="Zenodo Token", description="The access token of Zenodo"),
-            user: User = Depends(get_current_user),
+            user: User = Depends(get_user_or_raise),
         ) -> int:
             """
             Use this endpoint to upload a file (content) to Zenodo using

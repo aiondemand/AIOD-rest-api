@@ -3,6 +3,7 @@ Fixtures that provide default instances for AIoD and ORM classes.
 
 This way you have easy access to, for instance, an AIoDDataset filled with default values.
 """
+
 import copy
 import json
 
@@ -16,6 +17,7 @@ from database.model.concept.status import Status
 from database.model.dataset.dataset import Dataset
 from database.model.knowledge_asset.publication import Publication
 from database.model.models_and_experiments.experiment import Experiment
+from database.model.platform.platform import Platform
 from database.model.resource_read_and_create import resource_create
 from database.model.serializers import deserialize_resource_relationships
 from database.session import DbSession
@@ -114,6 +116,12 @@ def person(body_agent) -> Person:
 def experiment(body_asset) -> Experiment:
     body = copy.copy(body_asset)
     return _create_class_with_body(Experiment, body)
+
+
+@pytest.fixture
+def platform() -> Platform:
+    body = {"name": "aiod"}
+    return _create_class_with_body(Platform, body)
 
 
 def _create_class_with_body(clz, body: dict):

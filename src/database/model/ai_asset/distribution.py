@@ -24,7 +24,7 @@ class DistributionBase(AIoDConceptBase):
         schema_extra={"example": "2010-2020 Example Company. All rights reserved."},
     )
     content_url: str = Field(
-        max_length=NORMAL,
+        max_length=LONG,
         schema_extra={"example": "https://www.example.com/dataset/file.csv"},
     )
     content_size_kb: int | None = Field(schema_extra={"example": 10000})

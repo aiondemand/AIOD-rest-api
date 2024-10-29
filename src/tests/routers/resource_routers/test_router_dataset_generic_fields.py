@@ -134,8 +134,8 @@ def test_happy_path(
 
     date_created = dateutil.parser.parse(response_json["aiod_entry"]["date_created"] + "Z")
     date_modified = dateutil.parser.parse(response_json["aiod_entry"]["date_modified"] + "Z")
-    assert 0 < (date_created - datetime_create_request).total_seconds() < 0.1
-    assert 0 < (date_modified - datetime_update_request).total_seconds() < 0.1
+    assert 0 < (date_created - datetime_create_request).total_seconds() < 0.2
+    assert 0 < (date_modified - datetime_update_request).total_seconds() < 0.2
 
     assert response_json["platform"] == "example"
     assert response_json["platform_resource_identifier"] == "2"

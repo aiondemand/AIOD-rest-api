@@ -1,4 +1,5 @@
 import logging
+import math
 import typing
 
 import bibtexparser
@@ -40,9 +41,7 @@ class HuggingFaceDatasetConnector(ResourceConnectorOnStartUp[Dataset]):
         response_json = response.json()
         if not response.ok:
             msg = response_json["error"]
-            logging.error(
-                f"Error while fetching parquet info for dataset {dataset_id}: " f"'{msg}'"
-            )
+            logging.warning(f"Unable to retrieve parquet info for dataset '{dataset_id}': '{msg}'")
             return []
         return response_json["parquet_files"]
 
@@ -80,7 +79,7 @@ class HuggingFaceDatasetConnector(ResourceConnectorOnStartUp[Dataset]):
                 description=f"{pq_file['dataset']}. Config: {pq_file['config']}. Split: "
                 f"{pq_file['split']}",
                 content_url=pq_file["url"],
-                content_size_kb=pq_file["size"],
+                content_size_kb=math.ceil(pq_file["size"] / 1000),
             )
             for pq_file in parquet_info
         ]
@@ -110,9 +109,9 @@ class HuggingFaceDatasetConnector(ResourceConnectorOnStartUp[Dataset]):
             related_resources["creator"] = [pydantic_class_contact(name=dataset.author)]
 
         description = getattr(dataset, "description", None)
-        if description and len(description) > field_length.LONG:
+        if description and len(description) > field_length.MAX_TEXT:
             text_break = " [...]"
-            description = description[: field_length.LONG - len(text_break)] + text_break
+            description = description[: field_length.MAX_TEXT - len(text_break)] + text_break
         if description:
             description = Text(plain=description)
 
@@ -127,7 +126,7 @@ class HuggingFaceDatasetConnector(ResourceConnectorOnStartUp[Dataset]):
                 date_published=dataset.created_at if hasattr(dataset, "created_at") else None,
                 license=ds_license,
                 distribution=distributions,
-                is_accessible_for_free=True,
+                is_accessible_for_free=not dataset.private,
                 keyword=dataset.tags,
             ),
             resource_ORM_class=Dataset,

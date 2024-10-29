@@ -38,14 +38,14 @@ def db_url(including_db=True):
 
 
 @contextmanager
-def DbSession() -> Session:
+def DbSession(autoflush: bool = True) -> Session:
     """
     Returning a SQLModel session bound to the (configured) database engine.
 
     Alternatively, we could have used FastAPI Depends, but that only works for FastAPI - while
     the synchronization, for instance, also needs a Session, but doesn't use FastAPI.
     """
-    session = Session(EngineSingleton().engine)
+    session = Session(EngineSingleton().engine, autoflush=autoflush)
     try:
         yield session
     finally:

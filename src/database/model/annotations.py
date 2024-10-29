@@ -4,7 +4,7 @@ fields of a class (e.g. identifier, name etc. for Dataset) and their datatype.
 """
 import inspect
 from collections import ChainMap
-from typing import Type
+from typing import Type, ForwardRef
 
 import typing_inspect
 from sqlalchemy.orm.util import _is_mapped_annotation, _extract_mapped_subtype
@@ -21,15 +21,16 @@ def all_annotations(cls) -> ChainMap:
     return ChainMap(*(inspect.get_annotations(c) for c in cls.mro()))
 
 
-def datatype_of_field(clazz: Type[SQLModel], field_name: str) -> Type:
+def datatype_of_field(clazz: Type[SQLModel], field_name: str) -> Type | str:
     """
     Returns the datatype of a field, based on the annotations. It returns the inner type in case
-    of a list, or an optional.
+    of a list, or an optional. Returns a str in case a forward reference was used.
 
     Examples:
     - name: str                     returns str
     - issn: str | None              returns str
-    - funder: list["AgentTable"]    returns AgentTable
+    - funder: list[AgentTable]      returns AgentTable
+    - funder: list["AgentTable"]    returns "AgentTable"
     """
     annotation = inspect.get_annotations(clazz)[field_name]
 
@@ -56,4 +57,6 @@ def datatype_of_field(clazz: Type[SQLModel], field_name: str) -> Type:
         ]
     if typing_inspect.is_generic_type(annotation):  # e.g. List[Dataset]
         (annotation,) = typing_inspect.get_args(annotation)
+    if isinstance(annotation, ForwardRef):
+        annotation = annotation.__forward_arg__
     return annotation

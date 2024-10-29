@@ -59,14 +59,15 @@ def test_post_invalid_huggingface_identifier(
 ):
     keycloak_openid.userinfo = mocked_privileged_token
 
-    body = {"name": "name", "platform": "huggingface", "platform_resource_identifier": "a"}
+    body = {"name": "name", "platform": "huggingface", "platform_resource_identifier": ""}
 
     response = client.post("/datasets/v1", json=body, headers={"Authorization": "Fake token"})
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY, response.json()
     assert (
         response.json()["detail"][0]["msg"]
-        == "The platform_resource_identifier for HuggingFace should be a valid repo_id. A repo_id "
-        "should be between 1 and 96 characters."
+        == "Repo id must use alphanumeric chars or '-', '_', '.', '--' and '..' are"
+        " forbidden, '-' and '.' cannot start or end the name, max length is 96:"
+        f" '{body['platform_resource_identifier']}'."
     )
 
 
