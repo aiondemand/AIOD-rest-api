@@ -131,7 +131,12 @@ def create_app() -> FastAPI:
 def main():
     """Run the application. Placed in a separate function, to avoid having global variables"""
     args = _parse_args()
-    uvicorn.run("main:create_app", host="0.0.0.0", reload=args.reload, factory=True)
+    uvicorn.run(
+        "main:create_app",
+        host="0.0.0.0",  # noqa: S104  # required to make the interface available outside of docker
+        reload=args.reload,
+        factory=True,
+    )
 
 
 if __name__ == "__main__":
