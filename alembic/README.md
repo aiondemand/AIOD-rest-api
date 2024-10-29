@@ -17,7 +17,7 @@ With the sqlserver container running, you can migrate to the latest schema with:
 ```commandline
 docker run -v $(pwd)/alembic:/alembic:ro  -v $(pwd)/src:/app -it --network aiod_default  aiod-migration
 ```
-Make sure that the specifid `--network` is the docker network that has the `sqlserver` container.
+Make sure that the specified `--network` is the docker network that has the `sqlserver` container.
 The alembic directory is mounted to ensure the latest migrations are available, 
 the src directory is mounted so the migration scripts can use defined classes and variable from the project.
 
@@ -27,6 +27,22 @@ the src directory is mounted so the migration scripts can use defined classes an
 
 Following the usage commands above, on a new release we should run alembic to ensure the latest schema changes are applied.
 The default entrypoint of the container specifies to upgrade the database to the latest schema.
+
+## Adding a Revision
+
+Build the docker image above, and start a container of it with shell as entry: 
+
+```bash
+docker run -v $(pwd)/alembic:/alembic  -v $(pwd)/src:/app -it --network aiod_default --entrypoint=/bin/bash  aiod-migration
+```
+
+Then follow regular `alembic` steps:
+```bash
+alembic revision -m "revision message"
+```
+Then edit the generated file (note that it should also exist on your host machine, so you might prefer to edit it there).
+
+Note that working from a docker container is not strictly necessary, but it helps set up the PYTHONPATH correctly, so that you can import from the `src` directory.
 
 ## TODO
  - set up support for auto-generating migration scripts: https://alembic.sqlalchemy.org/en/latest/autogenerate.html
