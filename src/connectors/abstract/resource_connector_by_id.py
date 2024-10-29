@@ -43,7 +43,6 @@ class ResourceConnectorById(ResourceConnector, Generic[RESOURCE]):
             state["from_id"] = from_identifier if from_identifier is not None else 0
         else:
             state["from_id"] = state["last_id"] + 1
-            offset = 0
             
         logging.info(
             f"Starting synchronisation of records from id {state['from_id']} and"
