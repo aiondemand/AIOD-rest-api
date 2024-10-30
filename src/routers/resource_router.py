@@ -17,6 +17,7 @@ from authentication import User, get_user_or_none, get_user_or_raise
 from config import KEYCLOAK_CONFIG
 from converters.schema_converters.schema_converter import SchemaConverter
 from database.model.ai_resource.resource import AbstractAIResource
+from database.model.concept.aiod_entry import AIoDEntryORM
 from database.model.concept.concept import AIoDConcept
 from database.model.platform.platform import Platform
 from database.model.platform.platform_names import PlatformName
@@ -41,9 +42,32 @@ class Pagination(BaseModel):
     # Refer to https://github.com/tiangolo/fastapi/issues/4700
     limit: int = Field(
         Query(
-            description="Specified the maximum number of resources that should be " "returned.",
+            description="Specified the maximum number of resources that should be returned.",
             default=10,
             le=1000,
+        )
+    )
+
+
+class ResourceFilters(BaseModel):
+    """
+    AIoD Resource filters
+
+    Filters are used in GET endpoints:
+    - GET /[resource]s/
+    - GET /platforms/{platform_name}/[resource]s/
+    """
+
+    date_modified_after: datetime.date | None = Field(
+        Query(
+            description="Get only resources modified after this date (yyyy-mm-dd, inclusive).",
+            default=None,
+        )
+    )
+    date_modified_before: datetime.date | None = Field(
+        Query(
+            description="Get only resources modified before this date (yyyy-mm-dd, exclusive).",
+            default=None,
         )
     )
 
@@ -208,6 +232,7 @@ class ResourceRouter(abc.ABC):
         self,
         schema: str,
         pagination: Pagination,
+        resource_filters: ResourceFilters,
         user: User | None = None,
         platform: str | None = None,
     ):
@@ -221,7 +246,7 @@ class ResourceRouter(abc.ABC):
                     else self.resource_class_read.from_orm
                 )
                 resources: Any = self._retrieve_resources_and_post_process(
-                    session, pagination, user, platform
+                    session, pagination, resource_filters, user, platform
                 )
                 return self._wrap_with_headers([convert_schema(resource) for resource in resources])
             except Exception as e:
@@ -254,12 +279,17 @@ class ResourceRouter(abc.ABC):
         """
 
         def get_resources(
-            pagination: Pagination = Depends(),
+            pagination: Annotated[Pagination, Depends(Pagination)],
+            resource_filters: Annotated[ResourceFilters, Depends(ResourceFilters)],
             schema: self._possible_schemas_type = "aiod",  # type:ignore
             user: User | None = Depends(get_user_or_none),
         ):
             resources = self.get_resources(
-                pagination=pagination, schema=schema, user=user, platform=None
+                schema=schema,
+                pagination=pagination,
+                resource_filters=resource_filters,
+                user=user,
+                platform=None,
             )
             return resources
 
@@ -320,11 +350,16 @@ class ResourceRouter(abc.ABC):
                 ),
             ],
             pagination: Annotated[Pagination, Depends(Pagination)],
+            resource_filters: Annotated[ResourceFilters, Depends(ResourceFilters)],
             schema: self._possible_schemas_type = "aiod",  # type:ignore
             user: User | None = Depends(get_user_or_none),
         ):
             resources = self.get_resources(
-                pagination=pagination, schema=schema, user=user, platform=platform
+                schema=schema,
+                pagination=pagination,
+                resource_filters=resource_filters,
+                user=user,
+                platform=platform,
             )
             return resources
 
@@ -550,18 +585,26 @@ class ResourceRouter(abc.ABC):
         self,
         session: Session,
         pagination: Pagination,
+        resource_filters: ResourceFilters,
         platform: str | None = None,
     ) -> Sequence[type[RESOURCE_MODEL]]:
         """
-        Retrieve a sequence of resources from the database based on the provided identifier
-        and platform (if applicable).
+        Retrieve a sequence of resources from the database based on the provided identifier,
+        platform and resource filters (if applicable).
         """
         where_clause = and_(
             is_(self.resource_class.date_deleted, None),
             (self.resource_class.platform == platform) if platform is not None else True,
+            AIoDEntryORM.date_modified >= resource_filters.date_modified_after
+            if resource_filters.date_modified_after is not None
+            else True,
+            AIoDEntryORM.date_modified < resource_filters.date_modified_before
+            if resource_filters.date_modified_before is not None
+            else True,
         )
         query = (
             select(self.resource_class)
+            .join(self.resource_class.aiod_entry)
             .where(where_clause)
             .offset(pagination.offset)
             .limit(pagination.limit)
@@ -589,6 +632,7 @@ class ResourceRouter(abc.ABC):
         self,
         session: Session,
         pagination: Pagination,
+        resource_filters: ResourceFilters,
         user: User | None = None,
         platform: str | None = None,
     ) -> Sequence[type[RESOURCE_MODEL]]:
@@ -598,7 +642,7 @@ class ResourceRouter(abc.ABC):
         implement further verification on user access to the resource.
         """
         resources: Sequence[type[RESOURCE_MODEL]] = self._retrieve_resources(
-            session, pagination, platform
+            session, pagination, resource_filters, platform
         )
         return self._mask_or_filter(resources, session, user)
 
