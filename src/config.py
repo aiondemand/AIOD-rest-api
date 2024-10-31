@@ -3,10 +3,10 @@ import pathlib
 import tomllib
 from typing import Any
 
-with open(pathlib.Path(__file__).parent / "config.toml.default", "rb") as fh:
+with open(pathlib.Path(__file__).parent / "config.default.toml", "rb") as fh:
     DEFAULT_CONFIG = tomllib.load(fh)
 
-OVERRIDE_CONFIG_PATH = pathlib.Path(__file__).parent / "config.toml"
+OVERRIDE_CONFIG_PATH = pathlib.Path(__file__).parent / "config.override.toml"
 if OVERRIDE_CONFIG_PATH.exists():
     with open(OVERRIDE_CONFIG_PATH, "rb") as fh:
         OVERRIDE_CONFIG = tomllib.load(fh)

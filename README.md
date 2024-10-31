@@ -106,6 +106,26 @@ mysql> SHOW DATABASES;
 
 Now, you can visit the server from your browser at `localhost:8000/docs`.
 
+### Changing the configuration
+You may need to change the configuration locally, for example if you want different ports to be used.
+Do not change files, instead add overrides.
+
+#### Docker Compose
+For docker compose, the environment variables are defined in the `.env` file. 
+To override variables, for example `AIOD_LOGSTASH_PORT`, add a new file called `override.env`:
+```bash {title='override.env'}
+AIOD_LOGSTASH_PORT=5001
+```
+Then also specify this when you invoke docker compose, e.g.:
+`docker compose --env-file=.env --env-file=override.env up`
+Note that **order is important**, later environment files will override earlier ones.
+
+#### Config.toml
+The main application supports configuration options through a `toml` file.
+The defaults can be found at `src/config.default.toml`.
+To override them, add a `src/config.override.toml` file.
+It follows the same structure as the default file, but you only need to specify the variables to override.
+
 #### Using connectors
 You can specify different connectors using
 
