@@ -211,6 +211,7 @@ class PlatformRouter:
         docstring is dynamic and used in Swagger.
         """
         clz_create = self.resource_class_create
+
         def put_resource(
             identifier: int,
             resource_create_instance: clz_create,  # type: ignore
