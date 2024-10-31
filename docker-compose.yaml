@@ -8,7 +8,6 @@ services:
       dockerfile: Dockerfile
     image: aiod_metadata_catalogue
     container_name: apiserver
-    env_file: .env
     environment:
       - KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET
     ports:
@@ -34,7 +33,6 @@ services:
     profiles: ["examples"]
     image: aiod_metadata_catalogue
     container_name: fill-db-with-examples
-    env_file: .env
     environment:
       - KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET
     volumes:
@@ -53,7 +51,6 @@ services:
       dockerfile: Dockerfile
     image: aiod_deletion
     container_name: deletion
-    env_file: .env
     volumes:
       - ./src:/app
       - ${DATA_PATH}/deletion:/opt/deletion/data
@@ -67,7 +64,6 @@ services:
     profiles: ["huggingface-datasets"]
     image: aiod_metadata_catalogue
     container_name: huggingface-dataset-connector
-    env_file: .env
     environment:
       - KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET
     volumes:
@@ -87,7 +83,6 @@ services:
       dockerfile: Dockerfile
     image: aiod_openml_connector
     container_name: openml-connector
-    env_file: .env
     environment:
       - KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET
     volumes:
@@ -107,7 +102,6 @@ services:
       dockerfile: Dockerfile
     image: aiod_zenodo_connector
     container_name: zenodo-dataset-connector
-    env_file: .env
     environment:
       - KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET
     volumes:
@@ -123,7 +117,6 @@ services:
   sqlserver:
     image: mysql:8.3.0
     container_name: sqlserver
-    env_file: .env
     environment:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
     volumes:
@@ -139,7 +132,6 @@ services:
   keycloak:
     image: quay.io/keycloak/keycloak:24.0.4
     container_name: keycloak
-    env_file: .env
     environment:
       - REDIRECT_URIS=$REDIRECT_URIS
       - POST_LOGOUT_REDIRECT_URIS=$POST_LOGOUT_REDIRECT_URIS
@@ -172,7 +164,6 @@ services:
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.8.2
     container_name: elasticsearch
-    env_file: .env
     environment:
       - ES_JAVA_OPTS=$ES_JAVA_OPTS
       - ELASTIC_USER=$ES_USER
@@ -196,11 +187,11 @@ services:
   es_logstash_setup:
     image: aiod_metadata_catalogue
     container_name:  es_logstash_setup
-    env_file: .env
     environment:
       - MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD
       - ES_USER=$ES_USER
       - ES_PASSWORD=$ES_PASSWORD
+      - PYTHONPATH=$PYTHONPATH
     volumes:
       - ./src:/app
       - ./logstash:/logstash
@@ -218,7 +209,6 @@ services:
       dockerfile: Dockerfile
     image: aiod_logstash
     container_name: logstash
-    env_file: .env
     environment:
       - LS_JAVA_OPTS=$LS_JAVA_OPTS
     ports:
