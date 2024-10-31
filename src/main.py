@@ -84,7 +84,7 @@ def add_routes(app: FastAPI, url_prefix=""):
             router.resource_name_plural: count
             for router in resource_routers.router_list
             if issubclass(router.resource_class, AIoDConcept)
-            and (count := router.get_resource_count_func()(detailed=True))
+            and (count := router.get_resource_count_func()(detailed=True))  # type:ignore
         }
 
     for router in (

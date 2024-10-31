@@ -16,7 +16,7 @@ from .service_router import ServiceRouter
 from .team_router import TeamRouter
 from .. import ResourceRouter
 
-router_list: list[ResourceRouter] = [
+router_list: list[ResourceRouter | PlatformRouter] = [
     PlatformRouter(),
     CaseStudyRouter(),
     ComputationalAssetRouter(),

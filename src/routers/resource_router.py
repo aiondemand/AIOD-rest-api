@@ -84,6 +84,7 @@ class ResourceRouter(abc.ABC):
 
     It creates the basic endpoints for each resource:
     - GET /[resource]s/
+    - GET /counts/[resource]s/
     - GET /[resource]s/{identifier}
     - GET /platforms/{platform_name}/[resource]s/
     - GET /platforms/{platform_name}/[resource]s/{identifier}
@@ -604,7 +605,7 @@ class ResourceRouter(abc.ABC):
         )
         query = (
             select(self.resource_class)
-            .join(self.resource_class.aiod_entry)
+            .join(self.resource_class.aiod_entry, isouter=True)
             .where(where_clause)
             .offset(pagination.offset)
             .limit(pagination.limit)
