@@ -32,6 +32,7 @@ from authentication import keycloak_openid
     [
         ({"date_modified_after": datetime.today().strftime("%Y-%m-%d")}, 1),
         ({"date_modified_before": datetime.today().strftime("%Y-%m-%d")}, 0),
+        ({"date_modified_after": (datetime.today() + timedelta(days=1)).strftime("%Y-%m-%d")}, 0),
         ({"date_modified_before": (datetime.today() + timedelta(days=1)).strftime("%Y-%m-%d")}, 1),
         (
             {
@@ -68,4 +69,5 @@ def test_happy_path_with_filters(
     assert response.status_code == 200, response.json()
 
     response_json = response.json()
-    assert isinstance(response_json, list) and len(response_json) == expected_count
+    assert isinstance(response_json, list)
+    assert len(response_json) == expected_count
