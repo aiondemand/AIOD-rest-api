@@ -59,7 +59,7 @@ class PlatformRouter:
 
         router.add_api_route(
             path=f"{url_prefix}/{self.resource_name_plural}/{version}",
-            endpoint=self.get_resources,
+            endpoint=self.get_resources_func(),
             response_model=response_model_plural,  # type: ignore
             name=f"List {self.resource_name_plural}",
             description=f"Retrieve all meta-data of the {self.resource_name_plural}.",
@@ -67,7 +67,7 @@ class PlatformRouter:
         )
         router.add_api_route(
             path=f"{url_prefix}/counts/{self.resource_name_plural}/{version}",
-            endpoint=self.get_resource_count,
+            endpoint=self.get_resource_count_func(),
             response_model=int | dict[str, int],
             name=f"Count of {self.resource_name_plural}",
             description=f"Retrieve the number of {self.resource_name_plural}.",
@@ -76,14 +76,14 @@ class PlatformRouter:
         router.add_api_route(
             path=f"{url_prefix}/{self.resource_name_plural}/{version}",
             methods={"POST"},
-            endpoint=self.register_resource,
+            endpoint=self.register_resource_func(),
             name=self.resource_name,
             description=f"Register a {self.resource_name} with AIoD.",
             **default_kwargs,
         )
         router.add_api_route(
             path=url_prefix + f"/{self.resource_name_plural}/{version}/{{identifier}}",
-            endpoint=self.get_resource,
+            endpoint=self.get_resource_func(),
             response_model=response_model,  # type: ignore
             name=self.resource_name,
             description=f"Retrieve all meta-data for a {self.resource_name} identified by the AIoD "
@@ -93,7 +93,7 @@ class PlatformRouter:
         router.add_api_route(
             path=f"{url_prefix}/{self.resource_name_plural}/{version}/{{identifier}}",
             methods={"PUT"},
-            endpoint=self.put_resource,
+            endpoint=self.put_resource_func(),
             name=self.resource_name,
             description=f"Update an existing {self.resource_name}.",
             **default_kwargs,
@@ -101,7 +101,7 @@ class PlatformRouter:
         router.add_api_route(
             path=f"{url_prefix}/{self.resource_name_plural}/{version}/{{identifier}}",
             methods={"DELETE"},
-            endpoint=self.delete_resource,
+            endpoint=self.delete_resource_func(),
             name=self.resource_name,
             description=f"Delete a {self.resource_name}.",
             **default_kwargs,
@@ -126,38 +126,73 @@ class PlatformRouter:
         except Exception as e:
             raise as_http_exception(e)
 
-    def get_resource_count(self):
-        """Get the total count of resources."""
-        try:
-            with DbSession() as session:
-                return session.query(self.resource_class).count()
+    def get_resources_func(self):
+        """
+        Return a function that can be used to retrieve a list of resources.
+        This function returns a function (instead of being that function directly) because the
+        docstring and the variables are dynamic, and used in Swagger.
+        """
 
-        except Exception as e:
-            raise as_http_exception(e)
+        return self.get_resources
 
-    def register_resource(
-        self,
-        resource_create: Platform,
-        user: User = Depends(get_user_or_raise),
-    ):
-        if not user.has_any_role(
-            KEYCLOAK_CONFIG.get("role"),
-            f"create_{self.resource_name_plural}",
-            f"crud_{self.resource_name_plural}",
+    def get_resource_count_func(self):
+        """
+        Gets the total number of resources from the database.
+        This function returns a function (instead of being that function directly) because the
+        docstring and the variables are dynamic, and used in Swagger.
+        """
+
+        def get_resource_count():
+            try:
+                with DbSession() as session:
+                    return session.query(self.resource_class).count()
+
+            except Exception as e:
+                raise as_http_exception(e)
+
+        return get_resource_count
+
+    def get_resource_func(self):
+        """
+        Return a function that can be used to retrieve a single resource.
+        This function returns a function (instead of being that function directly) because the
+        docstring and the variables are dynamic, and used in Swagger.
+        """
+
+        return self.get_resource
+
+    def register_resource_func(self):
+        """
+        Return a function that can be used to register a resource.
+        This function returns a function (instead of being that function directly) because the
+        docstring is dynamic and used in Swagger.
+        """
+        clz_create = self.resource_class_create
+
+        def register_resource(
+            resource_create: clz_create,  # type: ignore
+            user: User = Depends(get_user_or_raise),
         ):
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"You do not have permission to create {self.resource_name_plural}.",
-            )
-        try:
-            with DbSession() as session:
-                try:
-                    resource = self.create_resource(session, resource_create)
-                    return {"identifier": resource.identifier}
-                except Exception as e:
-                    self._raise_clean_http_exception(e, session)
-        except Exception as e:
-            raise as_http_exception(e)
+            if not user.has_any_role(
+                KEYCLOAK_CONFIG.get("role"),
+                f"create_{self.resource_name_plural}",
+                f"crud_{self.resource_name_plural}",
+            ):
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail=f"You do not have permission to create {self.resource_name_plural}.",
+                )
+            try:
+                with DbSession() as session:
+                    try:
+                        resource = self.create_resource(session, resource_create)
+                        return {"identifier": resource.identifier}
+                    except Exception as e:
+                        self._raise_clean_http_exception(e, session)
+            except Exception as e:
+                raise as_http_exception(e)
+
+        return register_resource
 
     def create_resource(self, session: Session, resource_create_instance: SQLModel):
         """Store a resource in the database"""
@@ -169,64 +204,80 @@ class PlatformRouter:
         session.commit()
         return resource
 
-    def put_resource(
-        self,
-        identifier: int,
-        resource_create_instance: Platform,
-        user: User = Depends(get_user_or_raise),
-    ):
-        if not user.has_any_role(
-            KEYCLOAK_CONFIG.get("role"),
-            f"update_{self.resource_name_plural}",
-            f"crud_{self.resource_name_plural}",
+    def put_resource_func(self):
+        """
+        Return a function that can be used to update a resource.
+        This function returns a function (instead of being that function directly) because the
+        docstring is dynamic and used in Swagger.
+        """
+        clz_create = self.resource_class_create
+        def put_resource(
+            identifier: int,
+            resource_create_instance: clz_create,  # type: ignore
+            user: User = Depends(get_user_or_raise),
         ):
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"You do not have permission to edit {self.resource_name_plural}.",
-            )
-
-        with DbSession() as session:
-            try:
-                resource: Any = self._retrieve_resource(session, identifier)
-                for attribute_name in resource.schema()["properties"]:
-                    if hasattr(resource_create_instance, attribute_name):
-                        new_value = getattr(resource_create_instance, attribute_name)
-                        setattr(resource, attribute_name, new_value)
-                deserialize_resource_relationships(
-                    session, self.resource_class, resource, resource_create_instance
-                )
-                try:
-                    session.merge(resource)
-                    session.commit()
-                except Exception as e:
-                    self._raise_clean_http_exception(e, session)
-                return None
-            except Exception as e:
-                raise self._raise_clean_http_exception(e, session)
-
-    def delete_resource(
-        self,
-        identifier: str,
-        user: User = Depends(get_user_or_raise),
-    ):
-        with DbSession() as session:
             if not user.has_any_role(
                 KEYCLOAK_CONFIG.get("role"),
-                f"delete_{self.resource_name_plural}",
+                f"update_{self.resource_name_plural}",
                 f"crud_{self.resource_name_plural}",
             ):
                 raise HTTPException(
                     status_code=status.HTTP_403_FORBIDDEN,
-                    detail=f"You do not have permission to delete {self.resource_name_plural}.",
+                    detail=f"You do not have permission to edit {self.resource_name_plural}.",
                 )
-            try:
-                # Raise error if it does not exist
-                resource: Any = self._retrieve_resource(session, identifier)
-                session.delete(resource)
-                session.commit()
-                return None
-            except Exception as e:
-                raise as_http_exception(e)
+
+            with DbSession() as session:
+                try:
+                    resource: Any = self._retrieve_resource(session, identifier)
+                    for attribute_name in resource.schema()["properties"]:
+                        if hasattr(resource_create_instance, attribute_name):
+                            new_value = getattr(resource_create_instance, attribute_name)
+                            setattr(resource, attribute_name, new_value)
+                    deserialize_resource_relationships(
+                        session, self.resource_class, resource, resource_create_instance
+                    )
+                    try:
+                        session.merge(resource)
+                        session.commit()
+                    except Exception as e:
+                        self._raise_clean_http_exception(e, session)
+                    return None
+                except Exception as e:
+                    raise self._raise_clean_http_exception(e, session)
+
+        return put_resource
+
+    def delete_resource_func(self):
+        """
+        Return a function that can be used to delete a resource.
+        This function returns a function (instead of being that function directly) because the
+        docstring is dynamic and used in Swagger.
+        """
+
+        def delete_resource(
+            identifier: str,
+            user: User = Depends(get_user_or_raise),
+        ):
+            with DbSession() as session:
+                if not user.has_any_role(
+                    KEYCLOAK_CONFIG.get("role"),
+                    f"delete_{self.resource_name_plural}",
+                    f"crud_{self.resource_name_plural}",
+                ):
+                    raise HTTPException(
+                        status_code=status.HTTP_403_FORBIDDEN,
+                        detail=f"You do not have permission to delete {self.resource_name_plural}.",
+                    )
+                try:
+                    # Raise error if it does not exist
+                    resource: Any = self._retrieve_resource(session, identifier)
+                    session.delete(resource)
+                    session.commit()
+                    return None
+                except Exception as e:
+                    raise as_http_exception(e)
+
+        return delete_resource
 
     def _retrieve_resource(
         self,
