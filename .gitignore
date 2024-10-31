@@ -3,7 +3,7 @@
 # data/ is intended for database data from the mysql container
 data/
 
-# override.env should not be submitted as it may contain sensitive data
+# overrides should not be submitted as it may contain sensitive data
 override.env
 src/config.override.toml
 
