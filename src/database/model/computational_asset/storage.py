@@ -27,11 +27,17 @@ class StorageBase(SQLModel):
         schema_extra={"example": "SSD"},
     )
     read_bandwidth: int | None = Field(
-        description="The rate at which data can be retrieved from the storage in Megabytes per second.",
+        description=(
+            "The rate at which data can be retrieved from the storage "
+            "in Megabytes per second."
+        ),
         schema_extra={"example": 38400},
     )
     write_bandwidth: int | None = Field(
-        description="Rate at which data can be transferred form computer and stored onto storage in Megabytes per second.",
+        description=(
+            "Rate at which data can be transferred form computer and stored "
+            "onto storage in Megabytes per second."
+        ),
         schema_extra={"example": 38400},
     )
 
