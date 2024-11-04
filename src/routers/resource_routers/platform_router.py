@@ -10,6 +10,7 @@ from database.model.platform.platform import Platform
 from database.model.resource_read_and_create import resource_create, resource_read
 from database.model.serializers import deserialize_resource_relationships
 from database.session import DbSession
+from dependencies.pagination import Pagination, PaginationParams
 from error_handling import as_http_exception
 
 
@@ -108,11 +109,11 @@ class PlatformRouter:
         )
         return router
 
-    def get_resources(self):
+    def get_resources(self, pagination: Pagination):
         """Fetch all resources."""
         with DbSession(autoflush=False) as session:
             try:
-                resources: Any = self._retrieve_resources(session)
+                resources: Any = self._retrieve_resources(session, pagination)
                 return [self.resource_class_read.model_validate(resource) for resource in resources]
             except Exception as e:
                 raise as_http_exception(e)
@@ -133,7 +134,11 @@ class PlatformRouter:
         docstring and the variables are dynamic, and used in Swagger.
         """
 
-        return self.get_resources
+        def get_resources(pagination: PaginationParams):
+            resources = self.get_resources(pagination=pagination)
+            return resources
+
+        return get_resources
 
     def get_resource_count_func(self):
         """
@@ -298,11 +303,12 @@ class PlatformRouter:
     def _retrieve_resources(
         self,
         session: Session,
+        pagination: Pagination,
     ) -> Sequence[Platform]:
         """
         Retrieve a sequence of resources from the database based on the provided identifier.
         """
-        query = select(self.resource_class)
+        query = select(self.resource_class).offset(pagination.offset).limit(pagination.limit)
         resources: Sequence = session.scalars(query).all()
         return resources
 
