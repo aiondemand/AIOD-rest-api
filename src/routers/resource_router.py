@@ -7,10 +7,9 @@ from wsgiref.handlers import format_date_time
 
 from fastapi import APIRouter, Depends, HTTPException, status, Query, Path
 from fastapi.encoders import jsonable_encoder
-from pydantic import BaseModel
 from sqlalchemy import and_, func
 from sqlalchemy.sql.operators import is_
-from sqlmodel import SQLModel, Session, select, Field
+from sqlmodel import SQLModel, Session, select
 from starlette.responses import JSONResponse
 
 from authentication import User, get_user_or_none, get_user_or_raise
@@ -27,50 +26,9 @@ from database.model.resource_read_and_create import (
 )
 from database.model.serializers import deserialize_resource_relationships
 from database.session import DbSession
+from dependencies.filtering import ResourceFilters, ResourceFiltersParams
+from dependencies.pagination import Pagination, PaginationParams
 from error_handling import as_http_exception
-
-
-class Pagination(BaseModel):
-    """Offset-based pagination."""
-
-    offset: int = Field(
-        Query(
-            description="Specifies the number of resources that should be skipped.", default=0, ge=0
-        )
-    )
-    # Query inside field to ensure description is shown in Swagger.
-    # Refer to https://github.com/tiangolo/fastapi/issues/4700
-    limit: int = Field(
-        Query(
-            description="Specified the maximum number of resources that should be returned.",
-            default=10,
-            le=1000,
-        )
-    )
-
-
-class ResourceFilters(BaseModel):
-    """
-    AIoD Resource filters
-
-    Filters are used in GET endpoints:
-    - GET /[resource]s/
-    - GET /platforms/{platform_name}/[resource]s/
-    """
-
-    date_modified_after: datetime.date | None = Field(
-        Query(
-            description="Get only resources modified after this date (yyyy-mm-dd, inclusive).",
-            default=None,
-        )
-    )
-    date_modified_before: datetime.date | None = Field(
-        Query(
-            description="Get only resources modified before this date (yyyy-mm-dd, exclusive).",
-            default=None,
-        )
-    )
-
 
 RESOURCE = TypeVar("RESOURCE", bound=AbstractAIResource)
 RESOURCE_CREATE = TypeVar("RESOURCE_CREATE", bound=SQLModel)
@@ -280,8 +238,8 @@ class ResourceRouter(abc.ABC):
         """
 
         def get_resources(
-            pagination: Annotated[Pagination, Depends(Pagination)],
-            resource_filters: Annotated[ResourceFilters, Depends(ResourceFilters)],
+            pagination: PaginationParams,
+            resource_filters: ResourceFiltersParams,
             schema: self._possible_schemas_type = "aiod",  # type:ignore
             user: User | None = Depends(get_user_or_none),
         ):
@@ -350,8 +308,8 @@ class ResourceRouter(abc.ABC):
                     example="huggingface",
                 ),
             ],
-            pagination: Annotated[Pagination, Depends(Pagination)],
-            resource_filters: Annotated[ResourceFilters, Depends(ResourceFilters)],
+            pagination: PaginationParams,
+            resource_filters: ResourceFiltersParams,
             schema: self._possible_schemas_type = "aiod",  # type:ignore
             user: User | None = Depends(get_user_or_none),
         ):
