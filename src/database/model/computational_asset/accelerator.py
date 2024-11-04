@@ -10,29 +10,29 @@ class AcceleratorBase(SQLModel):
     vendor: str | None = Field(
         description="The manufacturer of the Accelerator.",
         max_length=NORMAL,
-        schema_extra={"example": "CPU_AMD"},
+        schema_extra={"example": "NVIDIA"},
     )
     type: str | None = Field(
         description="Accelerator type.",
         max_length=NORMAL,
-        schema_extra={"example": "type"},
+        schema_extra={"example": "GPU"},
     )
     model_name: str | None = Field(
         description="The name of the Accelerator model.",
         max_length=NORMAL,
-        schema_extra={"example": "Athlon"},
+        schema_extra={"example": "A100"},
     )
     architecture: str | None = Field(
         description="The accelerator architecture.",
         max_length=NORMAL,
-        schema_extra={"example": "ARM"},
+        schema_extra={"example": "Ampere"},
     )
     cores: int | None = Field(
         description="The number of cores used by the Accelerator.",
         schema_extra={"example": 8},
     )
-    memory: int | None = Field(
-        description="The Accelerator memory.",
+    memory_gb: float | None = Field(
+        description="The Accelerator memory (GB).",
         schema_extra={"example": 64},
     )
 

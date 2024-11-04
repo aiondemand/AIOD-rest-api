@@ -17,8 +17,8 @@ class StorageBase(SQLModel):
         max_length=NORMAL,
         schema_extra={"example": "AMD"},
     )
-    amount: int | None = Field(
-        description="The total storage capacity.",
+    amount_gb: int | None = Field(
+        description="The total storage capacity (GB).",
         schema_extra={"example": 1024},
     )
     type: str | None = Field(
@@ -27,12 +27,12 @@ class StorageBase(SQLModel):
         schema_extra={"example": "SSD"},
     )
     read_bandwidth: int | None = Field(
-        description="The rate at which data can be retrieved from the storage.",
-        schema_extra={"example": 100},
+        description="The rate at which data can be retrieved from the storage in Megabytes per second.",
+        schema_extra={"example": 38400},
     )
     write_bandwidth: int | None = Field(
-        description="Rate at which data can be transferred form computer and stored onto storage.",
-        schema_extra={"example": 100},
+        description="Rate at which data can be transferred form computer and stored onto storage in Megabytes per second.",
+        schema_extra={"example": 38400},
     )
 
 

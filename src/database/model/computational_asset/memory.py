@@ -10,24 +10,24 @@ class MemoryBase(SQLModel):
     type: str | None = Field(
         description="Memory type",
         max_length=NORMAL,
-        schema_extra={"example": "RAM"},
+        schema_extra={"example": "DDR5"},
     )
-    amount_gb: int | None = Field(
+    amount_gb: float | None = Field(
         description="The total memory capacity measured in Gigabytes.",
-        schema_extra={"example": 16},
+        schema_extra={"example": 32},
     )
     read_bandwidth: int | None = Field(
-        description="The rate at which data can be retrieved.",
-        schema_extra={"example": 100},
+        description="The rate at which data can be retrieved in Megabytes per second.",
+        schema_extra={"example": 38400},
     )
     write_bandwidth: int | None = Field(
-        description="The rate at which data can be stored",
-        schema_extra={"example": 100},
+        description="The rate at which data can be stored in Megabytes per second",
+        schema_extra={"example": 38400},
     )
     rdma: str | None = Field(
         description="Tech. that enables 2 networked computers to exchange data in mainmemory.",
         max_length=NORMAL,
-        schema_extra={"example": ""},
+        schema_extra={"example": "InfiniBand"},
     )
 
 

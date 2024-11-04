@@ -15,6 +15,7 @@ from database.model.computational_asset.cpu import Cpu, CpuORM
 from database.model.computational_asset.memory import Memory, MemoryORM
 from database.model.computational_asset.accelerator import Accelerator, AcceleratorORM
 from database.model.computational_asset.storage import Storage, StorageORM
+from database.model.agent.location import LocationORM, Location
 
 
 class ComputationalAssetBase(AIAssetBase):
@@ -61,6 +62,8 @@ class ComputationalAsset(ComputationalAssetBase, AIAsset, table=True):  # type: 
         sa_relationship_kwargs={"cascade": "all, delete"}
     )
     storage: list[StorageORM] = Relationship(sa_relationship_kwargs={"cascade": "all, delete"})
+    location: list[LocationORM] = Relationship(sa_relationship_kwargs={"cascade": "all, delete"})
+    
 
     class RelationshipConfig(AIAsset.RelationshipConfig):
         type: Optional[str] = ManyToOne(
@@ -94,5 +97,11 @@ class ComputationalAsset(ComputationalAssetBase, AIAsset, table=True):  # type: 
             default_factory_pydantic=list,  # no deletion trigger: cascading delete is used
             description="The Storage associated with the Computational Asset.",
             deserializer=CastDeserializerList(StorageORM),
+            example=[],
+        )
+        location: list[Location] | None = OneToMany(
+            default_factory_pydantic=list,  # no deletion trigger: cascading delete is used
+            description="A geographical specification of where the resource resides.",
+            deserializer=CastDeserializerList(LocationORM),
             example=[],
         )
