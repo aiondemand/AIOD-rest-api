@@ -10,6 +10,8 @@ services:
     container_name: apiserver
     environment:
       - KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET
+      - ES_USER=$ES_USER
+      - ES_PASSWORD=$ES_PASSWORD
     ports:
       - ${AIOD_REST_PORT}:8000
     volumes:
@@ -34,6 +36,7 @@ services:
     image: aiod_metadata_catalogue
     container_name: fill-db-with-examples
     environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
       - KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET
     volumes:
       - ./src:/app:ro
@@ -191,7 +194,7 @@ services:
       - MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD
       - ES_USER=$ES_USER
       - ES_PASSWORD=$ES_PASSWORD
-      - PYTHONPATH=$PYTHONPATH
+      - PYTHONPATH=$DOCKER_PYTHONPATH
     volumes:
       - ./src:/app
       - ./logstash:/logstash
