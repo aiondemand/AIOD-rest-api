@@ -15,7 +15,6 @@ from database.model.computational_asset.cpu import Cpu, CpuORM
 from database.model.computational_asset.memory import Memory, MemoryORM
 from database.model.computational_asset.accelerator import Accelerator, AcceleratorORM
 from database.model.computational_asset.storage import Storage, StorageORM
-from database.model.agent.location import LocationORM, Location
 
 
 class ComputationalAssetBase(AIAssetBase):
