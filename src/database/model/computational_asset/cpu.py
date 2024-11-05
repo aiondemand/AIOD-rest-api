@@ -31,7 +31,7 @@ class CpuBase(SQLModel):
         max_length=NORMAL,
         schema_extra={"example": "Athlon"},
     )
-    clock_speed_ghz: float | None = Field(
+    clock_speed: float | None = Field(
         description="The CPU clock speed (GHz).",
         schema_extra={"example": 3.2},
     )

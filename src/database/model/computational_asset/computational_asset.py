@@ -62,8 +62,7 @@ class ComputationalAsset(ComputationalAssetBase, AIAsset, table=True):  # type: 
         sa_relationship_kwargs={"cascade": "all, delete"}
     )
     storage: list[StorageORM] = Relationship(sa_relationship_kwargs={"cascade": "all, delete"})
-    location: list[LocationORM] = Relationship(sa_relationship_kwargs={"cascade": "all, delete"})
-    
+    # location: list[LocationORM] = Relationship(sa_relationship_kwargs={"cascade": "all, delete"})
 
     class RelationshipConfig(AIAsset.RelationshipConfig):
         type: Optional[str] = ManyToOne(
@@ -99,9 +98,9 @@ class ComputationalAsset(ComputationalAssetBase, AIAsset, table=True):  # type: 
             deserializer=CastDeserializerList(StorageORM),
             example=[],
         )
-        location: list[Location] | None = OneToMany(
-            default_factory_pydantic=list,  # no deletion trigger: cascading delete is used
-            description="A geographical specification of where the resource resides.",
-            deserializer=CastDeserializerList(LocationORM),
-            example=[],
-        )
+        # location: list[Location] | None = OneToMany(
+        #     default_factory_pydantic=list,  # no deletion trigger: cascading delete is used
+        #     description="A geographical specification of where the resource resides.",
+        #     deserializer=CastDeserializerList(LocationORM),
+        #     example=[],
+        # )

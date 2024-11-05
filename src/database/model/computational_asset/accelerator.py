@@ -31,7 +31,7 @@ class AcceleratorBase(SQLModel):
         description="The number of cores used by the Accelerator.",
         schema_extra={"example": 8},
     )
-    memory_gb: float | None = Field(
+    memory: float | None = Field(
         description="The Accelerator memory (GB).",
         schema_extra={"example": 64},
     )
