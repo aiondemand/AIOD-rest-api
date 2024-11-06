@@ -1,3 +1,5 @@
 #!/bin/bash
 
-docker compose --profile "*" down
+command='docker compose --profile "*" down'
+echo "${command}"
+eval "${command}"
