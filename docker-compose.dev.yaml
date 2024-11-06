@@ -25,7 +25,7 @@ services:
   zenodo-dataset-connector:
     volumes:
       - ./src:/app:ro
-      - ./connectors/zenodo/:/opt/connectors/script
+      - ./connectors/zenodo/:/opt/connectors/script:ro
 
   es_logstash_setup:
     volumes:
