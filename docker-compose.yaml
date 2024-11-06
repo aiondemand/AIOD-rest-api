@@ -53,7 +53,7 @@ services:
     image: aiod_deletion
     container_name: deletion
     volumes:
-      - ./src:/app
+      - ./src:/app:ro
       - ${DATA_PATH}/deletion:/opt/deletion/data
     command: >
       /bin/bash -c "/opt/deletion/script/entry.sh"
@@ -109,7 +109,7 @@ services:
       - PYTHONPATH=$DOCKER_PYTHONPATH
       - KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET
     volumes:
-      - ./src:/app
+      - ./src:/app:ro
       - ${DATA_PATH}/connectors:/opt/connectors/data
       - ./connectors/zenodo/:/opt/connectors/script
     command: >
@@ -197,7 +197,7 @@ services:
       - ES_PASSWORD=$ES_PASSWORD
       - PYTHONPATH=$DOCKER_PYTHONPATH
     volumes:
-      - ./src:/app
+      - ./src:/app:ro
       - ./logstash:/logstash
     command: >
       /bin/bash -c "python setup/logstash_setup/generate_logstash_config_files.py &&
