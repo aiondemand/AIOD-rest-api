@@ -5,6 +5,8 @@ services:
       dockerfile: Dockerfile
     image: aiod_metadata_catalogue
     container_name: apiserver
+    volumes:
+      - ./src/config.default.toml:/app/config.default.toml:ro
     environment:
       - KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET
       - ES_USER=$ES_USER
@@ -35,6 +37,7 @@ services:
       - KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET
     volumes:
       - ${DATA_PATH}/connectors:/opt/connectors/data
+      - ./src/config.default.toml:/app/config.default.toml:ro
     command: >
       /bin/bash -c "/opt/connectors/script/fill-examples.sh"
     depends_on:
@@ -49,6 +52,7 @@ services:
     container_name: deletion
     volumes:
       - ${DATA_PATH}/deletion:/opt/deletion/data
+      - ./src/config.default.toml:/app/config.default.toml:ro
     command: >
       /bin/bash -c "/opt/deletion/script/entry.sh"
     depends_on:
@@ -63,6 +67,7 @@ services:
       - KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET
     volumes:
       - ${DATA_PATH}/connectors:/opt/connectors/data
+      - ./src/config.default.toml:/app/config.default.toml:ro
     command: >
       /bin/bash -c "/opt/connectors/script/datasets.sh"
     depends_on:
@@ -80,6 +85,7 @@ services:
       - KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET
     volumes:
       - ${DATA_PATH}/connectors:/opt/connectors/data
+      - ./src/config.default.toml:/app/config.default.toml:ro
     command: >
       /bin/bash -c "/opt/connectors/script/entry.sh"
     depends_on:
@@ -97,6 +103,7 @@ services:
       - KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET
     volumes:
       - ${DATA_PATH}/connectors:/opt/connectors/data
+      - ./src/config.default.toml:/app/config.default.toml:ro
     command: >
       /bin/bash -c "/opt/connectors/script/entry.sh"
     depends_on:
@@ -181,6 +188,7 @@ services:
       - ES_USER=$ES_USER
       - ES_PASSWORD=$ES_PASSWORD
     volumes:
+      - ./src/config.default.toml:/app/config.default.toml:ro
       - ./logstash:/logstash
     command: >
       /bin/bash -c "python setup/logstash_setup/generate_logstash_config_files.py &&
