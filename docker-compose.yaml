@@ -35,7 +35,6 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
       - KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET
-      - PYTHONPATH=$DOCKER_PYTHONPATH
     volumes:
       - ./src:/app:ro
       - ${DATA_PATH}/connectors:/opt/connectors/data
@@ -67,7 +66,6 @@ services:
     container_name: huggingface-dataset-connector
     environment:
       - KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET
-      - PYTHONPATH=$DOCKER_PYTHONPATH
     volumes:
       - ./src:/app:ro
       - ${DATA_PATH}/connectors:/opt/connectors/data
@@ -86,7 +84,6 @@ services:
     image: aiod_openml_connector
     container_name: openml-connector
     environment:
-      - PYTHONPATH=$DOCKER_PYTHONPATH
       - KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET
     volumes:
       - ./src:/app:ro
@@ -106,7 +103,6 @@ services:
     image: aiod_zenodo_connector
     container_name: zenodo-dataset-connector
     environment:
-      - PYTHONPATH=$DOCKER_PYTHONPATH
       - KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET
     volumes:
       - ./src:/app:ro
@@ -195,7 +191,6 @@ services:
       - MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD
       - ES_USER=$ES_USER
       - ES_PASSWORD=$ES_PASSWORD
-      - PYTHONPATH=$DOCKER_PYTHONPATH
     volumes:
       - ./src:/app:ro
       - ./logstash:/logstash
