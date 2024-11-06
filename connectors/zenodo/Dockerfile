@@ -9,5 +9,4 @@ RUN apt -y install cron
 RUN chmod +x /etc/cron.d/aiod /opt/connectors/script/datasets.sh
 RUN crontab /etc/cron.d/aiod
 
-ENV PYTHONPATH="/app"
 WORKDIR /app

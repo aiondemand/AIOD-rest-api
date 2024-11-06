@@ -11,8 +11,6 @@ services:
       - ES_PASSWORD=$ES_PASSWORD
     ports:
       - ${AIOD_REST_PORT}:8000
-    volumes:
-      - ./src:/app:ro
     command: >
       python main.py
       --build-db if-absent
@@ -36,9 +34,7 @@ services:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
       - KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET
     volumes:
-      - ./src:/app:ro
       - ${DATA_PATH}/connectors:/opt/connectors/data
-      - ./connectors:/opt/connectors/script:ro
     command: >
       /bin/bash -c "/opt/connectors/script/fill-examples.sh"
     depends_on:
@@ -52,7 +48,6 @@ services:
     image: aiod_deletion
     container_name: deletion
     volumes:
-      - ./src:/app:ro
       - ${DATA_PATH}/deletion:/opt/deletion/data
     command: >
       /bin/bash -c "/opt/deletion/script/entry.sh"
@@ -67,9 +62,7 @@ services:
     environment:
       - KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET
     volumes:
-      - ./src:/app:ro
       - ${DATA_PATH}/connectors:/opt/connectors/data
-      - ./connectors/huggingface/:/opt/connectors/script:ro
     command: >
       /bin/bash -c "/opt/connectors/script/datasets.sh"
     depends_on:
@@ -86,9 +79,7 @@ services:
     environment:
       - KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET
     volumes:
-      - ./src:/app:ro
       - ${DATA_PATH}/connectors:/opt/connectors/data
-      - ./connectors/openml/:/opt/connectors/script:ro
     command: >
       /bin/bash -c "/opt/connectors/script/entry.sh"
     depends_on:
@@ -105,9 +96,7 @@ services:
     environment:
       - KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET
     volumes:
-      - ./src:/app:ro
       - ${DATA_PATH}/connectors:/opt/connectors/data
-      - ./connectors/zenodo/:/opt/connectors/script
     command: >
       /bin/bash -c "/opt/connectors/script/entry.sh"
     depends_on:
@@ -192,7 +181,6 @@ services:
       - ES_USER=$ES_USER
       - ES_PASSWORD=$ES_PASSWORD
     volumes:
-      - ./src:/app:ro
       - ./logstash:/logstash
     command: >
       /bin/bash -c "python setup/logstash_setup/generate_logstash_config_files.py &&
