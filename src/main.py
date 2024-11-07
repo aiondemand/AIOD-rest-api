@@ -80,7 +80,10 @@ def add_routes(app: FastAPI, url_prefix=""):
                 query = (
                     select(router_.resource_class)
                     .join(AIoDEntryORM)
-                    .where(AIoDEntryORM.creator_identifier == user.subject_identifier)
+                    .where(
+                        AIoDEntryORM.creator_identifier == user.subject_identifier,
+                        router_.resource_class.date_deleted == None,  # noqa
+                    )
                 )
                 user_orm_assets = session.scalars(query).all()
                 wrapped_assets = [
