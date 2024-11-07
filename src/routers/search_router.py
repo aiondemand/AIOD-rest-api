@@ -15,7 +15,7 @@ from database.session import DbSession
 from error_handling import as_http_exception
 from .search_routers.elasticsearch import ElasticsearchSingleton
 
-SORT = {"identifier": "asc"}
+SORT = {"_score": { "order": "desc" }}
 LIMIT_MAX = 1000
 
 RESOURCE = TypeVar("RESOURCE", bound=AIoDConcept)
