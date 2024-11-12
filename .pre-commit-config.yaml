@@ -34,4 +34,4 @@ repos:
         entry: pytest src/tests
         language: system
         pass_filenames: false
-        always_run: true
+        exclude: ".*.md"
