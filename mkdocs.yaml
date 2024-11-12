@@ -2,3 +2,7 @@ site_name: AI-on-Demand REST API
 site_url: https://api.aiod.eu/docs
 theme:
   name: material
+
+markdown_extensions:
+  - pymdownx.snippets:
+      check_paths: true
