@@ -35,8 +35,13 @@ class ComputationalAssetBase(AIAssetBase):
         schema_extra={"example": "Linux"},
     )
     pricing_scheme: str | None = Field(
-        description="",
-        schema_extra={"example": ""},
+        description="A text describing the pricing scheme, or a URL to such text.",
+        schema_extra={
+            "example": "Academic use: Free for researchers and students with valid"
+            "institutional credentials. Commercial use: Based on resource consumption"
+            " - contact support@example.com or visit https://example.com/pricing for "
+            "current rates."
+        },
     )
 
 
@@ -77,30 +82,81 @@ class ComputationalAsset(ComputationalAssetBase, AIAsset, table=True):  # type: 
             default_factory_pydantic=list,  # no deletion trigger: cascading delete is used
             description="The CPU of the Computational Asset.",
             deserializer=CastDeserializerList(CpuORM),
-            example=[],
+            example=[
+                {
+                    "num_cpu_cores": 8,
+                    "architecture": "x86_64",
+                    "vendor": "CPU_AMD",
+                    "model_name": "Ryzen 7 5800X",
+                    "cpu_family": "Zen 3",
+                    "clock_speed": 3.8,
+                }
+            ],
         )
 
         memory: list[Memory] | None = OneToMany(
             default_factory_pydantic=list,  # no deletion trigger: cascading delete is used
             description="The Memory of Computational Asset.",
             deserializer=CastDeserializerList(MemoryORM),
-            example=[],
+            example=[
+                {
+                    "type": "DDR5",
+                    "amount_gb": 32.0,
+                    "read_bandwidth": 38400,
+                    "write_bandwidth": 38400,
+                    "rdma": "InfiniBand",
+                },
+            ],
         )
         accelerator: list[Accelerator] | None = OneToMany(
             default_factory_pydantic=list,  # no deletion trigger: cascading delete is used
             description="The Accelerator integrated into the Computational Asset.",
             deserializer=CastDeserializerList(AcceleratorORM),
-            example=[],
+            example=[
+                {
+                    "vendor": "NVIDIA",
+                    "type": "GPU",
+                    "model_name": "A100",
+                    "architecture": "Ampere",
+                    "cores": 6912,
+                    "memory": 80.0,
+                },
+            ],
         )
         storage: list[Storage] | None = OneToMany(
             default_factory_pydantic=list,  # no deletion trigger: cascading delete is used
             description="The Storage associated with the Computational Asset.",
             deserializer=CastDeserializerList(StorageORM),
-            example=[],
+            example=[
+                {
+                    "model": "Samsung 990 PRO",
+                    "vendor": "Samsung",
+                    "amount": 2000,
+                    "type": "NVMe SSD",
+                    "read_bandwidth": 7450,
+                    "write_bandwidth": 6900,
+                },
+            ],
         )
         location: list[Location] | None = OneToMany(
             default_factory_pydantic=list,  # no deletion trigger: cascading delete is used
             description="A geographical specification of where the resource resides.",
             deserializer=CastDeserializerList(LocationORM),
-            example=[],
+            example=[
+                {
+                    "address": {
+                        "street": "Gustav-Kicks-Allee 1",
+                        "postal_code": "85748",
+                        "locality": "Garching",
+                        "region": "Bavaria",
+                        "country": "DEU",
+                        "address": "Gustav-Kicks-Allee 1, 85748 Garching bei München",
+                    },
+                    "geo": {
+                        "latitude": 48.2676,
+                        "longitude": 11.6718,
+                        "elevation_millimeters": 482000,
+                    },
+                },
+            ],
         )
