@@ -143,9 +143,9 @@ otherwise some containers might keep running.
 We provide two auxiliary scripts for launching docker containers and bringing them down.
 The first, `./scripts/up.sh` invokes `docker compose up -d` and takes any number of profiles to launch as parameters.
 It will also ensure that the changes of the configurations (see above) are observed.
-If `AIOD_MOUNT` is set (e.g., in `override.env`) then your local source code will be mounted on the containers,
+If `USE_LOCAL_DEV` is set to `true` (e.g., in `override.env`) then your local source code will be mounted on the containers,
 this is useful for local development but should not be used in production.
-E.g., with `AIOD_MOUNT` set `./scripts/up.sh` resolves to:
+E.g., with `USE_LOCAL_DEV` set to `true`, `./scripts/up.sh` resolves to:
 `docker compose --env-file=.env --env-file=override.env -f docker-compose.yaml -f docker-compose.dev.yaml --profile examples  up -d`
 
 The second script is a convenience for bringing down all services, including all profiles: `./scripts/down.sh`

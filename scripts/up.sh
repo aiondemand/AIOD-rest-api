@@ -12,7 +12,7 @@ GREEN='\033[0;32m'
 source .env
 source override.env
 
-if [[ -n "${AIOD_MOUNT}" ]]; then
+if [[ "${USE_LOCAL_DEV}" == "true" ]]; then
   compose_with_dev="-f docker-compose.dev.yaml"
   echo -e "Launching ${CYAN}with${NC} local changes."
 else
