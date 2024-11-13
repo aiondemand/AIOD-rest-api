@@ -2,6 +2,10 @@ services:
   app:
     volumes:
       - ./src:/app:ro
+    command: >
+      python main.py
+      --build-db if-absent
+      --reload
 
   fill-db-with-examples:
     volumes:
@@ -16,6 +20,16 @@ services:
     volumes:
       - ./src:/app:ro
       - ./connectors/huggingface/:/opt/connectors/script:ro
+
+  keycloak:
+    command: >
+      start
+      --hostname-url http://${HOSTNAME}/aiod-auth
+      --hostname-admin-url http://${HOSTNAME}/aiod-auth
+      --http-relative-path=/aiod-auth
+      --http-enabled=true
+      --hostname-strict-https=false
+      --import-realm
 
   openml-connector:
     volumes:

@@ -16,7 +16,6 @@ services:
     command: >
       python main.py
       --build-db if-absent
-      --reload
     healthcheck:
       test: ["CMD", "python", "-c",  "import requests; requests.get('http://localhost:8000')"]
       start_interval: 1s
@@ -138,11 +137,9 @@ services:
      - ${DATA_PATH}/keycloak/themes:/opt/keycloak/themes
     command: >
       start
-      --hostname-url http://${HOSTNAME}/aiod-auth
-      --hostname-admin-url http://${HOSTNAME}/aiod-auth
+      --proxy edge
+      --hostname ${HOSTNAME}
       --http-relative-path=/aiod-auth
-      --http-enabled=true
-      --hostname-strict-https=false
       --import-realm
 
   nginx:
