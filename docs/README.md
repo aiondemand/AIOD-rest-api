@@ -196,7 +196,7 @@ Checkin is strict - as it should be. On our development keycloak, any redirectio
 accepted, so that it works on local host or wherever you deploy. This should never be the case 
 for a production instance.
 
-See [authentication README](../authentication/README.md) for more information.
+See [authentication README](developer/auth.md) for more information.
 
 ### Creating the Database
 
@@ -232,12 +232,12 @@ start-up work (e.g., populating the database).
 
 The Python classes that define the database tables are found in [src/database/model/](../src/database/model/). 
 The structure is based on the 
-[metadata schema](https://docs.google.com/spreadsheets/d/1n2DdSmzyljvTFzQzTLMAmuo3IVNx8yposdPLItBta68/edit?usp=sharing).
+[metadata schema](https://github.com/aiondemand/metadata-schema).
 
 
 ## Adding resources
 
-See [src/README.md](../src/README.md).
+See [src/README.md](developer/code.md).
 
 ## Backups and Restoration
 
@@ -300,5 +300,5 @@ To create a new release,
    - Check which services currently work (before the update). It's a sanity check for if a service _doesn't_ work later.
    - Update the code on the server by checking out the release
    - Merge configurations as necessary
-   - Make sure the latest database migrations are applied: see ["Schema Migrations"](../alembic/readme.md#update-the-database)
+   - Make sure the latest database migrations are applied: see ["Schema Migrations"](developer/migration.md#update-the-database)
 9. Notify everyone (e.g., in the API channel in Slack). 
