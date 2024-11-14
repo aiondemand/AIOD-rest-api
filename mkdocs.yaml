@@ -5,6 +5,16 @@ theme:
   features:
     - content.code.copy
 
+nav:
+  - Using the API: Using.md
+  - Hosting the API: Hosting.md
+  - 'Developer Resources': README.md
+  - 'Unorganized Docs':
+      - 'Code Advice': developer/code.md
+      - 'Keycloak': developer/auth.md
+      - 'DB Schema Migration': developer/migration.md
+      - 'Scripts': developer/scripts.md
+
 markdown_extensions:
   - pymdownx.snippets:
       check_paths: true
