@@ -194,7 +194,7 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
             if sort_by_id:
                 sort = {"identifier": "asc"}
             else:
-                sort = {"_score": { "order": "desc" }}
+                sort = {"_score": {"order": "desc"}}
 
             result = ElasticsearchSingleton().client.search(
                 index=self.es_index, query=query, from_=offset, size=limit, sort=sort
