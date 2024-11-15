@@ -169,6 +169,7 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
                 )
 
             fields = search_fields if search_fields else self.indexed_fields
+            query_matches: list[dict[str, dict[str, str | dict[str, str]]]] = []
             if exact_match:
                 query_matches = [
                     {"match": {f: {"query": search_query, "operator": "and"}}} for f in fields
@@ -191,6 +192,7 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
                 must_clause.append({"range": {"date_modified": date_range}})
             if must_clause:
                 query["bool"]["must"] = must_clause
+            sort: dict[str, str | dict[str, str]] = {}
             if sort_by_id:
                 sort = {"identifier": "asc"}
             else:
