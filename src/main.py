@@ -132,17 +132,13 @@ def create_app() -> FastAPI:
 
         drop_database = args.build_db == "drop-then-build"
         create_database(delete_first=drop_database)
+        add_delete_triggers(AIoDConcept)
         AIoDConcept.metadata.create_all(EngineSingleton().engine, checkfirst=True)
         with DbSession() as session:
             existing_platforms = session.scalars(select(Platform)).all()
             if not any(existing_platforms):
                 session.add_all([Platform(name=name) for name in PlatformName])
                 session.commit()
-
-                # this is a bit of a hack: instead of checking whether the triggers exist, we check
-                # whether platforms are already present. If platforms were not present, the db is
-                # empty, and so the triggers should still be added.
-                add_delete_triggers(AIoDConcept)
 
     add_routes(app, url_prefix=args.url_prefix)
     return app
