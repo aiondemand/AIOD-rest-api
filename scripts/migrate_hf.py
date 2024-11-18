@@ -29,7 +29,7 @@ def main():
         datasets = session.scalars(datasets_query).all()
 
         for dataset in datasets:
-            if all(c in string.hexdigits for c in dataset.id):
+            if all(c in string.hexdigits for c in dataset.platform_resource_identifier):
                 continue  # entry already updated to use new-style id
 
             response = requests.get(
@@ -43,9 +43,9 @@ def main():
                 continue
 
             dataset_json = response.json()
-            if dataset.id != dataset_json["id"]:
+            if dataset.platform_resource_identifier != dataset_json["id"]:
                 logging.info(
-                    f"Dataset {dataset.id} moved to {dataset_json['id']}"
+                    f"Dataset {dataset.platform_resource_identifier} moved to {dataset_json['id']}"
                     "Deleting the old entry. The new entry either already exists or"
                     "will be added on a later synchronization invocation."
                 )
@@ -53,9 +53,8 @@ def main():
                 continue
 
             persistent_id = dataset_json["_id"]
-            logging.info(f"Setting platform id of {dataset.id} to {persistent_id}")
+            logging.info(f"Setting platform id of {dataset.platform_resource_identifier} to {persistent_id}")
             dataset.platform_resource_identifier = persistent_id
-            break
         session.commit()
 
 
