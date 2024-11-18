@@ -6,6 +6,7 @@ a user changes their username or the dataset name. The `_id` field is persistent
 so can be used to avoid indexing the same dataset twice under a different platform identifier.
 """
 import logging
+import string
 from http import HTTPStatus
 
 from sqlalchemy import select
@@ -26,7 +27,11 @@ def main():
     with DbSession() as session:
         datasets_query = select(Dataset).where(Dataset.platform == PlatformName.huggingface)
         datasets = session.scalars(datasets_query).all()
+
         for dataset in datasets:
+            if all(c in string.hexdigits for c in dataset.id):
+                continue  # entry already updated to use new-style id
+
             response = requests.get(
                 f"https://huggingface.co/api/datasets/{dataset.name}",
                 params={"full": "False"},
@@ -38,19 +43,18 @@ def main():
                 continue
 
             dataset_json = response.json()
-            persistent_id = dataset_json["_id"]
-            if dataset.name != persistent_id:
+            if dataset.id != dataset_json["id"]:
                 logging.info(
-                    f"Dataset {dataset.name} moved to {dataset_json['id']}"
+                    f"Dataset {dataset.id} moved to {dataset_json['id']}"
                     "Deleting the old entry. The new entry either already exists or"
                     "will be added on a later synchronization invocation."
                 )
                 session.delete(dataset)
                 continue
 
-            logging.info(f"Setting id of {dataset.id} to {persistent_id}")
+            persistent_id = dataset_json["_id"]
+            logging.info(f"Setting platform id of {dataset.id} to {persistent_id}")
             dataset.platform_resource_identifier = persistent_id
-            session.add(dataset)
             break
         session.commit()
 
