@@ -53,7 +53,9 @@ def main():
                 continue
 
             persistent_id = dataset_json["_id"]
-            logging.info(f"Setting platform id of {dataset.platform_resource_identifier} to {persistent_id}")
+            logging.info(
+                f"Setting platform id of {dataset.platform_resource_identifier} to {persistent_id}"
+            )
             dataset.platform_resource_identifier = persistent_id
         session.commit()
 
