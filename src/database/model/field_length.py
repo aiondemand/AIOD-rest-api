@@ -7,4 +7,5 @@ length need (such as, for instance, for an ISSN for which you know the precise l
 SHORT = 64
 NORMAL = 256
 LONG = 1800  # an A4s full of text
+VERY_LONG = 8000  # Cut off for out-of-row storage
 MAX_TEXT = 65535  # max length for Mysql text

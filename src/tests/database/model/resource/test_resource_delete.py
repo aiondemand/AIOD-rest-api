@@ -14,6 +14,8 @@ from database.session import DbSession
 def test_happy_path(client: TestClient):
     dataset_media = datatype_of_field(Dataset, "media")
     dataset_note = datatype_of_field(Dataset, "note")
+    assert not isinstance(dataset_media, str)
+    assert not isinstance(dataset_note, str)
 
     alternate_name_a = AlternateName(name="a")
     alternate_name_b = AlternateName(name="b")

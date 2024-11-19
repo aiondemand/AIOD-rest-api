@@ -8,6 +8,7 @@ from typing import Optional
 from fastapi import UploadFile, HTTPException, status
 
 from authentication import User
+from config import REQUEST_TIMEOUT
 
 from database.model.agent.contact import Contact
 from database.model.ai_asset.license import License
@@ -142,6 +143,7 @@ class ZenodoUploader(Uploader):
                 self.BASE_URL,
                 params=params,
                 json={"metadata": metadata},
+                timeout=REQUEST_TIMEOUT,
             )
         except Exception as exc:
             raise as_http_exception(exc)
@@ -158,7 +160,7 @@ class ZenodoUploader(Uploader):
         """
         params = {"access_token": token}
         try:
-            res = requests.get(f"{self.BASE_URL}/{repo_id}", params=params)
+            res = requests.get(f"{self.BASE_URL}/{repo_id}", params=params, timeout=REQUEST_TIMEOUT)
         except Exception as exc:
             raise as_http_exception(exc)
 
@@ -179,6 +181,7 @@ class ZenodoUploader(Uploader):
                 params={"access_token": token},
                 data=json.dumps({"metadata": metadata}),
                 headers=headers,
+                timeout=REQUEST_TIMEOUT,
             )
         except Exception as exc:
             raise as_http_exception(exc)
@@ -194,7 +197,10 @@ class ZenodoUploader(Uploader):
         params = {"access_token": token}
         try:
             res = requests.put(
-                f"{repo_url}/{file.filename}", data=io.BufferedReader(file.file), params=params
+                f"{repo_url}/{file.filename}",
+                data=io.BufferedReader(file.file),
+                params=params,
+                timeout=REQUEST_TIMEOUT,
             )
         except Exception as exc:
             raise as_http_exception(exc)
@@ -209,7 +215,9 @@ class ZenodoUploader(Uploader):
         """
         params = {"access_token": token}
         try:
-            res = requests.post(f"{self.BASE_URL}/{repo_id}/actions/publish", params=params)
+            res = requests.post(
+                f"{self.BASE_URL}/{repo_id}/actions/publish", params=params, timeout=REQUEST_TIMEOUT
+            )
         except Exception as exc:
             raise as_http_exception(exc)
 
@@ -229,7 +237,7 @@ class ZenodoUploader(Uploader):
         url = public_url or f"{self.BASE_URL}/{repo_id}"
 
         try:
-            res = requests.get(f"{url}/files", params=params)
+            res = requests.get(f"{url}/files", params=params, timeout=REQUEST_TIMEOUT)
         except Exception as exc:
             raise as_http_exception(exc)
 
@@ -261,7 +269,9 @@ class ZenodoUploader(Uploader):
         Checks if the provided license is valid for uploading content to Zenodo.
         """
         try:
-            res = requests.get("https://zenodo.org/api/vocabularies/licenses?q=&tags=data")
+            res = requests.get(
+                "https://zenodo.org/api/vocabularies/licenses?q=&tags=data", timeout=REQUEST_TIMEOUT
+            )
         except Exception as exc:
             raise as_http_exception(exc)
         if res.status_code != status.HTTP_200_OK:

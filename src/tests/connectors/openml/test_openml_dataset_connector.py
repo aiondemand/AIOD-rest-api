@@ -18,7 +18,7 @@ def test_first_run():
 
         datasets = list(connector.run(state, from_identifier=0, limit=None))
 
-    assert state["offset"] == 3, state
+    assert state["last_id"] == 4, state
     assert {d.name for d in datasets} == {"anneal", "labor", "kr-vs-kp"}
     assert len(datasets) == 3
     assert {len(d.citation) for d in datasets} == {0}
@@ -26,12 +26,12 @@ def test_first_run():
 
 def test_request_empty_list():
     """Tests if the state doesn't change after a request when OpenML returns an empty list."""
-    state = {"offset": 2, "last_id": 3}
+    state = {"last_id": 3}
     connector = OpenMlDatasetConnector(limit_per_iteration=2)
     with responses.RequestsMock() as mocked_requests:
         mocked_requests.add(
             responses.GET,
-            f"{OPENML_URL}/data/list/limit/2/offset/2",
+            f"{OPENML_URL}/data/list/limit/2/offset/0",
             json={"error": {"code": "372", "message": "No results"}},
             status=412,
         )
@@ -39,32 +39,27 @@ def test_request_empty_list():
 
         assert len(datasets) == 1, datasets
         assert "No results" in datasets[0].error.args[0], datasets
-        assert state["offset"] == 2, state
         assert state["last_id"] == 3, state
 
 
 def test_second_run():
     connector = OpenMlDatasetConnector(limit_per_iteration=2)
+
+    state = {"last_id": 3}  # state from last run
     with responses.RequestsMock() as mocked_requests:
-        mock_list_data(mocked_requests, offset=2)
+        mock_list_data(
+            mocked_requests, offset=0
+        )  # Mock the first call to fetch datasets with offset=0
+        mock_list_data(
+            mocked_requests, offset=2
+        )  # Mock the second call for pagination with offset=2
         mock_get_data(mocked_requests, "4")
-        datasets = list(
-            connector.run(state={"offset": 2, "last_id": 3}, from_identifier=0, limit=None)
-        )
+        datasets = list(connector.run(state=state, from_identifier=1, limit=None))
+
     assert len(datasets) == 1
     assert {d.name for d in datasets} == {"labor"}
-
-
-def test_second_run_wrong_identifier():
-    connector = OpenMlDatasetConnector(limit_per_iteration=2)
-    with responses.RequestsMock() as mocked_requests:
-        mock_list_data(mocked_requests, offset=2)
-        mock_get_data(mocked_requests, "4")
-        datasets = list(
-            connector.run(state={"offset": 2, "last_id": 1}, from_identifier=0, limit=None)
-        )
-    assert len(datasets) == 1
-    assert {d.name for d in datasets} == {"labor"}
+    assert state["last_id"] == 4, state
+    assert state["from_id"] == 4, state  # state["from_id"] = state["last_id"] + 1
 
 
 def mock_list_data(mocked_requests, offset):

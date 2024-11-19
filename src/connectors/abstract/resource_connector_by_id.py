@@ -35,25 +35,27 @@ class ResourceConnectorById(ResourceConnector, Generic[RESOURCE]):
             )
 
         first_run = not state
+        # Setting offset to zero, to avoid "swiss-cheese" indexing (Issue: #372).
+        # Further, offset is not required to persist in disk anymore.
+        offset = 0
+
         if first_run and from_identifier is None:
             raise ValueError("In the first run, the from-identifier needs to be set")
         elif first_run:
-            state["offset"] = 0
             state["from_id"] = from_identifier if from_identifier is not None else 0
         else:
             state["from_id"] = state["last_id"] + 1
-            state["offset"] = state["offset"]  # TODO: what if datasets are deleted? Or updated?
 
         logging.info(
             f"Starting synchronisation of records from id {state['from_id']} and"
-            f" offset {state['offset']}"
+            f" offset {offset}"
         )
 
         finished = False
         n_results = 0
         while not finished:
             i = 0
-            for item in self.fetch(offset=state["offset"], from_identifier=state["from_id"]):
+            for item in self.fetch(offset=offset, from_identifier=state["from_id"]):
                 if isinstance(item, RecordError) and isinstance(item.error, HTTPError):
                     yield item
                     return
@@ -77,5 +79,5 @@ class ResourceConnectorById(ResourceConnector, Generic[RESOURCE]):
 
             finished = i < self.limit_per_iteration
             logging.info(f"Finished: {i} < {self.limit_per_iteration}")
-            state["offset"] += i
+            offset += i
         state["result"] = "Complete run done (although there might be errors)."

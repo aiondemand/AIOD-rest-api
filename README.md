@@ -106,6 +106,26 @@ mysql> SHOW DATABASES;
 
 Now, you can visit the server from your browser at `localhost:8000/docs`.
 
+### Changing the configuration
+You may need to change the configuration locally, for example if you want different ports to be used.
+Do not change files, instead add overrides.
+
+#### Docker Compose
+For docker compose, the environment variables are defined in the `.env` file. 
+To override variables, for example `AIOD_LOGSTASH_PORT`, add a new file called `override.env`:
+```bash {title='override.env'}
+AIOD_LOGSTASH_PORT=5001
+```
+Then also specify this when you invoke docker compose, e.g.:
+`docker compose --env-file=.env --env-file=override.env up`
+Note that **order is important**, later environment files will override earlier ones.
+
+#### Config.toml
+The main application supports configuration options through a `toml` file.
+The defaults can be found at `src/config.default.toml`.
+To override them, add a `src/config.override.toml` file.
+It follows the same structure as the default file, but you only need to specify the variables to override.
+
 #### Using connectors
 You can specify different connectors using
 
@@ -178,33 +198,22 @@ for a production instance.
 
 See [authentication README](authentication/README.md) for more information.
 
+### Creating the Database
+
+By default, the app will create a database on the provided MySQL server.
+You can change this behavior through the **build-db** command-line parameter, 
+it takes the following options:
+  * never: *never* creates the database, not even if there does not exist one yet.
+    Use this only if you expect the database to be created through other means, such
+    as MySQL group replication.
+  * if-absent: Creates a database only if none exists. (default)
+  * drop-then-build: Drops the database on startup to recreate it from scratch.
+    **THIS REMOVES ALL DATA PERMANENTLY. NO RECOVERY POSSIBLE.**
+
 ### Populating the Database
-
-By default, the app will connect to the database and populate it with a few items if there is no data present.
-You can change this behavior through parameters of the script:
-
-* **rebuild-db**: "no", "only-if-empty", "always". Default is "only-if-empty".
-    * no: connect to the database but don't make any modifications on startup.
-    * only-if-empty: if the database does not exist, create it. Then, if the tables do not exist, create them.
-      Then, if the tables are empty, populate according to `populate`.
-    * always: drop the configured database and rebuild its structure from scratch.
-      Effectively a `DROP DATABASE` followed by a `CREATE DATABASE` and the creation of the tables.
-      The database is then repopulated according to `populate`.
-      **Important:** data in the database is not restored. All data will be lost. Do not use this option
-      if you are not sure if it is what you need.
-
-* **populate-datasets**: one or multiple of "example", "huggingface", "zenodo" or "openml". 
-  Default is nothing. Specifies what data to add the database, only used if `rebuild-db` is 
-  "only-if-empty" or "always".
-    * nothing: don't add any data.
-    * example: registers two datasets and two publications.
-    * openml: registers datasets of OpenML, this may take a while, depending on the limit (~30 
-      minutes).
-
-* **populate-publications**: similar to populate-datasets. Only "example" is currently implemented.
-
-* **limit**: limit the number of initial resources with which the database is populated. This 
-  limit is per resource and per platform.
+To populate the database with some examples, run the `connectors/fill-examples.sh` script.
+When using `docker compose` you can easily do this by running the "examples" profile:
+`docker compose --profile examples up`
 
 ## Usage
 
@@ -291,4 +300,5 @@ To create a new release,
    - Check which services currently work (before the update). It's a sanity check for if a service _doesn't_ work later.
    - Update the code on the server by checking out the release
    - Merge configurations as necessary
+   - Make sure the latest database migrations are applied: see ["Schema Migrations"](alembic/readme.md#update-the-database)
 9. Notify everyone (e.g., in the API channel in Slack). 

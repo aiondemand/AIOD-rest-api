@@ -7,6 +7,7 @@ import requests
 from huggingface_hub import list_datasets
 from huggingface_hub.hf_api import DatasetInfo
 
+from config import REQUEST_TIMEOUT
 from connectors.abstract.resource_connector_on_start_up import ResourceConnectorOnStartUp
 from connectors.record_error import RecordError
 from connectors.resource_with_relations import ResourceWithRelations
@@ -37,7 +38,7 @@ class HuggingFaceDatasetConnector(ResourceConnectorOnStartUp[Dataset]):
 
     @staticmethod
     def _get(url: str, dataset_id: str) -> typing.List[typing.Dict[str, typing.Any]]:
-        response = requests.get(url, params={"dataset": dataset_id})
+        response = requests.get(url, params={"dataset": dataset_id}, timeout=REQUEST_TIMEOUT)
         response_json = response.json()
         if not response.ok:
             msg = response_json["error"]

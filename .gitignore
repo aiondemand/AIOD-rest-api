@@ -3,6 +3,10 @@
 # data/ is intended for database data from the mysql container
 data/
 
+# overrides should not be submitted as it may contain sensitive data
+override.env
+src/config.override.toml
+
 # Generated Logstash configuration
 logstash/config/config/logstash.yml
 logstash/config/config/pipelines.yml
