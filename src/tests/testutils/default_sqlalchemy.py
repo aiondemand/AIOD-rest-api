@@ -1,6 +1,6 @@
 import sqlite3
 import tempfile
-from typing import Iterator, Type, Any
+from typing import Iterator, Any
 from unittest.mock import Mock
 
 import pytest
@@ -11,7 +11,7 @@ from sqlalchemy.engine import Engine
 from sqlmodel import create_engine, SQLModel, Session, select
 from starlette.testclient import TestClient
 
-from database.deletion.triggers import add_delete_triggers
+from database.deletion.triggers import create_delete_triggers
 from database.model.concept.concept import AIoDConcept
 from database.model.platform.platform import Platform
 from database.model.platform.platform_names import PlatformName
@@ -21,20 +21,16 @@ from tests.testutils.test_resource import RouterTestResource, factory
 
 
 @pytest.fixture(scope="session")
-def deletion_triggers() -> Type[AIoDConcept]:
-    """Making sure that the deletion triggers are only created once"""
-    add_delete_triggers(AIoDConcept)
-    return AIoDConcept
-
-
-@pytest.fixture(scope="session")
-def engine(deletion_triggers) -> Iterator[Engine]:
+def engine() -> Iterator[Engine]:
     """
     Create a SqlAlchemy engine for tests, backed by a temporary sqlite file.
     """
     temporary_file = tempfile.NamedTemporaryFile()
     engine = create_engine(f"sqlite:///{temporary_file.name}?check_same_thread=False")
     AIoDConcept.metadata.create_all(engine)
+    with Session(engine) as session:
+        for trigger in create_delete_triggers(AIoDConcept):
+            session.execute(trigger)
     EngineSingleton().patch(engine)
 
     # Yielding is essential, the temporary file will be closed after the engine is used
