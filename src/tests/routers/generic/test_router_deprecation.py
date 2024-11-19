@@ -6,7 +6,6 @@ from fastapi import FastAPI
 from sqlalchemy.engine import Engine
 from starlette.testclient import TestClient
 
-from authentication import keycloak_openid
 from tests.testutils.test_resource import RouterTestResource
 
 
@@ -37,7 +36,6 @@ class DeprecatedRouter(RouterTestResource):
 def test_deprecated_router(
     engine_test_resource_filled: Engine, verb: str, url: str, mocked_privileged_token: Mock
 ):
-    keycloak_openid.introspect = mocked_privileged_token
     app = FastAPI()
     app.include_router(DeprecatedRouter().create(""))
     client = TestClient(app)

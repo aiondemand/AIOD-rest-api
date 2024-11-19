@@ -15,8 +15,6 @@ def test_happy_path(
     body_asset: dict,
     person: Person,
 ):
-    keycloak_openid.introspect = mocked_privileged_token
-
     with DbSession() as session:
         session.add(person)
         session.commit()

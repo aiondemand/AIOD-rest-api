@@ -9,7 +9,6 @@ from unittest.mock import Mock
 from fastapi import HTTPException, status
 from starlette.testclient import TestClient
 
-from authentication import keycloak_openid
 from database.model.agent.contact import Contact
 from database.model.agent.person import Person
 
@@ -53,7 +52,6 @@ def distribution_from_zenodo(*filenames: str, is_published: bool = False) -> lis
 
 @pytest.fixture
 def db_with_person_and_contact(mocked_privileged_token: Mock, person: Person, contact: Contact):
-    keycloak_openid.introspect = mocked_privileged_token
     with DbSession() as session:
         person.name = "full name"
         person.given_name = "Alice"
@@ -282,7 +280,6 @@ def test_attempt_to_upload_published_resource(
     body["distribution"] = distribution_from_zenodo(FILE1, is_published=True)
     body["aiod_entry"]["status"] = "published"
 
-    keycloak_openid.introspect = mocked_privileged_token
     with DbSession() as session:
         person.name = "Alice Lewis"
         contact.person = person
@@ -328,7 +325,6 @@ def test_platform_name_conflict(
     body["platform"] = "huggingface"
     body["platform_resource_identifier"] = "fake-id"
 
-    keycloak_openid.introspect = mocked_privileged_token
     with DbSession() as session:
         contact.person = person
         session.add(contact)
@@ -365,7 +361,6 @@ def test_fail_due_to_missing_contact_name(
     body = copy.deepcopy(body_empty)
     body["creator"] = []
 
-    keycloak_openid.introspect = mocked_privileged_token
     with DbSession() as session:
         session.add(person)
         session.commit()

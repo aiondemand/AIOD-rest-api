@@ -23,7 +23,6 @@ def test_happy_path_new_repository(
     dataset.platform = "huggingface"
     dataset.platform_resource_identifier = "Fake-username/test"
 
-    keycloak_openid.introspect = mocked_privileged_token
     with DbSession() as session:
         session.add(dataset)
         session.commit()
@@ -59,7 +58,6 @@ def test_happy_path_generating_repo_id(
     dataset.platform_resource_identifier = None
     dataset.name = "Repo Test Name 1"
 
-    keycloak_openid.introspect = mocked_privileged_token
     with DbSession() as session:
         session.add(dataset)
         session.commit()
@@ -95,7 +93,6 @@ def test_failed_generating_repo_id(
     dataset.platform_resource_identifier = None
     dataset.name = "Repo inv@lid name"
 
-    keycloak_openid.introspect = mocked_privileged_token
     with DbSession() as session:
         session.add(dataset)
         session.commit()
