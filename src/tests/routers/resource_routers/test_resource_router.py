@@ -4,8 +4,6 @@ from unittest.mock import Mock
 import pytest
 from starlette.testclient import TestClient
 
-from authentication import keycloak_openid
-
 
 @pytest.mark.parametrize(
     "resource_type",
@@ -58,8 +56,6 @@ def test_happy_path_with_filters(
     resource_filters: dict,
     expected_count: int,
 ):
-    keycloak_openid.introspect = mocked_privileged_token
-
     response = client.post(
         f"/{resource_type}/v1", json=body_asset, headers={"Authorization": "Fake token"}
     )
