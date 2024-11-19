@@ -8,7 +8,6 @@ import responses
 from starlette import status
 from starlette.testclient import TestClient
 
-from authentication import keycloak_openid
 from database.model.dataset.dataset import Dataset
 from database.model.platform.platform_names import PlatformName
 from database.session import DbSession
@@ -116,8 +115,6 @@ def test_failed_generating_repo_id(
 
 
 def test_repo_already_exists(client: TestClient, mocked_privileged_token: Mock, dataset: Dataset):
-    keycloak_openid.userinfo = mocked_privileged_token
-
     dataset = copy.deepcopy(dataset)
     dataset.platform = "huggingface"
     dataset.platform_resource_identifier = "Fake-username/test"
@@ -152,8 +149,6 @@ def test_repo_already_exists(client: TestClient, mocked_privileged_token: Mock, 
 
 
 def test_wrong_platform(client: TestClient, mocked_privileged_token: Mock, dataset: Dataset):
-    keycloak_openid.userinfo = mocked_privileged_token
-
     dataset = copy.deepcopy(dataset)
     dataset.platform = "example"
     dataset.platform_resource_identifier = "Fake-username/test"
