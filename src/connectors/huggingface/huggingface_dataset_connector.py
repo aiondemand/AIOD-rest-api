@@ -59,6 +59,7 @@ class HuggingFaceDatasetConnector(ResourceConnectorOnStartUp[Dataset]):
                     dataset, pydantic_class, pydantic_class_publication, pydantic_class_contact
                 )
             except Exception as e:
+                # We use the normal id here since it is more informative and can be used to visit hf
                 yield RecordError(identifier=dataset.id, error=e)
 
     def fetch_dataset(
@@ -119,7 +120,7 @@ class HuggingFaceDatasetConnector(ResourceConnectorOnStartUp[Dataset]):
         return ResourceWithRelations[pydantic_class](  # type:ignore
             resource=pydantic_class(
                 aiod_entry=AIoDEntryCreate(status="published"),
-                platform_resource_identifier=dataset.id,
+                platform_resource_identifier=dataset._id,  # see #385, 392
                 platform=self.platform_name,
                 name=dataset.id,
                 same_as=f"https://huggingface.co/datasets/{dataset.id}",
