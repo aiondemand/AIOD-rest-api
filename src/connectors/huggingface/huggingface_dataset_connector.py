@@ -120,7 +120,7 @@ class HuggingFaceDatasetConnector(ResourceConnectorOnStartUp[Dataset]):
         return ResourceWithRelations[pydantic_class](  # type:ignore
             resource=pydantic_class(
                 aiod_entry=AIoDEntryCreate(status="published"),
-                platform_resource_identifier=dataset._id,
+                platform_resource_identifier=dataset._id,  # see #385, 392
                 platform=self.platform_name,
                 name=dataset.id,
                 same_as=f"https://huggingface.co/datasets/{dataset.id}",

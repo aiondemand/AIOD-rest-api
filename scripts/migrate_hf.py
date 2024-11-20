@@ -4,6 +4,8 @@ Updates the metadata of Hugging Face entries to use `_id` instead of `id` as pla
 The `id` field (i.e., `username/datasetname`, e.g., `pgijsbers/titanic`) is subject to change when
 a user changes their username or the dataset name. The `_id` field is persistent across these changes,
 so can be used to avoid indexing the same dataset twice under a different platform identifier.
+
+To be run once (around sometime Nov 2024), likely not needed after that. See also #385, 392.
 """
 import logging
 import string
