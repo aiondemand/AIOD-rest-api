@@ -100,4 +100,13 @@ especially with respect to documentation of the expected responses and the schem
 
 ## REST API using CURL
 The Swagger documentation gives examples on how to use CURL for the various endpoints.
-Using any 
+To see examples, simply expand the endpoint's documentation and click `Try it out`, fill in any parameters, and click `Execute`.
+The query will be executed, but it will also generate a `curl` command which matches the query.
+
+For example, listing the first 10 datasets:
+
+```commandline
+curl -X 'GET' \
+  'http://api.aiod.eu/datasets/v1?schema=aiod&offset=0&limit=10' \
+  -H 'accept: application/json'
+```
