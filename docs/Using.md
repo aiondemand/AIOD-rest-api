@@ -49,7 +49,7 @@ For example, if we navigate to the [`GET /datasets/v1`](https://api.aiod.eu/docs
 endpoint and expand the documentation by clicking on the down chevron (`v`), we can see the different query parameters 
 and can execute a call directly on the API:
 
-![img.png](media/swagger.png)
+![The Swagger documentation allows you to directly query the REST API from your browser.](media/swagger.webp)
 
 Click the `Try it out` button to be able to modify the parameter values and then click the `execute` button to make the request directly from the documentation page.
 Under `response` you will also see an example on how to make the request through the command line using `curl`, e.g.:
@@ -64,7 +64,7 @@ Below the example, you will find a section `Server Response` which displays the 
 Normally, this should look similar to the image below; a [HTTP Status Code](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status),
 and data (in JSON).
 
-![img.png](media/response.png)
+![After executing a query, Swagger shows the JSON response.](media/response.webp)
 
 Below the actual server response is a `response` section which lists information about the possible responses, including
 for example different error codes.
@@ -89,7 +89,7 @@ The documentation page will prepopulate example data to help you know what infor
 the `Example Value` tab of the `Request Body` section. To know what values are accepted, you can click the
 `Schema` tab instead.
 
-![img.png](media/post.png)
+![The "schema" tab in Swagger shows allowed types](media/post.webp)
 
 
 ### Alternative Documentation (ReDoc)
@@ -105,7 +105,7 @@ The query will be executed, but it will also generate a `curl` command which mat
 
 For example, listing the first 10 datasets:
 
-```commandline
+```bash
 curl -X 'GET' \
   'http://api.aiod.eu/datasets/v1?schema=aiod&offset=0&limit=10' \
   -H 'accept: application/json'
