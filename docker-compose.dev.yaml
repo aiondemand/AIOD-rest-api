@@ -1,0 +1,46 @@
+services:
+  app:
+    volumes:
+      - ./src:/app:ro
+    command: >
+      python main.py
+      --build-db if-absent
+      --reload
+
+  fill-db-with-examples:
+    volumes:
+      - ./src:/app:ro
+      - ./connectors:/opt/connectors/script:ro
+
+  deletion:
+    volumes:
+      - ./src:/app:ro
+
+  huggingface-dataset-connector:
+    volumes:
+      - ./src:/app:ro
+      - ./connectors/huggingface/:/opt/connectors/script:ro
+
+  keycloak:
+    command: >
+      start
+      --hostname-url http://${HOSTNAME}/aiod-auth
+      --hostname-admin-url http://${HOSTNAME}/aiod-auth
+      --http-relative-path=/aiod-auth
+      --http-enabled=true
+      --hostname-strict-https=false
+      --import-realm
+
+  openml-connector:
+    volumes:
+      - ./src:/app:ro
+      - ./connectors/openml/:/opt/connectors/script:ro
+
+  zenodo-dataset-connector:
+    volumes:
+      - ./src:/app:ro
+      - ./connectors/zenodo/:/opt/connectors/script:ro
+
+  es_logstash_setup:
+    volumes:
+      - ./src:/app:ro

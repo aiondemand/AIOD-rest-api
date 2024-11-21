@@ -15,7 +15,6 @@ from database.session import DbSession
 from error_handling import as_http_exception
 from .search_routers.elasticsearch import ElasticsearchSingleton
 
-SORT = {"identifier": "asc"}
 LIMIT_MAX = 1000
 
 RESOURCE = TypeVar("RESOURCE", bound=AIoDConcept)
@@ -98,6 +97,12 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
                     examples=["Name of the resource"],
                 ),
             ],
+            exact_match: Annotated[
+                bool,
+                Query(
+                    description="If true, it searches for an exact match.",
+                ),
+            ] = False,
             search_fields: Annotated[
                 list[indexed_fields] | None,
                 Query(
@@ -132,6 +137,13 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
                     examples=["2023-01-01"],
                 ),
             ] = None,
+            sort_by_id: Annotated[
+                bool,
+                Query(
+                    description="If true, the results are sorted by id."
+                    "By default they are sorted by best score.",
+                ),
+            ] = False,
             limit: Annotated[int, Query(ge=1, le=LIMIT_MAX)] = 10,
             offset: Annotated[int, Query(ge=0)] = 0,
             get_all: Annotated[
@@ -157,7 +169,13 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
                 )
 
             fields = search_fields if search_fields else self.indexed_fields
-            query_matches = [{"match": {f: search_query}} for f in fields]
+            query_matches: list[dict[str, dict[str, str | dict[str, str]]]] = []
+            if exact_match:
+                query_matches = [
+                    {"match": {f: {"query": search_query, "operator": "and"}}} for f in fields
+                ]
+            else:
+                query_matches = [{"match": {f: search_query}} for f in fields]
             query = {"bool": {"should": query_matches, "minimum_should_match": 1}}
             must_clause = []
             if platforms:
@@ -174,9 +192,14 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
                 must_clause.append({"range": {"date_modified": date_range}})
             if must_clause:
                 query["bool"]["must"] = must_clause
+            sort: dict[str, str | dict[str, str]] = {}
+            if sort_by_id:
+                sort = {"identifier": "asc"}
+            else:
+                sort = {"_score": {"order": "desc"}}
 
             result = ElasticsearchSingleton().client.search(
-                index=self.es_index, query=query, from_=offset, size=limit, sort=SORT
+                index=self.es_index, query=query, from_=offset, size=limit, sort=sort
             )
             total_hits = result["hits"]["total"]["value"]
             if get_all:

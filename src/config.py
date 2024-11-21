@@ -7,7 +7,7 @@ with open(pathlib.Path(__file__).parent / "config.default.toml", "rb") as fh:
     DEFAULT_CONFIG = tomllib.load(fh)
 
 OVERRIDE_CONFIG_PATH = pathlib.Path(__file__).parent / "config.override.toml"
-if OVERRIDE_CONFIG_PATH.exists():
+if OVERRIDE_CONFIG_PATH.exists() and OVERRIDE_CONFIG_PATH.is_file():
     with open(OVERRIDE_CONFIG_PATH, "rb") as fh:
         OVERRIDE_CONFIG = tomllib.load(fh)
 else:

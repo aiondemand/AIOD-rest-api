@@ -5,6 +5,13 @@ Unless noted otherwise, all scripts should be run without arguments while the AI
 
 ## Script Descriptions
 
+## `up.sh`
+Shorthand for `docker compose up -d` which takes as arguments any profile names you also want to up.
+Will automatically specify to use both `.env` and `override.env` and also mount local source code if `AIOD_MOUNT` is set.
+
+## `down.sh`
+Shorthand to bring down all docker containers regardless of profile.
+
 ### `clean.sh`
 
 > [!WARNING]

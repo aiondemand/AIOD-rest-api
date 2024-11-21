@@ -1,6 +1,3 @@
-  
-version: '3.9'
-
 services:
   app:
     build:
@@ -8,18 +5,17 @@ services:
       dockerfile: Dockerfile
     image: aiod_metadata_catalogue
     container_name: apiserver
+    volumes:
+      - ./src/config.override.toml:/app/config.override.toml:ro
     environment:
       - KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET
       - ES_USER=$ES_USER
       - ES_PASSWORD=$ES_PASSWORD
     ports:
       - ${AIOD_REST_PORT}:8000
-    volumes:
-      - ./src:/app:ro
     command: >
       python main.py
       --build-db if-absent
-      --reload
     healthcheck:
       test: ["CMD", "python", "-c",  "import requests; requests.get('http://localhost:8000')"]
       start_interval: 1s
@@ -38,11 +34,9 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
       - KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET
-      - PYTHONPATH=$DOCKER_PYTHONPATH
     volumes:
-      - ./src:/app:ro
       - ${DATA_PATH}/connectors:/opt/connectors/data
-      - ./connectors:/opt/connectors/script:ro
+      - ./src/config.override.toml:/app/config.override.toml:ro
     command: >
       /bin/bash -c "/opt/connectors/script/fill-examples.sh"
     depends_on:
@@ -56,8 +50,8 @@ services:
     image: aiod_deletion
     container_name: deletion
     volumes:
-      - ./src:/app
       - ${DATA_PATH}/deletion:/opt/deletion/data
+      - ./src/config.override.toml:/app/config.override.toml:ro
     command: >
       /bin/bash -c "/opt/deletion/script/entry.sh"
     depends_on:
@@ -70,11 +64,9 @@ services:
     container_name: huggingface-dataset-connector
     environment:
       - KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET
-      - PYTHONPATH=$DOCKER_PYTHONPATH
     volumes:
-      - ./src:/app:ro
       - ${DATA_PATH}/connectors:/opt/connectors/data
-      - ./connectors/huggingface/:/opt/connectors/script:ro
+      - ./src/config.override.toml:/app/config.override.toml:ro
     command: >
       /bin/bash -c "/opt/connectors/script/datasets.sh"
     depends_on:
@@ -89,12 +81,10 @@ services:
     image: aiod_openml_connector
     container_name: openml-connector
     environment:
-      - PYTHONPATH=$DOCKER_PYTHONPATH
       - KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET
     volumes:
-      - ./src:/app:ro
       - ${DATA_PATH}/connectors:/opt/connectors/data
-      - ./connectors/openml/:/opt/connectors/script:ro
+      - ./src/config.override.toml:/app/config.override.toml:ro
     command: >
       /bin/bash -c "/opt/connectors/script/entry.sh"
     depends_on:
@@ -109,12 +99,10 @@ services:
     image: aiod_zenodo_connector
     container_name: zenodo-dataset-connector
     environment:
-      - PYTHONPATH=$DOCKER_PYTHONPATH
       - KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET
     volumes:
-      - ./src:/app
       - ${DATA_PATH}/connectors:/opt/connectors/data
-      - ./connectors/zenodo/:/opt/connectors/script
+      - ./src/config.override.toml:/app/config.override.toml:ro
     command: >
       /bin/bash -c "/opt/connectors/script/entry.sh"
     depends_on:
@@ -149,11 +137,9 @@ services:
      - ${DATA_PATH}/keycloak/themes:/opt/keycloak/themes
     command: >
       start
-      --hostname-url http://${HOSTNAME}/aiod-auth
-      --hostname-admin-url http://${HOSTNAME}/aiod-auth
+      --proxy edge
+      --hostname ${HOSTNAME}
       --http-relative-path=/aiod-auth
-      --http-enabled=true
-      --hostname-strict-https=false
       --import-realm
 
   nginx:
@@ -198,9 +184,8 @@ services:
       - MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD
       - ES_USER=$ES_USER
       - ES_PASSWORD=$ES_PASSWORD
-      - PYTHONPATH=$DOCKER_PYTHONPATH
     volumes:
-      - ./src:/app
+      - ./src/config.override.toml:/app/config.override.toml:ro
       - ./logstash:/logstash
     command: >
       /bin/bash -c "python setup/logstash_setup/generate_logstash_config_files.py &&
