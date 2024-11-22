@@ -31,14 +31,15 @@ from http import HTTPStatus
 
 
 def fetch_huggingface_metadata() -> list[dict]:
-    next_url ="https://huggingface.co/api/datasets"
+    next_url = "https://huggingface.co/api/datasets"
     datasets = []
     while next_url:
         logging.info(f"Counted {len(datasets)} so far.")
         response = requests.get(
             next_url,
             params={"limit": 1000, "full": "False"},
-            headers={"Authorization":"Bearer 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"},
+            headers={"Authorization": "Bearer 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"},
+            timeout=20,
         )
         if response.status_code != HTTPStatus.OK:
             logging.info("Stopping iteration", response.status_code, response.json())
@@ -46,7 +47,7 @@ def fetch_huggingface_metadata() -> list[dict]:
 
         datasets.extend(response.json())
 
-        next_info = response.headers.get('Link', '')
+        next_info = response.headers.get("Link", "")
         if next_url_match := re.search(r"<([^>]+)>", next_info):
             next_url = next_url_match.group()[1:-1]
         else:
@@ -58,17 +59,14 @@ def load_id_map():
     HF_DATA_FILE = Path(__file__).parent / "hf_metadata.json"
     if HF_DATA_FILE.exists():
         logging.info(f"Loading HF data from {HF_DATA_FILE}.")
-        with open(HF_DATA_FILE, 'r') as fh:
+        with open(HF_DATA_FILE, "r") as fh:
             hf_data = json.load(fh)
     else:
         logging.info("Fetching HF data from Hugging Face.")
         hf_data = fetch_huggingface_metadata()
-        with open(HF_DATA_FILE, 'w') as fh:
+        with open(HF_DATA_FILE, "w") as fh:
             json.dump(hf_data, fh)
-    id_map = {
-        data["id"]: data["_id"]
-        for data in hf_data
-    }
+    id_map = {data["id"]: data["_id"] for data in hf_data}
     return id_map
 
 
@@ -82,9 +80,12 @@ def main():
         datasets = session.scalars(datasets_query).all()
 
     logging.info(f"Found {len(datasets)} huggingface datasets.")
-    is_old_style_identifier = lambda identifier: any(char not in string.hexdigits for char in identifier)
+    is_old_style_identifier = lambda identifier: any(
+        char not in string.hexdigits for char in identifier
+    )
     datasets = [
-        dataset for dataset in datasets
+        dataset
+        for dataset in datasets
         if is_old_style_identifier(dataset.platform_resource_identifier)
     ]
     logging.info(f"Found {len(datasets)} huggingface datasets that need an update.")
@@ -98,8 +99,6 @@ def main():
                 session.delete(dataset)
         session.commit()
     logging.info("Done updating entries.")
-
-
 
 
 if __name__ == "__main__":
