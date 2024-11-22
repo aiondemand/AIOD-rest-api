@@ -8,6 +8,7 @@ so can be used to avoid indexing the same dataset twice under a different platfo
 To be run once (around sometime Nov 2024), likely not needed after that. See also #385, 392.
 """
 import logging
+import os
 import string
 from http import HTTPStatus
 import time
@@ -35,10 +36,14 @@ def fetch_huggingface_metadata() -> list[dict]:
     datasets = []
     while next_url:
         logging.info(f"Counted {len(datasets)} so far.")
+        if token := os.environ.get("HUGGINGFACE_TOKEN"):
+            headers = {"Authorization": f"Bearer {token}"}
+        else:
+            headers = {}
         response = requests.get(
             next_url,
             params={"limit": 1000, "full": "False"},
-            headers={"Authorization": "Bearer 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"},
+            headers=headers,
             timeout=20,
         )
         if response.status_code != HTTPStatus.OK:
