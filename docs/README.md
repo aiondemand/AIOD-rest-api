@@ -81,7 +81,7 @@ starts the MYSQL Server, the REST API, Keycloak for Identity and access manageme
 Once started, you should be able to visit the REST API server at: http://localhost and Keycloak at http://localhost/aiod-auth \
 To authenticate to the REST API swagger interface the predefined user is: user, and password: password \
 To authenticate as admin to Keycloak the predefined user is: admin and password: password \
-To use a different DNS hostname replace localhost with it in .env and src/config.toml \
+To use a different DNS hostname, refer to the ["Changing the configuration"](#changing-the-configuration) section below for instructions on how to ovverride `HOSTNAME` in `.env` and `opendid_connect_url` in `config.toml`. \
 This configuration is intended for development, DO NOT use it in production. 
 
 To turn if off again, use 
