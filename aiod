@@ -1,0 +1,187 @@
+#!/bin/bash
+
+# Path to the .env file
+ENV_FILE=".env"
+TOML_FILE="./src/config.default.toml"
+NGINX_CONF="./nginx/default.conf"
+
+# Detect the operating system for compatibility with sed
+OS=$(uname)
+
+# Initialize list of services to start
+SERVICES_TO_START=()
+
+sedinplace() {
+    local var=$1
+    local newvar=$2
+    local filename=$3
+    if [[ "$OS" == "Darwin" ]]; then
+    # macOS sed requires an extension for in-place editing (use empty string for no backup)
+        sed -i '' "s/^${var}/${newvar}/" "$filename"
+    else
+        # Linux version of sed
+        sed -i "s/^${var}/${newvar}/" "$filename"
+    fi
+}
+
+
+# Function to read file and extract variable value
+read_file() {
+    local file_name=$1
+    local var_name=$2
+    local var_value=$(grep "^${var_name}=" "$file_name" | cut -d '=' -f2-)
+    echo "$var_value"
+}
+
+# Function to update the variable in a  file
+update_file() {
+    local file_name=$1
+    local var_name=$2
+    local new_value=$3
+    sedinplace "${var_name}=.*" "${var_name}=${new_value}" "$file_name"
+}
+
+generate_random_value() {
+    echo "$(openssl rand -base64 32 | tr -dc 'a-zA-Z0-9' | head -c 32)"
+}
+
+display_usage() {
+    cat <<EOF
+ Usage: aiod [OPTIONS] COMMAND"
+
+ Commands:
+   start           Start ...
+   stop            Stop ...
+   clean           Remove ...
+
+ Options:
+   -h, --help      Display this help message
+EOF
+    exit
+}
+
+if [ $# -lt 1 ] 
+    then
+    display_usage
+fi
+
+configure_nginx() {
+    echo "To do extra nginx configuration"
+    if [[ " ${SERVICES_TO_START[@]} " =~ " app " ]]; then
+        if ! grep -q "app" "$NGINX_CONF"; then
+           sedinplace "#APP" "include conf.d\/includes\/app.conf;" "$NGINX_CONF"
+        fi
+    else
+       if  grep -q "app" "$NGINX_CONF"; then
+           sedinplace "include conf.d\/includes\/app.conf;" "#APP" "$NGINX_CONF"
+       fi
+    fi
+
+    if [[ " ${SERVICES_TO_START[@]} " =~ " keycloak " ]]; then
+        if ! grep -q "keycloak" "$NGINX_CONF"; then
+            sedinplace "#KEYCLOAK" "include conf.d\/includes\/keycloak.conf;" "$NGINX_CONF"
+        fi
+    else
+       sedinplace "include conf.d\/includes\/keycloak.conf;" "#KEYCLOAK" "$NGINX_CONF"
+    fi
+}
+
+configure_service() {
+    local service_name="$1"
+    local docker_service_name="$2"
+    local env_vars=("${@:3}")
+    echo -n "Do you want to install $service_name [Y/n] "
+    read -r value
+    value=${value:-'Y'}
+    if [[ $value =~ ^(Y|y|Yes|yes)$ ]]; then
+       SERVICES_TO_START+=("$docker_service_name")
+       for var in "${env_vars[@]}"; do
+            current_value=$(read_file "$ENV_FILE" "$var")
+           if [[ -z "$current_value" ]]; then
+               current_value=$(generate_random_value)
+           fi
+           echo -n "$var ['$current_value']: "
+           read -r new_value
+           new_value=${new_value:-$current_value}
+           update_file "$ENV_FILE" "$var" "$new_value"
+       done
+       case "$docker_service_name" in
+           app)
+               echo "$docker_service_name extra configuration"
+               ;;
+           keycloak)
+               echo "$docker_service_name extra configuration"
+               ;;
+           nginx)  
+               echo "$docker_service_name extra configuration"
+               configure_nginx
+               ;;
+           esac
+    elif [[ $value =~ ^(N|n|No|no)$ ]]; then
+       echo "To do: provide external service endpoint"
+    else
+       configure_service "$service_name" "$docker_service_name" "${env_vars[@]}"       
+    fi
+
+    
+}    
+
+while [ -n "$1" ]; do
+    case "$1" in
+        -h|--help)
+            display_usage
+            exit 0
+            ;;
+        -*)
+            echo "Error: Invalid option '$1'"
+            display_usage
+            exit 1
+            ;;
+        *)
+            # Break on the first non-option argument (command)
+            break
+            ;;
+    esac
+done
+
+# Ensure a command is provided
+if [ -z "$1" ]; then
+    echo "Error: No command provided"
+    display_usage
+    exit 1
+fi
+
+COMMAND="$1"
+
+# Handle commands
+case "$COMMAND" in
+    start)
+        echo "Starting the application..."
+        configure_service "AIoD Metadata Catalogue" "app" "AIOD_REST_PORT"
+        configure_service "AIoD Login" "keycloak" "HOSTNAME" "KEYCLOAK_ADMIN_PASSWORD" "KEYCLOAK_CLIENT_SECRET" "AIOD_KEYCLOAK_PORT"
+        configure_service "NGINX" "nginx" "AIOD_NGINX_PORT"
+        # Build the docker compose command
+        if [[ ${#SERVICES_TO_START[@]} -eq 0 ]]; then
+            echo "No services selected for installation. Exiting."
+            exit 0
+        fi
+        echo "Starting services: ${SERVICES_TO_START[*]}..."
+        docker compose up -d "${SERVICES_TO_START[@]}"
+        ;;
+    stop)
+        echo "Stopping the application..."
+        docker compose down
+        ;;
+    clean)
+        echo "Stopping the application..."
+        docker compose down -v
+        ;;
+    status)
+        echo "Checking application status..."
+        # Add logic for checking application status
+        ;;
+    *)
+        display_usage
+        ;;
+esac
+
