@@ -6,7 +6,6 @@ from fastapi import FastAPI
 from sqlmodel import Field, Relationship, SQLModel
 from starlette.testclient import TestClient
 
-from authentication import keycloak_openid
 from database.model.concept.aiod_entry import AIoDEntryORM
 from database.model.concept.concept import AIoDConceptBase, AIoDConcept
 from database.model.concept.status import Status
@@ -198,7 +197,6 @@ def test_get_all_happy_path(client_with_testobject: TestClient):
 
 
 def test_post_happy_path(client_with_testobject: TestClient, mocked_privileged_token: Mock):
-    keycloak_openid.introspect = mocked_privileged_token
     response = client_with_testobject.post(
         "/test_resources/v0",
         json={
@@ -229,7 +227,6 @@ def test_post_happy_path(client_with_testobject: TestClient, mocked_privileged_t
 
 
 def test_put_happy_path(client_with_testobject: TestClient, mocked_privileged_token: Mock):
-    keycloak_openid.introspect = mocked_privileged_token
     response = client_with_testobject.put(
         "/test_resources/v0/4",
         json={

@@ -12,6 +12,7 @@ password = "ok"
 # Additional options for development
 [dev]
 reload = true
+request_timeout = 10  # seconds
 
 # Authentication and authorization
 [keycloak]

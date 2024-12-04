@@ -9,6 +9,7 @@ from database.model.agent.contact import Contact
 from database.model.agent.person import Person
 from database.model.platform.platform import Platform
 from database.session import DbSession
+from tests.testutils.default_sqlalchemy import AI4EUROPE_CMS_TOKEN
 
 
 def test_happy_path(
@@ -18,8 +19,6 @@ def test_happy_path(
     person: Person,
     contact: Contact,
 ):
-    keycloak_openid.introspect = mocked_privileged_token
-
     with DbSession() as session:
         person.platform_resource_identifier = "2"
         session.add(person)
@@ -67,7 +66,7 @@ def endpoint(request) -> str:
 def test_privacy_for_ai4europe_cms(
     client: TestClient,
     mocked_privileged_token: Mock,
-    mocked_ai4europe_cms_token: Mock,
+    overwrites_keycloak_token: None,  # Technically already used by privileged token, but we also overwrite explicitly  # noqa: E501
     platform: Platform,
     person: Person,
     contact: Contact,
@@ -89,7 +88,6 @@ def test_privacy_for_ai4europe_cms(
         session.commit()
 
     headers = {"Authorization": "Fake token"}
-    keycloak_openid.introspect = mocked_privileged_token
 
     response = client.get(endpoint, headers=headers)
     response_json = response.json()
@@ -100,7 +98,7 @@ def test_privacy_for_ai4europe_cms(
         assert person_dict["given_name"] == "******"
         assert person_dict["surname"] == "******"
 
-    keycloak_openid.introspect = mocked_ai4europe_cms_token
+    keycloak_openid.introspect = AI4EUROPE_CMS_TOKEN
     response = client.get(endpoint, headers=headers)
     response_json = response.json()
     response_json = [response_json] if isinstance(response_json, dict) else response_json

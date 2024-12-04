@@ -10,10 +10,10 @@ from database.model.agent.email import Email
 from database.model.platform.platform import Platform
 from database.session import DbSession
 from tests.testutils.default_instances import _create_class_with_body
+from tests.testutils.default_sqlalchemy import AI4EUROPE_CMS_TOKEN
 
 
 def test_happy_path(client: TestClient, mocked_privileged_token: Mock, body_asset: dict):
-    keycloak_openid.introspect = mocked_privileged_token
     client.post(
         "/persons/v1", json={"name": "test person"}, headers={"Authorization": "Fake token"}
     )
@@ -56,8 +56,6 @@ def test_post_duplicate_email(
     """
     It should be possible to add same email in different contacts, to enable
     """
-    keycloak_openid.introspect = mocked_privileged_token
-
     body1 = {"email": ["a@example.com", "b@example.com"]}
     body2 = {"email": ["c@example.com", "b@example.com"]}
     response = client.post("/contacts/v1", json=body1, headers={"Authorization": "Fake token"})
@@ -75,7 +73,6 @@ def test_post_duplicate_email(
 
 
 def test_person_and_organisation_both_specified(client: TestClient, mocked_privileged_token):
-    keycloak_openid.introspect = mocked_privileged_token
     headers = {"Authorization": "Fake token"}
     client.post("/persons/v1", json={"name": "test person"}, headers=headers)
     client.post("/organisations/v1", json={"name": "test organisation"}, headers=headers)
@@ -113,8 +110,6 @@ def test_email_mask_for_not_authenticated_user(
     contact2: Contact,
     endpoint_from_fixture1: str,
 ):
-    keycloak_openid.introspect = mocked_privileged_token
-
     with DbSession() as session:
         session.add(contact)
         session.add(contact2)
@@ -133,10 +128,10 @@ def test_email_mask_for_not_authenticated_user(
 def test_email_mask_for_authenticated_user(
     client: TestClient,
     mocked_privileged_token: Mock,
+    overwrites_keycloak_token: None,  # Technically already used by privileged token, but we also overwrite explicitly  # noqa: E501
     contact: Contact,
     contact2: Contact,
 ):
-    keycloak_openid.introspect = mocked_privileged_token
     headers = {"Authorization": "Fake token"}
 
     with DbSession() as session:
@@ -184,7 +179,6 @@ def endpoint_from_fixture2(request) -> str:
 def test_email_privacy_for_ai4europe_cms(
     client: TestClient,
     mocked_privileged_token: Mock,
-    mocked_ai4europe_cms_token: Mock,
     contact: Contact,
     platform: Platform,
     endpoint_from_fixture2: str,
@@ -199,7 +193,6 @@ def test_email_privacy_for_ai4europe_cms(
         session.add(contact)
         session.commit()
 
-    keycloak_openid.introspect = mocked_privileged_token
     headers = {"Authorization": "Fake token"}
 
     response = client.get(endpoint_from_fixture2, headers=headers)
@@ -211,7 +204,7 @@ def test_email_privacy_for_ai4europe_cms(
     assert len(response_json) > 0, response_json
     assert response_json["email"] == ["******"]
 
-    keycloak_openid.introspect = mocked_ai4europe_cms_token
+    keycloak_openid.introspect = AI4EUROPE_CMS_TOKEN
 
     response = client.get(endpoint_from_fixture2, headers=headers)
     response_json = response.json()

@@ -3,7 +3,6 @@ from unittest.mock import Mock
 
 from starlette.testclient import TestClient
 
-from authentication import keycloak_openid
 from database.model.dataset.dataset import Dataset
 
 
@@ -13,8 +12,6 @@ def test_happy_path(
     body_asset: dict,
     dataset: Dataset,
 ):
-    keycloak_openid.introspect = mocked_privileged_token
-
     body = copy.copy(body_asset)
     body["permanent_identifier"] = "http://dx.doi.org/10.1093/ajae/aaq063"
     body["isbn"] = "9783161484100"

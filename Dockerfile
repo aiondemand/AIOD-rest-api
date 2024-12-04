@@ -10,6 +10,7 @@ WORKDIR /app
 # warnings.
 ENV PATH="${PATH}:/home/apprunner/.local/bin"
 
+ENV PYTHONPATH="/app"
 
 # Install python packages globally, so that it can also be used from cron dockers (running as root)
 COPY ./pyproject.toml /app/pyproject.toml

@@ -136,12 +136,17 @@ class OneToOne(_ResourceRelationshipSingle):
     def create_triggers(self, parent_class: Type[SQLModel], field_name: str):
         if self.on_delete_trigger_deletion_by is not None:
             to_delete = datatype_of_field(parent_class, field_name)
+            if isinstance(to_delete, str):
+                raise ValueError(
+                    "Deletion trigger is configured wrongly: field cannot use a forward reference "
+                    f"`{parent_class}.{field_name}`"
+                )
             if not issubclass(to_delete, SQLModel):
                 raise ValueError(
                     "The deletion trigger is configured wrongly: the field doesn't "
                     f"point to a SQLModel class: {parent_class} . {field_name}"
                 )
-            triggers.create_deletion_trigger_one_to_one(
+            return triggers.create_deletion_trigger_one_to_one(
                 trigger=parent_class,
                 trigger_identifier_link=self.on_delete_trigger_deletion_by,
                 to_delete=to_delete,
@@ -165,7 +170,7 @@ class ManyToOne(_ResourceRelationshipSingle):
             to_delete_identifier = getattr(
                 parent_class.RelationshipConfig, field_name
             ).identifier_name
-            triggers.create_deletion_trigger_many_to_one(
+            return triggers.create_deletion_trigger_many_to_one(
                 trigger=parent_class,
                 to_delete=self.on_delete_trigger_deletion_of_orphan,
                 trigger_identifier_link=to_delete_identifier,
@@ -199,6 +204,11 @@ class ManyToMany(_ResourceRelationshipList):
         if self.on_delete_trigger_orphan_deletion is not None:
             link = parent_class.__sqlmodel_relationships__[field_name].link_model
             to_delete = datatype_of_field(parent_class, field_name)
+            if isinstance(to_delete, str):
+                raise ValueError(
+                    "Deletion trigger is configured wrongly: field cannot use a forward reference "
+                    f"`{parent_class}.{field_name}`"
+                )
             if not issubclass(to_delete, SQLModel):
                 raise ValueError(
                     "The deletion trigger is configured wrongly: the field doesn't "
@@ -206,6 +216,6 @@ class ManyToMany(_ResourceRelationshipList):
                 )
 
             other_links = self.on_delete_trigger_orphan_deletion()
-            triggers.create_deletion_trigger_many_to_many(
+            return triggers.create_deletion_trigger_many_to_many(
                 trigger=parent_class, link=link, to_delete=to_delete, other_links=other_links
             )

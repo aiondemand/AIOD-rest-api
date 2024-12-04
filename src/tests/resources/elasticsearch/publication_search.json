@@ -24,10 +24,10 @@
           "name" : "A name.",
           "platform" : "A platform.",
           "description_plain" : "A plain text description.",
-          "issn" : "20493630",
+          "description_html" : "An html description.",
           "type" : "publication",
-          "isbn" : "9783161484100",
-          "description_html" : "An html description."
+          "issn" : "20493630",
+          "isbn" : "9783161484100"
         },
         "sort" : [
           1
