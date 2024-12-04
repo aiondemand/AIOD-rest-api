@@ -14,7 +14,3 @@ class SearchRouterMLModels(SearchRouter[MLModel]):
     @property
     def resource_class(self):
         return MLModel
-
-    @property
-    def indexed_fields(self):
-        return {"name", "description_plain", "description_html"}

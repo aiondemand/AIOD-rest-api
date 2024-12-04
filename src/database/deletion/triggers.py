@@ -7,17 +7,21 @@ tables are referenced by multiple tables. See src/README.md for additional infor
 
 from typing import Type
 
-from sqlalchemy import DDL, event
+from sqlalchemy import DDL
 from sqlmodel import SQLModel
 
 from database.model.helper_functions import get_relationships, non_abstract_subclasses
 
 
-def add_delete_triggers(parent_class: Type[SQLModel]):
+def create_delete_triggers(parent_class: Type[SQLModel]):
     classes: list[Type[SQLModel]] = non_abstract_subclasses(parent_class)
+    triggers = []
     for cls in classes:
         for name, value in get_relationships(cls).items():
-            value.create_triggers(cls, name)
+            trigger = value.create_triggers(cls, name)
+            if trigger is not None:
+                triggers.append(trigger)
+    return triggers
 
 
 def create_deletion_trigger_one_to_one(
@@ -49,18 +53,17 @@ def create_deletion_trigger_one_to_one(
     trigger_name = trigger.__tablename__
     delete_name = to_delete.__tablename__
 
-    ddl = DDL(
+    return DDL(
         f"""
-        CREATE TRIGGER delete_{trigger_name}_{trigger_identifier_link}_{delete_name}
+        CREATE TRIGGER IF NOT EXISTS delete_{trigger_name}_{trigger_identifier_link}_{delete_name}
         AFTER DELETE ON {trigger_name}
         FOR EACH ROW
         BEGIN
             DELETE FROM {delete_name}
             WHERE {delete_name}.{to_delete_identifier} = OLD.{trigger_identifier_link};
         END;
-        """
+        """  # noqa: S608  # never user input
     )
-    event.listen(trigger.metadata, "after_create", ddl)
 
 
 def create_deletion_trigger_many_to_one(
@@ -84,9 +87,9 @@ def create_deletion_trigger_many_to_one(
     trigger_name = trigger.__tablename__
     delete_name = to_delete.__tablename__
 
-    ddl = DDL(
+    return DDL(
         f"""
-        CREATE TRIGGER delete_{trigger_name}_{delete_name}
+        CREATE TRIGGER IF NOT EXISTS delete_{trigger_name}_{delete_name}
         AFTER DELETE ON {trigger_name}
         FOR EACH ROW
         BEGIN
@@ -97,9 +100,8 @@ def create_deletion_trigger_many_to_one(
                 WHERE {trigger_name}.{trigger_identifier_link} = OLD.{trigger_identifier_link}
             );
         END;
-        """
+        """  # noqa: S608  # never user input
     )
-    event.listen(trigger.metadata, "after_create", ddl)
 
 
 def create_deletion_trigger_many_to_many(
@@ -139,12 +141,12 @@ def create_deletion_trigger_many_to_many(
                 SELECT 1 FROM {link_name}
                 WHERE {link_name}.{link_to_identifier} = {delete_name}.{to_delete_identifier}
         )
-        """
+        """  # noqa: S608  # never user input
         for link_name in link_names
     )
-    ddl = DDL(
+    return DDL(
         f"""
-        CREATE TRIGGER delete_{link_name}
+        CREATE TRIGGER IF NOT EXISTS delete_{link_name}
         AFTER DELETE ON {trigger_name}
         FOR EACH ROW
         BEGIN
@@ -153,6 +155,5 @@ def create_deletion_trigger_many_to_many(
             DELETE FROM {delete_name}
             WHERE {links_clause};
         END;
-        """
+        """  # noqa: S608  # never user input
     )
-    event.listen(trigger.metadata, "after_create", ddl)

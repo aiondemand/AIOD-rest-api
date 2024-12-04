@@ -12,13 +12,21 @@ HUGGINGFACE_URL = "https://datasets-server.huggingface.co"
 
 
 def test_fetch_all_happy_path():
-    ids_expected = {
+    names_expected = {
         "0n1xus/codexglue",
         "04-07-22/wep-probes",
         "rotten_tomatoes",
         "acronym_identification",
         "air_dialogue",
         "bobbydylan/top2k",
+    }
+    ids_expected = {
+        "621ffdd236468d709f18203a",
+        "62cd5fa83e5ba89c40f22b0d",
+        "621ffdd236468d709f181f5f",
+        "621ffdd236468d709f181d58",
+        "621ffdd236468d709f181d5f",
+        "621ffdd236468d709f182fdf",
     }
     connector = HuggingFaceDatasetConnector()
     with responses.RequestsMock() as mocked_requests:
@@ -31,8 +39,8 @@ def test_fetch_all_happy_path():
             json=response,
             status=200,
         )
-        for dataset_id in ids_expected:
-            mock_parquet(mocked_requests, dataset_id)
+        for dataset_name in names_expected:
+            mock_parquet(mocked_requests, dataset_name)
         resources_with_relations = list(connector.fetch())
 
     assert len(resources_with_relations) == len(ids_expected)
@@ -40,7 +48,7 @@ def test_fetch_all_happy_path():
 
     datasets = [r.resource for r in resources_with_relations]
     assert {d.platform_resource_identifier for d in datasets} == ids_expected
-    assert {d.name for d in datasets} == ids_expected
+    assert {d.name for d in datasets} == names_expected
     assert all(d.date_published for d in datasets)
     assert all(d.aiod_entry for d in datasets)
 
@@ -48,7 +56,7 @@ def test_fetch_all_happy_path():
     assert all(len(r.related_resources["citation"]) == 1 for r in resources_with_relations[:5])
 
     dataset = datasets[0]
-    assert dataset.platform_resource_identifier == "acronym_identification"
+    assert dataset.platform_resource_identifier == "621ffdd236468d709f181d58"
     assert dataset.platform == PlatformName.huggingface
     assert dataset.description == Text(
         plain="Acronym identification training and development "
@@ -132,15 +140,15 @@ def test_incorrect_citation():
     )
 
 
-def mock_parquet(mocked_requests: responses.RequestsMock, dataset_id: str):
-    filename = f"parquet_{dataset_id.replace('/', '_')}.json"
+def mock_parquet(mocked_requests: responses.RequestsMock, dataset_name: str):
+    filename = f"parquet_{dataset_name.replace('/', '_')}.json"
     path_split = path_test_resources() / "connectors" / "huggingface" / filename
     with open(path_split, "r") as f:
         response = json.load(f)
     status = 200 if "error" not in response else 404
     mocked_requests.add(
         responses.GET,
-        f"{HUGGINGFACE_URL}/parquet?dataset={dataset_id}",
+        f"{HUGGINGFACE_URL}/parquet?dataset={dataset_name}",
         json=response,
         status=status,
     )

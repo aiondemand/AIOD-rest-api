@@ -81,7 +81,7 @@ starts the MYSQL Server, the REST API, Keycloak for Identity and access manageme
 Once started, you should be able to visit the REST API server at: http://localhost and Keycloak at http://localhost/aiod-auth \
 To authenticate to the REST API swagger interface the predefined user is: user, and password: password \
 To authenticate as admin to Keycloak the predefined user is: admin and password: password \
-To use a different DNS hostname replace localhost with it in .env and src/config.toml \
+To use a different DNS hostname, refer to the ["Changing the configuration"](#changing-the-configuration) section below for instructions on how to ovverride `HOSTNAME` in `.env` and `opendid_connect_url` in `config.toml`. \
 This configuration is intended for development, DO NOT use it in production. 
 
 To turn if off again, use 
@@ -106,6 +106,28 @@ mysql> SHOW DATABASES;
 
 Now, you can visit the server from your browser at `localhost:8000/docs`.
 
+
+### Changing the configuration
+You may need to change the configuration locally, for example if you want different ports to be used.
+Do not change files, instead add overrides.
+
+#### Docker Compose
+For docker compose, the environment variables are defined in the `.env` file. 
+To override variables, for example `AIOD_LOGSTASH_PORT`, add a new file called `override.env`:
+```bash {title='override.env'}
+AIOD_LOGSTASH_PORT=5001
+```
+Then also specify this when you invoke docker compose, e.g.:
+`docker compose --env-file=.env --env-file=override.env up`
+Note that **order is important**, later environment files will override earlier ones.
+You may also use the `./scripts/up.sh` script to achieve this (see ["Shorthands"](#shorthands) below).
+
+#### Config.toml
+The main application supports configuration options through a `toml` file.
+The defaults can be found at `src/config.default.toml`.
+To override them, add a `src/config.override.toml` file.
+It follows the same structure as the default file, but you only need to specify the variables to override.
+
 #### Using connectors
 You can specify different connectors using
 
@@ -114,8 +136,19 @@ docker compose --profile examples --profile huggingface-datasets --profile openm
 docker compose --profile examples --profile huggingface-datasets --profile openml --profile zenodo-datasets down
 ```
 
-Make sure you use the same profile for `up` and `down`, otherwise some containers might keep 
-running.
+Make sure you use the same profile for `up` and `down`, or use `./scripts/down.sh` (see below),
+otherwise some containers might keep running.
+
+### Shorthands
+We provide two auxiliary scripts for launching docker containers and bringing them down.
+The first, `./scripts/up.sh` invokes `docker compose up -d` and takes any number of profiles to launch as parameters.
+It will also ensure that the changes of the configurations (see above) are observed.
+If `USE_LOCAL_DEV` is set to `true` (e.g., in `override.env`) then your local source code will be mounted on the containers,
+this is useful for local development but should not be used in production.
+E.g., with `USE_LOCAL_DEV` set to `true`, `./scripts/up.sh` resolves to:
+`docker compose --env-file=.env --env-file=override.env -f docker-compose.yaml -f docker-compose.dev.yaml --profile examples  up -d`
+
+The second script is a convenience for bringing down all services, including all profiles: `./scripts/down.sh`
 
 #### Local Installation
 
@@ -176,35 +209,24 @@ Checkin is strict - as it should be. On our development keycloak, any redirectio
 accepted, so that it works on local host or wherever you deploy. This should never be the case 
 for a production instance.
 
-See [authentication README](authentication/README.md) for more information.
+See [authentication README](developer/auth.md) for more information.
+
+### Creating the Database
+
+By default, the app will create a database on the provided MySQL server.
+You can change this behavior through the **build-db** command-line parameter, 
+it takes the following options:
+  * never: *never* creates the database, not even if there does not exist one yet.
+    Use this only if you expect the database to be created through other means, such
+    as MySQL group replication.
+  * if-absent: Creates a database only if none exists. (default)
+  * drop-then-build: Drops the database on startup to recreate it from scratch.
+    **THIS REMOVES ALL DATA PERMANENTLY. NO RECOVERY POSSIBLE.**
 
 ### Populating the Database
-
-By default, the app will connect to the database and populate it with a few items if there is no data present.
-You can change this behavior through parameters of the script:
-
-* **rebuild-db**: "no", "only-if-empty", "always". Default is "only-if-empty".
-    * no: connect to the database but don't make any modifications on startup.
-    * only-if-empty: if the database does not exist, create it. Then, if the tables do not exist, create them.
-      Then, if the tables are empty, populate according to `populate`.
-    * always: drop the configured database and rebuild its structure from scratch.
-      Effectively a `DROP DATABASE` followed by a `CREATE DATABASE` and the creation of the tables.
-      The database is then repopulated according to `populate`.
-      **Important:** data in the database is not restored. All data will be lost. Do not use this option
-      if you are not sure if it is what you need.
-
-* **populate-datasets**: one or multiple of "example", "huggingface", "zenodo" or "openml". 
-  Default is nothing. Specifies what data to add the database, only used if `rebuild-db` is 
-  "only-if-empty" or "always".
-    * nothing: don't add any data.
-    * example: registers two datasets and two publications.
-    * openml: registers datasets of OpenML, this may take a while, depending on the limit (~30 
-      minutes).
-
-* **populate-publications**: similar to populate-datasets. Only "example" is currently implemented.
-
-* **limit**: limit the number of initial resources with which the database is populated. This 
-  limit is per resource and per platform.
+To populate the database with some examples, run the `connectors/fill-examples.sh` script.
+When using `docker compose` you can easily do this by running the "examples" profile:
+`docker compose --profile examples up`
 
 ## Usage
 
@@ -221,14 +243,14 @@ start-up work (e.g., populating the database).
 
 #### Database Structure
 
-The Python classes that define the database tables are found in [src/database/model/](src/database/model/). 
+The Python classes that define the database tables are found in [src/database/model/](../src/database/model/). 
 The structure is based on the 
-[metadata schema](https://docs.google.com/spreadsheets/d/1n2DdSmzyljvTFzQzTLMAmuo3IVNx8yposdPLItBta68/edit?usp=sharing).
+[metadata schema](https://github.com/aiondemand/metadata-schema).
 
 
 ## Adding resources
 
-See [src/README.md](src/README.md).
+See [src/README.md](developer/code.md).
 
 ## Backups and Restoration
 
@@ -291,5 +313,5 @@ To create a new release,
    - Check which services currently work (before the update). It's a sanity check for if a service _doesn't_ work later.
    - Update the code on the server by checking out the release
    - Merge configurations as necessary
-   - Make sure the latest database migrations are applied: see ["Schema Migrations"](alembic/readme.md#update-the-database)
+   - Make sure the latest database migrations are applied: see ["Schema Migrations"](developer/migration.md#update-the-database)
 9. Notify everyone (e.g., in the API channel in Slack). 

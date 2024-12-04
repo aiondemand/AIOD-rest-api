@@ -24,8 +24,8 @@
           "name" : "A name.",
           "platform" : "A platform.",
           "description_plain" : "A plain text description.",
-          "type" : "event",
-          "description_html" : "An html description."
+          "description_html" : "An html description.",
+          "type" : "event"
         },
         "sort" : [
           1

@@ -10,6 +10,7 @@ from sickle.iterator import BaseOAIIterator
 from starlette import status
 from typing import Iterator, Tuple
 
+from config import REQUEST_TIMEOUT
 from connectors.abstract.resource_connector_by_date import ResourceConnectorByDate
 from connectors.record_error import RecordError
 from connectors.resource_with_relations import ResourceWithRelations
@@ -65,7 +66,9 @@ class ZenodoDatasetConnector(ResourceConnectorByDate[Dataset]):
     @limits(calls=GLOBAL_MAX_CALLS_MINUTE, period=ONE_MINUTE)
     @limits(calls=GLOBAL_MAX_CALLS_HOUR, period=ONE_HOUR)
     def _get_record(id_number: str) -> requests.Response:
-        response = requests.get(f"https://zenodo.org/api/records/{id_number}/files")
+        response = requests.get(
+            f"https://zenodo.org/api/records/{id_number}/files", timeout=REQUEST_TIMEOUT
+        )
         return response
 
     def _dataset_from_record(

@@ -1,6 +1,3 @@
-  
-version: '3.9'
-
 services:
   app:
     build:
@@ -8,17 +5,17 @@ services:
       dockerfile: Dockerfile
     image: aiod_metadata_catalogue
     container_name: apiserver
-    env_file: .env
+    volumes:
+      - ./src/config.override.toml:/app/config.override.toml:ro
     environment:
       - KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET
+      - ES_USER=$ES_USER
+      - ES_PASSWORD=$ES_PASSWORD
     ports:
       - ${AIOD_REST_PORT}:8000
-    volumes:
-      - ./src:/app:ro
     command: >
       python main.py
-      --rebuild-db only-if-empty
-      --reload
+      --build-db if-absent
     healthcheck:
       test: ["CMD", "python", "-c",  "import requests; requests.get('http://localhost:8000')"]
       start_interval: 1s
@@ -34,13 +31,12 @@ services:
     profiles: ["examples"]
     image: aiod_metadata_catalogue
     container_name: fill-db-with-examples
-    env_file: .env
     environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
       - KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET
     volumes:
-      - ./src:/app:ro
       - ${DATA_PATH}/connectors:/opt/connectors/data
-      - ./connectors:/opt/connectors/script:ro
+      - ./src/config.override.toml:/app/config.override.toml:ro
     command: >
       /bin/bash -c "/opt/connectors/script/fill-examples.sh"
     depends_on:
@@ -53,10 +49,9 @@ services:
       dockerfile: Dockerfile
     image: aiod_deletion
     container_name: deletion
-    env_file: .env
     volumes:
-      - ./src:/app
       - ${DATA_PATH}/deletion:/opt/deletion/data
+      - ./src/config.override.toml:/app/config.override.toml:ro
     command: >
       /bin/bash -c "/opt/deletion/script/entry.sh"
     depends_on:
@@ -67,13 +62,11 @@ services:
     profiles: ["huggingface-datasets"]
     image: aiod_metadata_catalogue
     container_name: huggingface-dataset-connector
-    env_file: .env
     environment:
       - KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET
     volumes:
-      - ./src:/app:ro
       - ${DATA_PATH}/connectors:/opt/connectors/data
-      - ./connectors/huggingface/:/opt/connectors/script:ro
+      - ./src/config.override.toml:/app/config.override.toml:ro
     command: >
       /bin/bash -c "/opt/connectors/script/datasets.sh"
     depends_on:
@@ -87,13 +80,11 @@ services:
       dockerfile: Dockerfile
     image: aiod_openml_connector
     container_name: openml-connector
-    env_file: .env
     environment:
       - KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET
     volumes:
-      - ./src:/app:ro
       - ${DATA_PATH}/connectors:/opt/connectors/data
-      - ./connectors/openml/:/opt/connectors/script:ro
+      - ./src/config.override.toml:/app/config.override.toml:ro
     command: >
       /bin/bash -c "/opt/connectors/script/entry.sh"
     depends_on:
@@ -107,13 +98,11 @@ services:
       dockerfile: Dockerfile
     image: aiod_zenodo_connector
     container_name: zenodo-dataset-connector
-    env_file: .env
     environment:
       - KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET
     volumes:
-      - ./src:/app
       - ${DATA_PATH}/connectors:/opt/connectors/data
-      - ./connectors/zenodo/:/opt/connectors/script
+      - ./src/config.override.toml:/app/config.override.toml:ro
     command: >
       /bin/bash -c "/opt/connectors/script/entry.sh"
     depends_on:
@@ -123,7 +112,6 @@ services:
   sqlserver:
     image: mysql:8.3.0
     container_name: sqlserver
-    env_file: .env
     environment:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
     volumes:
@@ -139,7 +127,6 @@ services:
   keycloak:
     image: quay.io/keycloak/keycloak:24.0.4
     container_name: keycloak
-    env_file: .env
     environment:
       - REDIRECT_URIS=$REDIRECT_URIS
       - POST_LOGOUT_REDIRECT_URIS=$POST_LOGOUT_REDIRECT_URIS
@@ -150,11 +137,9 @@ services:
      - ${DATA_PATH}/keycloak/themes:/opt/keycloak/themes
     command: >
       start
-      --hostname-url http://${HOSTNAME}/aiod-auth
-      --hostname-admin-url http://${HOSTNAME}/aiod-auth
+      --proxy edge
+      --hostname ${HOSTNAME}
       --http-relative-path=/aiod-auth
-      --http-enabled=true
-      --hostname-strict-https=false
       --import-realm
 
   nginx:
@@ -172,7 +157,6 @@ services:
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.8.2
     container_name: elasticsearch
-    env_file: .env
     environment:
       - ES_JAVA_OPTS=$ES_JAVA_OPTS
       - ELASTIC_USER=$ES_USER
@@ -196,13 +180,12 @@ services:
   es_logstash_setup:
     image: aiod_metadata_catalogue
     container_name:  es_logstash_setup
-    env_file: .env
     environment:
       - MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD
       - ES_USER=$ES_USER
       - ES_PASSWORD=$ES_PASSWORD
     volumes:
-      - ./src:/app
+      - ./src/config.override.toml:/app/config.override.toml:ro
       - ./logstash:/logstash
     command: >
       /bin/bash -c "python setup/logstash_setup/generate_logstash_config_files.py &&
@@ -218,7 +201,6 @@ services:
       dockerfile: Dockerfile
     image: aiod_logstash
     container_name: logstash
-    env_file: .env
     environment:
       - LS_JAVA_OPTS=$LS_JAVA_OPTS
     ports:

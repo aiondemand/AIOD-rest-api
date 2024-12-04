@@ -7,16 +7,16 @@ from wsgiref.handlers import format_date_time
 
 from fastapi import APIRouter, Depends, HTTPException, status, Query, Path
 from fastapi.encoders import jsonable_encoder
-from pydantic import BaseModel
 from sqlalchemy import and_, func
 from sqlalchemy.sql.operators import is_
-from sqlmodel import SQLModel, Session, select, Field
+from sqlmodel import SQLModel, Session, select
 from starlette.responses import JSONResponse
 
 from authentication import User, get_user_or_none, get_user_or_raise
 from config import KEYCLOAK_CONFIG
 from converters.schema_converters.schema_converter import SchemaConverter
 from database.model.ai_resource.resource import AbstractAIResource
+from database.model.concept.aiod_entry import AIoDEntryORM
 from database.model.concept.concept import AIoDConcept
 from database.model.platform.platform import Platform
 from database.model.platform.platform_names import PlatformName
@@ -26,27 +26,9 @@ from database.model.resource_read_and_create import (
 )
 from database.model.serializers import deserialize_resource_relationships
 from database.session import DbSession
+from dependencies.filtering import ResourceFilters, ResourceFiltersParams
+from dependencies.pagination import Pagination, PaginationParams
 from error_handling import as_http_exception
-
-
-class Pagination(BaseModel):
-    """Offset-based pagination."""
-
-    offset: int = Field(
-        Query(
-            description="Specifies the number of resources that should be skipped.", default=0, ge=0
-        )
-    )
-    # Query inside field to ensure description is shown in Swagger.
-    # Refer to https://github.com/tiangolo/fastapi/issues/4700
-    limit: int = Field(
-        Query(
-            description="Specified the maximum number of resources that should be " "returned.",
-            default=10,
-            le=1000,
-        )
-    )
-
 
 RESOURCE = TypeVar("RESOURCE", bound=AbstractAIResource)
 RESOURCE_CREATE = TypeVar("RESOURCE_CREATE", bound=SQLModel)
@@ -60,6 +42,7 @@ class ResourceRouter(abc.ABC):
 
     It creates the basic endpoints for each resource:
     - GET /[resource]s/
+    - GET /counts/[resource]s/
     - GET /[resource]s/{identifier}
     - GET /platforms/{platform_name}/[resource]s/
     - GET /platforms/{platform_name}/[resource]s/{identifier}
@@ -208,6 +191,7 @@ class ResourceRouter(abc.ABC):
         self,
         schema: str,
         pagination: Pagination,
+        resource_filters: ResourceFilters,
         user: User | None = None,
         platform: str | None = None,
     ):
@@ -221,7 +205,7 @@ class ResourceRouter(abc.ABC):
                     else self.resource_class_read.from_orm
                 )
                 resources: Any = self._retrieve_resources_and_post_process(
-                    session, pagination, user, platform
+                    session, pagination, resource_filters, user, platform
                 )
                 return self._wrap_with_headers([convert_schema(resource) for resource in resources])
             except Exception as e:
@@ -254,12 +238,17 @@ class ResourceRouter(abc.ABC):
         """
 
         def get_resources(
-            pagination: Pagination = Depends(),
+            pagination: PaginationParams,
+            resource_filters: ResourceFiltersParams,
             schema: self._possible_schemas_type = "aiod",  # type:ignore
             user: User | None = Depends(get_user_or_none),
         ):
             resources = self.get_resources(
-                pagination=pagination, schema=schema, user=user, platform=None
+                schema=schema,
+                pagination=pagination,
+                resource_filters=resource_filters,
+                user=user,
+                platform=None,
             )
             return resources
 
@@ -319,12 +308,17 @@ class ResourceRouter(abc.ABC):
                     example="huggingface",
                 ),
             ],
-            pagination: Annotated[Pagination, Depends(Pagination)],
+            pagination: PaginationParams,
+            resource_filters: ResourceFiltersParams,
             schema: self._possible_schemas_type = "aiod",  # type:ignore
             user: User | None = Depends(get_user_or_none),
         ):
             resources = self.get_resources(
-                pagination=pagination, schema=schema, user=user, platform=platform
+                schema=schema,
+                pagination=pagination,
+                resource_filters=resource_filters,
+                user=user,
+                platform=platform,
             )
             return resources
 
@@ -550,18 +544,26 @@ class ResourceRouter(abc.ABC):
         self,
         session: Session,
         pagination: Pagination,
+        resource_filters: ResourceFilters,
         platform: str | None = None,
     ) -> Sequence[type[RESOURCE_MODEL]]:
         """
-        Retrieve a sequence of resources from the database based on the provided identifier
-        and platform (if applicable).
+        Retrieve a sequence of resources from the database based on the provided identifier,
+        platform and resource filters (if applicable).
         """
         where_clause = and_(
             is_(self.resource_class.date_deleted, None),
             (self.resource_class.platform == platform) if platform is not None else True,
+            AIoDEntryORM.date_modified >= resource_filters.date_modified_after
+            if resource_filters.date_modified_after is not None
+            else True,
+            AIoDEntryORM.date_modified < resource_filters.date_modified_before
+            if resource_filters.date_modified_before is not None
+            else True,
         )
         query = (
             select(self.resource_class)
+            .join(self.resource_class.aiod_entry, isouter=True)
             .where(where_clause)
             .offset(pagination.offset)
             .limit(pagination.limit)
@@ -589,6 +591,7 @@ class ResourceRouter(abc.ABC):
         self,
         session: Session,
         pagination: Pagination,
+        resource_filters: ResourceFilters,
         user: User | None = None,
         platform: str | None = None,
     ) -> Sequence[type[RESOURCE_MODEL]]:
@@ -598,7 +601,7 @@ class ResourceRouter(abc.ABC):
         implement further verification on user access to the resource.
         """
         resources: Sequence[type[RESOURCE_MODEL]] = self._retrieve_resources(
-            session, pagination, platform
+            session, pagination, resource_filters, platform
         )
         return self._mask_or_filter(resources, session, user)
 

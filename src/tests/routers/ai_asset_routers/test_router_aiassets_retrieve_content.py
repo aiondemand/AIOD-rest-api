@@ -6,7 +6,6 @@ from fastapi import status
 from pytest import FixtureRequest
 from starlette.testclient import TestClient
 
-from authentication import keycloak_openid
 from database.model.agent.person import Person
 from database.session import DbSession
 
@@ -19,7 +18,6 @@ SAMPLE_ENDPOINT = f"{SAMPLE_RESOURCE_NAME}/v1/1/content"
 
 @pytest.fixture
 def db_with_person(person: Person, mocked_privileged_token: Mock) -> None:
-    keycloak_openid.introspect = mocked_privileged_token
     with DbSession() as session:
         session.add(person)
         session.commit()

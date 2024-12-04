@@ -27,4 +27,4 @@ class Platform(PlatformBase, table=True):  # type: ignore [call-arg]
     # which is difficult for foreign key constraints
 
     identifier: int = Field(primary_key=True, default=None)
-    date_deleted: datetime.datetime | None = Field()
+    date_deleted: datetime.datetime | None = Field()  # Always be NULL due to hard_deletions
