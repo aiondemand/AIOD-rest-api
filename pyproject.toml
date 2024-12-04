@@ -23,7 +23,7 @@ dependencies = [
     "mysqlclient==2.2.4",
     "oic==1.6.0",
     "python-keycloak==3.7.0",
-    "python-dotenv==1.0.0",
+    "python-dotenv==1.0.1",
     "pytz==2024.2",
     "pydantic_schemaorg==1.0.6",
     "python-dateutil==2.9.0.post0",
