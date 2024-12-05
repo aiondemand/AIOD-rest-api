@@ -1,9 +1,18 @@
 #!/bin/bash
 
+# Path to dirs
+DIR_ROOT=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+DIR_DATA=$DIR_ROOT/data
+DIR_MYSQL=$DIR_DATA/mysql
+DIR_CONNECTORS=$DIR_DATA/connectors
+DIR_DELETION=$DIR_DATA/deletion
+DIR_ELASTIC=$DIR_DATA/elasticsearch
+DIR_KEYCLOAK=$DIR_DATA/keycloak
+
 # Path to the .env file
-ENV_FILE=".env"
-TOML_FILE="./src/config.default.toml"
-NGINX_CONF="./nginx/default.conf"
+ENV_FILE="$DIR_ROOT/.env"
+TOML_FILE="$DIR_ROOT/src/config.default.toml"
+NGINX_CONF="$DIR_ROOT/nginx/default.conf"
 
 # Detect the operating system for compatibility with sed
 OS=$(uname)
@@ -45,26 +54,6 @@ generate_random_value() {
     echo "$(openssl rand -base64 32 | tr -dc 'a-zA-Z0-9' | head -c 32)"
 }
 
-display_usage() {
-    cat <<EOF
- Usage: aiod [OPTIONS] COMMAND"
-
- Commands:
-   start           Start ...
-   stop            Stop ...
-   clean           Remove ...
-
- Options:
-   -h, --help      Display this help message
-EOF
-    exit
-}
-
-if [ $# -lt 1 ] 
-    then
-    display_usage
-fi
-
 configure_nginx() {
     echo "To do extra nginx configuration"
     if [[ " ${SERVICES_TO_START[@]} " =~ " app " ]]; then
@@ -90,9 +79,9 @@ configure_service() {
     local service_name="$1"
     local docker_service_name="$2"
     local env_vars=("${@:3}")
+
     echo -n "Do you want to install $service_name [Y/n] "
-    read -r value
-    value=${value:-'Y'}
+    [ -z "$AUTO_YES" ] && read -r value || { value="y"; echo "y"; }
     if [[ $value =~ ^(Y|y|Yes|yes)$ ]]; then
        SERVICES_TO_START+=("$docker_service_name")
        for var in "${env_vars[@]}"; do
@@ -101,8 +90,7 @@ configure_service() {
                current_value=$(generate_random_value)
            fi
            echo -n "$var ['$current_value']: "
-           read -r new_value
-           new_value=${new_value:-$current_value}
+           [ -z ${AUTO_YES} ] && read -r new_value || { new_value=$current_value; echo "$current_value"; }
            update_file "$ENV_FILE" "$var" "$new_value"
        done
        case "$docker_service_name" in
@@ -126,62 +114,121 @@ configure_service() {
     
 }    
 
+start() {
+    echo "Starting the application..."
+    configure_service "AIoD Metadata Catalogue" "app" "AIOD_REST_PORT"
+    configure_service "AIoD Login" "keycloak" "HOSTNAME" "KEYCLOAK_ADMIN_PASSWORD" "KEYCLOAK_CLIENT_SECRET" "AIOD_KEYCLOAK_PORT"
+    configure_service "NGINX" "nginx" "AIOD_NGINX_PORT"
+    # Build the docker compose command
+    if [[ ${#SERVICES_TO_START[@]} -eq 0 ]]; then
+        echo "No services selected. Exiting."
+        exit 0
+    fi
+    echo "Starting services: ${SERVICES_TO_START[*]}..."
+    docker compose up -d "${SERVICES_TO_START[@]}"
+}
+
+stop() {
+    echo "Stopping services"
+    docker compose down
+}
+
+clean() {
+    echo "Stopping and removing services"
+    docker compose down -v
+    echo -e "Please confir to delete [Y/n]:\n$DIR_CONNECTORS\n$DIR_DELETION\n$DIR_MYSQL\n$DIR_ELASTIC\n$DIR_KEYCLOAK  "
+    read -r value
+    if [[ $value =~ ^(Y|y|Yes|yes)$ ]]; then
+        echo "Deleting ..."
+        find $DIR_CONNECTORS -type f ! -name .gitkeep -delete
+        find $DIR_DELETION -type f ! -name .gitkeep -delete
+        rm -rf $DIR_MYSQL/*
+        touch $DIR_MYSQL/.gitkeep
+        rm -rf $DIR_ELASTIC/*
+        rm -rf $DIR_KEYCLOAK/data/tmp
+        rm -rf $DIR_KEYCLOAK/data/h2
+        rm -rf $DIR_KEYCLOAK/data/transaction-logs
+        touch $DIR_ELASTIC/.gitkeep
+    fi
+}
+
+status() {
+    echo "Checking application status"
+    docker compose ls
+}
+
+logs() {
+    echo "View logs from services (type Ctrl-C to exit)"
+    docker compose logs $CMD_ARGS
+}
+
+display_usage() {
+    cat <<EOF
+ Usage: aiod [OPTIONS] COMMAND"
+
+ Commands:
+   start           Start the services
+   stop            Stop the services
+   clean           Stope and remove the services
+   status          Check the status of services
+   logs            View logs from services
+
+ Options:
+   -h, --help      Display this help message
+   -y              Accept all default values
+   -f              Follow log output (type Ctrl-C to exit)
+EOF
+    exit
+}
+
+if [ $# -lt 1 ]
+    then
+    display_usage
+fi
+
 while [ -n "$1" ]; do
     case "$1" in
         -h|--help)
             display_usage
             exit 0
             ;;
-        -*)
-            echo "Error: Invalid option '$1'"
+        -y)
+            AUTO_YES=true
+            shift
+            ;;
+        -f)
+            CMD_ARGS="-f"
+            shift
+            ;;
+        start)
+            COMMAND="start"
+            shift
+            ;;
+        stop)
+            COMMAND="stop"
+            shift
+            ;;
+        clean)
+            COMMAND="clean"
+            shift
+            ;;
+        status)
+            COMMAND="status"
+            shift
+            ;;
+        logs)
+            COMMAND="logs"
+            shift
+            ;;
+        -* | *)
+            echo "Error: Invalid command or option '$1'"
             display_usage
             exit 1
-            ;;
-        *)
-            # Break on the first non-option argument (command)
-            break
             ;;
     esac
 done
 
-# Ensure a command is provided
-if [ -z "$1" ]; then
-    echo "Error: No command provided"
-    display_usage
-    exit 1
-fi
+$COMMAND $CMD_ARGS
 
-COMMAND="$1"
 
-# Handle commands
-case "$COMMAND" in
-    start)
-        echo "Starting the application..."
-        configure_service "AIoD Metadata Catalogue" "app" "AIOD_REST_PORT"
-        configure_service "AIoD Login" "keycloak" "HOSTNAME" "KEYCLOAK_ADMIN_PASSWORD" "KEYCLOAK_CLIENT_SECRET" "AIOD_KEYCLOAK_PORT"
-        configure_service "NGINX" "nginx" "AIOD_NGINX_PORT"
-        # Build the docker compose command
-        if [[ ${#SERVICES_TO_START[@]} -eq 0 ]]; then
-            echo "No services selected for installation. Exiting."
-            exit 0
-        fi
-        echo "Starting services: ${SERVICES_TO_START[*]}..."
-        docker compose up -d "${SERVICES_TO_START[@]}"
-        ;;
-    stop)
-        echo "Stopping the application..."
-        docker compose down
-        ;;
-    clean)
-        echo "Stopping the application..."
-        docker compose down -v
-        ;;
-    status)
-        echo "Checking application status..."
-        # Add logic for checking application status
-        ;;
-    *)
-        display_usage
-        ;;
-esac
 

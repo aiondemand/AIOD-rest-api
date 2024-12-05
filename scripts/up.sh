@@ -12,6 +12,8 @@ GREEN='\033[0;32m'
 source .env
 source override.env
 
+[ -f override.env ] && source override.env || touch override.env
+
 if [[ "${USE_LOCAL_DEV}" == "true" ]]; then
   compose_with_dev="-f docker-compose.dev.yaml"
   echo -e "Launching ${CYAN}with${NC} local changes."

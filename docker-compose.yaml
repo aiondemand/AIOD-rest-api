@@ -125,13 +125,15 @@ services:
       retries: 30
 
   keycloak:
-    image: quay.io/keycloak/keycloak:26.0
+    image: quay.io/keycloak/keycloak:24.0.4
     container_name: keycloak
     environment:
-      - KEYCLOAK_ADMIN
-      - KEYCLOAK_ADMIN_PASSWORD
+      - KEYCLOAK_ADMIN=$KEYCLOAK_ADMIN
+      - KEYCLOAK_ADMIN_PASSWORD=$KEYCLOAK_ADMIN_PASSWORD
       - REDIRECT_URIS=$REDIRECT_URIS
       - POST_LOGOUT_REDIRECT_URIS=$POST_LOGOUT_REDIRECT_URIS
+      - KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET
+      - EGICHECKINALIAS=$EGICHECKINALIAS
     ports:
       - ${AIOD_KEYCLOAK_PORT}:8080
     volumes:
@@ -139,10 +141,11 @@ services:
      - ${DATA_PATH}/keycloak/themes:/opt/keycloak/themes
     command: >
       start
-      --hostname http://${HOSTNAME}/aiod-auth
-      --hostname-admin http://${HOSTNAME}/aiod-auth
+      --hostname-url http://${HOSTNAME}/aiod-auth
+      --hostname-admin-url http://${HOSTNAME}/aiod-auth
       --http-relative-path=/aiod-auth
       --http-enabled=true
+      --hostname-strict-https=false
       --import-realm
 
   nginx:
