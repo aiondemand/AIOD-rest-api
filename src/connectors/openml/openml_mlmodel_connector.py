@@ -11,6 +11,7 @@ from requests.exceptions import HTTPError
 from sqlmodel import SQLModel
 from typing import Iterator, Any
 
+from config import REQUEST_TIMEOUT
 from connectors.abstract.resource_connector_by_id import ResourceConnectorById
 from connectors.record_error import RecordError
 from database.model import field_length
@@ -45,7 +46,7 @@ class OpenMlMLModelConnector(ResourceConnectorById[MLModel]):
 
     def fetch_record(self, identifier: int) -> ResourceWithRelations[MLModel] | RecordError:
         url_mlmodel = f"https://www.openml.org/api/v1/json/flow/{identifier}"
-        response = requests.get(url_mlmodel)
+        response = requests.get(url_mlmodel, timeout=REQUEST_TIMEOUT)
         if not response.ok:
             msg = response.json()["error"]["message"]
             return RecordError(
@@ -101,7 +102,7 @@ class OpenMlMLModelConnector(ResourceConnectorById[MLModel]):
             "https://www.openml.org/api/v1/json/flow/list/"
             f"limit/{self.limit_per_iteration}/offset/{offset}"
         )
-        response = requests.get(url_mlmodel)
+        response = requests.get(url_mlmodel, timeout=REQUEST_TIMEOUT)
 
         if not response.ok:
             status_code = response.status_code

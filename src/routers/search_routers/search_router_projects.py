@@ -14,7 +14,3 @@ class SearchRouterProjects(SearchRouter[Project]):
     @property
     def resource_class(self):
         return Project
-
-    @property
-    def indexed_fields(self):
-        return {"name", "description_plain", "description_html"}

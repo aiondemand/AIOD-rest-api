@@ -4,8 +4,6 @@ import pytest
 from sqlalchemy.future import Engine
 from starlette.testclient import TestClient
 
-from authentication import keycloak_openid
-
 
 def test_get_all_unauthenticated(
     client_test_resource: TestClient, engine_test_resource_filled: Engine
@@ -54,7 +52,6 @@ def test_platform_get_unauthenticated(
 def test_delete_authorized(
     client_test_resource, mocked_token: Mock, engine_test_resource_filled: Engine
 ):
-    keycloak_openid.introspect = mocked_token
     response = client_test_resource.delete(
         "/test_resources/v0/1",
         headers={"Authorization": "fake-token"},
@@ -73,7 +70,6 @@ def test_delete_unauthenticated(
     "mocked_token", [["create_test_resources"], ["delete_datasets"]], indirect=True
 )
 def test_delete_unauthorized(client_test_resource: TestClient, mocked_token: Mock):
-    keycloak_openid.introspect = mocked_token
     response = client_test_resource.delete(
         "/test_resources/v0/1",
         headers={"Authorization": "fake-token"},
@@ -95,7 +91,6 @@ def test_delete_unauthorized(client_test_resource: TestClient, mocked_token: Moc
     indirect=True,
 )
 def test_post_authorized(client_test_resource, mocked_token: Mock):
-    keycloak_openid.introspect = mocked_token
     response = client_test_resource.post(
         "/test_resources/v0",
         json={"title": "example"},
@@ -108,7 +103,6 @@ def test_post_authorized(client_test_resource, mocked_token: Mock):
     "mocked_token", [["delete_test_resources"], ["create_datasets"]], indirect=True
 )
 def test_post_unauthorized(client_test_resource: TestClient, mocked_token: Mock):
-    keycloak_openid.introspect = mocked_token
     response = client_test_resource.post(
         "/test_resources/v0",
         json={"title": "example"},
@@ -143,7 +137,6 @@ def test_post_unauthenticated(client_test_resource: TestClient):
 def test_put_authorized(
     client_test_resource, mocked_token: Mock, engine_test_resource_filled: Engine
 ):
-    keycloak_openid.introspect = mocked_token
     response = client_test_resource.put(
         "/test_resources/v0/1",
         json={"title": "example"},
@@ -158,7 +151,6 @@ def test_put_authorized(
 def test_put_unauthorized(
     client_test_resource: TestClient, mocked_token: Mock, engine_test_resource_filled: Engine
 ):
-    keycloak_openid.introspect = mocked_token
     response = client_test_resource.put(
         "/test_resources/v0/1",
         json={"title": "example"},

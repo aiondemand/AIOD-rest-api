@@ -3,7 +3,6 @@ from unittest.mock import Mock
 
 from starlette.testclient import TestClient
 
-from authentication import keycloak_openid
 from database.model.agent.person import Person
 from database.session import DbSession
 
@@ -19,7 +18,6 @@ def test_happy_path(
         session.add(person)
         session.commit()
 
-    keycloak_openid.introspect = mocked_privileged_token
     body = copy.copy(body_resource)
     body["start_date"] = "2021-02-03T15:15:00"
     body["end_date"] = "2022-02-03T15:15:00"

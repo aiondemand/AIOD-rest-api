@@ -70,7 +70,7 @@ async def test_unauthenticated():
 
 
 @pytest.mark.asyncio
-async def test_keycloak_error():
+async def test_keycloak_error(mocked_token: Mock):
     """
     On any problem, keycloak_openid.introspect raises an error.
 

@@ -16,5 +16,5 @@ class SearchRouterPublications(SearchRouter[Publication]):
         return Publication
 
     @property
-    def indexed_fields(self):
-        return {"name", "description_plain", "description_html", "issn", "isbn"}
+    def extra_indexed_fields(self) -> set[str]:
+        return {"issn", "isbn"}

@@ -3,7 +3,6 @@ from unittest.mock import Mock
 
 from starlette.testclient import TestClient
 
-from authentication import keycloak_openid
 from database.model.agent.organisation import Organisation
 from database.model.agent.person import Person
 from database.model.dataset.dataset import Dataset
@@ -20,8 +19,6 @@ def test_happy_path(
     publication: Publication,
     dataset: Dataset,
 ):
-    keycloak_openid.introspect = mocked_privileged_token
-
     with DbSession() as session:
         session.add(person)
         session.merge(organisation)

@@ -17,6 +17,7 @@ from database.model.serializers import create_getter_dict
 
 if TYPE_CHECKING:
     from database.model.concept.concept import AIoDConcept
+    from database.model.platform.platform import Platform
     from database.model.relationships import _ResourceRelationship
 
 
@@ -55,7 +56,7 @@ def _get_field_definitions_create(
     }
 
 
-def resource_create(resource_class: Type["AIoDConcept"]) -> Type[SQLModel]:
+def resource_create(resource_class: Type["AIoDConcept"] | Type["Platform"]) -> Type[SQLModel]:
     """
     Create a SQLModel for a Create class of a resource. This Create class is a Pydantic class
     that can be used for POST and PUT requests (and thus has no identifier), and is not backed by a
@@ -75,7 +76,7 @@ def resource_create(resource_class: Type["AIoDConcept"]) -> Type[SQLModel]:
     return model
 
 
-def resource_read(resource_class: Type["AIoDConcept"]) -> Type[SQLModel]:
+def resource_read(resource_class: Type["AIoDConcept"] | Type["Platform"]) -> Type[SQLModel]:
     """
     Create a SQLModel for a Read class of a resource. This Read class is a Pydantic class
     that can be used for GET requests (and thus has a required identifier), and is not backed by a

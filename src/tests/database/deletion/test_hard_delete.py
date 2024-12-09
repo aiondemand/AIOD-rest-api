@@ -1,9 +1,7 @@
 import datetime
-from unittest.mock import Mock
 
 from sqlmodel import select
 
-from authentication import keycloak_openid
 from database.deletion import hard_delete
 from database.model.concept.aiod_entry import AIoDEntryORM
 from database.model.concept.status import Status
@@ -12,11 +10,8 @@ from tests.testutils.test_resource import factory, TestResource
 
 
 def test_hard_delete(
-    mocked_privileged_token: Mock,
     draft: Status,
 ):
-    keycloak_openid.introspect = mocked_privileged_token
-
     now = datetime.datetime.now()
     deletion_time = now - datetime.timedelta(seconds=10)
     with DbSession() as session:

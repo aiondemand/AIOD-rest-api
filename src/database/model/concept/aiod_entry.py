@@ -35,8 +35,8 @@ class AIoDEntryORM(AIoDEntryBase, table=True):  # type: ignore [call-arg]
     status: Status | None = Relationship()
 
     # date_modified is updated in the resource_router
-    date_modified: datetime | None = Field(default_factory=datetime.utcnow)
-    date_created: datetime | None = Field(default_factory=datetime.utcnow)
+    date_modified: datetime = Field(default_factory=datetime.utcnow)
+    date_created: datetime = Field(default_factory=datetime.utcnow)
 
     class RelationshipConfig:
         editor: list[int] = ManyToMany()  # No deletion triggers: "orphan" Persons should be kept

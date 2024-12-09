@@ -15,7 +15,6 @@ from database.session import DbSession
 from error_handling import as_http_exception
 from .search_routers.elasticsearch import ElasticsearchSingleton
 
-SORT = {"identifier": "asc"}
 LIMIT_MAX = 1000
 
 RESOURCE = TypeVar("RESOURCE", bound=AIoDConcept)
@@ -60,9 +59,24 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
         """The resource class"""
 
     @property
-    @abc.abstractmethod
+    def global_indexed_fields(self) -> set[str]:
+        """The set of indexed fields that are mandatory for every entity"""
+        return {"name", "description_plain", "description_html"}
+
+    @property
+    def extra_indexed_fields(self) -> set[str]:
+        """The set of other indexed fields in addition to the global ones"""
+        return set()
+
+    @property
     def indexed_fields(self) -> set[str]:
         """The set of indexed fields"""
+        return set.union(self.global_indexed_fields, self.extra_indexed_fields)
+
+    @property
+    def linked_fields(self) -> set[str]:
+        """The set of linked fields (those with aiod 'link' relations)"""
+        return set()
 
     def create(self, url_prefix: str) -> APIRouter:
         router = APIRouter()
@@ -83,6 +97,12 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
                     examples=["Name of the resource"],
                 ),
             ],
+            exact_match: Annotated[
+                bool,
+                Query(
+                    description="If true, it searches for an exact match.",
+                ),
+            ] = False,
             search_fields: Annotated[
                 list[indexed_fields] | None,
                 Query(
@@ -99,6 +119,31 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
                     examples=["huggingface", "openml"],
                 ),
             ] = None,
+            date_modified_after: Annotated[
+                str | None,
+                Query(
+                    description="Search for resources modified after this date "
+                    "(yyyy-mm-dd, inclusive).",
+                    pattern="[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]",
+                    examples=["2023-01-01"],
+                ),
+            ] = None,
+            date_modified_before: Annotated[
+                str | None,
+                Query(
+                    description="Search for resources modified before this date "
+                    "(yyyy-mm-dd, not inclusive).",
+                    pattern="[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]",
+                    examples=["2023-01-01"],
+                ),
+            ] = None,
+            sort_by_id: Annotated[
+                bool,
+                Query(
+                    description="If true, the results are sorted by id."
+                    "By default they are sorted by best score.",
+                ),
+            ] = False,
             limit: Annotated[int, Query(ge=1, le=LIMIT_MAX)] = 10,
             offset: Annotated[int, Query(ge=0)] = 0,
             get_all: Annotated[
@@ -122,17 +167,39 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail=f"The available platforms are: {platform_names}",
                 )
+
             fields = search_fields if search_fields else self.indexed_fields
-            query_matches = [{"match": {f: search_query}} for f in fields]
+            query_matches: list[dict[str, dict[str, str | dict[str, str]]]] = []
+            if exact_match:
+                query_matches = [
+                    {"match": {f: {"query": search_query, "operator": "and"}}} for f in fields
+                ]
+            else:
+                query_matches = [{"match": {f: search_query}} for f in fields]
             query = {"bool": {"should": query_matches, "minimum_should_match": 1}}
+            must_clause = []
             if platforms:
                 platform_matches = [{"match": {"platform": p}} for p in platforms]
-                query["bool"]["must"] = {
-                    "bool": {"should": platform_matches, "minimum_should_match": 1}
-                }
+                must_clause.append(
+                    {"bool": {"should": platform_matches, "minimum_should_match": 1}}
+                )
+            if date_modified_after or date_modified_before:
+                date_range = {}
+                if date_modified_after:
+                    date_range["gte"] = date_modified_after
+                if date_modified_before:
+                    date_range["lt"] = date_modified_before
+                must_clause.append({"range": {"date_modified": date_range}})
+            if must_clause:
+                query["bool"]["must"] = must_clause
+            sort: dict[str, str | dict[str, str]] = {}
+            if sort_by_id:
+                sort = {"identifier": "asc"}
+            else:
+                sort = {"_score": {"order": "desc"}}
 
             result = ElasticsearchSingleton().client.search(
-                index=self.es_index, query=query, from_=offset, size=limit, sort=SORT
+                index=self.es_index, query=query, from_=offset, size=limit, sort=sort
             )
             total_hits = result["hits"]["total"]["value"]
             if get_all:
@@ -184,7 +251,7 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
         kwargs = {
             self.key_translations.get(key, key): val
             for key, val in resource_dict.items()
-            if key != "type" and not key.startswith("@")
+            if key != "type" and not key.startswith("@") and key not in self.linked_fields
         }
         resource = read_class(**kwargs)
         resource.aiod_entry = AIoDEntryRead(
@@ -194,4 +261,7 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
             "plain": resource_dict["description_plain"],
             "html": resource_dict["description_html"],
         }
+        for linked_field in self.linked_fields:
+            if resource_dict[linked_field]:
+                setattr(resource, linked_field, resource_dict[linked_field].split(","))
         return resource
