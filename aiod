@@ -14,6 +14,9 @@ ENV_FILE="$DIR_ROOT/.env"
 TOML_FILE="$DIR_ROOT/src/config.default.toml"
 NGINX_CONF="$DIR_ROOT/nginx/default.conf"
 
+#Profiles
+PROFILES=("examples" "huggingface-datasets" "openml" "zenodo-datasets")
+
 # Detect the operating system for compatibility with sed
 OS=$(uname)
 
@@ -55,7 +58,7 @@ generate_random_value() {
 }
 
 configure_nginx() {
-    echo "To do extra nginx configuration"
+#to do: other cases: only nginx?
     if [[ " ${SERVICES_TO_START[@]} " =~ " app " ]]; then
         if ! grep -q "app" "$NGINX_CONF"; then
            sedinplace "#APP" "include conf.d\/includes\/app.conf;" "$NGINX_CONF"
@@ -79,9 +82,10 @@ configure_service() {
     local service_name="$1"
     local docker_service_name="$2"
     local env_vars=("${@:3}")
-
-    echo -n "Do you want to install $service_name [Y/n] "
-    [ -z "$AUTO_YES" ] && read -r value || { value="y"; echo "y"; }
+    local value
+    echo -n "Do you want to install $service_name [Y/n]?"
+    [ -z "$AUTO_YES" ] && read -r value ||  echo "y";
+    value=${value:-'Y'}
     if [[ $value =~ ^(Y|y|Yes|yes)$ ]]; then
        SERVICES_TO_START+=("$docker_service_name")
        for var in "${env_vars[@]}"; do
@@ -90,7 +94,9 @@ configure_service() {
                current_value=$(generate_random_value)
            fi
            echo -n "$var ['$current_value']: "
-           [ -z ${AUTO_YES} ] && read -r new_value || { new_value=$current_value; echo "$current_value"; }
+           new_value=""
+           [ -z ${AUTO_YES} ] && read -r new_value || echo "$current_value";
+           new_value=${new_value:-$current_value}
            update_file "$ENV_FILE" "$var" "$new_value"
        done
        case "$docker_service_name" in
@@ -115,7 +121,7 @@ configure_service() {
 }    
 
 start() {
-    echo "Starting the application..."
+    echo "Starting services"
     configure_service "AIoD Metadata Catalogue" "app" "AIOD_REST_PORT"
     configure_service "AIoD Login" "keycloak" "HOSTNAME" "KEYCLOAK_ADMIN_PASSWORD" "KEYCLOAK_CLIENT_SECRET" "AIOD_KEYCLOAK_PORT"
     configure_service "NGINX" "nginx" "AIOD_NGINX_PORT"
@@ -124,20 +130,36 @@ start() {
         echo "No services selected. Exiting."
         exit 0
     fi
-    echo "Starting services: ${SERVICES_TO_START[*]}..."
-    docker compose up -d "${SERVICES_TO_START[@]}"
+    if [ -z "$PROFILE" ]; then
+       echo "Starting services: ${SERVICES_TO_START[*]} ..."
+       docker compose ${SERVICES_TO_START[@]} up -d
+    else
+       echo "Starting ${PROFILE[@]}"
+       docker compose ${PROFILE[@]} up -d
+    fi
 }
 
 stop() {
-    echo "Stopping services"
-    docker compose down
+    if [ -z $PROFILE ]; then
+       echo "Stopping services: ${SERVICES_TO_START[@]} ..."
+       docker compose down ${SERVICES_TO_START[@]}
+    else
+       echo "Stopping ${PROFILE[@]}"
+       docker compose ${PROFILE[@]} down
+    fi
 }
 
 clean() {
-    echo "Stopping and removing services"
-    docker compose down -v
-    echo -e "Please confir to delete [Y/n]:\n$DIR_CONNECTORS\n$DIR_DELETION\n$DIR_MYSQL\n$DIR_ELASTIC\n$DIR_KEYCLOAK  "
+    if [ -z $PROFILE ]; then
+       echo "Stopping services: ${SERVICES_TO_START[@]} ..."
+       docker compose down ${SERVICES_TO_START[@]} -v
+    else
+       echo "Stopping ${PROFILE[@]}"
+       docker compose ${PROFILE[@]} down -v
+    fi
+    echo -e "Please confirm to delete:\n$DIR_CONNECTORS\n$DIR_DELETION\n$DIR_MYSQL\n$DIR_ELASTIC\n$DIR_KEYCLOAK\n\n[Y/n]?\c"
     read -r value
+    value=${value:-'Y'}
     if [[ $value =~ ^(Y|y|Yes|yes)$ ]]; then
         echo "Deleting ..."
         find $DIR_CONNECTORS -type f ! -name .gitkeep -delete
@@ -169,14 +191,15 @@ display_usage() {
  Commands:
    start           Start the services
    stop            Stop the services
-   clean           Stope and remove the services
+   clean           Stop and remove the services
    status          Check the status of services
    logs            View logs from services
 
  Options:
    -h, --help      Display this help message
-   -y              Accept all default values
    -f              Follow log output (type Ctrl-C to exit)
+   -p, --profile   Add profile (${PROFILES[*]}) implies -y
+   -y              Accept all default values
 EOF
     exit
 }
@@ -198,6 +221,11 @@ while [ -n "$1" ]; do
             ;;
         -f)
             CMD_ARGS="-f"
+            shift
+            ;;
+        -p| --profile)
+            shift
+            PROFILE+=("$1")
             shift
             ;;
         start)
@@ -228,7 +256,24 @@ while [ -n "$1" ]; do
     esac
 done
 
+if [ -z $COMMAND ]; then
+    echo "Error: No command provided"
+    display_usage
+    exit 1
+fi
+
+#Check profiles
+for i in "${!PROFILE[@]}"; do
+   var=${PROFILE[$i]}
+   if [[ ! " ${PROFILES[@]} " =~ " $var " ]]; then
+         echo "Error: Invalid profile $var"
+         echo "Available profile are: ${PROFILES[*]}"
+         display_usage
+         exit 1
+   else
+     PROFILE[$i]="--profile ${PROFILE[$i]}"
+     AUTO_YES=true
+   fi
+done
+
 $COMMAND $CMD_ARGS
-
-
-

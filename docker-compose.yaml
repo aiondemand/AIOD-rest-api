@@ -26,6 +26,8 @@ services:
     depends_on:
       sqlserver:
         condition: service_healthy
+    networks:
+     - "aiod-network"
 
   fill-db-with-examples:
     profiles: ["examples"]
@@ -42,7 +44,9 @@ services:
     depends_on:
       app:
         condition: service_healthy
-  
+    networks:
+     - "aiod-network"
+
   deletion:
     build:
       context: deletion
@@ -57,6 +61,8 @@ services:
     depends_on:
       app:
         condition: service_healthy
+    networks:
+     - "aiod-network"
 
   huggingface-dataset-connector:
     profiles: ["huggingface-datasets"]
@@ -72,6 +78,8 @@ services:
     depends_on:
       app:
         condition: service_healthy
+    networks:
+     - "aiod-network"
 
   openml-connector:
     profiles: ["openml"]
@@ -90,6 +98,8 @@ services:
     depends_on:
       app:
         condition: service_healthy
+    networks:
+     - "aiod-network"
 
   zenodo-dataset-connector:
     profiles: ["zenodo-datasets"]
@@ -108,6 +118,8 @@ services:
     depends_on:
       app:
         condition: service_healthy
+    networks:
+     - "aiod-network"
 
   sqlserver:
     image: mysql:8.3.0
@@ -123,6 +135,8 @@ services:
       interval: 5s
       timeout: 30s
       retries: 30
+    networks:
+     - "aiod-network"
 
   keycloak:
     image: quay.io/keycloak/keycloak:24.0.4
@@ -147,6 +161,8 @@ services:
       --http-enabled=true
       --hostname-strict-https=false
       --import-realm
+    networks:
+     - "aiod-network"
 
   nginx:
     image: nginx:1.25.5
@@ -156,9 +172,8 @@ services:
       - ./nginx:/etc/nginx/conf.d:ro
     ports:
       - ${AIOD_NGINX_PORT}:80
-    depends_on:
-      app:
-        condition: service_healthy
+    networks:
+     - "aiod-network"
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.8.2
@@ -182,6 +197,8 @@ services:
       interval: 5s
       timeout: 30s
       retries: 30
+    networks:
+     - "aiod-network"
   
   es_logstash_setup:
     image: aiod_metadata_catalogue
@@ -200,6 +217,8 @@ services:
     depends_on:
       elasticsearch:
         condition: service_healthy
+    networks:
+     - "aiod-network"
 
   logstash:
     build:
@@ -211,8 +230,8 @@ services:
       - LS_JAVA_OPTS=$LS_JAVA_OPTS
     ports:
       - ${AIOD_LOGSTASH_BEATS_PORT}:5044
-      - ${AIOD_LOGSTASH_PORT}:5000/tcp
-      - ${AIOD_LOGSTASH_PORT}:5000/udp
+      - ${AIOD_LOGSTASH_PORT}:9000/tcp
+      - ${AIOD_LOGSTASH_PORT}:9000/udp
       - ${AIOD_LOGSTASH_API_PORT}:9600
     volumes:
       - ./logstash/config/config:/usr/share/logstash/config:ro
@@ -221,3 +240,9 @@ services:
     depends_on:
       es_logstash_setup:
         condition: service_completed_successfully
+    networks:
+     - "aiod-network"
+
+networks:
+  aiod-network:
+    driver: bridge
