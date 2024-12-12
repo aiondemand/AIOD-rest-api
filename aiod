@@ -132,7 +132,7 @@ start() {
     fi
     if [ -z "$PROFILE" ]; then
        echo "Starting services: ${SERVICES_TO_START[*]} ..."
-       docker compose ${SERVICES_TO_START[@]} up -d
+       docker compose up -d ${SERVICES_TO_START[@]}
     else
        echo "Starting ${PROFILE[@]}"
        docker compose ${PROFILE[@]} up -d
