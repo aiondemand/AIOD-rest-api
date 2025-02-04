@@ -1,0 +1,36 @@
+{
+  "took" : 45,
+  "timed_out" : false,
+  "_shards" : {
+    "total" : 1,
+    "successful" : 1,
+    "skipped" : 0,
+    "failed" : 0
+  },
+  "hits" : {
+    "total" : {
+      "value" : 1,
+      "relation" : "eq"
+    },
+    "max_score" : null,
+    "hits" : [
+      {
+        "_index" : "computational_asset",
+        "_id" : "computational_asset_1",
+        "_score" : null,
+        "_source" : {
+          "identifier" : 1,
+          "date_modified" : "2023-09-01T00:00:00.000Z",
+          "name" : "A name.",
+          "platform" : "A platform.",
+          "description_plain" : "A plain text description.",
+          "description_html" : "An html description.",
+          "type" : "computational_asset"
+        },
+        "sort" : [
+            1
+        ]
+      }
+    ]
+  }
+}
