@@ -25,10 +25,12 @@ class ResourceBundleBase(AIResourceBase):
 class ResourceBundle(ResourceBundleBase, AbstractAIResource, table=True):  # type: ignore [call-arg]
     __tablename__ = "resource_bundle"
 
+    # Many-to-Many relationship linking ResourceBundle to external resources (URLs)
     includes_external_resource: List[ExternalResource] = Relationship(
         link_model=many_to_many_link_factory("resource_bundle", ExternalResource.__tablename__)
     )
 
+    # A list of AIResources that form part of this bundle
     includes_resources: List[AIResourceORM] = Relationship(
         link_model=many_to_many_link_factory("resource_bundle", AIResourceORM.__tablename__)
     )
