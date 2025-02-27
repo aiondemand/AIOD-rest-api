@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List
 from sqlmodel import Relationship
 
 from database.model.ai_resource.resource import AbstractAIResource, AIResourceBase
@@ -13,37 +13,38 @@ from database.model.serializers import (
     FindByNameDeserializerList,
 )
 
+
 class ResourceBundleBase(AIResourceBase):
     """
     A coherent collection of resources intended to be shared as a set
-    """    
+    """
+
     pass
 
-class ResourceBundle(ResourceBundleBase, AbstractAIResource, table = True):
+
+class ResourceBundle(ResourceBundleBase, AbstractAIResource, table=True):  # type: ignore [call-arg]
     __tablename__ = "resource_bundle"
-    
+
     includes_external_resource: List[ExternalResource] = Relationship(
         link_model=many_to_many_link_factory("resource_bundle", ExternalResource.__tablename__)
     )
-    
+
     includes_resources: List[AIResourceORM] = Relationship(
         link_model=many_to_many_link_factory("resource_bundle", AIResourceORM.__tablename__)
     )
-    
-        
+
     class RelationshipConfig(AbstractAIResource.RelationshipConfig):
-        
+
         includes_external_resource: List[str] = ManyToMany(
             description="External resources (URLs) not in AIoD.",
             _serializer=AttributeSerializer("name"),
             deserializer=FindByNameDeserializerList(ExternalResource),
             default_factory_pydantic=list,
         )
-        
+
         includes_resources: List[int] = ManyToMany(
             description="AIResources included in this bundle.",
             _serializer=AttributeSerializer("identifier"),
             deserializer=FindByIdentifierDeserializerList(AIResourceORM),
             default_factory_pydantic=list,
         )
-    
