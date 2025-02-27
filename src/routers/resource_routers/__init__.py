@@ -14,6 +14,7 @@ from .project_router import ProjectRouter
 from .publication_router import PublicationRouter
 from .service_router import ServiceRouter
 from .team_router import TeamRouter
+from .resource_bundle_router import ResourceBundleRouter
 from .. import ResourceRouter
 
 router_list: list[ResourceRouter | PlatformRouter] = [
@@ -33,4 +34,5 @@ router_list: list[ResourceRouter | PlatformRouter] = [
     ProjectRouter(),
     ServiceRouter(),
     TeamRouter(),
+    ResourceBundleRouter(),
 ]
