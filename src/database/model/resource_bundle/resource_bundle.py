@@ -13,13 +13,16 @@ from database.model.serializers import (
     FindByNameDeserializerList,
 )
 
+
 class ResourceBundleBase(AIResourceBase):
     """
     A coherent collection of resources intended to be shared as a set
-    """    
+    """
+
     pass
 
-class ResourceBundle(ResourceBundleBase, AbstractAIResource, table = True):
+
+class ResourceBundle(ResourceBundleBase, AbstractAIResource, table=True):  # type: ignore [call-arg]
     __tablename__ = "resource_bundle"
 
     includes_external_resource: List[ExternalResource] = Relationship(
@@ -30,9 +33,7 @@ class ResourceBundle(ResourceBundleBase, AbstractAIResource, table = True):
         link_model=many_to_many_link_factory("resource_bundle", AIResourceORM.__tablename__)
     )
 
-
     class RelationshipConfig(AbstractAIResource.RelationshipConfig):
-
         includes_external_resource: List[str] = ManyToMany(
             description="External resources (URLs) not in AIoD.",
             _serializer=AttributeSerializer("name"),
