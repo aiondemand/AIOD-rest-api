@@ -3,7 +3,7 @@ from sqlmodel import Field, Relationship
 
 from database.model.agent.language import Language
 from database.model.agent.location import Location, LocationORM
-from database.model.ai_resource.resource import AbstractAIResource, AIResourceBase
+from database.model.ai_resource.resource import AIResource, AIResourceBase
 from database.model.ai_resource.text import TextORM, Text
 from database.model.educational_resource.access_mode import AccessMode
 from database.model.educational_resource.educational_level import EducationalLevel
@@ -32,7 +32,7 @@ class EducationalResourceBase(AIResourceBase):
     )
 
 
-class EducationalResource(EducationalResourceBase, AbstractAIResource, table=True):  # type: ignore [call-arg]
+class EducationalResource(EducationalResourceBase, AIResource, table=True):  # type: ignore [call-arg]
     __tablename__ = "educational_resource"
 
     type_identifier: int | None = Field(
@@ -78,7 +78,7 @@ class EducationalResource(EducationalResourceBase, AbstractAIResource, table=Tru
         )
     )
 
-    class RelationshipConfig(AbstractAIResource.RelationshipConfig):
+    class RelationshipConfig(AIResource.RelationshipConfig):
         type: Optional[str] = ManyToOne(
             description="The type of educational resource.",
             identifier_name="type_identifier",

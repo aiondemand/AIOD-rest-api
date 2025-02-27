@@ -1,6 +1,6 @@
 from typing import Type
 
-from database.model.ai_resource.resource import AbstractAIResource
+from database.model.ai_resource.resource import AIResource
 from database.model.ai_resource.resource_table import AIResourceORM
 from routers.parent_router import ParentRouter
 
@@ -15,8 +15,8 @@ class AIResourceRouter(ParentRouter):
         return "ai_resources"
 
     @property
-    def parent_class(self) -> Type[AbstractAIResource]:
-        return AbstractAIResource
+    def parent_class(self) -> Type[AIResource]:
+        return AIResource
 
     @property
     def parent_class_table(self) -> Type[AIResourceORM]:

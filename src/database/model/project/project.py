@@ -7,7 +7,7 @@ from sqlmodel import Field, Relationship
 from database.model.agent.organisation import Organisation
 from database.model.ai_asset.ai_asset_table import AIAssetTable
 from database.model.ai_resource.resource import AIResourceBase
-from database.model.ai_resource.resource import AbstractAIResource
+from database.model.ai_resource.resource import AIResource
 from database.model.helper_functions import many_to_many_link_factory
 from database.model.relationships import ManyToMany, ManyToOne
 from database.model.serializers import (
@@ -34,7 +34,7 @@ class ProjectBase(AIResourceBase):
     )
 
 
-class Project(ProjectBase, AbstractAIResource, table=True):  # type: ignore [call-arg]
+class Project(ProjectBase, AIResource, table=True):  # type: ignore [call-arg]
     __tablename__ = "project"
 
     funder: list[Organisation] = Relationship(
@@ -62,7 +62,7 @@ class Project(ProjectBase, AbstractAIResource, table=True):  # type: ignore [cal
         ),
     )
 
-    class RelationshipConfig(AbstractAIResource.RelationshipConfig):
+    class RelationshipConfig(AIResource.RelationshipConfig):
         funder: list[int] = ManyToMany(
             description="Identifiers of organizations that support this project through some kind "
             "of financial contribution. ",

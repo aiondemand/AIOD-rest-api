@@ -16,7 +16,7 @@ from authentication import KeycloakUser, get_user_or_none, get_user_or_raise
 from config import KEYCLOAK_CONFIG
 from converters.schema_converters.schema_converter import SchemaConverter
 from database.authorization import user_can_administer, add_administrator, register_user
-from database.model.ai_resource.resource import AbstractAIResource
+from database.model.ai_resource.resource import AIResource
 from database.model.concept.aiod_entry import AIoDEntryORM, EntryStatus
 from database.model.concept.concept import AIoDConcept
 from database.model.platform.platform import Platform
@@ -32,7 +32,7 @@ from dependencies.filtering import ResourceFilters, ResourceFiltersParams
 from dependencies.pagination import Pagination, PaginationParams
 from error_handling import as_http_exception
 
-RESOURCE = TypeVar("RESOURCE", bound=AbstractAIResource)
+RESOURCE = TypeVar("RESOURCE", bound=AIResource)
 RESOURCE_CREATE = TypeVar("RESOURCE_CREATE", bound=SQLModel)
 RESOURCE_READ = TypeVar("RESOURCE_READ", bound=SQLModel)
 RESOURCE_MODEL = TypeVar("RESOURCE_MODEL", bound=SQLModel)

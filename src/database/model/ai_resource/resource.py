@@ -57,7 +57,7 @@ class AIResourceBase(AIoDConceptBase, metaclass=abc.ABCMeta):
     )
 
 
-class AbstractAIResource(AIResourceBase, AIoDConcept, metaclass=abc.ABCMeta):
+class AIResource(AIResourceBase, AIoDConcept, metaclass=abc.ABCMeta):
     ai_resource_id: int | None = Field(
         foreign_key="ai_resource.identifier", index=True, unique=True
     )
@@ -87,8 +87,8 @@ class AbstractAIResource(AIResourceBase, AIoDConcept, metaclass=abc.ABCMeta):
         The latter cannot be done in the class variables, because it depends on the table-name of
         the child class.
         """
-        cls.__annotations__.update(AbstractAIResource.__annotations__)
-        relationships = copy.deepcopy(AbstractAIResource.__sqlmodel_relationships__)
+        cls.__annotations__.update(AIResource.__annotations__)
+        relationships = copy.deepcopy(AIResource.__sqlmodel_relationships__)
         is_not_abstract = cls.__tablename__ not in ("aiasset", "agent", "knowledgeasset")
         if is_not_abstract:
             cls.update_relationships(relationships)
@@ -117,7 +117,7 @@ class AbstractAIResource(AIResourceBase, AIoDConcept, metaclass=abc.ABCMeta):
             default_factory_pydantic=list,
             on_delete_trigger_orphan_deletion=lambda: [
                 f"{a.__tablename__}_alternate_name_link"
-                for a in non_abstract_subclasses(AbstractAIResource)
+                for a in non_abstract_subclasses(AIResource)
             ],
         )
         keyword: list[str] = ManyToMany(
@@ -128,8 +128,7 @@ class AbstractAIResource(AIResourceBase, AIoDConcept, metaclass=abc.ABCMeta):
             example=["keyword1", "keyword2"],
             default_factory_pydantic=list,
             on_delete_trigger_orphan_deletion=lambda: [
-                f"{a.__tablename__}_keyword_link"
-                for a in non_abstract_subclasses(AbstractAIResource)
+                f"{a.__tablename__}_keyword_link" for a in non_abstract_subclasses(AIResource)
             ],
         )
         relevant_link: list[str] = ManyToMany(
@@ -144,8 +143,7 @@ class AbstractAIResource(AIResourceBase, AIoDConcept, metaclass=abc.ABCMeta):
             ],
             default_factory_pydantic=list,
             on_delete_trigger_orphan_deletion=lambda: [
-                f"{a.__tablename__}_relevant_link_link"
-                for a in non_abstract_subclasses(AbstractAIResource)
+                f"{a.__tablename__}_relevant_link_link" for a in non_abstract_subclasses(AIResource)
             ],
         )
         application_area: list[str] = ManyToMany(

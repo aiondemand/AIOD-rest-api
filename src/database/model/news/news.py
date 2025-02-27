@@ -2,7 +2,7 @@ from typing import Optional
 
 from sqlmodel import Field, Relationship
 
-from database.model.ai_resource.resource import AbstractAIResource, AIResourceBase
+from database.model.ai_resource.resource import AIResource, AIResourceBase
 from database.model.ai_resource.text import TextORM, Text
 from database.model.field_length import NORMAL, LONG
 from database.model.helper_functions import many_to_many_link_factory
@@ -35,7 +35,7 @@ class NewsBase(AIResourceBase):
     )
 
 
-class News(NewsBase, AbstractAIResource, table=True):  # type: ignore [call-arg]
+class News(NewsBase, AIResource, table=True):  # type: ignore [call-arg]
     __tablename__ = "news"
 
     category: list[NewsCategory] = Relationship(
@@ -51,7 +51,7 @@ class News(NewsBase, AbstractAIResource, table=True):  # type: ignore [call-arg]
         sa_relationship_kwargs=dict(foreign_keys="[News.content_identifier]")
     )
 
-    class RelationshipConfig(AbstractAIResource.RelationshipConfig):
+    class RelationshipConfig(AIResource.RelationshipConfig):
         category: list[str] = ManyToMany(
             description="News categories related to this item.",
             _serializer=AttributeSerializer("name"),

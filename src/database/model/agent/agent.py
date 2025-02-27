@@ -4,7 +4,7 @@ from sqlmodel import Field, Relationship
 
 from database.model.agent.agent_table import AgentTable
 from database.model.ai_resource.resource import AIResourceBase
-from database.model.ai_resource.resource import AbstractAIResource
+from database.model.ai_resource.resource import AIResource
 from database.model.relationships import OneToOne
 from database.model.serializers import AttributeSerializer
 
@@ -17,7 +17,7 @@ class AgentBase(AIResourceBase):
     """
 
 
-class Agent(AgentBase, AbstractAIResource):
+class Agent(AgentBase, AIResource):
     agent_id: int | None = Field(foreign_key=AgentTable.__tablename__ + ".identifier", index=True)
     agent_identifier: AgentTable | None = Relationship()
 
@@ -32,7 +32,7 @@ class Agent(AgentBase, AbstractAIResource):
         cls.update_relationships(relationships)
         cls.__sqlmodel_relationships__.update(relationships)
 
-    class RelationshipConfig(AbstractAIResource.RelationshipConfig):
+    class RelationshipConfig(AIResource.RelationshipConfig):
         agent_identifier: int | None = OneToOne(
             identifier_name="agent_id",
             _serializer=AttributeSerializer("identifier"),

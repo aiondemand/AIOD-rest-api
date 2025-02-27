@@ -5,7 +5,7 @@ from sqlmodel import Field, Relationship
 
 from database.model.agent.agent_table import AgentTable
 from database.model.agent.location import LocationORM, Location
-from database.model.ai_resource.resource import AIResourceBase, AbstractAIResource
+from database.model.ai_resource.resource import AIResourceBase, AIResource
 from database.model.ai_resource.text import TextORM, Text
 from database.model.event.event_mode import EventMode
 from database.model.event.event_status import EventStatus
@@ -49,7 +49,7 @@ class EventBase(AIResourceBase):
     # Did not add duration here: it can be described using start_date and end_date
 
 
-class Event(EventBase, AbstractAIResource, table=True):  # type: ignore [call-arg]
+class Event(EventBase, AIResource, table=True):  # type: ignore [call-arg]
     __tablename__ = "event"
 
     content_identifier: int | None = Field(
@@ -74,7 +74,7 @@ class Event(EventBase, AbstractAIResource, table=True):  # type: ignore [call-ar
     mode_identifier: int | None = Field(foreign_key=EventMode.__tablename__ + ".identifier")
     mode: Optional[EventMode] = Relationship()
 
-    class RelationshipConfig(AbstractAIResource.RelationshipConfig):
+    class RelationshipConfig(AIResource.RelationshipConfig):
         content: Optional[Text] = OneToOne(
             deserializer=CastDeserializer(TextORM),
             on_delete_trigger_deletion_by="content_identifier",

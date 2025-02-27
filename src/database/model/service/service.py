@@ -1,6 +1,6 @@
 from sqlmodel import Field
 
-from database.model.ai_resource.resource import AIResourceBase, AbstractAIResource
+from database.model.ai_resource.resource import AIResourceBase, AIResource
 from database.model.field_length import NORMAL, LONG
 
 
@@ -21,8 +21,8 @@ class ServiceBase(AIResourceBase):
     )
 
 
-class Service(ServiceBase, AbstractAIResource, table=True):  # type: ignore [call-arg]
+class Service(ServiceBase, AIResource, table=True):  # type: ignore [call-arg]
     __tablename__ = "service"
 
-    class RelationshipConfig(AbstractAIResource.RelationshipConfig):
+    class RelationshipConfig(AIResource.RelationshipConfig):
         pass
