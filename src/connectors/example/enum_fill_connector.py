@@ -2,7 +2,9 @@ import json
 import pathlib
 from typing import Iterator, TypeVar
 
-from connectors.abstract.resource_connector_on_start_up import ResourceConnectorOnStartUp
+from connectors.abstract.resource_connector_on_start_up import (
+    ResourceConnectorOnStartUp,
+)
 from database.model.named_relation import NamedRelation
 from database.model.platform.platform_names import PlatformName
 

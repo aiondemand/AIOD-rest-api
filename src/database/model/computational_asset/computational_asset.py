@@ -3,7 +3,9 @@ from typing import Optional
 from sqlmodel import Field, Relationship
 
 from database.model.ai_asset.ai_asset import AIAssetBase, AIAsset
-from database.model.computational_asset.computational_asset_type import ComputationalAssetType
+from database.model.computational_asset.computational_asset_type import (
+    ComputationalAssetType,
+)
 from database.model.field_length import NORMAL
 from database.model.relationships import ManyToOne
 from database.model.serializers import AttributeSerializer, FindByNameDeserializer

@@ -18,13 +18,20 @@ class HuggingfaceUploader(Uploader):
         self.platform_name = PlatformName.huggingface
 
     def handle_upload(
-        self, identifier: int, file: UploadFile, token: str, *args: str, user: KeycloakUser
+        self,
+        identifier: int,
+        file: UploadFile,
+        token: str,
+        *args: str,
+        user: KeycloakUser,
     ) -> int:
         self._check_authorization(user)
 
         username = args[0]
         with DbSession() as session:
-            dataset: Dataset = self._get_resource(session=session, identifier=identifier)
+            dataset: Dataset = self._get_resource(
+                session=session, identifier=identifier
+            )
 
             dataset.platform = dataset.platform or PlatformName.huggingface
             self._validate_platform_name(dataset.platform, identifier)
@@ -78,9 +85,7 @@ class HuggingfaceUploader(Uploader):
                     token=token,
                 )
             except HTTPError as e:
-                msg = (
-                    f"Error uploading the file, huggingface api returned a http error: {e.strerror}"
-                )
+                msg = f"Error uploading the file, huggingface api returned a http error: {e.strerror}"
                 raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=msg)
 
             except ValueError:
@@ -96,7 +101,9 @@ class HuggingfaceUploader(Uploader):
             return dataset.identifier
 
     @staticmethod
-    def _platform_resource_id_validator(platform_resource_identifier: str, *args: str) -> None:
+    def _platform_resource_id_validator(
+        platform_resource_identifier: str, *args: str
+    ) -> None:
         """
         Return a valid repository identifier, including namespace, for Huggingface,
         or raise an error,
@@ -111,7 +118,9 @@ class HuggingfaceUploader(Uploader):
         https://huggingface.co/docs/huggingface_hub/package_reference/utilities#huggingface_hub.utils.validate_repo_id
         """
         username = args[0]
-        huggingface_validators.throw_error_on_invalid_identifier(platform_resource_identifier)
+        huggingface_validators.throw_error_on_invalid_identifier(
+            platform_resource_identifier
+        )
         if "/" not in platform_resource_identifier:
             msg = (
                 "The username should be part of the platform_resource_identifier for HuggingFace: "
@@ -142,7 +151,9 @@ class HuggingfaceUploader(Uploader):
                 return f"https://huggingface.co/datasets/{repo_id}"
             else:
                 msg = f"Unexpected error while creating the repository: {e}"
-                raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=msg) from e
+                raise HTTPException(
+                    status_code=status.HTTP_502_BAD_GATEWAY, detail=msg
+                ) from e
 
     def _generate_metadata_file(self, dataset: Dataset) -> bytes:
         tags = ["- " + tag.name for tag in dataset.keyword] if dataset.keyword else []

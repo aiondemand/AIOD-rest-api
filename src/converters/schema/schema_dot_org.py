@@ -131,10 +131,12 @@ class SchemaDotOrgDataset(BaseModel):
     )
     url: str | None = Field(default=None, description="URL of the item.")
 
-    distribution: SchemaDotOrgDataDownload | list[SchemaDotOrgDataDownload] | None = Field(
-        default=None,
-        description="A downloadable form of this dataset, at a specific location, in a specific "
-        "format.",
+    distribution: SchemaDotOrgDataDownload | list[SchemaDotOrgDataDownload] | None = (
+        Field(
+            default=None,
+            description="A downloadable form of this dataset, at a specific location, in a specific "
+            "format.",
+        )
     )
 
     funder: (

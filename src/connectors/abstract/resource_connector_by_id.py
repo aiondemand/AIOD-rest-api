@@ -16,7 +16,9 @@ class ResourceConnectorById(ResourceConnector, Generic[RESOURCE]):
         self.limit_per_iteration = limit_per_iteration
 
     @abc.abstractmethod
-    def retry(self, identifier: int) -> RESOURCE | ResourceWithRelations[RESOURCE] | RecordError:
+    def retry(
+        self, identifier: int
+    ) -> RESOURCE | ResourceWithRelations[RESOURCE] | RecordError:
         """Retrieve information of the resource identified by id"""
 
     @abc.abstractmethod
@@ -26,7 +28,11 @@ class ResourceConnectorById(ResourceConnector, Generic[RESOURCE]):
         """Retrieve information of resources"""
 
     def run(
-        self, state: dict, from_identifier: int | None = None, limit: int | None = None, **kwargs
+        self,
+        state: dict,
+        from_identifier: int | None = None,
+        limit: int | None = None,
+        **kwargs,
     ) -> Iterator[RESOURCE | ResourceWithRelations[RESOURCE] | RecordError]:
         if limit is not None:
             logging.warning(

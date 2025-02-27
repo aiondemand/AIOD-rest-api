@@ -64,7 +64,9 @@ class RunnableDistributionBase(DistributionBase):
         description="A human readable explanation of hardware requirements.",
         max_length=NORMAL,
         default=None,
-        schema_extra={"example": "4GB RAM; 100MB storage; 1GHz processor with 8 cores."},
+        schema_extra={
+            "example": "4GB RAM; 100MB storage; 1GHz processor with 8 cores."
+        },
     )
     # Made content_url optional for ML Models because it could just be a script,
     # not necessary to have a url.
@@ -74,14 +76,18 @@ class RunnableDistributionBase(DistributionBase):
     )  # type: ignore
 
 
-def runnable_distribution_factory(table_from: str, distribution_name="distribution") -> Type:
+def runnable_distribution_factory(
+    table_from: str, distribution_name="distribution"
+) -> Type:
     class RunnableDistributionORM(RunnableDistributionBase, table=True):  # type: ignore [call-arg]
         __tablename__ = f"{distribution_name}_{table_from}"
 
         identifier: int | None = Field(primary_key=True)
 
         asset_identifier: int | None = Field(
-            sa_column=Column(Integer, ForeignKey(table_from + ".identifier", ondelete="CASCADE"))
+            sa_column=Column(
+                Integer, ForeignKey(table_from + ".identifier", ondelete="CASCADE")
+            )
         )
 
     RunnableDistributionORM.__name__ = RunnableDistributionORM.__qualname__ = (

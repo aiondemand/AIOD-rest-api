@@ -32,7 +32,9 @@ from config import KEYCLOAK_CONFIG
 load_dotenv()
 
 
-oidc = OpenIdConnect(openIdConnectUrl=KEYCLOAK_CONFIG.get("openid_connect_url"), auto_error=False)
+oidc = OpenIdConnect(
+    openIdConnectUrl=KEYCLOAK_CONFIG.get("openid_connect_url"), auto_error=False
+)
 
 
 client_secret = os.getenv("KEYCLOAK_CLIENT_SECRET")

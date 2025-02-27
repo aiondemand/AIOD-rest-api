@@ -19,11 +19,15 @@ def _merge_configurations(
 ) -> dict[str, Any]:
     if extra_keys := (set(override) - set(default)):
         keys = ", ".join(map(repr, extra_keys))
-        raise KeyError(f"The custom configuration has unknown key(s) at {path!r}: {keys}")
+        raise KeyError(
+            f"The custom configuration has unknown key(s) at {path!r}: {keys}"
+        )
     merged = copy.copy(default)
     for key, value in override.items():
         if isinstance(value, dict):
-            merged[key] = _merge_configurations(default[key], value, path=f"{path}.{key}")
+            merged[key] = _merge_configurations(
+                default[key], value, path=f"{path}.{key}"
+            )
         else:
             merged[key] = value
     return merged

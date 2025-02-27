@@ -12,7 +12,9 @@ class NoteBase(SQLModel):
         unique=False,
         description="The string value",
         max_length=VERY_LONG,
-        schema_extra={"example": "A brief record of points or ideas about this AI resource."},
+        schema_extra={
+            "example": "A brief record of points or ideas about this AI resource."
+        },
     )
 
 
@@ -22,7 +24,9 @@ def note_factory(table_from: str) -> Type:
 
         identifier: int | None = Field(primary_key=True)
         linked_identifier: int | None = Field(
-            sa_column=Column(Integer, ForeignKey(table_from + ".identifier", ondelete="CASCADE"))
+            sa_column=Column(
+                Integer, ForeignKey(table_from + ".identifier", ondelete="CASCADE")
+            )
         )
 
     NoteORM.__name__ = NoteORM.__qualname__ = f"note_{table_from}"

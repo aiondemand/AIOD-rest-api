@@ -22,7 +22,8 @@ if TYPE_CHECKING:
 
 
 def _get_field_definitions_read(
-    resource_class: Type["AIoDConcept"], relationships: dict[str, "_ResourceRelationship"]
+    resource_class: Type["AIoDConcept"],
+    relationships: dict[str, "_ResourceRelationship"],
 ) -> dict[str, Tuple[Type, FieldInfo]]:
     if not hasattr(resource_class, "RelationshipConfig"):
         return {}
@@ -39,7 +40,8 @@ def _get_field_definitions_read(
 
 
 def _get_field_definitions_create(
-    resource_class: Type["AIoDConcept"], relationships: dict[str, "_ResourceRelationship"]
+    resource_class: Type["AIoDConcept"],
+    relationships: dict[str, "_ResourceRelationship"],
 ) -> dict[str, Tuple[Type, FieldInfo]]:
     if not hasattr(resource_class, "RelationshipConfig"):
         return {}
@@ -56,7 +58,9 @@ def _get_field_definitions_create(
     }
 
 
-def resource_create(resource_class: Type["AIoDConcept"] | Type["Platform"]) -> Type[SQLModel]:
+def resource_create(
+    resource_class: Type["AIoDConcept"] | Type["Platform"],
+) -> Type[SQLModel]:
     """
     Create a SQLModel for a Create class of a resource. This Create class is a Pydantic class
     that can be used for POST and PUT requests (and thus has no identifier), and is not backed by a
@@ -71,12 +75,16 @@ def resource_create(resource_class: Type["AIoDConcept"] | Type["Platform"]) -> T
     relationships = get_relationships(resource_class)
     field_definitions = _get_field_definitions_create(resource_class, relationships)
     model = create_model(
-        resource_class.__name__ + "Create", __base__=resource_class.__base__, **field_definitions
+        resource_class.__name__ + "Create",
+        __base__=resource_class.__base__,
+        **field_definitions,
     )
     return model
 
 
-def resource_read(resource_class: Type["AIoDConcept"] | Type["Platform"]) -> Type[SQLModel]:
+def resource_read(
+    resource_class: Type["AIoDConcept"] | Type["Platform"],
+) -> Type[SQLModel]:
     """
     Create a SQLModel for a Read class of a resource. This Read class is a Pydantic class
     that can be used for GET requests (and thus has a required identifier), and is not backed by a
@@ -92,7 +100,9 @@ def resource_read(resource_class: Type["AIoDConcept"] | Type["Platform"]) -> Typ
     field_definitions = _get_field_definitions_read(resource_class, relationships)
     field_definitions.update({"identifier": (int, Field())})
     model = create_model(
-        resource_class.__name__ + "Read", __base__=resource_class.__base__, **field_definitions
+        resource_class.__name__ + "Read",
+        __base__=resource_class.__base__,
+        **field_definitions,
     )
     _update_model_serialization(resource_class, model)
     return model

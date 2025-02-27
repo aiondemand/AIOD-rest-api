@@ -18,7 +18,9 @@ class AgentBase(AIResourceBase):
 
 
 class Agent(AgentBase, AbstractAIResource):
-    agent_id: int | None = Field(foreign_key=AgentTable.__tablename__ + ".identifier", index=True)
+    agent_id: int | None = Field(
+        foreign_key=AgentTable.__tablename__ + ".identifier", index=True
+    )
     agent_identifier: AgentTable | None = Relationship()
 
     def __init_subclass__(cls):

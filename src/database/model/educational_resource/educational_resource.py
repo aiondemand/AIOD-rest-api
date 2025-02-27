@@ -7,7 +7,9 @@ from database.model.ai_resource.resource import AbstractAIResource, AIResourceBa
 from database.model.ai_resource.text import TextORM, Text
 from database.model.educational_resource.access_mode import AccessMode
 from database.model.educational_resource.educational_level import EducationalLevel
-from database.model.educational_resource.educational_resource_type import EducationalResourceType
+from database.model.educational_resource.educational_resource_type import (
+    EducationalResourceType,
+)
 from database.model.educational_resource.pace import Pace
 from database.model.educational_resource.prerequisite import Prerequisite
 from database.model.educational_resource.target_audience import TargetAudience
@@ -54,7 +56,9 @@ class EducationalResource(EducationalResourceBase, AbstractAIResource, table=Tru
         "textual content. ",
     )
     content: TextORM | None = Relationship(
-        sa_relationship_kwargs=dict(foreign_keys="[EducationalResource.content_identifier]")
+        sa_relationship_kwargs=dict(
+            foreign_keys="[EducationalResource.content_identifier]"
+        )
     )
     educational_level: list[EducationalLevel] = Relationship(
         link_model=many_to_many_link_factory(
@@ -67,10 +71,14 @@ class EducationalResource(EducationalResourceBase, AbstractAIResource, table=Tru
         )
     )
     location: list[LocationORM] = Relationship(
-        link_model=many_to_many_link_factory("educational_resource", LocationORM.__tablename__)
+        link_model=many_to_many_link_factory(
+            "educational_resource", LocationORM.__tablename__
+        )
     )
     prerequisite: list[Prerequisite] = Relationship(
-        link_model=many_to_many_link_factory("educational_resource", Prerequisite.__tablename__)
+        link_model=many_to_many_link_factory(
+            "educational_resource", Prerequisite.__tablename__
+        )
     )
     target_audience: list[TargetAudience] = Relationship(
         link_model=many_to_many_link_factory(

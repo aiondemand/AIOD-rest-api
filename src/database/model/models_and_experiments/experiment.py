@@ -4,7 +4,9 @@ from database.model.ai_asset.ai_asset import AIAssetBase, AIAsset
 from database.model.field_length import SHORT, LONG
 from database.model.helper_functions import many_to_many_link_factory
 from database.model.models_and_experiments.badge import Badge
-from database.model.models_and_experiments.runnable_distribution import RunnableDistribution
+from database.model.models_and_experiments.runnable_distribution import (
+    RunnableDistribution,
+)
 from database.model.relationships import ManyToMany, OneToMany
 from database.model.serializers import AttributeSerializer, FindByNameDeserializerList
 
@@ -55,4 +57,6 @@ class Experiment(ExperimentBase, AIAsset, table=True):  # type: ignore [call-arg
             default_factory_pydantic=list,
             example=["ACM Artifacts Evaluated - Reusable"],
         )
-        distribution: list[RunnableDistribution] = OneToMany(default_factory_pydantic=list)
+        distribution: list[RunnableDistribution] = OneToMany(
+            default_factory_pydantic=list
+        )

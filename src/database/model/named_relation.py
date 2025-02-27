@@ -15,7 +15,9 @@ class NamedRelation(SQLModel):
     """An enumerable-type string (lowercase)"""
 
     identifier: int = Field(default=None, primary_key=True)
-    name: str = Field(index=True, unique=True, description="The string value", max_length=NORMAL)
+    name: str = Field(
+        index=True, unique=True, description="The string value", max_length=NORMAL
+    )
 
     @declared_attr
     def __table_args__(cls) -> Tuple:

@@ -10,7 +10,9 @@ class Pagination(BaseModel):
 
     offset: int = Field(
         Query(
-            description="Specifies the number of resources that should be skipped.", default=0, ge=0
+            description="Specifies the number of resources that should be skipped.",
+            default=0,
+            ge=0,
         )
     )
     # Query inside field to ensure description is shown in Swagger.

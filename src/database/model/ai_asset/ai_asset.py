@@ -27,7 +27,8 @@ if TYPE_CHECKING:
 
 class AIAssetBase(AIResourceBase, metaclass=abc.ABCMeta):
     is_accessible_for_free: bool | None = Field(
-        description="A flag to signal that this asset is accessible at no cost.", default=None
+        description="A flag to signal that this asset is accessible at no cost.",
+        default=None,
     )
     version: str | None = Field(
         description="The version of this asset.",
@@ -45,7 +46,9 @@ class AIAsset(AIAssetBase, AbstractAIResource, metaclass=abc.ABCMeta):
 
     citation: list["Publication"] = Relationship()
     distribution: list = Relationship(sa_relationship_kwargs={"cascade": "all, delete"})
-    license_identifier: int | None = Field(foreign_key=License.__tablename__ + ".identifier")
+    license_identifier: int | None = Field(
+        foreign_key=License.__tablename__ + ".identifier"
+    )
     license: Optional[License] = Relationship()
 
     def __init_subclass__(cls):
@@ -94,7 +97,9 @@ class AIAsset(AIAssetBase, AbstractAIResource, metaclass=abc.ABCMeta):
         )
         distribution: Any = factory(table_from=cls.__tablename__)
         cls.__annotations__["distribution"] = list[distribution]
-        cls.RelationshipConfig.distribution = copy.copy(AIAsset.RelationshipConfig.distribution)
+        cls.RelationshipConfig.distribution = copy.copy(
+            AIAsset.RelationshipConfig.distribution
+        )
         deserializer = CastDeserializerList(distribution)
         cls.RelationshipConfig.distribution.deserializer = deserializer  # type: ignore
 

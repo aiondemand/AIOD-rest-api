@@ -94,7 +94,9 @@ def _list_to_one_or_none(value: set[V] | list[V]) -> set[V] | list[V] | V | None
 
 
 def _publication(publication: Publication) -> str:
-    names = (creator.contact_name for creator in publication.creator if creator.contact_name)
+    names = (
+        creator.contact_name for creator in publication.creator if creator.contact_name
+    )
     return f"{publication.name} by {', '.join(names)}"
 
 
@@ -105,7 +107,9 @@ def _agent(
         query = select(Person).where(Person.agent_id == agent.identifier)
         person: Person = session.scalars(query).first()
         if person:
-            name = ", ".join([name for name in (person.surname, person.given_name) if name])
+            name = ", ".join(
+                [name for name in (person.surname, person.given_name) if name]
+            )
             name = name if name else person.name
             if name:
                 return SchemaDotOrgPerson(name=person.name)

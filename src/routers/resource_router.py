@@ -112,7 +112,9 @@ class ResourceRouter(abc.ABC):
             "deprecated": self.deprecated_from is not None,
             "tags": [self.resource_name_plural],
         }
-        available_schemas: list[Type] = [c.to_class for c in self.schema_converters.values()]
+        available_schemas: list[Type] = [
+            c.to_class for c in self.schema_converters.values()
+        ]
         response_model = Union[self.resource_class_read, *available_schemas]  # type:ignore
         response_model_plural = Union[  # type:ignore
             list[self.resource_class_read], *[list[s] for s in available_schemas]  # type:ignore
@@ -233,7 +235,9 @@ class ResourceRouter(abc.ABC):
                 resources: Any = self._retrieve_resources_and_post_process(
                     session, pagination, resource_filters, user, platform
                 )
-                return self._wrap_with_headers([convert_schema(resource) for resource in resources])
+                return self._wrap_with_headers(
+                    [convert_schema(resource) for resource in resources]
+                )
             except Exception as e:
                 raise as_http_exception(e)
 
@@ -256,7 +260,9 @@ class ResourceRouter(abc.ABC):
                 )
                 if schema != "aiod":
                     return self.schema_converters[schema].convert(session, resource)
-                return self._wrap_with_headers(self.resource_class_read.from_orm(resource))
+                return self._wrap_with_headers(
+                    self.resource_class_read.from_orm(resource)
+                )
         except Exception as e:
             raise as_http_exception(e)
 
@@ -431,7 +437,9 @@ class ResourceRouter(abc.ABC):
                         register_user(user, session)
                         add_administrator(user, resource, session)
                         session.commit()
-                        return self._wrap_with_headers({"identifier": resource.identifier})
+                        return self._wrap_with_headers(
+                            {"identifier": resource.identifier}
+                        )
                     except Exception as e:
                         self._raise_clean_http_exception(e, session, resource_create)
             except Exception as e:
@@ -482,7 +490,9 @@ class ResourceRouter(abc.ABC):
                         )
                     for attribute_name in resource.schema()["properties"]:
                         if hasattr(resource_create_instance, attribute_name):
-                            new_value = getattr(resource_create_instance, attribute_name)
+                            new_value = getattr(
+                                resource_create_instance, attribute_name
+                            )
                             setattr(resource, attribute_name, new_value)
                     deserialize_resource_relationships(
                         session, self.resource_class, resource, resource_create_instance
@@ -493,10 +503,14 @@ class ResourceRouter(abc.ABC):
                         session.merge(resource)
                         session.commit()
                     except Exception as e:
-                        self._raise_clean_http_exception(e, session, resource_create_instance)
+                        self._raise_clean_http_exception(
+                            e, session, resource_create_instance
+                        )
                     return self._wrap_with_headers(None)
                 except Exception as e:
-                    raise self._raise_clean_http_exception(e, session, resource_create_instance)
+                    raise self._raise_clean_http_exception(
+                        e, session, resource_create_instance
+                    )
 
         return put_resource
 
@@ -554,12 +568,16 @@ class ResourceRouter(abc.ABC):
                         f"Cannot submit {self.resource_name} {identifier} "
                         f"since it has '{resource.aiod_entry.status}' status."
                     )
-                    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=msg)
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST, detail=msg
+                    )
 
                 if not user_can_administer(user, resource.aiod_entry):
                     # Could choose to instead give same error as if resource does not exist.
                     msg = f"You do not have permission to submit {self.resource_name} {identifier}."
-                    raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=msg)
+                    raise HTTPException(
+                        status_code=status.HTTP_403_FORBIDDEN, detail=msg
+                    )
 
                 resource.aiod_entry.status = EntryStatus.SUBMITTED
                 review_request = Submission(
@@ -568,7 +586,9 @@ class ResourceRouter(abc.ABC):
                 )
                 session.add(review_request)
                 session.commit()
-                return self._wrap_with_headers({"submission_identifier": review_request.identifier})
+                return self._wrap_with_headers(
+                    {"submission_identifier": review_request.identifier}
+                )
 
         return submit_resource
 
@@ -584,15 +604,16 @@ class ResourceRouter(abc.ABC):
 
                 if not user_can_administer(user, resource.aiod_entry):
                     # Could choose to instead give same error as if resource does not exist.
-                    msg = (
-                        f"You do not have permission to retract {self.resource_name} {identifier}."
+                    msg = f"You do not have permission to retract {self.resource_name} {identifier}."
+                    raise HTTPException(
+                        status_code=status.HTTP_403_FORBIDDEN, detail=msg
                     )
-                    raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=msg)
 
                 query = (
                     select(Submission)
                     .where(
-                        Submission.aiod_entry_identifier == resource.aiod_entry.identifier,
+                        Submission.aiod_entry_identifier
+                        == resource.aiod_entry.identifier,
                     )
                     .order_by(Submission.request_date.desc())  # type: ignore [attr-defined]
                 )
@@ -731,7 +752,9 @@ class ResourceRouter(abc.ABC):
                 if not resource
                 else "not found in the database, because it was deleted."
             )
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"{name} {msg}")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail=f"{name} {msg}"
+            )
         return resource
 
     def _retrieve_resources(
@@ -747,7 +770,9 @@ class ResourceRouter(abc.ABC):
         """
         where_clause = and_(
             is_(self.resource_class.date_deleted, None),
-            (self.resource_class.platform == platform) if platform is not None else True,
+            (self.resource_class.platform == platform)
+            if platform is not None
+            else True,
             AIoDEntryORM.date_modified >= resource_filters.date_modified_after
             if resource_filters.date_modified_after is not None
             else True,
@@ -777,7 +802,9 @@ class ResourceRouter(abc.ABC):
         and platform (if applicable). The user parameter can be used by subclasses to
         implement further verification on user access to the resource.
         """
-        resource: type[RESOURCE_MODEL] = self._retrieve_resource(session, identifier, platform)
+        resource: type[RESOURCE_MODEL] = self._retrieve_resource(
+            session, identifier, platform
+        )
         [processed_resource] = self._mask_or_filter([resource], session, user)
         return processed_resource
 
@@ -801,7 +828,9 @@ class ResourceRouter(abc.ABC):
 
     @staticmethod
     def _mask_or_filter(
-        resources: Sequence[type[RESOURCE_MODEL]], session: Session, user: KeycloakUser | None
+        resources: Sequence[type[RESOURCE_MODEL]],
+        session: Session,
+        user: KeycloakUser | None,
     ) -> Sequence[type[RESOURCE_MODEL]]:
         """
         Can be implemented in children to post process resources based on user roles
@@ -830,7 +859,9 @@ class ResourceRouter(abc.ABC):
             self.deprecated_from, datetime.time.min, tzinfo=datetime.timezone.utc
         ).timestamp()
         headers = {"Deprecated": format_date_time(timestamp)}
-        return JSONResponse(content=jsonable_encoder(resource, exclude_none=True), headers=headers)
+        return JSONResponse(
+            content=jsonable_encoder(resource, exclude_none=True), headers=headers
+        )
 
     def _raise_clean_http_exception(
         self, e: Exception, session: Session, resource_create: AIoDConcept
@@ -853,7 +884,8 @@ class ResourceRouter(abc.ABC):
         if "_same_platform_and_platform_id" in error:
             query = select(self.resource_class).where(
                 and_(
-                    getattr(self.resource_class, "platform") == resource_create.platform,
+                    getattr(self.resource_class, "platform")
+                    == resource_create.platform,
                     getattr(self.resource_class, "platform_resource_identifier")
                     == resource_create.platform_resource_identifier,
                     is_(getattr(self.resource_class, "date_deleted"), None),

@@ -26,15 +26,18 @@ class ResourceBundle(ResourceBundleBase, AbstractAIResource, table=True):  # typ
     __tablename__ = "resource_bundle"
 
     includes_external_resource: List[ExternalResource] = Relationship(
-        link_model=many_to_many_link_factory("resource_bundle", ExternalResource.__tablename__)
+        link_model=many_to_many_link_factory(
+            "resource_bundle", ExternalResource.__tablename__
+        )
     )
 
     includes_resources: List[AIResourceORM] = Relationship(
-        link_model=many_to_many_link_factory("resource_bundle", AIResourceORM.__tablename__)
+        link_model=many_to_many_link_factory(
+            "resource_bundle", AIResourceORM.__tablename__
+        )
     )
 
     class RelationshipConfig(AbstractAIResource.RelationshipConfig):
-
         includes_external_resource: List[str] = ManyToMany(
             description="External resources (URLs) not in AIoD.",
             _serializer=AttributeSerializer("name"),

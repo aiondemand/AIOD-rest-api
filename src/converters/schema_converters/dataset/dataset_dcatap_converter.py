@@ -28,7 +28,9 @@ class DatasetConverterDcatAP(SchemaConverter[Dataset, DcatApWrapper]):
 
     def convert(self, session: Session, aiod: Dataset) -> DcatApWrapper:
         release_date = (
-            XSDDateTime(value_=aiod.date_published) if aiod.date_published is not None else None
+            XSDDateTime(value_=aiod.date_published)
+            if aiod.date_published is not None
+            else None
         )
         update_date = XSDDateTime(value_=aiod.aiod_entry.date_modified)
 
@@ -51,13 +53,15 @@ class DatasetConverterDcatAP(SchemaConverter[Dataset, DcatApWrapper]):
         graph: list[DcatAPObject] = [dataset]
         for person in aiod.contact:
             contact = VCardIndividual(
-                id_=_replace_special_chars("individual_{}".format(person.name)), fn=person.name
+                id_=_replace_special_chars("individual_{}".format(person.name)),
+                fn=person.name,
             )
             graph.append(contact)
             dataset.contact_point = [DcatAPIdentifier(id_=contact.id_)]
         for person in aiod.creator:
             creator = VCardIndividual(
-                id_=_replace_special_chars("individual_{}".format(person.name)), fn=person.name
+                id_=_replace_special_chars("individual_{}".format(person.name)),
+                fn=person.name,
             )
             if creator.id_ not in {obj.id_ for obj in graph}:
                 graph.append(creator)
@@ -77,13 +81,17 @@ class DatasetConverterDcatAP(SchemaConverter[Dataset, DcatApWrapper]):
                 id_=aiod_distribution.content_url,
                 title=aiod_distribution.name,
                 access_url=aiod_distribution.content_url,
-                checksum=DcatAPIdentifier(id_=checksum.id_) if checksum is not None else None,
+                checksum=DcatAPIdentifier(id_=checksum.id_)
+                if checksum is not None
+                else None,
                 download_url=aiod_distribution.content_url,
                 description=aiod_distribution.description,
                 format=aiod_distribution.encoding_format,
                 license=aiod.license.name if aiod.license is not None else None,
             )
-            dataset.distribution.append(DcatAPIdentifier(id_=aiod_distribution.content_url))
+            dataset.distribution.append(
+                DcatAPIdentifier(id_=aiod_distribution.content_url)
+            )
             graph.append(distribution)
         return DcatApWrapper(graph_=graph)
 

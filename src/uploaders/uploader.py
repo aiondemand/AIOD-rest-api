@@ -15,13 +15,20 @@ class Uploader(abc.ABC):
 
     @abc.abstractmethod
     def handle_upload(
-        self, identifier: int, file: UploadFile, token: str, *args: Any, user: KeycloakUser
+        self,
+        identifier: int,
+        file: UploadFile,
+        token: str,
+        *args: Any,
+        user: KeycloakUser,
     ) -> int:
         """Handle upload of a file to the platform and return its AIoD identifier."""
 
     @staticmethod
     @abc.abstractmethod
-    def _platform_resource_id_validator(platform_resource_identifier: str, *args: str) -> None:
+    def _platform_resource_id_validator(
+        platform_resource_identifier: str, *args: str
+    ) -> None:
         """Throw a ValueError on an invalid platform_resource_identifier."""
 
     def _check_authorization(self, user: KeycloakUser) -> None:
@@ -57,7 +64,9 @@ class Uploader(abc.ABC):
             self._platform_resource_id_validator(repo_id, *args)
         except ValueError as e:
             msg = f"The platform_resource_identifier is invalid for {self.platform_name}. "
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=msg + e.args[0])
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail=msg + e.args[0]
+            )
 
     def _get_resource(self, session: Session, identifier: int) -> Dataset:
         """
@@ -71,7 +80,9 @@ class Uploader(abc.ABC):
             msg = "not found in the database"
             msg += "." if not dataset else ", because it was deleted."
 
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"{name} {msg}")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail=f"{name} {msg}"
+            )
         return dataset
 
     def _store_resource_updated(
@@ -88,7 +99,9 @@ class Uploader(abc.ABC):
             # Hack to get the right DistributionORM class (for each class, such as Dataset
             # and Publication, there is a different DistributionORM table).
             dist = resource.RelationshipConfig.distribution.deserializer.clazz  # type: ignore
-            distribution = [dist(dataset=resource, **dist_dict) for dist_dict in distribution_list]
+            distribution = [
+                dist(dataset=resource, **dist_dict) for dist_dict in distribution_list
+            ]
             if update_all:
                 resource.distribution = distribution
             else:

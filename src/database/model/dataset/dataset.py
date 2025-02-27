@@ -54,7 +54,9 @@ class Dataset(DatasetBase, AIAsset, table=True):  # type: ignore [call-arg]
         ),
     )
     size_identifier: int | None = Field(
-        sa_column=Column(Integer, ForeignKey(DatasetSizeORM.__tablename__ + ".identifier"))
+        sa_column=Column(
+            Integer, ForeignKey(DatasetSizeORM.__tablename__ + ".identifier")
+        )
     )
     size: Optional[DatasetSizeORM] = Relationship()
     spatial_coverage_identifier: int | None = Field(

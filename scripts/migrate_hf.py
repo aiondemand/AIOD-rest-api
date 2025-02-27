@@ -82,7 +82,9 @@ def main():
     id_map = load_id_map()
 
     with DbSession() as session:
-        datasets_query = select(Dataset).where(Dataset.platform == PlatformName.huggingface)
+        datasets_query = select(Dataset).where(
+            Dataset.platform == PlatformName.huggingface
+        )
         datasets = session.scalars(datasets_query).all()
 
     logging.info(f"Found {len(datasets)} huggingface datasets.")

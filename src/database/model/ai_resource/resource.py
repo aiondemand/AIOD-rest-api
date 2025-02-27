@@ -26,7 +26,10 @@ from database.model.ai_resource.scientific_domain import ScientificDomain
 from database.model.ai_resource.text import TextORM, Text
 from database.model.concept.concept import AIoDConceptBase, AIoDConcept
 from database.model.field_length import NORMAL
-from database.model.helper_functions import many_to_many_link_factory, non_abstract_subclasses
+from database.model.helper_functions import (
+    many_to_many_link_factory,
+    non_abstract_subclasses,
+)
 from database.model.relationships import OneToMany, OneToOne, ManyToMany
 from database.model.serializers import (
     AttributeSerializer,
@@ -38,7 +41,9 @@ from database.model.serializers import (
 
 
 class AIResourceBase(AIoDConceptBase, metaclass=abc.ABCMeta):
-    name: str = Field(max_length=NORMAL, schema_extra={"example": "The name of this resource"})
+    name: str = Field(
+        max_length=NORMAL, schema_extra={"example": "The name of this resource"}
+    )
     date_published: datetime | None = Field(
         description="The datetime (utc) on which this resource was first published on an external "
         "platform. Note the difference between `.aiod_entry.date_created` and "
@@ -63,7 +68,9 @@ class AbstractAIResource(AIResourceBase, AIoDConcept, metaclass=abc.ABCMeta):
     )
     ai_resource_identifier: AIResourceORM | None = Relationship()
 
-    description_identifier: int | None = Field(index=True, foreign_key="text.identifier")
+    description_identifier: int | None = Field(
+        index=True, foreign_key="text.identifier"
+    )
     description: TextORM | None = Relationship()
 
     alternate_name: list[AlternateName] = Relationship()
@@ -89,7 +96,11 @@ class AbstractAIResource(AIResourceBase, AIoDConcept, metaclass=abc.ABCMeta):
         """
         cls.__annotations__.update(AbstractAIResource.__annotations__)
         relationships = copy.deepcopy(AbstractAIResource.__sqlmodel_relationships__)
-        is_not_abstract = cls.__tablename__ not in ("aiasset", "agent", "knowledgeasset")
+        is_not_abstract = cls.__tablename__ not in (
+            "aiasset",
+            "agent",
+            "knowledgeasset",
+        )
         if is_not_abstract:
             cls.update_relationships(relationships)
         cls.__sqlmodel_relationships__.update(relationships)

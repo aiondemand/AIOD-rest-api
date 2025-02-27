@@ -9,15 +9,25 @@ from sqlalchemy.orm import declared_attr
 from sqlalchemy.sql.functions import coalesce
 from sqlmodel import SQLModel, Field, Relationship
 
-from database.model.concept.aiod_entry import AIoDEntryORM, AIoDEntryRead, AIoDEntryCreate
+from database.model.concept.aiod_entry import (
+    AIoDEntryORM,
+    AIoDEntryRead,
+    AIoDEntryCreate,
+)
 from database.model.field_length import SHORT, NORMAL
 from database.model.platform.platform_names import PlatformName
 from database.model.relationships import OneToOne
 from database.model.serializers import CastDeserializer
-from database.validators import huggingface_validators, openml_validators, zenodo_validators
+from database.validators import (
+    huggingface_validators,
+    openml_validators,
+    zenodo_validators,
+)
 
 IS_SQLITE = os.getenv("DB") == "SQLite"
-CONSTRAINT_LOWERCASE = f"{'platform' if IS_SQLITE else 'BINARY(platform)'} = LOWER(platform)"
+CONSTRAINT_LOWERCASE = (
+    f"{'platform' if IS_SQLITE else 'BINARY(platform)'} = LOWER(platform)"
+)
 
 
 class AIoDConceptBase(SQLModel):
@@ -41,7 +51,9 @@ class AIoDConceptBase(SQLModel):
     )
 
     @validator("platform_resource_identifier")
-    def platform_resource_identifier_valid(cls, platform_resource_identifier: str, values) -> str:
+    def platform_resource_identifier_valid(
+        cls, platform_resource_identifier: str, values
+    ) -> str:
         """
         Throw a ValueError if the platform_resource_identifier is invalid for this platform.
 
@@ -110,5 +122,7 @@ class AIoDConcept(AIoDConceptBase):
                 "(platform IS NULL) <> (platform_resource_identifier IS NOT NULL)",
                 name=f"{cls.__name__}_platform_xnor_platform_id_null",
             ),
-            CheckConstraint(CONSTRAINT_LOWERCASE, name=f"{cls.__name__}_platform_lowercase"),
+            CheckConstraint(
+                CONSTRAINT_LOWERCASE, name=f"{cls.__name__}_platform_lowercase"
+            ),
         ) + tuple(cls.table_arguments())

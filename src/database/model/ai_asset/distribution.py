@@ -17,7 +17,9 @@ class DistributionBase(AIoDConceptBase):
         },
     )
     checksum_algorithm: str | None = Field(
-        description="The checksum algorithm.", max_length=SHORT, schema_extra={"example": "sha256"}
+        description="The checksum algorithm.",
+        max_length=SHORT,
+        schema_extra={"example": "sha256"},
     )
     copyright: str | None = Field(
         max_length=NORMAL,
@@ -42,7 +44,9 @@ class DistributionBase(AIoDConceptBase):
         max_length=NORMAL,
         schema_extra={"example": "text/csv"},
     )
-    name: str | None = Field(max_length=NORMAL, schema_extra={"example": "Name of this file."})
+    name: str | None = Field(
+        max_length=NORMAL, schema_extra={"example": "Name of this file."}
+    )
     technology_readiness_level: int | None = Field(
         description="The technology readiness level (TRL) of the distribution. TRL 1 is the "
         "lowest and stands for 'Basic principles observed', TRL 9 is the highest and "
@@ -58,10 +62,14 @@ def distribution_factory(table_from: str, distribution_name="distribution") -> T
         identifier: int | None = Field(primary_key=True)
 
         asset_identifier: int | None = Field(
-            sa_column=Column(Integer, ForeignKey(table_from + ".identifier", ondelete="CASCADE"))
+            sa_column=Column(
+                Integer, ForeignKey(table_from + ".identifier", ondelete="CASCADE")
+            )
         )
 
-    DistributionORM.__name__ = DistributionORM.__qualname__ = f"{distribution_name}_{table_from}"
+    DistributionORM.__name__ = DistributionORM.__qualname__ = (
+        f"{distribution_name}_{table_from}"
+    )
     return DistributionORM
 
 

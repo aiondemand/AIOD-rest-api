@@ -30,7 +30,12 @@ class ZenodoUploader(Uploader):
         self.platform_name = PlatformName.zenodo
 
     def handle_upload(
-        self, identifier: int, file: UploadFile, token: str, *args: bool, user: KeycloakUser
+        self,
+        identifier: int,
+        file: UploadFile,
+        token: str,
+        *args: bool,
+        user: KeycloakUser,
     ) -> int:
         """
         Method to upload content to the Zenodo platform.
@@ -82,13 +87,19 @@ class ZenodoUploader(Uploader):
             else:
                 distribution = self._get_distribution(repo_id, token)
 
-            self._store_resource_updated(session, dataset, *distribution, update_all=True)
+            self._store_resource_updated(
+                session, dataset, *distribution, update_all=True
+            )
 
             return dataset.identifier
 
     @staticmethod
-    def _platform_resource_id_validator(platform_resource_identifier: str, *args) -> None:
-        return zenodo_validators.throw_error_on_invalid_identifier(platform_resource_identifier)
+    def _platform_resource_id_validator(
+        platform_resource_identifier: str, *args
+    ) -> None:
+        return zenodo_validators.throw_error_on_invalid_identifier(
+            platform_resource_identifier
+        )
 
     def _generate_metadata(self, dataset: Dataset, publish: bool) -> dict:
         """
@@ -157,7 +168,9 @@ class ZenodoUploader(Uploader):
         """
         params = {"access_token": token}
         try:
-            res = requests.get(f"{self.BASE_URL}/{repo_id}", params=params, timeout=REQUEST_TIMEOUT)
+            res = requests.get(
+                f"{self.BASE_URL}/{repo_id}", params=params, timeout=REQUEST_TIMEOUT
+            )
         except Exception as exc:
             raise as_http_exception(exc)
 
@@ -213,7 +226,9 @@ class ZenodoUploader(Uploader):
         params = {"access_token": token}
         try:
             res = requests.post(
-                f"{self.BASE_URL}/{repo_id}/actions/publish", params=params, timeout=REQUEST_TIMEOUT
+                f"{self.BASE_URL}/{repo_id}/actions/publish",
+                params=params,
+                timeout=REQUEST_TIMEOUT,
             )
         except Exception as exc:
             raise as_http_exception(exc)
@@ -250,10 +265,14 @@ class ZenodoUploader(Uploader):
             {
                 "platform": PlatformName.zenodo,
                 "platform_resource_identifier": file["file_id" if public_url else "id"],
-                "checksum": file["checksum"].split(":")[-1] if public_url else file["checksum"],
+                "checksum": file["checksum"].split(":")[-1]
+                if public_url
+                else file["checksum"],
                 "checksum_algorithm": "md5",
                 "content_url": file["links"]["content" if public_url else "download"],
-                "content_size_kb": round(file["size" if public_url else "filesize"] / 1000),
+                "content_size_kb": round(
+                    file["size" if public_url else "filesize"] / 1000
+                ),
                 "name": file["key" if public_url else "filename"],
             }
             for file in files_metadata
@@ -267,15 +286,20 @@ class ZenodoUploader(Uploader):
         """
         try:
             res = requests.get(
-                "https://zenodo.org/api/vocabularies/licenses?q=&tags=data", timeout=REQUEST_TIMEOUT
+                "https://zenodo.org/api/vocabularies/licenses?q=&tags=data",
+                timeout=REQUEST_TIMEOUT,
             )
         except Exception as exc:
             raise as_http_exception(exc)
         if res.status_code != status.HTTP_200_OK:
-            msg = "Failed to get the list of valid licenses to upload content on Zenodo."
+            msg = (
+                "Failed to get the list of valid licenses to upload content on Zenodo."
+            )
             _wrap_bad_gateway_error(res, msg)
 
-        valid_license_ids: list[str] = [item["id"] for item in res.json()["hits"]["hits"]]
+        valid_license_ids: list[str] = [
+            item["id"] for item in res.json()["hits"]["hits"]
+        ]
         if (license_ is None) or (license_.name not in valid_license_ids):
             msg = (
                 "License must be one of the following license identifiers allowed "
@@ -289,7 +313,9 @@ class ZenodoUploader(Uploader):
 
     def _get_and_validate_description(self, description: TextORM | None) -> str:
         if description and description.html:
-            desc = description.html + "<p><strong>Created from AIOD platform.</strong></p>"
+            desc = (
+                description.html + "<p><strong>Created from AIOD platform.</strong></p>"
+            )
         elif description and description.plain:
             desc = description.plain + "\nCreated from AIOD platform."
 
@@ -305,7 +331,9 @@ class ZenodoUploader(Uploader):
         creator_names: list[Optional[dict[str, str]]] = []
         for contact in creators:
             if contact.person and contact.person.given_name and contact.person.surname:
-                name: str | None = ", ".join([contact.person.surname, contact.person.given_name])
+                name: str | None = ", ".join(
+                    [contact.person.surname, contact.person.given_name]
+                )
             elif contact.person and contact.person.name:
                 name = contact.person.name
             elif contact.organisation and contact.organisation.name:

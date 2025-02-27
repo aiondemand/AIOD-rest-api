@@ -7,14 +7,22 @@ from sqlmodel import SQLModel, Field, Relationship
 
 class AIResourcePartLink(SQLModel, table=True):  # type: ignore [call-arg]
     __tablename__ = "ai_resource_part_link"
-    parent_identifier: int = Field(foreign_key="ai_resource.identifier", primary_key=True)
-    child_identifier: int = Field(foreign_key="ai_resource.identifier", primary_key=True)
+    parent_identifier: int = Field(
+        foreign_key="ai_resource.identifier", primary_key=True
+    )
+    child_identifier: int = Field(
+        foreign_key="ai_resource.identifier", primary_key=True
+    )
 
 
 class AIResourceRelevantLink(SQLModel, table=True):  # type: ignore [call-arg]
     __tablename__ = "ai_resource_relevant_link"
-    parent_identifier: int = Field(foreign_key="ai_resource.identifier", primary_key=True)
-    relevant_identifier: int = Field(foreign_key="ai_resource.identifier", primary_key=True)
+    parent_identifier: int = Field(
+        foreign_key="ai_resource.identifier", primary_key=True
+    )
+    relevant_identifier: int = Field(
+        foreign_key="ai_resource.identifier", primary_key=True
+    )
 
 
 class AIResourceBase(SQLModel):

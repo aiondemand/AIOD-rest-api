@@ -149,7 +149,9 @@ def _create_or_fetch_related_objects(session: Session, item: ResourceWithRelatio
                     if resource_read_str.startswith(router.resource_class.__name__)
                     # E.g. "DatasetRead".startswith("Dataset")
                 ]
-                existing = _get_existing_resource(session, resource, router.resource_class)
+                existing = _get_existing_resource(
+                    session, resource, router.resource_class
+                )
                 if existing is None:
                     created_resource = router.create_resource(session, resource)
                     publish_resource(session, created_resource)
@@ -159,9 +161,13 @@ def _create_or_fetch_related_objects(session: Session, item: ResourceWithRelatio
 
         if isinstance(related_resource_or_list, AIoDConcept):
             (id_,) = identifiers
-            item.resource.__setattr__(field_name, id_)  # E.g. Dataset.license_identifier = 1
+            item.resource.__setattr__(
+                field_name, id_
+            )  # E.g. Dataset.license_identifier = 1
         else:
-            item.resource.__setattr__(field_name, identifiers)  # E.g. Dataset.keywords = [1, 4]
+            item.resource.__setattr__(
+                field_name, identifiers
+            )  # E.g. Dataset.keywords = [1, 4]
 
 
 def publish_resource(session: Session, item: AIoDConcept):
@@ -218,22 +224,30 @@ def main():
 
     with DbSession() as session:
         for i, item in enumerate(items):
-            error = save_to_database(router=router, connector=connector, session=session, item=item)
+            error = save_to_database(
+                router=router, connector=connector, session=session, item=item
+            )
             if error:
                 if not error.ignore:
                     if isinstance(error.error, str):
-                        logging.error(f"Error on identifier {error.identifier}: {error.error}")
+                        logging.error(
+                            f"Error on identifier {error.identifier}: {error.error}"
+                        )
                     else:
                         logging.error(
-                            f"Error on identifier {error.identifier}", exc_info=error.error
+                            f"Error on identifier {error.identifier}",
+                            exc_info=error.error,
                         )
                     with open(error_path, "a") as f:
                         error_cleaned = "".join(
-                            c if c.isalnum() or c == "" else "_" for c in str(error.error)
+                            c if c.isalnum() or c == "" else "_"
+                            for c in str(error.error)
                         )
                         f.write(f'"{error.identifier}","{error_cleaned}"\n')  # noqa: E231
             if args.save_every and i > 0 and i % args.save_every == 0:
-                logging.info(f"Saving state after handling {i}th result: {json.dumps(state)}")
+                logging.info(
+                    f"Saving state after handling {i}th result: {json.dumps(state)}"
+                )
                 with open(state_path, "w") as f:
                     json.dump(state, f, indent=4)
     with open(state_path, "w") as f:

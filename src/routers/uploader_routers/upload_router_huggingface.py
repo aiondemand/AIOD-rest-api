@@ -12,17 +12,25 @@ class UploadRouterHuggingface(UploaderRouter):
 
         huggingface_uploader = HuggingfaceUploader()
 
-        @router.post(url_prefix + "/upload/datasets/{identifier}/huggingface", tags=["upload"])
+        @router.post(
+            url_prefix + "/upload/datasets/{identifier}/huggingface", tags=["upload"]
+        )
         def huggingface_upload(
             identifier: int,
             file: UploadFile = File(
-                ..., title="File", description="This file will be uploaded to HuggingFace"
+                ...,
+                title="File",
+                description="This file will be uploaded to HuggingFace",
             ),
             token: str = Query(
-                ..., title="Huggingface Token", description="The access token of HuggingFace"
+                ...,
+                title="Huggingface Token",
+                description="The access token of HuggingFace",
             ),
             username: str = Query(
-                ..., title="Huggingface username", description="The username of HuggingFace"
+                ...,
+                title="Huggingface username",
+                description="The username of HuggingFace",
             ),
             user: KeycloakUser = Depends(get_user_or_raise),
         ) -> int:
@@ -42,6 +50,8 @@ class UploadRouterHuggingface(UploaderRouter):
             - Use this `POST` endpoint to upload a file to Hugging Face using the AIoD
             metadata identifier of the metadata dataset.
             """
-            return huggingface_uploader.handle_upload(identifier, file, token, username, user=user)
+            return huggingface_uploader.handle_upload(
+                identifier, file, token, username, user=user
+            )
 
         return router

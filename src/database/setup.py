@@ -17,7 +17,9 @@ from database.session import db_url
 
 def create_database(*, delete_first: bool):
     url = db_url(including_db=False)
-    engine = create_engine(url, echo=False)  # Temporary engine, not connected to a database
+    engine = create_engine(
+        url, echo=False
+    )  # Temporary engine, not connected to a database
     with engine.connect() as connection:
         database = DB_CONFIG.get("database", "aiod")
         if delete_first:
@@ -53,7 +55,8 @@ def _get_existing_resource(
         query = select(clazz).where(
             and_(
                 clazz.platform == resource.platform,
-                clazz.platform_resource_identifier == resource.platform_resource_identifier,
+                clazz.platform_resource_identifier
+                == resource.platform_resource_identifier,
             )
         )
     return session.scalars(query).first()

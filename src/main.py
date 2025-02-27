@@ -80,7 +80,9 @@ def add_routes(app: FastAPI, url_prefix=""):
         """
 
     @app.get(url_prefix + "/authorization_test")
-    def test_authorization(user: KeycloakUser = Depends(get_user_or_raise)) -> KeycloakUser:
+    def test_authorization(
+        user: KeycloakUser = Depends(get_user_or_raise),
+    ) -> KeycloakUser:
         """
         Returns the user, if authenticated correctly.
         """

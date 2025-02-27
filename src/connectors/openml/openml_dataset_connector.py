@@ -70,15 +70,21 @@ class OpenMlDatasetConnector(ResourceConnectorById[Dataset]):
         if isinstance(description, list) and len(description) == 0:
             description = ""
         elif not isinstance(description, str):
-            return RecordError(identifier=str(identifier), error="Description of unknown format.")
+            return RecordError(
+                identifier=str(identifier), error="Description of unknown format."
+            )
         if len(description) > field_length.LONG:
             text_break = " [...]"
-            description = description[: field_length.LONG - len(text_break)] + text_break
+            description = (
+                description[: field_length.LONG - len(text_break)] + text_break
+            )
         if description:
             description = Text(plain=description)
         size = None
         if "NumberOfInstances" in qualities_json:
-            size = DatasetSize(value=_as_int(qualities_json["NumberOfInstances"]), unit="instances")
+            size = DatasetSize(
+                value=_as_int(qualities_json["NumberOfInstances"]), unit="instances"
+            )
         return pydantic_class(
             aiod_entry=AIoDEntryCreate(),
             platform_resource_identifier=identifier,
@@ -90,16 +96,21 @@ class OpenMlDatasetConnector(ResourceConnectorById[Dataset]):
             license=dataset_json["licence"] if "licence" in dataset_json else None,
             distribution=[
                 Distribution(
-                    content_url=dataset_json["url"], encoding_format=dataset_json["format"]
+                    content_url=dataset_json["url"],
+                    encoding_format=dataset_json["format"],
                 )
             ],
             is_accessible_for_free=True,
             size=size,
-            keyword=[tag for tag in dataset_json["tag"]] if "tag" in dataset_json else [],
+            keyword=[tag for tag in dataset_json["tag"]]
+            if "tag" in dataset_json
+            else [],
             version=dataset_json["version"],
         )
 
-    def fetch(self, offset: int, from_identifier: int) -> Iterator[SQLModel | RecordError]:
+    def fetch(
+        self, offset: int, from_identifier: int
+    ) -> Iterator[SQLModel | RecordError]:
         url_data = (
             "https://www.openml.org/api/v1/json/data/list/"
             f"limit/{self.limit_per_iteration}/offset/{offset}"
@@ -108,7 +119,9 @@ class OpenMlDatasetConnector(ResourceConnectorById[Dataset]):
         if not response.ok:
             status_code = response.status_code
             msg = response.json()["error"]["message"]
-            err_msg = f"Error while fetching {url_data} from OpenML: ({status_code}) {msg}"
+            err_msg = (
+                f"Error while fetching {url_data} from OpenML: ({status_code}) {msg}"
+            )
             logging.error(err_msg)
             err = HTTPError(err_msg)
             yield RecordError(identifier=None, error=err)
@@ -125,7 +138,9 @@ class OpenMlDatasetConnector(ResourceConnectorById[Dataset]):
             try:
                 identifier = summary["did"]
                 if identifier < from_identifier:
-                    yield RecordError(identifier=identifier, error="Id too low", ignore=True)
+                    yield RecordError(
+                        identifier=identifier, error="Id too low", ignore=True
+                    )
                 if from_identifier is None or identifier >= from_identifier:
                     qualities = summary["quality"]
                     yield self.fetch_record(identifier, qualities)

@@ -22,8 +22,12 @@ class Platform(PlatformBase, table=True):  # type: ignore [call-arg]
     AIoD. This table is partly filled with the enum PlatformName"""
 
     __tablename__ = "platform"
-    __deletion_config__ = {"soft_delete": False}  # hard_deletion, otherwise name cannot be unique,
+    __deletion_config__ = {
+        "soft_delete": False
+    }  # hard_deletion, otherwise name cannot be unique,
     # which is difficult for foreign key constraints
 
     identifier: int = Field(primary_key=True, default=None)
-    date_deleted: datetime.datetime | None = Field()  # Always be NULL due to hard_deletions
+    date_deleted: datetime.datetime | None = (
+        Field()
+    )  # Always be NULL due to hard_deletions

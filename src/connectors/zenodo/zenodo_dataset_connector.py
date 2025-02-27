@@ -117,7 +117,9 @@ class ZenodoDatasetConnector(ResourceConnectorByDate[Dataset]):
         description_raw = record.get("descriptions", {}).get("description")
         if isinstance(description_raw, list):
             description_list = [
-                e.get("#text") for e in description_raw if e.get("@descriptionType") == "Abstract"
+                e.get("#text")
+                for e in description_raw
+                if e.get("@descriptionType") == "Abstract"
             ]
             description = description_list[0] if len(description_list) == 1 else None
         elif isinstance(description_raw, dict) and (
@@ -129,14 +131,18 @@ class ZenodoDatasetConnector(ResourceConnectorByDate[Dataset]):
 
         if len(description) > field_length.LONG:
             text_break = " [...]"
-            description = description[: field_length.LONG - len(text_break)] + text_break
+            description = (
+                description[: field_length.LONG - len(text_break)] + text_break
+            )
         if description:
             description = Text(plain=description)
 
         date_string = None
         date_raw = record.get("dates", {}).get("date")
         if isinstance(date_raw, list):
-            date_list = [e.get("#text") for e in date_raw if e.get("@dateType") == "Issued"]
+            date_list = [
+                e.get("#text") for e in date_raw if e.get("@dateType") == "Issued"
+            ]
             date_string = date_list[0] if len(date_list) == 1 else None
         elif isinstance(date_raw, dict) and (date_raw.get("@dateType") == "Issued"):
             date_string = date_raw.get("#text", "")
@@ -162,7 +168,9 @@ class ZenodoDatasetConnector(ResourceConnectorByDate[Dataset]):
             rights_raw = record["rightsList"].get("rights")
             if isinstance(rights_raw, list):
                 license_ = rights_raw[0].get("#text")
-            elif isinstance(rights_raw, dict) and isinstance(rights_raw.get("#text"), str):
+            elif isinstance(rights_raw, dict) and isinstance(
+                rights_raw.get("#text"), str
+            ):
                 license_ = rights_raw["#text"]
             else:
                 return RecordError(identifier=identifier, error=error_fmt("license"))
@@ -189,7 +197,9 @@ class ZenodoDatasetConnector(ResourceConnectorByDate[Dataset]):
                     checksum_algorithm=(
                         entry["checksum"].split(":")[0] if "checksum" in entry else None
                     ),
-                    checksum=entry["checksum"].split(":")[1] if "checksum" in entry else None,
+                    checksum=entry["checksum"].split(":")[1]
+                    if "checksum" in entry
+                    else None,
                 )
                 for entry in entries
             ]
@@ -214,7 +224,9 @@ class ZenodoDatasetConnector(ResourceConnectorByDate[Dataset]):
         )
 
         return ResourceWithRelations[pydantic_class](  # type:ignore
-            resource=dataset, resource_ORM_class=Dataset, related_resources={"creator": creators}
+            resource=dataset,
+            resource_ORM_class=Dataset,
+            related_resources={"creator": creators},
         )
 
     @staticmethod
@@ -235,16 +247,18 @@ class ZenodoDatasetConnector(ResourceConnectorByDate[Dataset]):
     def _check_harvesting_rate() -> None:
         pass
 
-    def _fetch_record_list(self, records_iterator: BaseOAIIterator, batchsize: int) -> list:
+    def _fetch_record_list(
+        self, records_iterator: BaseOAIIterator, batchsize: int
+    ) -> list:
         """
         Fetches the maximum number of records available before the resumption token expires.
         It also ensures that the harvesting limit rate is not exceeded.
         """
         resumption_token = records_iterator.resumption_token
         if resumption_token and resumption_token.expiration_date:
-            expiration_date = datetime.fromisoformat(resumption_token.expiration_date) - timedelta(
-                seconds=10
-            )
+            expiration_date = datetime.fromisoformat(
+                resumption_token.expiration_date
+            ) - timedelta(seconds=10)
         else:
             current_date_time = datetime.utcnow().replace(tzinfo=timezone.utc)
             expiration_date = current_date_time + timedelta(seconds=110)
@@ -279,7 +293,9 @@ class ZenodoDatasetConnector(ResourceConnectorByDate[Dataset]):
 
     def fetch(
         self, from_incl: datetime, to_excl: datetime
-    ) -> Iterator[Tuple[datetime | None, Dataset | ResourceWithRelations[Dataset] | RecordError]]:
+    ) -> Iterator[
+        Tuple[datetime | None, Dataset | ResourceWithRelations[Dataset] | RecordError]
+    ]:
         """
         First it fetches all the records and then it process all of them.
         This way, it ensures to retrieve the maximum number of available records before the
@@ -309,7 +325,11 @@ class ZenodoDatasetConnector(ResourceConnectorByDate[Dataset]):
                 raise err
 
         oai_response_dict = xmltodict.parse(records_iterator.oai_response.raw)
-        raw_records = oai_response_dict.get("OAI-PMH", {}).get("ListRecords", {}).get("record", [])
+        raw_records = (
+            oai_response_dict.get("OAI-PMH", {})
+            .get("ListRecords", {})
+            .get("record", [])
+        )
         batchsize = len(raw_records)
 
         complete_list_size = (
@@ -341,11 +361,13 @@ class ZenodoDatasetConnector(ResourceConnectorByDate[Dataset]):
                     if id_.startswith("oai:"):
                         id_ = id_.replace("oai:", "")
 
-                    datetime_ = datetime.fromisoformat(xml_dict["record"]["header"]["datestamp"])
+                    datetime_ = datetime.fromisoformat(
+                        xml_dict["record"]["header"]["datestamp"]
+                    )
                     if resource_type == "Dataset":
-                        resource = xml_dict["record"]["metadata"]["oai_datacite"]["payload"][
-                            "resource"
-                        ]
+                        resource = xml_dict["record"]["metadata"]["oai_datacite"][
+                            "payload"
+                        ]["resource"]
                         processed_record = self._dataset_from_record(id_, resource)
                     else:
                         processed_record = RecordError(

@@ -14,7 +14,9 @@ class UploadRouterZenodo(UploaderRouter):
 
         zenodo_uploader = ZenodoUploader()
 
-        @router.post(url_prefix + "/upload/datasets/{identifier}/zenodo", tags=["upload"])
+        @router.post(
+            url_prefix + "/upload/datasets/{identifier}/zenodo", tags=["upload"]
+        )
         def zenodo_upload(
             identifier: int = Path(
                 description="The AIoD dataset identifier",
@@ -31,7 +33,9 @@ class UploadRouterZenodo(UploaderRouter):
                     "and you will no longer be able to upload more files!",
                 ),
             ] = False,
-            token: str = Query(title="Zenodo Token", description="The access token of Zenodo"),
+            token: str = Query(
+                title="Zenodo Token", description="The access token of Zenodo"
+            ),
             user: KeycloakUser = Depends(get_user_or_raise),
         ) -> int:
             """
@@ -65,6 +69,8 @@ class UploadRouterZenodo(UploaderRouter):
             - You can replace an existing file on Zenodo by uploading another one with same name.
 
             """
-            return zenodo_uploader.handle_upload(identifier, file, token, publish, user=user)
+            return zenodo_uploader.handle_upload(
+                identifier, file, token, publish, user=user
+            )
 
         return router

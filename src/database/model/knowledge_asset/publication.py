@@ -6,7 +6,10 @@ from database.model.ai_asset.ai_asset import AIAsset
 from database.model.ai_resource.text import Text, TextORM
 from database.model.field_length import NORMAL
 from database.model.knowledge_asset.PublicationType import PublicationType
-from database.model.knowledge_asset.knowledge_asset import KnowledgeAssetBase, KnowledgeAsset
+from database.model.knowledge_asset.knowledge_asset import (
+    KnowledgeAssetBase,
+    KnowledgeAsset,
+)
 from database.model.relationships import ManyToOne, OneToOne
 from database.model.serializers import (
     AttributeSerializer,
@@ -53,7 +56,9 @@ class Publication(PublicationBase, KnowledgeAsset, table=True):  # type: ignore 
     content: TextORM | None = Relationship(
         sa_relationship_kwargs=dict(foreign_keys="[Publication.content_identifier]")
     )
-    type_identifier: int | None = Field(foreign_key=PublicationType.__tablename__ + ".identifier")
+    type_identifier: int | None = Field(
+        foreign_key=PublicationType.__tablename__ + ".identifier"
+    )
     type: Optional[PublicationType] = Relationship()
 
     class RelationshipConfig(KnowledgeAsset.RelationshipConfig):

@@ -20,7 +20,9 @@ from database.model.concept.aiod_entry import AIoDEntryCreate
 from database.model.models_and_experiments.ml_model import MLModel
 
 from database.model.agent.contact import Contact
-from database.model.models_and_experiments.runnable_distribution import RunnableDistribution
+from database.model.models_and_experiments.runnable_distribution import (
+    RunnableDistribution,
+)
 from database.model.platform.platform_names import PlatformName
 from database.model.resource_read_and_create import resource_create
 from connectors.resource_with_relations import ResourceWithRelations
@@ -44,7 +46,9 @@ class OpenMlMLModelConnector(ResourceConnectorById[MLModel]):
     def retry(self, identifier: int) -> ResourceWithRelations[SQLModel] | RecordError:
         return self.fetch_record(identifier)
 
-    def fetch_record(self, identifier: int) -> ResourceWithRelations[MLModel] | RecordError:
+    def fetch_record(
+        self, identifier: int
+    ) -> ResourceWithRelations[MLModel] | RecordError:
         url_mlmodel = f"https://www.openml.org/api/v1/json/flow/{identifier}"
         response = requests.get(url_mlmodel, timeout=REQUEST_TIMEOUT)
         if not response.ok:
@@ -66,7 +70,8 @@ class OpenMlMLModelConnector(ResourceConnectorById[MLModel]):
         openml_contributor = _as_list(mlmodel_json.get("contributor", None))
         pydantic_class_contact = resource_create(Contact)
         creator_names = [
-            pydantic_class_contact(name=name) for name in openml_creator + openml_contributor
+            pydantic_class_contact(name=name)
+            for name in openml_creator + openml_contributor
         ]
 
         tags = _as_list(mlmodel_json.get("tag", None))
@@ -105,7 +110,9 @@ class OpenMlMLModelConnector(ResourceConnectorById[MLModel]):
         if not response.ok:
             status_code = response.status_code
             msg = response.json()["error"]["message"]
-            err_msg = f"Error while fetching {url_mlmodel} from OpenML: ({status_code}) {msg}"
+            err_msg = (
+                f"Error while fetching {url_mlmodel} from OpenML: ({status_code}) {msg}"
+            )
             logging.error(err_msg)
             err = HTTPError(err_msg)
             yield RecordError(identifier=None, error=err)
@@ -126,16 +133,22 @@ class OpenMlMLModelConnector(ResourceConnectorById[MLModel]):
             if "sklearn.pipeline" not in summary["name"]:
                 try:
                     if identifier < from_identifier:
-                        yield RecordError(identifier=identifier, error="Id too low", ignore=True)
+                        yield RecordError(
+                            identifier=identifier, error="Id too low", ignore=True
+                        )
                     if from_identifier is None or identifier >= from_identifier:
                         yield self.fetch_record(identifier)
                 except Exception as e:
                     yield RecordError(identifier=identifier, error=e)
             else:
-                yield RecordError(identifier=identifier, error="Sklearn pipeline not processed!")
+                yield RecordError(
+                    identifier=identifier, error="Sklearn pipeline not processed!"
+                )
 
 
-def _description(mlmodel_json: dict[str, Any], identifier: int) -> Text | None | RecordError:
+def _description(
+    mlmodel_json: dict[str, Any], identifier: int
+) -> Text | None | RecordError:
     description = (
         mlmodel_json["full_description"]
         if mlmodel_json.get("full_description", None)
@@ -146,7 +159,9 @@ def _description(mlmodel_json: dict[str, Any], identifier: int) -> Text | None |
     if isinstance(description, list) and len(description) == 0:
         return None
     elif not isinstance(description, str):
-        return RecordError(identifier=str(identifier), error="Description of unknown format.")
+        return RecordError(
+            identifier=str(identifier), error="Description of unknown format."
+        )
     if len(description) > field_length.LONG:
         text_break = " [...]"
         description = description[: field_length.LONG - len(text_break)] + text_break

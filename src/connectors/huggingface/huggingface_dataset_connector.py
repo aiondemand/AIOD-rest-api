@@ -8,7 +8,9 @@ from huggingface_hub import list_datasets
 from huggingface_hub.hf_api import DatasetInfo
 
 from config import REQUEST_TIMEOUT
-from connectors.abstract.resource_connector_on_start_up import ResourceConnectorOnStartUp
+from connectors.abstract.resource_connector_on_start_up import (
+    ResourceConnectorOnStartUp,
+)
 from connectors.record_error import RecordError
 from connectors.resource_with_relations import ResourceWithRelations
 from database.model import field_length
@@ -38,11 +40,15 @@ class HuggingFaceDatasetConnector(ResourceConnectorOnStartUp[Dataset]):
 
     @staticmethod
     def _get(url: str, dataset_id: str) -> typing.List[typing.Dict[str, typing.Any]]:
-        response = requests.get(url, params={"dataset": dataset_id}, timeout=REQUEST_TIMEOUT)
+        response = requests.get(
+            url, params={"dataset": dataset_id}, timeout=REQUEST_TIMEOUT
+        )
         response_json = response.json()
         if not response.ok:
             msg = response_json["error"]
-            logging.warning(f"Unable to retrieve parquet info for dataset '{dataset_id}': '{msg}'")
+            logging.warning(
+                f"Unable to retrieve parquet info for dataset '{dataset_id}': '{msg}'"
+            )
             return []
         return response_json["parquet_files"]
 
@@ -56,7 +62,10 @@ class HuggingFaceDatasetConnector(ResourceConnectorOnStartUp[Dataset]):
         for dataset in list_datasets(full=True, limit=limit):
             try:
                 yield self.fetch_dataset(
-                    dataset, pydantic_class, pydantic_class_publication, pydantic_class_contact
+                    dataset,
+                    pydantic_class,
+                    pydantic_class_publication,
+                    pydantic_class_contact,
                 )
             except Exception as e:
                 # We use the normal id here since it is more informative and can be used to visit hf
@@ -113,7 +122,9 @@ class HuggingFaceDatasetConnector(ResourceConnectorOnStartUp[Dataset]):
         description = getattr(dataset, "description", None)
         if description and len(description) > field_length.MAX_TEXT:
             text_break = " [...]"
-            description = description[: field_length.MAX_TEXT - len(text_break)] + text_break
+            description = (
+                description[: field_length.MAX_TEXT - len(text_break)] + text_break
+            )
         if description:
             description = Text(plain=description)
 
@@ -125,7 +136,9 @@ class HuggingFaceDatasetConnector(ResourceConnectorOnStartUp[Dataset]):
                 name=dataset.id,
                 same_as=f"https://huggingface.co/datasets/{dataset.id}",
                 description=description,
-                date_published=dataset.created_at if hasattr(dataset, "created_at") else None,
+                date_published=dataset.created_at
+                if hasattr(dataset, "created_at")
+                else None,
                 license=ds_license,
                 distribution=distributions,
                 is_accessible_for_free=not dataset.private,
@@ -146,9 +159,15 @@ class HuggingFaceDatasetConnector(ResourceConnectorOnStartUp[Dataset]):
             if len(parsed_citations) == 0 and raw_citation.startswith("@"):
                 # Ugly fix: many HF datasets have a wrong citation (see testcase)
                 parsed_citations = bibtexparser.loads(raw_citation + "}").entries
-            elif len(parsed_citations) == 0 and len(raw_citation) <= field_length.NORMAL:
+            elif (
+                len(parsed_citations) == 0 and len(raw_citation) <= field_length.NORMAL
+            ):
                 # Sometimes dataset.citation is not a bibtex field, but just the title of an article
-                return [pydantic_class_publication(name=raw_citation, aiod_entry=AIoDEntryCreate())]
+                return [
+                    pydantic_class_publication(
+                        name=raw_citation, aiod_entry=AIoDEntryCreate()
+                    )
+                ]
             return [
                 pydantic_class_publication(
                     # The platform and platform_resource_identifier should be None: this publication

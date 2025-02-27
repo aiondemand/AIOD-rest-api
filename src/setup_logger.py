@@ -12,7 +12,9 @@ format_string = (
 
 def setup_logger(config: dict | None = None):
     config = config or CONFIG
-    assert "dev" in config, "There should be a [dev] section in the configuration.toml file."
+    assert "dev" in config, (
+        "There should be a [dev] section in the configuration.toml file."
+    )
     assert "log_level" in config["dev"], (
         "Missing `log_level` setting in the [dev] section of the configuration.toml file."
     )

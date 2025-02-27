@@ -32,14 +32,18 @@ class ResourceWithRelations(Generic[RESOURCE]):
         for name, resource_values in self.related_resources.items():
             # ToDo:We could use from __future__ import annotations instead of using string-types.
             # Refer:https://stackoverflow.com/questions/33837918/type-hints-solve-circular-dependency
-            name_type = datatype_of_field(clazz=self.resource_ORM_class, field_name=name)
+            name_type = datatype_of_field(
+                clazz=self.resource_ORM_class, field_name=name
+            )
             if not isinstance(
                 name_type, str
             ):  # the datatype will be string, if the annotation List["Publication"]
                 name_type = name_type.__name__
 
             resource_values = (
-                resource_values if isinstance(resource_values, list) else [resource_values]
+                resource_values
+                if isinstance(resource_values, list)
+                else [resource_values]
             )
 
             for resource_value in resource_values:

@@ -7,7 +7,10 @@ from database.model.ai_asset.ai_asset_table import AIAssetTable
 from database.model.helper_functions import many_to_many_link_factory
 from database.model.knowledge_asset.knowledge_asset_table import KnowledgeAssetTable
 from database.model.relationships import ManyToMany
-from database.model.serializers import AttributeSerializer, FindByIdentifierDeserializerList
+from database.model.serializers import (
+    AttributeSerializer,
+    FindByIdentifierDeserializerList,
+)
 
 
 class KnowledgeAssetBase(AIAssetBase):
@@ -16,7 +19,9 @@ class KnowledgeAssetBase(AIAssetBase):
 
 class KnowledgeAsset(KnowledgeAssetBase, AIAsset):
     knowledge_asset_id: int | None = Field(
-        foreign_key=KnowledgeAssetTable.__tablename__ + ".identifier", unique=True, index=True
+        foreign_key=KnowledgeAssetTable.__tablename__ + ".identifier",
+        unique=True,
+        index=True,
     )
     knowledge_asset_identifier: KnowledgeAssetTable | None = Relationship()
 

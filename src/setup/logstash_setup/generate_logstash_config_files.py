@@ -96,9 +96,12 @@ def main():
             formated_linked_fields = [
                 format_linked_field(linked_field) for linked_field in linked_fields
             ]
-            render_parameters["linked_fields"] = ",\n    " + ",\n    ".join(formated_linked_fields)
+            render_parameters["linked_fields"] = ",\n    " + ",\n    ".join(
+                formated_linked_fields
+            )
             formated_linked_joins = [
-                format_linked_join(es_index, linked_field) for linked_field in linked_fields
+                format_linked_join(es_index, linked_field)
+                for linked_field in linked_fields
             ]
             render_parameters["linked_joins"] = "\n" + "\n".join(formated_linked_joins)
             render_parameters["group_by"] = f"\nGROUP BY {es_index}.identifier"

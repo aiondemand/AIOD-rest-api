@@ -16,7 +16,9 @@ class ElasticsearchSingleton:
             ElasticsearchSingleton.__monostate = self.__dict__
             user = os.getenv("ES_USER", "")
             pw = os.getenv("ES_PASSWORD", "")
-            self.client = Elasticsearch("http://elasticsearch:9200", basic_auth=(user, pw))
+            self.client = Elasticsearch(
+                "http://elasticsearch:9200", basic_auth=(user, pw)
+            )
         else:
             self.__dict__ = ElasticsearchSingleton.__monostate
 

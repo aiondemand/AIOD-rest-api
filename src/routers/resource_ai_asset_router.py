@@ -54,7 +54,9 @@ class ResourceAIAssetRouter(ResourceRouter):
             ],
             distribution_idx: Annotated[
                 int,
-                Path(description=f"The index of the distribution within the {self.resource_name}"),
+                Path(
+                    description=f"The index of the distribution within the {self.resource_name}"
+                ),
             ],
         ):
             metadata: AIAsset = self.get_resource(
@@ -64,7 +66,8 @@ class ResourceAIAssetRouter(ResourceRouter):
             distributions = metadata.distribution
             if not distributions:
                 raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND, detail="Distribution not found."
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="Distribution not found.",
                 )
             elif default and (len(distributions) > 1):
                 raise HTTPException(

@@ -17,13 +17,17 @@ class ResourceConnectorByDate(ResourceConnector, Generic[RESOURCE]):
     is_concluded: bool
 
     @abc.abstractmethod
-    def retry(self, _id: int) -> RESOURCE | ResourceWithRelations[RESOURCE] | RecordError:
+    def retry(
+        self, _id: int
+    ) -> RESOURCE | ResourceWithRelations[RESOURCE] | RecordError:
         """Retrieve information of the resource identified by id"""
 
     @abc.abstractmethod
     def fetch(
         self, from_incl: datetime, to_excl: datetime
-    ) -> Iterator[Tuple[datetime | None, RESOURCE | ResourceWithRelations[RESOURCE] | RecordError]]:
+    ) -> Iterator[
+        Tuple[datetime | None, RESOURCE | ResourceWithRelations[RESOURCE] | RecordError]
+    ]:
         """Retrieve information of all resources"""
 
     def run(
@@ -53,21 +57,27 @@ class ResourceConnectorByDate(ResourceConnector, Generic[RESOURCE]):
             from_incl = from_incl.replace(tzinfo=timezone.utc)
         else:
             last = state["last"] if state["last"] is not None else state["to_excl"]
-            from_incl = datetime.utcfromtimestamp(last + 0.001).replace(tzinfo=timezone.utc)
+            from_incl = datetime.utcfromtimestamp(last + 0.001).replace(
+                tzinfo=timezone.utc
+            )
 
         while from_incl < to_excl:
             to_excl_current = min(from_incl + time_per_loop, to_excl)
             logging.info(f"Starting synchronisation {from_incl=}, {to_excl_current=}.")
             state["from_incl"] = from_incl.timestamp()
             state["to_excl"] = to_excl_current.timestamp()
-            for datetime_, result in self.fetch(from_incl=from_incl, to_excl=to_excl_current):
+            for datetime_, result in self.fetch(
+                from_incl=from_incl, to_excl=to_excl_current
+            ):
                 yield result
                 if datetime_:
                     state["last"] = datetime_.timestamp()
             from_incl = (
                 to_excl_current
                 if self.is_concluded or state["last"] is None
-                else datetime.utcfromtimestamp(state["last"] + 0.001).replace(tzinfo=timezone.utc)
+                else datetime.utcfromtimestamp(state["last"] + 0.001).replace(
+                    tzinfo=timezone.utc
+                )
             )
 
         state["result"] = "Complete run done (although there might be errors)."

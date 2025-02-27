@@ -36,11 +36,17 @@ def many_to_many_link_factory(
     return LinkTable
 
 
-def get_relationships(resource_class: Type[SQLModel]) -> dict[str, "_ResourceRelationship"]:
+def get_relationships(
+    resource_class: Type[SQLModel],
+) -> dict[str, "_ResourceRelationship"]:
     if not hasattr(resource_class, "RelationshipConfig"):
         return {}
     config = resource_class.RelationshipConfig
-    return {field: getattr(config, field) for field in dir(config) if not field.startswith("_")}
+    return {
+        field: getattr(config, field)
+        for field in dir(config)
+        if not field.startswith("_")
+    }
 
 
 def non_abstract_subclasses(cls):

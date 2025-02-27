@@ -40,11 +40,17 @@ class Contact(ContactBase, AIoDConcept, table=True):  # type: ignore [call-arg]
     identifier: int = Field(default=None, primary_key=True)
 
     email: list[Email] = Relationship(
-        link_model=many_to_many_link_factory(table_from="contact", table_to=Email.__tablename__)
+        link_model=many_to_many_link_factory(
+            table_from="contact", table_to=Email.__tablename__
+        )
     )
-    location: list[LocationORM] = Relationship(sa_relationship_kwargs={"cascade": "all, delete"})
+    location: list[LocationORM] = Relationship(
+        sa_relationship_kwargs={"cascade": "all, delete"}
+    )
     telephone: list[Telephone] = Relationship(
-        link_model=many_to_many_link_factory(table_from="contact", table_to=Telephone.__tablename__)
+        link_model=many_to_many_link_factory(
+            table_from="contact", table_to=Telephone.__tablename__
+        )
     )
     organisation_identifier: int | None = Field(
         sa_column=Column(Integer, ForeignKey("organisation.identifier"))

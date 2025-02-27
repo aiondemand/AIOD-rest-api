@@ -29,7 +29,9 @@ class DeSerializer(abc.ABC, Generic[MODEL]):
     """Deserialization from ORM class to Pydantic class"""
 
     @abc.abstractmethod
-    def deserialize(self, session: Session, serialized: Any) -> int | None | MODEL | List[MODEL]:
+    def deserialize(
+        self, session: Session, serialized: Any
+    ) -> int | None | MODEL | List[MODEL]:
         pass
 
 
@@ -82,7 +84,9 @@ class FindByIdentifierDeserializer(DeSerializer[SQLModel]):
                 "Expected a single value. Do you need to use "
                 "FindByIdentifierDeserializerList instead?"
             )
-        existing = FindByIdentifierDeserializer.deserialize_ids(self.clazz, session, [input_])
+        existing = FindByIdentifierDeserializer.deserialize_ids(
+            self.clazz, session, [input_]
+        )
         try:
             (single_result,) = existing
         except ValueError as e:
@@ -116,10 +120,14 @@ class FindByIdentifierDeserializerList(DeSerializer[SQLModel]):
 
     def deserialize(self, session: Session, input_: list[int] | None) -> list[SQLModel]:
         if isinstance(input_, int):
-            raise ValueError("Expected a list. Do you need to use FindByNameDeserializer instead?")
+            raise ValueError(
+                "Expected a list. Do you need to use FindByNameDeserializer instead?"
+            )
         elif input_ is None or len(input_) == 0:
             return []
-        existing = FindByIdentifierDeserializer.deserialize_ids(self.clazz, session, input_)
+        existing = FindByIdentifierDeserializer.deserialize_ids(
+            self.clazz, session, input_
+        )
         return sorted(existing, key=lambda o: o.identifier)
 
 
@@ -134,7 +142,8 @@ class FindByNameDeserializer(DeSerializer[NamedRelation]):
             return None
         if isinstance(name, list):
             raise ValueError(
-                "Expected a single value. Do you need to use FindByNameDeserializerList instead?"
+                "Expected a single value. Do you need to use "
+                "FindByNameDeserializerList instead?"
             )
         name = name.lower()
         query = select(self.clazz.identifier).where(self.clazz.name == name)
@@ -153,11 +162,15 @@ class FindByNameDeserializerList(DeSerializer[NamedRelation]):
 
     clazz: type[NamedRelation]
 
-    def deserialize(self, session: Session, name: list[str] | None) -> list[NamedRelation]:
+    def deserialize(
+        self, session: Session, name: list[str] | None
+    ) -> list[NamedRelation]:
         if name is None:
             return []
         if not isinstance(name, list):
-            raise ValueError("Expected a list. Do you need to use FindByNameDeserializer instead?")
+            raise ValueError(
+                "Expected a list. Do you need to use FindByNameDeserializer instead?"
+            )
         names = [n.lower() for n in name]
         query = select(self.clazz).where(self.clazz.name.in_(names))  # type: ignore[attr-defined]
         existing = session.scalars(query).all()
@@ -182,7 +195,8 @@ class CastDeserializer(DeSerializer[SQLModel]):
             return None
         if isinstance(serialized, list):
             raise ValueError(
-                "Expected a single value. Do you need to use CastDeserializerList instead?"
+                "Expected a single value. Do you need to use CastDeserializerList "
+                "instead?"
             )
         return self._deserialize_single_resource(serialized, session)
 
@@ -203,7 +217,9 @@ class CastDeserializerList(CastDeserializer):
         if serialized is None:
             return []
         if not isinstance(serialized, list):
-            raise ValueError("Expected a list. Do you need to use CastDeserializer instead?")
+            raise ValueError(
+                "Expected a list. Do you need to use CastDeserializer instead?"
+            )
         return [self._deserialize_single_resource(v, session) for v in serialized]
 
 
@@ -240,7 +256,10 @@ def deserialize_resource_relationships(
 ):
     """After deserialization of a resource, this function will deserialize all it's related
     objects in place."""
-    if not hasattr(resource_class, "RelationshipConfig") or resource_create_instance is None:
+    if (
+        not hasattr(resource_class, "RelationshipConfig")
+        or resource_create_instance is None
+    ):
         return
 
     relationships = get_relationships(resource_class)
@@ -254,7 +273,9 @@ def deserialize_resource_relationships(
             and hasattr(resource, attribute)
             and getattr(resource, attribute)
         ):
-            deserialize_object_relationship(session, resource, resource_create_instance, attribute)
+            deserialize_object_relationship(
+                session, resource, resource_create_instance, attribute
+            )
             continue
 
         # Attribute is automatically created if not present, modified otherwise
@@ -262,7 +283,9 @@ def deserialize_resource_relationships(
             new_value = getattr(resource_create_instance, attribute)
             if new_value is None and relationship.default_factory_orm is not None:
                 # e.g. .aiod_entry, which should be generated if it's not present
-                relation = relationship.default_factory_orm(type_=resource_class.__tablename__)
+                relation = relationship.default_factory_orm(
+                    type_=resource_class.__tablename__
+                )
                 session.add(relation)
                 session.flush()
                 new_value = relation
@@ -305,7 +328,9 @@ def deserialize_resource_relationships(
         setattr(inner_model, attribute, new_value)
 
 
-def deserialize_object_relationship(session, resource, resource_create_instance, attribute):
+def deserialize_object_relationship(
+    session, resource, resource_create_instance, attribute
+):
     """
     In place deserialization of an object relationship (a relationship to an object that is
     completely present in the json, instead of linked using an identifier).

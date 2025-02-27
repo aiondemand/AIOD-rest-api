@@ -17,7 +17,9 @@ from database.model.news.news import News
 from database.model.project.project import Project
 from database.model.service.service import Service
 
-RESOURCE_PATH = pathlib.Path(__file__).parent.parent / "example" / "resources" / "resource"
+RESOURCE_PATH = (
+    pathlib.Path(__file__).parent.parent / "example" / "resources" / "resource"
+)
 
 
 class ExampleCaseStudyConnector(ExampleConnector[CaseStudy]):

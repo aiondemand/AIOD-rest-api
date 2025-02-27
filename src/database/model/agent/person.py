@@ -53,7 +53,9 @@ class Person(PersonBase, Agent, table=True):  # type: ignore [call-arg]
     language: list[Language] = Relationship(
         link_model=many_to_many_link_factory("person", Language.__tablename__)
     )
-    contact_details: Optional[Contact] = Relationship(sa_relationship_kwargs={"uselist": False})
+    contact_details: Optional[Contact] = Relationship(
+        sa_relationship_kwargs={"uselist": False}
+    )
     # TODO(jos): memberOf? This should probably be on Agent
 
     class RelationshipConfig(Agent.RelationshipConfig):

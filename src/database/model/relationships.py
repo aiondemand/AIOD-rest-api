@@ -65,7 +65,9 @@ class _ResourceRelationship(abc.ABC, Representation):
         if self.deserialized_path is None:
             return self._serializer
         if self._serializer is None:
-            raise ValueError("_serializer should be defined if using a deserialized_path")
+            raise ValueError(
+                "_serializer should be defined if using a deserialized_path"
+            )
         return GetPathSerializer(self.deserialized_path, self._serializer)
 
     @property
@@ -217,5 +219,8 @@ class ManyToMany(_ResourceRelationshipList):
 
             other_links = self.on_delete_trigger_orphan_deletion()
             return triggers.create_deletion_trigger_many_to_many(
-                trigger=parent_class, link=link, to_delete=to_delete, other_links=other_links
+                trigger=parent_class,
+                link=link,
+                to_delete=to_delete,
+                other_links=other_links,
             )

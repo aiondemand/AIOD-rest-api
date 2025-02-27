@@ -20,7 +20,9 @@ from database.model.models_and_experiments.ml_model import MLModel
 from database.model.platform.platform_names import PlatformName
 from database.model.ai_resource.text import Text
 from database.model import field_length
-from database.model.models_and_experiments.runnable_distribution import RunnableDistribution
+from database.model.models_and_experiments.runnable_distribution import (
+    RunnableDistribution,
+)
 from database.model.resource_read_and_create import resource_create
 from database.model.agent.contact import Contact
 from database.model.concept.aiod_entry import AIoDEntryCreate
@@ -83,7 +85,9 @@ class AIBuilderMLModelConnector(ResourceConnectorByDate[MLModel]):
                 msg = "Unauthorized token."
             else:
                 msg = response.reason
-            err_msg = f"Error while fetching {url} from AIBuilder: ({status_code}) {msg}"
+            err_msg = (
+                f"Error while fetching {url} from AIBuilder: ({status_code}) {msg}"
+            )
             logging.error(err_msg)
             err = HTTPError(err_msg)
             return RecordError(identifier=None, error=err)
@@ -140,7 +144,9 @@ class AIBuilderMLModelConnector(ResourceConnectorByDate[MLModel]):
         # TODO: Review the AIBuilder schema to map distribution
         distribution = []
         if "distribution" in mlmodel_mapping.keys():
-            distribution = _distribution_format(solution[mlmodel_mapping["distribution"]])
+            distribution = _distribution_format(
+                solution[mlmodel_mapping["distribution"]]
+            )
 
         tags = []
         if "keyword" in mlmodel_mapping.keys():
@@ -193,7 +199,9 @@ class AIBuilderMLModelConnector(ResourceConnectorByDate[MLModel]):
 
     def fetch(
         self, from_incl: datetime, to_excl: datetime
-    ) -> Iterator[Tuple[datetime | None, MLModel | ResourceWithRelations[MLModel] | RecordError]]:
+    ) -> Iterator[
+        Tuple[datetime | None, MLModel | ResourceWithRelations[MLModel] | RecordError]
+    ]:
         """
         It fetches the entire list of catalogs and, for each catalog, the entire list of solutions.
         Then it filters by date and fetches every solution within [`from_incl`, `to_excl`).
@@ -227,9 +235,7 @@ class AIBuilderMLModelConnector(ResourceConnectorByDate[MLModel]):
             return
 
         for num_catalog, catalog in enumerate(catalog_list):
-            url_get_catalog_solutions = (
-                f"{API_URL}/get_catalog_solutions?catalogId={catalog}&apiToken={self.token}"
-            )
+            url_get_catalog_solutions = f"{API_URL}/get_catalog_solutions?catalogId={catalog}&apiToken={self.token}"
             response = self.get_response(url_get_catalog_solutions)
             if isinstance(response, RecordError):
                 self.is_concluded = num_catalog == len(catalog_list) - 1
@@ -240,7 +246,9 @@ class AIBuilderMLModelConnector(ResourceConnectorByDate[MLModel]):
                 solutions_list = [
                     solution["fullId"]
                     for solution in response
-                    if from_incl <= datetime.fromisoformat(solution["lastModified"]) < to_excl
+                    if from_incl
+                    <= datetime.fromisoformat(solution["lastModified"])
+                    < to_excl
                 ]
             except Exception as e:
                 self.is_concluded = num_catalog == len(catalog_list) - 1
@@ -249,14 +257,19 @@ class AIBuilderMLModelConnector(ResourceConnectorByDate[MLModel]):
 
             if len(solutions_list) == 0:
                 self.is_concluded = num_catalog == len(catalog_list) - 1
-                yield None, RecordError(identifier=None, error="Empty solution list.", ignore=True)
+                yield (
+                    None,
+                    RecordError(
+                        identifier=None, error="Empty solution list.", ignore=True
+                    ),
+                )
                 continue
 
             for num_solution, solution in enumerate(solutions_list):
-                url_get_solution = f"{API_URL}/get_solution?fullId={solution}&apiToken={self.token}"
-                url_to_show = (
-                    f"{API_URL}/get_solution?fullId={solution}&apiToken=AIBUILDER_API_TOKEN"
+                url_get_solution = (
+                    f"{API_URL}/get_solution?fullId={solution}&apiToken={self.token}"
                 )
+                url_to_show = f"{API_URL}/get_solution?fullId={solution}&apiToken=AIBUILDER_API_TOKEN"
                 response = self.get_response(url_get_solution)
                 if isinstance(response, RecordError):
                     self.is_concluded = (

@@ -23,7 +23,9 @@ RESOURCE_READ = TypeVar("RESOURCE_READ", bound=BaseModel)
 
 class SearchResult(GenericModel, Generic[RESOURCE_READ]):
     total_hits: int = Field(description="The total number of results.")
-    resources: list[RESOURCE_READ] = Field(description="The resources matching the search query.")
+    resources: list[RESOURCE_READ] = Field(
+        description="The resources matching the search query."
+    )
     limit: int = Field(
         description="The maximum number of returned results, as specified in the input."
     )
@@ -172,7 +174,8 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
             query_matches: list[dict[str, dict[str, str | dict[str, str]]]] = []
             if exact_match:
                 query_matches = [
-                    {"match": {f: {"query": search_query, "operator": "and"}}} for f in fields
+                    {"match": {f: {"query": search_query, "operator": "and"}}}
+                    for f in fields
                 ]
             else:
                 query_matches = [{"match": {f: search_query}} for f in fields]
@@ -203,7 +206,9 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
             )
             total_hits = result["hits"]["total"]["value"]
             if get_all:
-                identifiers = [hit["_source"]["identifier"] for hit in result["hits"]["hits"]]
+                identifiers = [
+                    hit["_source"]["identifier"] for hit in result["hits"]["hits"]
+                ]
                 resources: list[SQLModel] = self._db_query(
                     read_class, self.resource_class, identifiers
                 )
@@ -251,7 +256,9 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
         kwargs = {
             self.key_translations.get(key, key): val
             for key, val in resource_dict.items()
-            if key != "type" and not key.startswith("@") and key not in self.linked_fields
+            if key != "type"
+            and not key.startswith("@")
+            and key not in self.linked_fields
         }
         resource = read_class(**kwargs)
         resource.aiod_entry = AIoDEntryRead(

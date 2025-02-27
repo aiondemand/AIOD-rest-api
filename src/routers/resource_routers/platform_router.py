@@ -114,7 +114,10 @@ class PlatformRouter:
         with DbSession(autoflush=False) as session:
             try:
                 resources: Any = self._retrieve_resources(session, pagination)
-                return [self.resource_class_read.model_validate(resource) for resource in resources]
+                return [
+                    self.resource_class_read.model_validate(resource)
+                    for resource in resources
+                ]
             except Exception as e:
                 raise as_http_exception(e)
 
@@ -237,7 +240,9 @@ class PlatformRouter:
                     resource: Any = self._retrieve_resource(session, identifier)
                     for attribute_name in resource.schema()["properties"]:
                         if hasattr(resource_create_instance, attribute_name):
-                            new_value = getattr(resource_create_instance, attribute_name)
+                            new_value = getattr(
+                                resource_create_instance, attribute_name
+                            )
                             setattr(resource, attribute_name, new_value)
                     deserialize_resource_relationships(
                         session, self.resource_class, resource, resource_create_instance
@@ -291,13 +296,17 @@ class PlatformRouter:
         identifier: int | str,
     ) -> Platform:
         """Retrieve a resource from the database based on the provided identifier."""
-        query = select(self.resource_class).where(self.resource_class.identifier == identifier)
+        query = select(self.resource_class).where(
+            self.resource_class.identifier == identifier
+        )
 
         resource = session.scalars(query).first()
         if not resource:
             name = f"{self.resource_name.capitalize()} '{identifier}'"
             msg = "not found in the database."
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"{name} {msg}")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail=f"{name} {msg}"
+            )
         return resource
 
     def _retrieve_resources(
@@ -308,7 +317,11 @@ class PlatformRouter:
         """
         Retrieve a sequence of resources from the database based on the provided identifier.
         """
-        query = select(self.resource_class).offset(pagination.offset).limit(pagination.limit)
+        query = (
+            select(self.resource_class)
+            .offset(pagination.offset)
+            .limit(pagination.limit)
+        )
         resources: Sequence = session.scalars(query).all()
         return resources
 

@@ -9,7 +9,10 @@ from database.model.ai_resource.resource import AIResourceBase
 from database.model.ai_resource.resource import AbstractAIResource
 from database.model.helper_functions import many_to_many_link_factory
 from database.model.relationships import ManyToOne, ManyToMany
-from database.model.serializers import AttributeSerializer, FindByIdentifierDeserializerList
+from database.model.serializers import (
+    AttributeSerializer,
+    FindByIdentifierDeserializerList,
+)
 
 
 class TeamBase(AIResourceBase):

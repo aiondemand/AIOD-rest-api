@@ -61,17 +61,25 @@ class Event(EventBase, AbstractAIResource, table=True):  # type: ignore [call-ar
     content: TextORM | None = Relationship(
         sa_relationship_kwargs=dict(foreign_keys="[Event.content_identifier]")
     )
-    location: list[LocationORM] = Relationship(sa_relationship_kwargs={"cascade": "all, delete"})
+    location: list[LocationORM] = Relationship(
+        sa_relationship_kwargs={"cascade": "all, delete"}
+    )
     performer: list["AgentTable"] = Relationship(
         link_model=many_to_many_link_factory(
             "event", AgentTable.__tablename__, table_prefix="performer"
         ),
     )
-    organiser_identifier: int | None = Field(foreign_key=AgentTable.__tablename__ + ".identifier")
+    organiser_identifier: int | None = Field(
+        foreign_key=AgentTable.__tablename__ + ".identifier"
+    )
     organiser: Optional[AgentTable] = Relationship()
-    status_identifier: int | None = Field(foreign_key=EventStatus.__tablename__ + ".identifier")
+    status_identifier: int | None = Field(
+        foreign_key=EventStatus.__tablename__ + ".identifier"
+    )
     status: Optional[EventStatus] = Relationship()
-    mode_identifier: int | None = Field(foreign_key=EventMode.__tablename__ + ".identifier")
+    mode_identifier: int | None = Field(
+        foreign_key=EventMode.__tablename__ + ".identifier"
+    )
     mode: Optional[EventMode] = Relationship()
 
     class RelationshipConfig(AbstractAIResource.RelationshipConfig):

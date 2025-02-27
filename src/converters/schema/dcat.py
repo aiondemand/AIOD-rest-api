@@ -34,14 +34,16 @@ class DcatAPObject(BaseModel, ABC):
 class VCardIndividual(DcatAPObject):
     type_: str = Field(default="vcard:Individual", alias="@type", const=True)
     fn: str = Field(
-        alias="vcard:fn", description="The formatted text corresponding to the name of the object"
+        alias="vcard:fn",
+        description="The formatted text corresponding to the name of the object",
     )
 
 
 class VCardOrganisation(DcatAPObject):
     type_: str = Field(default="vcard:Organisation", alias="@type", const=True)
     fn: str = Field(
-        alias="vcard:fn", description="The formatted text corresponding to the name of the object"
+        alias="vcard:fn",
+        description="The formatted text corresponding to the name of the object",
     )
 
 
@@ -105,7 +107,9 @@ class DcatAPDataset(DcatAPObject):
         "comments about the Dataset.",
         default_factory=list,
     )
-    distribution: list[DcatAPIdentifier] = Field(alias="dcat:distribution", default_factory=list)
+    distribution: list[DcatAPIdentifier] = Field(
+        alias="dcat:distribution", default_factory=list
+    )
     keyword: list[str] = Field(alias="dcat:keyword", default_factory=list)
     publisher: DcatAPIdentifier | None = Field(
         alias="dct:publisher",
@@ -131,7 +135,9 @@ class DcatAPDataset(DcatAPObject):
 class DcatApWrapper(BaseModel):
     """The resulting class, containing a dataset and related entities in the graph"""
 
-    context_: DcatAPContext = Field(default=DcatAPContext(), alias="@context", const=True)
+    context_: DcatAPContext = Field(
+        default=DcatAPContext(), alias="@context", const=True
+    )
     # instead of list[DcatAPObject], a union with all the possible values is necessary. See
     # https://stackoverflow.com/questions/58301364/pydantic-and-subclasses-of-abstract-class
     graph_: list[

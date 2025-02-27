@@ -64,7 +64,9 @@ class Submission(SQLModel, table=True):  # type: ignore [call-arg]
 
     # On the other hand, if the entry corresponding to the thing it reviews is removed,
     # then we also want to permanently remove the review data.
-    aiod_entry_identifier: int = Field(foreign_key="aiod_entry.identifier", ondelete="CASCADE")
+    aiod_entry_identifier: int = Field(
+        foreign_key="aiod_entry.identifier", ondelete="CASCADE"
+    )
 
     reviews: list[Review] = Relationship(back_populates="submission")
 

@@ -18,7 +18,9 @@ class EnumRouter(abc.ABC):
         self.resource_class = resource_class
         self.resource_name = resource_class.__tablename__
         self.resource_name_plural = (
-            self.resource_name + "s" if not self.resource_name.endswith("s") else self.resource_name
+            self.resource_name + "s"
+            if not self.resource_name.endswith("s")
+            else self.resource_name
         )
 
     def create(self, url_prefix: str) -> APIRouter:
