@@ -5,7 +5,7 @@ from datetime import datetime, timedelta, timezone
 
 from requests.exceptions import HTTPError
 from sqlmodel import SQLModel
-from typing import Iterator
+from typing import Iterator, Tuple
 from config import REQUEST_TIMEOUT
 
 from connectors.abstract.resource_connector import ResourceConnector
@@ -17,6 +17,7 @@ from database.model.agent.organisation import Organisation
 from database.model.agent.contact import Contact
 from database.model.agent.email import Email
 from database.model.agent.location import LocationORM, AddressORM, GeoORM
+from connectors.resource_with_relations import ResourceWithRelations
 
 class AI4EuropeCmsOrganisationConnector(ResourceConnector[Organisation]):
 
@@ -31,7 +32,7 @@ class AI4EuropeCmsOrganisationConnector(ResourceConnector[Organisation]):
 
     def run(
             self, state: dict, **kwargs
-    ) -> Iterator[SQLModel | RecordError]:
+    ) -> Iterator[Tuple[ Organisation | ResourceWithRelations[Organisation] | RecordError]]:
         """Fetch resources and update the state"""
 
         url_data = (
@@ -204,5 +205,8 @@ class AI4EuropeCmsOrganisationConnector(ResourceConnector[Organisation]):
                     if organisation.get("type") is not None else None,
                 contact_details=contact if contact is not None else None
             )
-
-            yield org
+            # yield org
+            yield ResourceWithRelations[pydantic_class](
+                resource=org, 
+                resource_ORM_class=Organisation, 
+            )

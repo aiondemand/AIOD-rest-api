@@ -1,0 +1,171 @@
+[
+  {
+    "name": "mock-organisation-1",
+    "platform": "ai4europe_cms",
+    "platform_resource_identifier": "mock-node-1",
+    "date_published": "2023-01-01T00:00:00+00:00",
+    "same_as": "https://www.mockedurl.com/organization/1",
+    "legal_name": "mock-legal-name-1",
+    "ai_relevance": "mock-ai-relevance-1: This mocked institution pioneers AI research and education.",
+    "description": {
+      "plain": "mock-description-plain-1: A plain description for mock organisation 1 covering AI and research.",
+      "html": "<div class=\"mocked-html\">mock-description-html-1: An HTML description for mock organisation 1 showcasing its research focus.</div>"
+    },
+    "type": "mock-type-1",
+    "scientific_domain": [
+      "mock-domain-1",
+      "mock-domain-2",
+      "mock-domain-3",
+      "mock-domain-4"
+    ],
+    "relevant_link": [
+      "https://www.mockedu.org/1",
+      "https://www.example.edu/1"
+    ],
+    "aiod_entry": {
+      "editor": [],
+      "status": "published"
+    },
+    "contact_details": {
+      "name": "mock-contact-name-1",
+      "platform": "mock-platform-1",
+      "platform_resource_identifier": "mock-node-1",
+      "email": [
+        "contact1@mockedu.org"
+      ],
+      "location": [
+        {
+          "address": {
+            "region": "mock-region-1",
+            "locality": "mock-city-1",
+            "street": "mock-street-1",
+            "postal_code": "10001",
+            "address": "mock-address-1",
+            "country": "MK1"
+          },
+          "geo": {
+            "latitude": 10.12345,
+            "longitude": 20.54321,
+            "elevation_millimeters": null
+          }
+        }
+      ],
+      "aiod_entry": {
+        "editor": [],
+        "status": "published"
+      }
+    }
+  },
+  {
+    "name": "mock-organisation-2",
+    "platform": "ai4europe_cms",
+    "platform_resource_identifier": "mock-node-2",
+    "date_published": "2023-01-01T00:00:00+00:00",
+    "same_as": "https://www.mockedurl.com/organization/2",
+    "legal_name": "mock-legal-name-2",
+    "ai_relevance": "mock-ai-relevance-2: This mocked research institution is known for its multidisciplinary AI studies.",
+    "description": {
+      "plain": "mock-description-plain-2: A plain description for mock organisation 2 dedicated to advanced research.",
+      "html": "<div class=\"mocked-html\">mock-description-html-2: An HTML description for mock organisation 2 highlighting its research initiatives.</div>"
+    },
+    "type": "mock-type-2",
+    "scientific_domain": [
+      "mock-domain-5",
+      "mock-domain-6",
+      "mock-domain-7",
+      "mock-domain-8"
+    ],
+    "relevant_link": [
+      "https://www.mockresearch.org/2"
+    ],
+    "aiod_entry": {
+      "editor": [],
+      "status": "published"
+    },
+    "contact_details": {
+      "name": "mock-contact-name-2",
+      "platform": "mock-platform-2",
+      "platform_resource_identifier": "mock-node-2",
+      "email": [
+        "contact2@mockresearch.org"
+      ],
+      "location": [
+        {
+          "address": {
+            "region": "mock-region-2",
+            "locality": "mock-city-2",
+            "street": "mock-street-2",
+            "postal_code": "20002",
+            "address": "mock-address-2",
+            "country": "MK2"
+          },
+          "geo": {
+            "latitude": 15.67890,
+            "longitude": 25.98765,
+            "elevation_millimeters": null
+          }
+        }
+      ],
+      "aiod_entry": {
+        "editor": [],
+        "status": "published"
+      }
+    }
+  },
+  {
+    "name": "mock-organisation-3",
+    "platform": "ai4europe_cms",
+    "platform_resource_identifier": "mock-node-3",
+    "date_published": "2023-01-01T00:00:00+00:00",
+    "same_as": "https://www.mockedurl.com/organization/3",
+    "legal_name": "mock-legal-name-3",
+    "ai_relevance": "mock-ai-relevance-3: This mocked lab focuses on robotics and automation research with industry collaborations.",
+    "description": {
+      "plain": "mock-description-plain-3: A plain description for mock organisation 3 specializing in robotics and automation.",
+      "html": "<div class=\"mocked-html\">mock-description-html-3: An HTML description for mock organisation 3 that details its robotics research.</div>"
+    },
+    "type": "mock-type-3",
+    "scientific_domain": [
+      "mock-domain-9",
+      "mock-domain-10",
+      "mock-domain-11",
+      "mock-domain-12"
+    ],
+    "relevant_link": [
+      "https://www.mocklab.org/3"
+    ],
+    "aiod_entry": {
+      "editor": [],
+      "status": "published"
+    },
+    "contact_details": {
+      "name": "mock-contact-name-3",
+      "platform": "mock-platform-3",
+      "platform_resource_identifier": "mock-node-3",
+      "email": [
+        "contact3@mocklab.org"
+      ],
+      "location": [
+        {
+          "address": {
+            "region": "mock-region-3",
+            "locality": "mock-city-3",
+            "street": "mock-street-3",
+            "postal_code": "30003",
+            "address": "mock-address-3",
+            "country": "MK3"
+          },
+          "geo": {
+            "latitude": 12.34567,
+            "longitude": 23.45678,
+            "elevation_millimeters": null
+          }
+        }
+      ],
+      "aiod_entry": {
+        "editor": [],
+        "status": "published"
+      }
+    }
+  }
+]
