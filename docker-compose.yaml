@@ -109,13 +109,13 @@ services:
       app:
         condition: service_healthy
 
-  cms-connector:
-    profiles: ["cms"]
+  ai4europe_cms-connector:
+    profiles: ["ai4europe_cms"]
     build:
-      context: connectors/cms
+      context: connectors/ai4europe_cms
       dockerfile: Dockerfile
-    image: aiod_cms_connector
-    container_name: cms-connector
+    image: aiod_ai4europe_cms_connector
+    container_name: ai4europe_cms-connector
     environment:
       - KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET
     volumes:
