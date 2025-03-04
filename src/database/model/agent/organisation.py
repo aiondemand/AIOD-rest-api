@@ -49,11 +49,11 @@ class Organisation(OrganisationBase, Agent, table=True):  # type: ignore [call-a
     )
 
     class RelationshipConfig(Agent.RelationshipConfig):
-        contact_details: int | None = OneToOne(
-            description="The identifier of the contact details by which this organisation "
-            "can be reached.",
-            deserializer=FindByIdentifierDeserializer(Contact),
-            _serializer=AttributeSerializer("identifier"),
+        contact_details: Optional[Contact] = OneToOne(
+            # description="The identifier of the contact details by which this organisation "
+            # "can be reached.",
+            # deserializer=FindByIdentifierDeserializer(Contact),
+            # _serializer=AttributeSerializer("identifier"),
         )
         type: Optional[str] = ManyToOne(
             description="The type of organisation.",

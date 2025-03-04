@@ -109,6 +109,24 @@ services:
       app:
         condition: service_healthy
 
+  cms-connector:
+    profiles: ["cms"]
+    build:
+      context: connectors/cms
+      dockerfile: Dockerfile
+    image: aiod_cms_connector
+    container_name: cms-connector
+    environment:
+      - KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET
+    volumes:
+      - ${DATA_PATH}/connectors:/opt/connectors/data
+      - ./src/config.override.toml:/app/config.override.toml:ro
+    command: >
+      /bin/bash -c "/opt/connectors/script/entry.sh"
+    depends_on:
+      app:
+        condition: service_healthy
+
   aibuilder-connector:
     profiles: ["aibuilder"]
     build:
