@@ -14,7 +14,10 @@ def test_happy_path(
 ):
 
     organisation.name = "Organisation"
+    organisation.legal_name = "EU"
     person.name = "Person"
+    person.given_name = "Alice"
+
     with DbSession() as session:
         session.add(organisation)
         session.merge(person)
@@ -26,6 +29,7 @@ def test_happy_path(
     assert response_json["identifier"] == 1
     assert response_json["agent_identifier"] == 1
     assert response_json["name"] == "Organisation"
+    assert response_json["legal_name"] == "EU"
 
     response = client.get("/agents/v1/2")
     assert response.status_code == 200, response.json()
@@ -33,6 +37,7 @@ def test_happy_path(
     assert response_json["identifier"] == 1
     assert response_json["agent_identifier"] == 2
     assert response_json["name"] == "Person"
+    assert response_json["given_name"] == "Alice"
 
 
 def test_ignore_deleted(
