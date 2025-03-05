@@ -49,6 +49,12 @@ class DistributionBase(AIoDConceptBase):
         "stands for 'actual system proven in operational environment'.",
         schema_extra={"example": 1},
     )
+    
+    date_modified: datetime | None = Field(
+        description="The datetime (utc) on which this Distribution was modified.",
+        default=None,
+        schema_extra={"example": "2022-01-01T15:15:00.000"},
+    )
 
 
 def distribution_factory(table_from: str, distribution_name="distribution") -> Type:
