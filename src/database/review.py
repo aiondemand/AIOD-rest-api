@@ -1,11 +1,14 @@
 import enum
 from datetime import datetime, timezone
+from typing import Any
 
 import sqlalchemy
-from sqlalchemy import Column
-from sqlmodel import SQLModel, Field, Relationship
+from sqlalchemy import Column, select
+from sqlmodel import SQLModel, Field, Relationship, Session
 
 from database.model.field_length import NORMAL, LONG
+from database.model.concept.concept import AIoDConcept
+from database.model.helper_functions import non_abstract_subclasses
 
 REQUIRED_NUMBER_OF_REVIEWS = 1
 
@@ -86,9 +89,23 @@ class Submission(SubmissionBase, table=True):  # type: ignore [call-arg]
     reviews: list[Review] = Relationship(back_populates="submission")
 
     @property
+    def asset(self) -> AIoDConcept:
+        session = Session.object_session(self)
+        available_schemas: list[AIoDConcept] = list(non_abstract_subclasses(AIoDConcept))
+        schema_by_name = {schema.__tablename__: schema for schema in available_schemas}
+        schema = schema_by_name[self.asset_type]
+
+        query = select(schema).where(schema.aiod_entry_identifier == self.aiod_entry_identifier)
+        return session.scalars(query).one()
+
+    @property
     def is_pending(self):
         return len(self.reviews) < REQUIRED_NUMBER_OF_REVIEWS
 
 
 class SubmissionView(SubmissionBase):
     reviews: list[Review] = Field(default_factory=list)
+    # The Asset is of type AIoDConcept, but specifying that here means that SQLModel will
+    # only return AIoDConcept fields to the user, instead of all supplied attributes.
+    # E.g., a publication's issn is now returned but would not if it was AIoDConcept.
+    asset: Any = Field()
