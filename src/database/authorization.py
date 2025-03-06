@@ -2,7 +2,7 @@ import enum
 
 import sqlalchemy
 from sqlalchemy import Column
-from sqlmodel import SQLModel, Field, Relationship, select, Session
+from sqlmodel import SQLModel, Field, Relationship, select, Session, and_
 
 from authentication import KeycloakUser
 from database.model.concept.aiod_entry import AIoDEntryORM
@@ -65,7 +65,12 @@ def register_user(kc_user: KeycloakUser, session: Session) -> User:
 
 
 def add_administrator(user: KeycloakUser, resource: AIoDConcept, session: Session):
-    query = select(Permission).where(User.subject_identifier == user._subject_identifier)
+    query = select(Permission).where(
+        and_(
+            Permission.user_identifier == user._subject_identifier,
+            Permission.aiod_entry_identifier == resource.aiod_entry_identifier,
+        )
+    )
     permission = session.scalars(query).first()
     if permission is None:
         permission = Permission(
