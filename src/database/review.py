@@ -90,5 +90,5 @@ class Submission(SubmissionBase, table=True):  # type: ignore [call-arg]
         return len(self.reviews) < REQUIRED_NUMBER_OF_REVIEWS
 
 
-class SubmissionWithReviews(SubmissionBase):
+class SubmissionView(SubmissionBase):
     reviews: list[Review] = Field(default_factory=list)
