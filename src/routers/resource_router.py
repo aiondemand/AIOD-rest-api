@@ -567,6 +567,7 @@ class ResourceRouter(abc.ABC):
                     requestee_identifier=user._subject_identifier,
                     aiod_entry_identifier=resource.aiod_entry.identifier,
                     comment=submission.comment if submission else "",
+                    asset_type=self.resource_name,
                 )
                 session.add(review_request)
                 session.commit()

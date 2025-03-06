@@ -161,6 +161,7 @@ def test_get_submission_by_id(client, publication):
             "identifier": 1,
             "aiod_entry_identifier": 1,
             "comment": "",
+            "asset_type": "publication",
             "reviews": [
                 {
                     "identifier": 1,
@@ -289,6 +290,7 @@ def register_asset(asset: AIoDConcept, /, *, owner: KeycloakUser, status: EntryS
             submission = Submission(
                 requestee_identifier=owner._subject_identifier,
                 aiod_entry_identifier=asset.aiod_entry.identifier,
+                asset_type=asset.__tablename__,
             )
             session.add(submission)
             if status == EntryStatus.PUBLISHED:

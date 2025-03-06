@@ -69,6 +69,9 @@ class SubmissionBase(SubmissionCreate):
     # If the entry corresponding to the thing it reviews is removed,
     # then we also want to permanently remove the review data.
     aiod_entry_identifier: int = Field(foreign_key="aiod_entry.identifier", ondelete="CASCADE")
+    asset_type: str = Field(
+        description="The name of the table of the resource. E.g. 'dataset' or 'person'"
+    )
 
 
 class Submission(SubmissionBase, table=True):  # type: ignore [call-arg]
