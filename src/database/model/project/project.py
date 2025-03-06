@@ -6,8 +6,7 @@ from sqlmodel import Field, Relationship
 
 from database.model.agent.organisation import Organisation
 from database.model.ai_asset.ai_asset_table import AIAssetTable
-from database.model.ai_resource.resource import AIResourceBase
-from database.model.ai_resource.resource import AIResource
+from database.model.ai_resource.resource import AIResourceBase, AIResource
 from database.model.helper_functions import many_to_many_link_factory
 from database.model.relationships import ManyToMany, ManyToOne
 from database.model.serializers import (

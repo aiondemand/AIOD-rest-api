@@ -5,8 +5,7 @@ from sqlmodel import Field, Relationship
 
 from database.model.agent.organisation import Organisation
 from database.model.agent.person import Person
-from database.model.ai_resource.resource import AIResourceBase
-from database.model.ai_resource.resource import AIResource
+from database.model.ai_resource.resource import AIResourceBase, AIResource
 from database.model.helper_functions import many_to_many_link_factory
 from database.model.relationships import ManyToOne, ManyToMany
 from database.model.serializers import AttributeSerializer, FindByIdentifierDeserializerList

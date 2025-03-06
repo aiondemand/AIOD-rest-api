@@ -3,8 +3,7 @@ import copy
 from sqlmodel import Field, Relationship
 
 from database.model.agent.agent_table import AgentTable
-from database.model.ai_resource.resource import AIResourceBase
-from database.model.ai_resource.resource import AIResource
+from database.model.ai_resource.resource import AIResourceBase, AIResource
 from database.model.relationships import OneToOne
 from database.model.serializers import AttributeSerializer
 
