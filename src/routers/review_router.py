@@ -1,6 +1,6 @@
 import enum
 from http import HTTPStatus
-from typing import Sequence, Literal
+from typing import Sequence, Literal, cast
 
 from fastapi import APIRouter, HTTPException, Depends
 from sqlmodel import select, Session
@@ -113,8 +113,7 @@ def _review_resource(
             detail="You must have reviewing privileges to use this endpoint.",
         )
 
-    query = select(Submission).where(Submission.identifier == review.submission_identifier)
-    submission = session.scalars(query).first()
+    submission = session.get(Submission, review.submission_identifier)
     if submission is None:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -127,7 +126,7 @@ def _review_resource(
         )
     register_user(user, session)
 
-    aiod_entry = session.get(AIoDEntryORM, submission.aiod_entry_identifier)
+    aiod_entry = cast(AIoDEntryORM, session.get(AIoDEntryORM, submission.aiod_entry_identifier))
     if user_can_administer(user, aiod_entry):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
