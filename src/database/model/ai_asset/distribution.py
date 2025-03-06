@@ -1,11 +1,22 @@
+from __future__ import annotations
+
 from datetime import datetime
 from typing import Type
 
 from sqlalchemy import Column, Integer, ForeignKey
-from sqlmodel import Field
+from sqlmodel import Field, Relationship
 
-from database.model.concept.concept import AIoDConceptBase
+from database.model.concept.concept import AIoDConceptBase, AIoDConcept
 from database.model.field_length import LONG, NORMAL, SHORT
+
+from database.model.computational_requirement.computational_requirement import (
+    ComputationalRequirement,
+)
+from database.model.relationships import OneToOne
+from database.model.serializers import (
+    AttributeSerializer,
+    FindByNameDeserializer,
+)
 
 
 class DistributionBase(AIoDConceptBase):
@@ -61,9 +72,23 @@ def distribution_factory(table_from: str, distribution_name="distribution") -> T
             sa_column=Column(Integer, ForeignKey(table_from + ".identifier", ondelete="CASCADE"))
         )
 
+        has_computational_requirement_identifier: int | None = Field(
+            index=True, foreign_key=ComputationalRequirement.__tablename__ + ".identifier"
+        )
+        has_computational_requirement: ComputationalRequirement | None = Relationship()
+
     DistributionORM.__name__ = DistributionORM.__qualname__ = f"{distribution_name}_{table_from}"
     return DistributionORM
 
 
 class Distribution(DistributionBase):
     """All or part of an AIAsset in downloadable form"""
+
+    class RelationshipConfig(AIoDConcept.RelationshipConfig):
+        has_computational_requirement: list[str] = OneToOne(
+            description="The computational requirement needed for the Distribution to function.",
+            identifier_name="computational_requirement_identifier",
+            _serializer=AttributeSerializer("name"),
+            deserializer=FindByNameDeserializer(ComputationalRequirement),
+            example="ComputationalRequirement-1",
+        )
