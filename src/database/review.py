@@ -6,6 +6,7 @@ import sqlalchemy
 from sqlalchemy import Column, select
 from sqlmodel import SQLModel, Field, Relationship, Session
 
+import routers
 from database.model.field_length import NORMAL, LONG
 from database.model.concept.concept import AIoDConcept
 from database.model.helper_functions import non_abstract_subclasses
@@ -108,4 +109,33 @@ class SubmissionView(SubmissionBase):
     # The Asset is of type AIoDConcept, but specifying that here means that SQLModel will
     # only return AIoDConcept fields to the user, instead of all supplied attributes.
     # E.g., a publication's issn is now returned but would not if it was AIoDConcept.
+    # Instead we use the configuration below to set the schema annotations.
     asset: Any = Field()
+
+    class Config:
+        # This allows us to set the schema generation at runtime, which is necessary since the
+        # ResourceRead classes are only defined at runtime (generated dynamically).
+        @staticmethod
+        def schema_extra(schema: dict[str, Any], _: type["SubmissionView"]) -> None:
+            available_schemas: list[AIoDConcept] = list(non_abstract_subclasses(AIoDConcept))
+            classes_dict = {
+                clz.__tablename__: clz for clz in available_schemas if clz.__tablename__
+            }
+            resrouters = {
+                route.resource_name: route
+                for route in routers.resource_routers.router_list  # type: ignore
+            }
+            read_classes_dict = {
+                name: resrouters[name].resource_class_read for name in classes_dict
+            }
+
+            responses = [
+                {"$ref": f"#/components/schemas/{clz.__name__}"}
+                for clz in read_classes_dict.values()
+            ]
+            schema["properties"]["asset"] = {
+                "title": "Asset under review",
+                "description": "The type of the object can be found in SubmissionView.asset_type.",
+                "type": "object",
+                "anyOf": responses,
+            }
