@@ -1,7 +1,7 @@
 from typing import List, Optional
 from sqlmodel import Relationship
 
-from database.model.ai_resource.resource import AbstractAIResource, AIResourceBase
+from database.model.ai_resource.resource import AIResource, AIResourceBase
 from database.model.ai_resource.resource_table import AIResourceORM
 from database.model.helper_functions import many_to_many_link_factory
 from database.model.resource_bundle.external_resource import ExternalResource
@@ -22,7 +22,7 @@ class ResourceBundleBase(AIResourceBase):
     pass
 
 
-class ResourceBundle(ResourceBundleBase, AbstractAIResource, table=True):  # type: ignore [call-arg]
+class ResourceBundle(ResourceBundleBase, AIResource, table=True):  # type: ignore [call-arg]
     __tablename__ = "resource_bundle"
 
     # Many-to-Many relationship linking ResourceBundle to external resources (URLs)
@@ -35,7 +35,7 @@ class ResourceBundle(ResourceBundleBase, AbstractAIResource, table=True):  # typ
         link_model=many_to_many_link_factory("resource_bundle", AIResourceORM.__tablename__)
     )
 
-    class RelationshipConfig(AbstractAIResource.RelationshipConfig):
+    class RelationshipConfig(AIResource.RelationshipConfig):
         includes_external_resource: List[str] = ManyToMany(
             description="External resources (URLs) not in AIoD.",
             _serializer=AttributeSerializer("name"),
