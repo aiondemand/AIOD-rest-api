@@ -3,10 +3,21 @@ from http import HTTPStatus
 from typing import Sequence, Literal
 
 from fastapi import APIRouter, HTTPException, Depends
-from sqlmodel import select
+from sqlmodel import select, Session
+from starlette import status
 
+from authentication import KeycloakUser, get_user_or_raise
+from database.authorization import register_user, user_can_administer
 from database.session import DbSession, get_session
-from database.review import Submission, Review, SubmissionWithReviews, SubmissionBase
+from database.review import (
+    Submission,
+    Review,
+    SubmissionWithReviews,
+    SubmissionBase,
+    ReviewCreate,
+    Decision,
+)
+from database.model.concept.aiod_entry import EntryStatus, AIoDEntryORM
 
 
 def create(url_prefix: str) -> APIRouter:
@@ -26,6 +37,13 @@ def create(url_prefix: str) -> APIRouter:
         description="Retrieve a specific submission.",
         response_model=SubmissionWithReviews,
     )(get_submission)
+
+    router.post(
+        f"{url_prefix}/reviews/{version}",
+        tags=["Reviewing"],
+        description="Review an asset.",
+        response_model=Review,
+    )(_review_resource)
 
     # Add MiddleWare which requires authentication as reviewer role
     return router
@@ -82,3 +100,52 @@ def get_submission(identifier: int, session=Depends(get_session)) -> Submission:
         status_code=HTTPStatus.NOT_FOUND,
         detail=f"No submission with identifier {identifier} found.",
     )
+
+
+def _review_resource(
+    review: ReviewCreate,
+    user: KeycloakUser = Depends(get_user_or_raise),
+    session: Session = Depends(get_session),
+):
+    if "reviewer" not in user.roles:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You must have reviewing privileges to use this endpoint.",
+        )
+
+    query = select(Submission).where(Submission.identifier == review.submission_identifier)
+    submission = session.scalars(query).first()
+    if submission is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"No review with identifier {review.submission_identifier} found.",
+        )
+    if not submission.is_pending:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Review is no longer pending, no new decision may be made.",
+        )
+    register_user(user, session)
+
+    aiod_entry = session.get(AIoDEntryORM, submission.aiod_entry_identifier)
+    if user_can_administer(user, aiod_entry):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You do not have permission to review your own assets.",
+        )
+
+    if review.decision == Decision.ACCEPTED:
+        new_status = EntryStatus.PUBLISHED
+    else:
+        new_status = EntryStatus.DRAFT
+    aiod_entry.status = new_status
+
+    review = Review(
+        reviewer_identifier=user._subject_identifier,
+        comment=review.comment,
+        decision=review.decision,
+        submission_identifier=submission.identifier,
+    )
+    session.add(review)
+    session.commit()
+    return review
