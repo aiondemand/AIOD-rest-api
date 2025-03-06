@@ -12,7 +12,7 @@ from database.model.field_length import LONG, NORMAL, SHORT
 from database.model.computational_requirement.computational_requirement import (
     ComputationalRequirement,
 )
-from database.model.relationships import ManyToOne
+from database.model.relationships import OneToOne
 from database.model.serializers import (
     AttributeSerializer,
     FindByNameDeserializer,
@@ -72,10 +72,10 @@ def distribution_factory(table_from: str, distribution_name="distribution") -> T
             sa_column=Column(Integer, ForeignKey(table_from + ".identifier", ondelete="CASCADE"))
         )
 
-        computational_requirement_identifier: int | None = Field(
+        has_computational_requirement_identifier: int | None = Field(
             index=True, foreign_key=ComputationalRequirement.__tablename__ + ".identifier"
         )
-        computational_requirement: ComputationalRequirement | None = Relationship()
+        has_computational_requirement: ComputationalRequirement | None = Relationship()
 
     DistributionORM.__name__ = DistributionORM.__qualname__ = f"{distribution_name}_{table_from}"
     return DistributionORM
@@ -85,7 +85,7 @@ class Distribution(DistributionBase):
     """All or part of an AIAsset in downloadable form"""
 
     class RelationshipConfig(AIoDConcept.RelationshipConfig):
-        computational_requirement: list[str] = ManyToOne(
+        has_computational_requirement: list[str] = OneToOne(
             description="The computational requirement needed for the Distribution to function.",
             identifier_name="computational_requirement_identifier",
             _serializer=AttributeSerializer("name"),
