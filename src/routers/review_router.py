@@ -3,8 +3,9 @@ from http import HTTPStatus
 from typing import Sequence, Literal
 
 from fastapi import APIRouter, HTTPException, Depends
-from sqlmodel import select
+from sqlmodel import select, Session
 
+from authentication import KeycloakUser, get_user_or_raise
 from database.session import DbSession, get_session
 from database.review import Submission, Review, SubmissionView, SubmissionBase
 
@@ -40,19 +41,26 @@ class ListMode(enum.StrEnum):
 
 
 def _get_single_submission(
-    *, which: Literal[ListMode.NEWEST, ListMode.OLDEST]
+    *,
+    which: Literal[ListMode.NEWEST, ListMode.OLDEST],
+    from_requestee: str | None = None,
 ) -> Submission | None:
     with DbSession() as session:
         has_review = select(1).where(Submission.identifier == Review.submission_identifier).exists()
-        order = Submission.request_date
+        query = select(Submission).where(~has_review)
+
         if which == ListMode.NEWEST:
-            order = Submission.request_date.desc()  # type: ignore[attr-defined]
-        query = select(Submission).order_by(order).where(~has_review)
+            query = query.order_by(Submission.request_date.desc())  # type: ignore[attr-defined]
+        if from_requestee is not None:
+            query = query.where(Submission.requestee_identifier == from_requestee)
+
         return session.scalars(query).first()
 
 
 def _get_submissions_by_state(
-    *, which: Literal[ListMode.COMPLETED, ListMode.PENDING]
+    *,
+    which: Literal[ListMode.COMPLETED, ListMode.PENDING],
+    from_requestee: str | None = None,
 ) -> Sequence[Submission]:
     with DbSession() as session:
         has_review = select(1).where(Submission.identifier == Review.submission_identifier).exists()
@@ -60,25 +68,39 @@ def _get_submissions_by_state(
             submissions = select(Submission).where(~has_review)
         if which == ListMode.COMPLETED:
             submissions = select(Submission).where(has_review)
+        if from_requestee is not None:
+            submissions = submissions.where(Submission.requestee_identifier == from_requestee)
         return session.scalars(submissions).all()
 
 
-def list_submissions(mode: ListMode = ListMode.NEWEST) -> Sequence[Submission]:
+def list_submissions(
+    mode: ListMode = ListMode.NEWEST, user: KeycloakUser = Depends(get_user_or_raise)
+) -> Sequence[Submission]:
     # mypy does not do type narrowing properly: https://github.com/python/mypy/issues/12535
+    user_filter = None if "reviewer" in user.roles else user._subject_identifier
     if mode in [ListMode.NEWEST, ListMode.OLDEST]:
-        submission = _get_single_submission(which=mode)  # type: ignore[arg-type]
+        submission = _get_single_submission(which=mode, from_requestee=user_filter)  # type: ignore[arg-type]
         return [submission] if submission else []
     if mode in [ListMode.PENDING, ListMode.COMPLETED]:
-        return _get_submissions_by_state(which=mode)  # type: ignore[arg-type]
+        return _get_submissions_by_state(which=mode, from_requestee=user_filter)  # type: ignore[arg-type]
     raise ValueError(f"`mode` should be one of {ListMode!r} but is {mode!r}.")
 
 
-def get_submission(identifier: int, session=Depends(get_session)) -> Submission:
+def get_submission(
+    identifier: int,
+    user: KeycloakUser = Depends(get_user_or_raise),
+    session: Session = Depends(get_session),
+) -> Submission:
     query = select(Submission).where(Submission.identifier == identifier)
     submission = session.scalars(query).first()
-    if submission:
-        return submission
-    raise HTTPException(
-        status_code=HTTPStatus.NOT_FOUND,
-        detail=f"No submission with identifier {identifier} found.",
-    )
+    if not submission:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND,
+            detail=f"No submission with identifier {identifier} found.",
+        )
+    if "reviewer" not in user.roles and submission.requestee_identifier != user._subject_identifier:
+        raise HTTPException(
+            status_code=HTTPStatus.FORBIDDEN,
+            detail=f"You do not have permission to view submission with identifier {identifier}.",
+        )
+    return submission

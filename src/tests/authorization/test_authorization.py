@@ -4,6 +4,7 @@ from http import HTTPStatus
 from unittest.mock import Mock
 
 import pytest
+from starlette.testclient import TestClient
 
 from authentication import keycloak_openid, KeycloakUser
 from database.authorization import (
@@ -178,6 +179,21 @@ def test_get_submission_by_id(client, publication):
         publication_json = json.loads(publication.json())
         assert asset == publication_json
 
+def test_get_submission_by_id_must_be_reviewer_or_owner(client, publication):
+    register_asset(publication, owner=ALICE, status=EntryStatus.SUBMITTED)
+    _register_user_in_db(REVIEWER)
+    _register_user_in_db(BOB)
+
+    for allowed_user in [REVIEWER, ALICE]:
+        with logged_in_user(allowed_user):
+            submission = client.get("/submissions/v1/1", headers={"Authorization": "Fake token"})
+            assert submission.status_code == HTTPStatus.OK, submission.json()
+
+    with logged_in_user(BOB):
+        submission = client.get("/submissions/v1/1", headers={"Authorization": "Fake token"})
+        # Probably should be changed to Administrators of the asset instead of just submitter.
+        assert submission.status_code == HTTPStatus.FORBIDDEN, "Only reviewer and submitter should be able to see the review."
+
 
 def test_unknown_submission_raises_404(client):
     with logged_in_user(REVIEWER):
@@ -185,15 +201,27 @@ def test_unknown_submission_raises_404(client):
         assert queue.status_code == HTTPStatus.NOT_FOUND
 
 
-@pytest.mark.skip("Requiring reviewer role to be added through middleware")
-def test_getting_submission_requires_review_role(client):
-    queue = client.get("/submissions/v1/1")
-    assert queue.status_code == HTTPStatus.UNAUTHORIZED
+@pytest.mark.parametrize(
+    ("user", "mode", "assets", "reason"),
+    [
+        (REVIEWER, ListMode.PENDING, [2, 3], "Reviewer can see all pending reviews."),
+        (REVIEWER, ListMode.COMPLETED, [1], "Reviewer can see all completed reviews."),
+        (ALICE, ListMode.PENDING, [2], "Alice has one pending submission and can not see Bob's."),
+        (ALICE, ListMode.COMPLETED, [1], "Alice only has one completed submission."),
+        (BOB, ListMode.PENDING, [3], "Bob has one pending submission and can not see Alice's."),
+        (BOB, ListMode.COMPLETED, [], "Bob has no completed submission."),
+    ]
+)
+def test_submission_by_state_respects_privacy(user: KeycloakUser, mode: ListMode, assets: list[int], reason: str, client: TestClient, publication):
+    register_asset(publication, owner=ALICE, status=EntryStatus.PUBLISHED)
+    register_asset(publication, owner=ALICE, status=EntryStatus.SUBMITTED)
+    register_asset(publication, owner=BOB, status=EntryStatus.SUBMITTED)
 
-    with logged_in_user(ALICE):
-        queue = client.get("/submissions/v1/1", headers={"Authorization": "Fake token"})
-        assert queue.status_code == HTTPStatus.FORBIDDEN
-
+    with logged_in_user(user):
+        queue = client.get(f"/submissions/v1?mode={mode}", headers={"Authorization": "Fake token"})
+        assert queue.status_code == HTTPStatus.OK, queue.json()
+        returned_submissions = [submission["identifier"] for submission in queue.json()]
+        assert returned_submissions == assets, f"{reason} Response: {queue.json()}"
 
 def test_an_published_asset_is_not_pending_for_review(client, publication):
     register_asset(publication, owner=ALICE, status=EntryStatus.PUBLISHED)
@@ -214,7 +242,18 @@ def test_an_published_asset_is_not_pending_for_review(client, publication):
         assert len(queue.json()) == 1, "After publication, the review request is completed."
 
 
-def test_retrieving_single_submission_works(client, publication_factory):
+@pytest.mark.parametrize(
+    ("user", "mode", "asset", "reason"),
+    [
+        (REVIEWER, ListMode.OLDEST, 2,"Reviewer can see both Alice and Bob's submission." ),
+        (REVIEWER, ListMode.NEWEST, 3, "Reviewer can see both Alice and Bob's submission."),
+        (ALICE, ListMode.OLDEST, 2, "Alice only has one pending submission."),
+        (ALICE, ListMode.NEWEST, 2,"Alice only has one pending submission."),
+        (BOB, ListMode.OLDEST, 3,"Bob only has one pending submission." ),
+        (BOB, ListMode.NEWEST, 3,"Bob only has one pending submission."),
+    ]
+)
+def test_retrieving_single_submission_works(user: KeycloakUser, mode: ListMode, asset: int, reason: str, client: TestClient, publication_factory):
     publication = publication_factory()
     oldest = publication_factory()
     oldest.platform_resource_identifier = "OLDEST"
@@ -223,24 +262,12 @@ def test_retrieving_single_submission_works(client, publication_factory):
 
     register_asset(publication, owner=ALICE, status=EntryStatus.PUBLISHED)
     register_asset(oldest, owner=ALICE, status=EntryStatus.SUBMITTED)
-    register_asset(newest, owner=ALICE, status=EntryStatus.SUBMITTED)
+    register_asset(newest, owner=BOB, status=EntryStatus.SUBMITTED)
 
-    with logged_in_user(REVIEWER):
-        queue = client.get(
-            f"/submissions/v1?mode={ListMode.OLDEST}", headers={"Authorization": "Fake token"}
-        )
+    with logged_in_user(user):
+        queue = client.get(f"/submissions/v1?mode={mode}", headers={"Authorization": "Fake token"})
         assert queue.status_code == HTTPStatus.OK, queue.json()
-        assert (
-            queue.json()[0]["aiod_entry_identifier"] == 2
-        ), "The oldest pending submission is the second one."
-
-        queue = client.get(
-            f"/submissions/v1?mode={ListMode.NEWEST}", headers={"Authorization": "Fake token"}
-        )
-        assert queue.status_code == HTTPStatus.OK, queue.json()
-        assert (
-            queue.json()[0]["aiod_entry_identifier"] == 3
-        ), "The newest pending submission is the third one."
+        assert queue.json()[0]["aiod_entry_identifier"] == asset, reason
 
 
 def test_user_can_retract_assets(client, publication):
