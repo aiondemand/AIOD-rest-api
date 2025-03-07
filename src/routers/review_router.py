@@ -28,7 +28,6 @@ def create(url_prefix: str) -> APIRouter:
         response_model=SubmissionView,
     )(get_submission)
 
-    # Add MiddleWare which requires authentication as reviewer role
     return router
 
 
@@ -77,7 +76,7 @@ def list_submissions(
     mode: ListMode = ListMode.NEWEST, user: KeycloakUser = Depends(get_user_or_raise)
 ) -> Sequence[Submission]:
     # mypy does not do type narrowing properly: https://github.com/python/mypy/issues/12535
-    user_filter = None if "reviewer" in user.roles else user._subject_identifier
+    user_filter = None if user.is_reviewer else user._subject_identifier
     if mode in [ListMode.NEWEST, ListMode.OLDEST]:
         submission = _get_single_submission(which=mode, from_requestee=user_filter)  # type: ignore[arg-type]
         return [submission] if submission else []
@@ -98,7 +97,7 @@ def get_submission(
             status_code=HTTPStatus.NOT_FOUND,
             detail=f"No submission with identifier {identifier} found.",
         )
-    if "reviewer" not in user.roles and submission.requestee_identifier != user._subject_identifier:
+    if not user.is_reviewer and submission.requestee_identifier != user._subject_identifier:
         raise HTTPException(
             status_code=HTTPStatus.FORBIDDEN,
             detail=f"You do not have permission to view submission with identifier {identifier}.",

@@ -57,6 +57,10 @@ class KeycloakUser:
     def has_any_role(self, *roles: str) -> bool:
         return bool(set(roles) & self.roles)
 
+    @property
+    def is_reviewer(self):
+        return "reviewer" in self.roles
+
 
 async def _get_user(token) -> KeycloakUser:
     """

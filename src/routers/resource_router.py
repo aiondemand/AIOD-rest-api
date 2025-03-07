@@ -631,7 +631,7 @@ class ResourceRouter(abc.ABC):
             review: ReviewCreate,
             user: KeycloakUser = Depends(get_user_or_raise),
         ):
-            if "reviewer" not in user.roles:
+            if not user.is_reviewer:
                 raise HTTPException(
                     status_code=status.HTTP_403_FORBIDDEN,
                     detail="You must have reviewing privileges to use this endpoint.",
