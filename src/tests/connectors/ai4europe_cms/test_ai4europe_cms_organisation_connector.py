@@ -42,10 +42,7 @@ def test_run_happy_path():
             assert type(resource) == ResourceWithRelations
             assert resource.resource_ORM_class == Organisation
             assert resource.resource.platform == PlatformName.ai4europe_cms
-            assert (
-                resource.resource.platform_resource_identifier
-                == f"mock-node-{str(i + 1)}"
-            )
+            assert resource.resource.platform_resource_identifier == f"mock-node-{str(i + 1)}"
             assert resource.resource.name == f"mock-organisation-{i + 1}"
             assert resource.resource.date_published == mocked_datetime
             assert resource.resource.type == f"mock-type-{i + 1}"

@@ -39,13 +39,9 @@ class OrganisationBase(AgentBase):
 class Organisation(OrganisationBase, Agent, table=True):  # type: ignore [call-arg]
     __tablename__ = "organisation"
 
-    contact_details: Optional[Contact] = Relationship(
-        sa_relationship_kwargs={"uselist": False}
-    )
+    contact_details: Optional[Contact] = Relationship(sa_relationship_kwargs={"uselist": False})
 
-    type_identifier: int | None = Field(
-        foreign_key=OrganisationType.__tablename__ + ".identifier"
-    )
+    type_identifier: int | None = Field(foreign_key=OrganisationType.__tablename__ + ".identifier")
     type: Optional[OrganisationType] = Relationship()
 
     member: list[AgentTable] = Relationship(
