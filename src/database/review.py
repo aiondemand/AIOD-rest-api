@@ -91,6 +91,10 @@ class Submission(SubmissionBase, table=True):  # type: ignore [call-arg]
 
     @property
     def asset(self) -> AIoDConcept:
+        # I could not find a way to just use a Relationship directly on account of it needing
+        # to be defined on creation but the asset_type is only known at runtime.
+        # We still mimic the behavior of a lazy-loaded relationship by fetching the session
+        # related to the object, instead of instantiating a new session.
         session = Session.object_session(self)
         available_schemas: list[AIoDConcept] = list(non_abstract_subclasses(AIoDConcept))
         schema_by_name = {schema.__tablename__: schema for schema in available_schemas}
