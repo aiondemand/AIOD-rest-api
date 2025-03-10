@@ -151,14 +151,6 @@ class ResourceRouter(abc.ABC):
             **default_kwargs,
         )
         router.add_api_route(
-            path=f"{url_prefix}/{self.resource_name_plural}/review/{version}",
-            methods={"POST"},
-            endpoint=self.get_review_func(),
-            name=self.resource_name,
-            description=f"Review a {self.resource_name}. Only for reviewers.",
-            **default_kwargs,
-        )
-        router.add_api_route(
             path=f"{url_prefix}/{self.resource_name_plural}/{version}",
             methods={"POST"},
             endpoint=self.register_resource_func(),
@@ -623,71 +615,6 @@ class ResourceRouter(abc.ABC):
                 )
 
         return retract_resource
-
-    def get_review_func(self):
-        """Return a function that can be used to review a single resource."""
-
-        def review_resource(
-            review: ReviewCreate,
-            user: KeycloakUser = Depends(get_user_or_raise),
-        ):
-            if not user.is_reviewer:
-                raise HTTPException(
-                    status_code=status.HTTP_403_FORBIDDEN,
-                    detail="You must have reviewing privileges to use this endpoint.",
-                )
-
-            with DbSession() as session:
-                query = select(Submission).where(
-                    Submission.identifier == review.submission_identifier
-                )
-                submission = session.scalars(query).first()
-                if submission is None:
-                    raise HTTPException(
-                        status_code=status.HTTP_400_BAD_REQUEST,
-                        detail=f"No review with identifier {review.submission_identifier} found.",
-                    )
-                if not submission.is_pending:
-                    raise HTTPException(
-                        status_code=status.HTTP_400_BAD_REQUEST,
-                        detail="Review is no longer pending, no new decision may be made.",
-                    )
-                register_user(user, session)
-
-                resource = self._retrieve_resource(
-                    identifier=submission.aiod_entry_identifier,
-                    session=session,
-                    is_entry_identifier=True,
-                )  # type: ignore
-                if user_can_administer(user, resource.aiod_entry):
-                    raise HTTPException(
-                        status_code=status.HTTP_403_FORBIDDEN,
-                        detail="You do not have permission to review your own assets.",
-                    )
-
-                if review.decision == Decision.ACCEPTED:
-                    new_status = EntryStatus.PUBLISHED
-                else:
-                    new_status = EntryStatus.DRAFT
-                resource.aiod_entry.status = new_status
-
-                review = Review(
-                    reviewer_identifier=user._subject_identifier,
-                    comment=review.comment,
-                    decision=review.decision,
-                    submission_identifier=submission.identifier,
-                )
-                session.add(review)
-                session.commit()
-                return self._wrap_with_headers(
-                    {
-                        "review_identifier": review.identifier,
-                        "submission_identifier": submission.identifier,
-                        "decision": review.decision,
-                    }
-                )
-
-        return review_resource
 
     def _retrieve_resource(
         self,
