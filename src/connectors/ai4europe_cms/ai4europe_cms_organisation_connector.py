@@ -51,7 +51,6 @@ class AI4EuropeCmsOrganisationConnector(ResourceConnector[Organisation]):
             return
 
         for organisation in organisations:
-
             pydantic_class_contact = resource_create(Contact)
             pydantic_class = resource_create(Organisation)
             contact_data = organisation["contact_details"]
@@ -62,7 +61,8 @@ class AI4EuropeCmsOrganisationConnector(ResourceConnector[Organisation]):
                         AIoDEntryCreate()
                         if (
                             organisation.get("contact_details") is not None
-                            and organisation["contact_details"].get("aiod_entry") is not None
+                            and organisation["contact_details"].get("aiod_entry")
+                            is not None
                         )
                         else None
                     ),
@@ -74,14 +74,20 @@ class AI4EuropeCmsOrganisationConnector(ResourceConnector[Organisation]):
                     platform=organisation["platform"]
                     if organisation.get("platform") is not None
                     else None,
-                    name=organisation["name"] if organisation.get("name") is not None else None,
+                    name=organisation["name"]
+                    if organisation.get("name") is not None
+                    else None,
                     date_published=organisation["date_published"]
                     if organisation.get("date_published") is not None
                     else None,
-                    scientific_domain=[sd for sd in organisation.get("scientific_domain")]
+                    scientific_domain=[
+                        sd for sd in organisation.get("scientific_domain")
+                    ]
                     if organisation.get("scientific_domain") is not None
                     else [],
-                    industrial_sector=[ins for ins in organisation.get("industrial_sector")]
+                    industrial_sector=[
+                        ins for ins in organisation.get("industrial_sector")
+                    ]
                     if organisation.get("industrial_sector") is not None
                     else [],
                     relevant_link=[rl for rl in organisation.get("relevant_link")]
@@ -105,7 +111,9 @@ class AI4EuropeCmsOrganisationConnector(ResourceConnector[Organisation]):
                     ai_relevance=organisation["ai_relevance"]
                     if organisation.get("ai_relevance") is not None
                     else None,
-                    type=organisation["type"] if organisation.get("type") is not None else None,
+                    type=organisation["type"]
+                    if organisation.get("type") is not None
+                    else None,
                 ),
                 resource_ORM_class=Organisation,
                 related_resources={
@@ -119,7 +127,8 @@ class AI4EuropeCmsOrganisationConnector(ResourceConnector[Organisation]):
                             else None,
                             platform_resource_identifier=(
                                 contact_data["platform_resource_identifier"]
-                                if contact_data.get("platform_resource_identifier") is not None
+                                if contact_data.get("platform_resource_identifier")
+                                is not None
                                 else None
                             ),
                             email=(
@@ -145,7 +154,8 @@ class AI4EuropeCmsOrganisationConnector(ResourceConnector[Organisation]):
                                         elevation_millimeters=(
                                             loc["geo"]["elevation_millimeters"]
                                             if loc.get("geo") is not None
-                                            and loc["geo"].get("elevation_millimeters") is not None
+                                            and loc["geo"].get("elevation_millimeters")
+                                            is not None
                                             else None
                                         ),
                                     ),
@@ -159,7 +169,8 @@ class AI4EuropeCmsOrganisationConnector(ResourceConnector[Organisation]):
                                         locality=(
                                             loc["address"]["locality"]
                                             if loc.get("address") is not None
-                                            and loc["address"].get("locality") is not None
+                                            and loc["address"].get("locality")
+                                            is not None
                                             else None
                                         ),
                                         street=(
@@ -171,19 +182,22 @@ class AI4EuropeCmsOrganisationConnector(ResourceConnector[Organisation]):
                                         postal_code=(
                                             loc["address"]["postal_code"]
                                             if loc.get("address") is not None
-                                            and loc["address"].get("postal_code") is not None
+                                            and loc["address"].get("postal_code")
+                                            is not None
                                             else None
                                         ),
                                         address=(
                                             loc["address"]["address"]
                                             if loc.get("address") is not None
-                                            and loc["address"].get("address") is not None
+                                            and loc["address"].get("address")
+                                            is not None
                                             else None
                                         ),
                                         country=(
                                             loc["address"]["country"]
                                             if loc.get("address") is not None
-                                            and loc["address"].get("country") is not None
+                                            and loc["address"].get("country")
+                                            is not None
                                             else None
                                         ),
                                     ),
