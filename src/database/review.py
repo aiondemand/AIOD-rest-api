@@ -1,11 +1,15 @@
 import enum
 from datetime import datetime, timezone
+from typing import Any
 
 import sqlalchemy
-from sqlalchemy import Column
-from sqlmodel import SQLModel, Field, Relationship
+from sqlalchemy import Column, select
+from sqlmodel import SQLModel, Field, Relationship, Session
 
+import routers
 from database.model.field_length import NORMAL, LONG
+from database.model.concept.concept import AIoDConcept
+from database.model.helper_functions import non_abstract_subclasses
 
 REQUIRED_NUMBER_OF_REVIEWS = 1
 
@@ -69,6 +73,9 @@ class SubmissionBase(SubmissionCreate):
     # If the entry corresponding to the thing it reviews is removed,
     # then we also want to permanently remove the review data.
     aiod_entry_identifier: int = Field(foreign_key="aiod_entry.identifier", ondelete="CASCADE")
+    asset_type: str = Field(
+        description="The name of the table of the resource. E.g. 'dataset' or 'person'"
+    )
 
 
 class Submission(SubmissionBase, table=True):  # type: ignore [call-arg]
@@ -83,9 +90,56 @@ class Submission(SubmissionBase, table=True):  # type: ignore [call-arg]
     reviews: list[Review] = Relationship(back_populates="submission")
 
     @property
+    def asset(self) -> AIoDConcept:
+        # I could not find a way to just use a Relationship directly on account of it needing
+        # to be defined on creation but the asset_type is only known at runtime.
+        # We still mimic the behavior of a lazy-loaded relationship by fetching the session
+        # related to the object, instead of instantiating a new session.
+        session = Session.object_session(self)
+        available_schemas: list[AIoDConcept] = list(non_abstract_subclasses(AIoDConcept))
+        schema_by_name = {schema.__tablename__: schema for schema in available_schemas}
+        schema = schema_by_name[self.asset_type]
+
+        query = select(schema).where(schema.aiod_entry_identifier == self.aiod_entry_identifier)
+        return session.scalars(query).one()
+
+    @property
     def is_pending(self):
         return len(self.reviews) < REQUIRED_NUMBER_OF_REVIEWS
 
 
-class SubmissionWithReviews(SubmissionBase):
+class SubmissionView(SubmissionBase):
     reviews: list[Review] = Field(default_factory=list)
+    # The Asset is of type AIoDConcept, but specifying that here means that SQLModel will
+    # only return AIoDConcept fields to the user, instead of all supplied attributes.
+    # E.g., a publication's issn is now returned but would not if it was AIoDConcept.
+    # Instead we use the configuration below to set the schema annotations.
+    asset: Any = Field()
+
+    class Config:
+        # This allows us to set the schema generation at runtime, which is necessary since the
+        # ResourceRead classes are only defined at runtime (generated dynamically).
+        @staticmethod
+        def schema_extra(schema: dict[str, Any], _: type["SubmissionView"]) -> None:
+            available_schemas: list[AIoDConcept] = list(non_abstract_subclasses(AIoDConcept))
+            classes_dict = {
+                clz.__tablename__: clz for clz in available_schemas if clz.__tablename__
+            }
+            resrouters = {
+                route.resource_name: route
+                for route in routers.resource_routers.router_list  # type: ignore
+            }
+            read_classes_dict = {
+                name: resrouters[name].resource_class_read for name in classes_dict
+            }
+
+            responses = [
+                {"$ref": f"#/components/schemas/{clz.__name__}"}
+                for clz in read_classes_dict.values()
+            ]
+            schema["properties"]["asset"] = {
+                "title": "Asset under review",
+                "description": "The type of the object can be found in SubmissionView.asset_type.",
+                "type": "object",
+                "anyOf": responses,
+            }

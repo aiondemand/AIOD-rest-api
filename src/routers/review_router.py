@@ -12,7 +12,7 @@ from database.session import DbSession, get_session
 from database.review import (
     Submission,
     Review,
-    SubmissionWithReviews,
+    SubmissionView,
     SubmissionBase,
     ReviewCreate,
     Decision,
@@ -35,7 +35,7 @@ def create(url_prefix: str) -> APIRouter:
         f"{url_prefix}/submissions/{version}/{{identifier}}",
         tags=["Reviewing"],
         description="Retrieve a specific submission.",
-        response_model=SubmissionWithReviews,
+        response_model=SubmissionView,
     )(get_submission)
 
     router.post(

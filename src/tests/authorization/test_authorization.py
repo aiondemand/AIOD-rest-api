@@ -1,4 +1,5 @@
 import contextlib
+import json
 from http import HTTPStatus
 from unittest.mock import Mock
 
@@ -157,20 +158,25 @@ def test_get_submission_by_id(client, publication):
         submission_date = submission_dict.pop("request_date")
         review_date = submission_dict["reviews"][0].pop("decision_date")
         assert submission_date < review_date
+        reviews = submission_dict.pop("reviews")
+        asset = submission_dict.pop("asset")
         assert submission_dict == {
             "identifier": 1,
             "aiod_entry_identifier": 1,
             "comment": "",
-            "reviews": [
-                {
-                    "identifier": 1,
-                    "decision": "accepted",
-                    "comment": "foo",
-                    "submission_identifier": 1,
-                }
-            ],
+            "asset_type": "publication",
         }
-
+        assert reviews == [
+            {
+                "identifier": 1,
+                "decision": "accepted",
+                "comment": "foo",
+                "submission_identifier": 1,
+            }
+        ]
+        # Convert to loaded JSON, including e.g., stringification of dates
+        publication_json = json.loads(publication.json())
+        assert asset == publication_json
 
 
 def test_unknown_submission_raises_404(client):
@@ -289,6 +295,7 @@ def register_asset(asset: AIoDConcept, /, *, owner: KeycloakUser, status: EntryS
             submission = Submission(
                 requestee_identifier=owner._subject_identifier,
                 aiod_entry_identifier=asset.aiod_entry.identifier,
+                asset_type=asset.__tablename__,
             )
             session.add(submission)
             if status == EntryStatus.PUBLISHED:
