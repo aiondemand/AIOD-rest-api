@@ -1,1 +1,2 @@
 40 * * * * bash /opt/connectors/script/organisations.sh >> /opt/connectors/data/ai4europe_cms/organisation/cron.log 2>&1
+40 * * * * bash /opt/connectors/script/events.sh >> /opt/connectors/data/ai4europe_cms/events/cron.log 2>&1

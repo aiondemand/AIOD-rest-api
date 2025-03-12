@@ -1,0 +1,54 @@
+[
+    {
+      "name": "mock-event-1",
+      "platform": "ai4europe_cms",
+      "platform_resource_identifier": "mock-node-1",
+      "date_published": "2023-01-01T00:00:00+00:00",
+      "same_as": "https://www.ai4europe.eu/news-and-events/news/mock-event-1",
+      "headline": "Innovative AI Techniques in Wastewater Management",
+      "description": {
+        "plain": "This mock event highlights how AI is revolutionizing wastewater treatment by optimizing processes and reducing energy consumption.",
+        "html": "<div>This mock event highlights how AI is revolutionizing wastewater treatment by optimizing processes and reducing energy consumption.</div>"
+      },
+      "aiod_entry": {
+        "editor": [],
+        "status": "published"
+      },
+      "type": "mock-type-1"
+    },
+    {
+      "name": "mock-event-2",
+      "platform": "ai4europe_cms",
+      "platform_resource_identifier": "mock-node-2",
+      "date_published": "2023-01-01T00:00:00+00:00",
+      "same_as": "https://www.ai4europe.eu/news-and-events/news/mock-event-2",
+      "headline": "Smart Sensors and Data Analytics in Water Treatment",
+      "description": {
+        "plain": "Explore how smart sensors and data analytics are transforming water treatment facilities, improving efficiency and sustainability.",
+        "html": "<div>Explore how smart sensors and data analytics are transforming water treatment facilities, improving efficiency and sustainability.</div>"
+      },
+      "aiod_entry": {
+        "editor": [],
+        "status": "draft"
+      },
+      "type": "mock-type-2"
+    },
+    {
+      "name": "mock-event-3",
+      "platform": "ai4europe_cms",
+      "platform_resource_identifier": "mock-node-3",
+      "date_published": "2023-01-01T00:00:00+00:00",
+      "same_as": "https://www.ai4europe.eu/news-and-events/news/mock-event-3",
+      "headline": "Eco-friendly Wastewater Solutions Powered by Machine Learning",
+      "description": {
+        "plain": "This mock event showcases the integration of machine learning to drive eco-friendly wastewater solutions, aiming to reduce emissions and recover resources.",
+        "html": "<div>This mock event showcases the integration of machine learning to drive eco-friendly wastewater solutions, aiming to reduce emissions and recover resources.</div>"
+      },
+      "aiod_entry": {
+        "editor": [],
+        "status": "published"
+      },
+      "type": "mock-type-3"
+    }
+  ]
+  
