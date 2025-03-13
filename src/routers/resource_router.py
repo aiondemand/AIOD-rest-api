@@ -15,7 +15,12 @@ from starlette.responses import JSONResponse
 from authentication import KeycloakUser, get_user_or_none, get_user_or_raise
 from config import KEYCLOAK_CONFIG
 from converters.schema_converters.schema_converter import SchemaConverter
-from database.authorization import user_can_administer, add_administrator, register_user
+from database.authorization import (
+    user_can_administer,
+    add_administrator,
+    register_user,
+    user_can_write,
+)
 from database.model.ai_resource.resource import AIResource
 from database.model.concept.aiod_entry import AIoDEntryORM, EntryStatus
 from database.model.concept.concept import AIoDConcept
@@ -399,15 +404,6 @@ class ResourceRouter(abc.ABC):
             resource_create: clz_create,  # type: ignore
             user: KeycloakUser = Depends(get_user_or_raise),
         ):
-            if not user.has_any_role(
-                KEYCLOAK_CONFIG.get("role"),
-                f"create_{self.resource_name_plural}",
-                f"crud_{self.resource_name_plural}",
-            ):
-                raise HTTPException(
-                    status_code=status.HTTP_403_FORBIDDEN,
-                    detail=f"You do not have permission to create {self.resource_name_plural}.",
-                )
             try:
                 with DbSession() as session:
                     try:
@@ -446,19 +442,14 @@ class ResourceRouter(abc.ABC):
             resource_create_instance: clz_create,  # type: ignore
             user: KeycloakUser = Depends(get_user_or_raise),
         ):
-            if not user.has_any_role(
-                KEYCLOAK_CONFIG.get("role"),
-                f"update_{self.resource_name_plural}",
-                f"crud_{self.resource_name_plural}",
-            ):
-                raise HTTPException(
-                    status_code=status.HTTP_403_FORBIDDEN,
-                    detail=f"You do not have permission to edit {self.resource_name_plural}.",
-                )
-
             with DbSession() as session:
                 try:
                     resource: Any = self._retrieve_resource(session, identifier)
+                    if not user_can_write(user, resource.aiod_entry):
+                        raise HTTPException(
+                            status_code=status.HTTP_403_FORBIDDEN,
+                            detail=f"You do not have permission to edit {self.resource_name} {identifier}.",
+                        )
                     if resource.aiod_entry.status == EntryStatus.SUBMITTED:
                         raise HTTPException(
                             status_code=status.HTTP_403_FORBIDDEN,
@@ -496,18 +487,14 @@ class ResourceRouter(abc.ABC):
             user: KeycloakUser = Depends(get_user_or_raise),
         ):
             with DbSession() as session:
-                if not user.has_any_role(
-                    KEYCLOAK_CONFIG.get("role"),
-                    f"delete_{self.resource_name_plural}",
-                    f"crud_{self.resource_name_plural}",
-                ):
-                    raise HTTPException(
-                        status_code=status.HTTP_403_FORBIDDEN,
-                        detail=f"You do not have permission to delete {self.resource_name_plural}.",
-                    )
                 try:
-                    # Raise error if it does not exist
                     resource: Any = self._retrieve_resource(session, identifier)
+                    if not user_can_administer(user, resource.aiod_entry):
+                        raise HTTPException(
+                            status_code=status.HTTP_403_FORBIDDEN,
+                            detail=f"You do not have permission to delete {self.resource_name} {identifier}.",
+                        )
+
                     if (
                         hasattr(self.resource_class, "__deletion_config__")
                         and not self.resource_class.__deletion_config__["soft_delete"]
