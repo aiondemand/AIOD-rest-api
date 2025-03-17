@@ -13,7 +13,6 @@ from database.model.platform.platform_names import PlatformName
 from tests.testutils.paths import path_test_resources
 
 
-TOKEN = "TEST_AIBUILDER_API_TOKEN"
 API_URL = "https://community-dev-api.aiod.eu/api/events/"
 connector = AI4EuropeCmsEventConnector()
 test_resources_path = os.path.join(path_test_resources(), "connectors", "ai4europe_cms")
