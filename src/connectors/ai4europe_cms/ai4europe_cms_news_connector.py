@@ -54,9 +54,7 @@ class AI4EuropeCmsNewsConnector(ResourceConnectorById[News]):
             pydantic_class = resource_create(News)
             yield ResourceWithRelations[News](
                 resource=pydantic_class(
-                    platform_resource_identifier=n.get("platform_resource_identifier")[
-                        5:
-                    ],
+                    platform_resource_identifier=n.get("platform_resource_identifier")[5:],
                     platform=n.get("platform"),
                     name=n.get("name"),
                     date_published=n.get("date_published"),

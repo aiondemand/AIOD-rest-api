@@ -65,9 +65,9 @@ class AI4EuropeCmsOrganisationConnector(ResourceConnectorById[Organisation]):
                     aiod_entry=AIoDEntryCreate()
                     if organisation.get("contact_details", {}).get("aiod_entry")
                     else None,
-                    platform_resource_identifier=organisation.get(
-                        "platform_resource_identifier"
-                    )[5:],
+                    platform_resource_identifier=organisation.get("platform_resource_identifier")[
+                        5:
+                    ],
                     platform=organisation.get("platform"),
                     name=organisation.get("name"),
                     date_published=organisation.get("date_published"),
@@ -91,37 +91,23 @@ class AI4EuropeCmsOrganisationConnector(ResourceConnectorById[Organisation]):
                             platform_resource_identifier=contact_data.get(
                                 "platform_resource_identifier"
                             )[5:],
-                            email=[
-                                e
-                                for e in contact_data.get("email", [])
-                                if e is not None
-                            ],
+                            email=[e for e in contact_data.get("email", []) if e is not None],
                             location=[
                                 LocationORM(
                                     geo=GeoORM(
                                         latitude=(loc.get("geo") or {}).get("latitude"),
-                                        longitude=(loc.get("geo") or {}).get(
-                                            "longitude"
+                                        longitude=(loc.get("geo") or {}).get("longitude"),
+                                        elevation_millimeters=(loc.get("geo") or {}).get(
+                                            "elevation_millimeters"
                                         ),
-                                        elevation_millimeters=(
-                                            loc.get("geo") or {}
-                                        ).get("elevation_millimeters"),
                                     ),
                                     address=AddressORM(
                                         region=(loc.get("address") or {}).get("region"),
-                                        locality=(loc.get("address") or {}).get(
-                                            "locality"
-                                        ),
+                                        locality=(loc.get("address") or {}).get("locality"),
                                         street=(loc.get("address") or {}).get("street"),
-                                        postal_code=(loc.get("address") or {}).get(
-                                            "postal_code"
-                                        ),
-                                        address=(loc.get("address") or {}).get(
-                                            "address"
-                                        ),
-                                        country=(loc.get("address") or {}).get(
-                                            "country"
-                                        ),
+                                        postal_code=(loc.get("address") or {}).get("postal_code"),
+                                        address=(loc.get("address") or {}).get("address"),
+                                        country=(loc.get("address") or {}).get("country"),
                                     ),
                                 )
                                 for loc in contact_data.get("location", [])

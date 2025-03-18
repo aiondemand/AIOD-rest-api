@@ -33,9 +33,7 @@ def test_run_happy_path():
                 headers={"AuthorizationToken": "1234567890"},
                 status=200,
             )
-            fetched_resources = list(
-                connector.run(state={}, from_identifier=0, limit=None)
-            )
+            fetched_resources = list(connector.run(state={}, from_identifier=0, limit=None))
 
         mocked_datetime = datetime.fromisoformat("2023-01-01T00:00:00+00:00")
         assert len(fetched_resources) == 3
