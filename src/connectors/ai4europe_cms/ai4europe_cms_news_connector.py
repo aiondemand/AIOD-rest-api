@@ -26,7 +26,6 @@ class AI4EuropeCmsNewsConnector(ResourceConnectorById[News]):
     def fetch(
         self, offset: int, from_identifier: int
     ) -> Iterator[ResourceWithRelations[News] | RecordError]:
-
         url_data = "https://community-dev-api.aiod.eu/api/news/"
 
         headers = {"AuthorizationToken": "1234567890"}
@@ -55,7 +54,9 @@ class AI4EuropeCmsNewsConnector(ResourceConnectorById[News]):
             pydantic_class = resource_create(News)
             yield ResourceWithRelations[News](
                 resource=pydantic_class(
-                    platform_resource_identifier=n.get("platform_resource_identifier")[5:],
+                    platform_resource_identifier=n.get("platform_resource_identifier")[
+                        5:
+                    ],
                     platform=n.get("platform"),
                     name=n.get("name"),
                     date_published=n.get("date_published"),

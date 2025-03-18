@@ -27,7 +27,6 @@ class AI4EuropeCmsEventConnector(ResourceConnectorById[Event]):
     def fetch(
         self, offset: int, from_identifier: int
     ) -> Iterator[ResourceWithRelations[Event] | RecordError]:
-
         url_data = "https://community-dev-api.aiod.eu/api/events/"
 
         headers = {"AuthorizationToken": "1234567890"}
@@ -55,14 +54,17 @@ class AI4EuropeCmsEventConnector(ResourceConnectorById[Event]):
             pydantic_class = resource_create(Event)
             yield ResourceWithRelations[Event](
                 resource=pydantic_class(
-                    platform_resource_identifier=event.get("platform_resource_identifier")[5:],
+                    platform_resource_identifier=event.get(
+                        "platform_resource_identifier"
+                    )[5:],
                     platform=event.get("platform"),
                     name=event.get("name"),
                     date_published=event.get("date_published"),
                     start_date=event.get("start_date"),
                     end_date=event.get("end_date"),
                     registration_link=event.get("registration_link")
-                    if event.get("registration_link") and len(event.get("registration_link")) <= 256
+                    if event.get("registration_link")
+                    and len(event.get("registration_link")) <= 256
                     else None,
                     mode=event.get("mode"),
                     scientific_domain=event.get("scientific_domain", []),
