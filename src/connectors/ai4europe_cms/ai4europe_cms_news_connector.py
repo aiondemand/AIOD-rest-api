@@ -3,7 +3,7 @@ import requests
 from requests.exceptions import HTTPError
 from typing import Iterator
 
-from connectors.abstract.resource_connector import ResourceConnector
+from connectors.abstract.resource_connector_by_id import ResourceConnectorById
 from connectors.record_error import RecordError
 from database.model.platform.platform_names import PlatformName
 from database.model.resource_read_and_create import resource_create
@@ -11,7 +11,7 @@ from database.model.news.news import News
 from connectors.resource_with_relations import ResourceWithRelations
 
 
-class AI4EuropeCmsNewsConnector(ResourceConnector[News]):
+class AI4EuropeCmsNewsConnector(ResourceConnectorById[News]):
     @property
     def resource_class(self) -> type[News]:
         return News
@@ -20,8 +20,12 @@ class AI4EuropeCmsNewsConnector(ResourceConnector[News]):
     def platform_name(self) -> PlatformName:
         return PlatformName.ai4europe_cms
 
-    def run(self, state: dict, **kwargs) -> Iterator[ResourceWithRelations[News] | RecordError]:
-        """Fetch resources and update the state"""
+    def retry(self, identifier: int):
+        raise NotImplementedError("Not implemented.")
+
+    def fetch(
+        self, offset: int, from_identifier: int
+    ) -> Iterator[ResourceWithRelations[News] | RecordError]:
 
         url_data = "https://community-dev-api.aiod.eu/api/news/"
 
@@ -44,45 +48,28 @@ class AI4EuropeCmsNewsConnector(ResourceConnector[News]):
             return
 
         for n in news:
-            pydantic_class = resource_create(News)
+            identifier = int(n.get("platform_resource_identifier")[5:])
+            if identifier < from_identifier:
+                continue
 
+            pydantic_class = resource_create(News)
             yield ResourceWithRelations[News](
                 resource=pydantic_class(
-                    platform_resource_identifier=(
-                        n["platform_resource_identifier"]
-                        if n.get("platform_resource_identifier") is not None
-                        else None
-                    ),
-                    platform=n["platform"] if n.get("platform") is not None else None,
-                    name=n["name"] if n.get("name") is not None else None,
-                    date_published=n["date_published"]
-                    if n.get("date_published") is not None
-                    else None,
-                    headline=n["headline"] if n.get("headline") is not None else None,
-                    alternative_headline=n["alternative_headline"]
-                    if n.get("alternative_headline") is not None
-                    else None,
-                    category=[cat for cat in n["category"]]
-                    if n.get("category") is not None
-                    else [],
-                    source=n["source"] if n.get("source") is not None else None,
-                    scientific_domain=[sd for sd in n.get("scientific_domain")]
-                    if n.get("scientific_domain") is not None
-                    else [],
-                    industrial_sector=[ins for ins in n.get("industrial_sector")]
-                    if n.get("industrial_sector") is not None
-                    else [],
-                    relevant_link=[rl for rl in n.get("relevant_link")]
-                    if n.get("relevant_link") is not None
-                    else [],
-                    alternate_name=[an for an in n.get("alternate_name")]
-                    if n.get("alternate_name") is not None
-                    else [],
-                    application_area=[ar for ar in n.get("application_area")]
-                    if n.get("application_area") is not None
-                    else [],
-                    keyword=[k for k in n.get("keyword")] if n.get("keyword") is not None else [],
-                    same_as=n["same_as"] if n.get("same_as") is not None else None,
+                    platform_resource_identifier=n.get("platform_resource_identifier")[5:],
+                    platform=n.get("platform"),
+                    name=n.get("name"),
+                    date_published=n.get("date_published"),
+                    headline=n.get("headline"),
+                    alternative_headline=n.get("alternative_headline"),
+                    category=n.get("category", []),
+                    source=n.get("source"),
+                    scientific_domain=n.get("scientific_domain", []),
+                    industrial_sector=n.get("industrial_sector", []),
+                    relevant_link=n.get("relevant_link", []),
+                    alternate_name=n.get("alternate_name", []),
+                    application_area=n.get("application_area", []),
+                    keyword=n.get("keyword", []),
+                    same_as=n.get("same_as"),
                 ),
                 resource_ORM_class=News,
             )

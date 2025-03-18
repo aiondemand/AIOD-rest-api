@@ -3,7 +3,7 @@ import requests
 from requests.exceptions import HTTPError
 from typing import Iterator
 
-from connectors.abstract.resource_connector import ResourceConnector
+from connectors.abstract.resource_connector_by_id import ResourceConnectorById
 from connectors.record_error import RecordError
 from database.model.platform.platform_names import PlatformName
 from database.model.resource_read_and_create import resource_create
@@ -12,7 +12,7 @@ from connectors.resource_with_relations import ResourceWithRelations
 from database.model.ai_resource.text import Text
 
 
-class AI4EuropeCmsEventConnector(ResourceConnector[Event]):
+class AI4EuropeCmsEventConnector(ResourceConnectorById[Event]):
     @property
     def resource_class(self) -> type[Event]:
         return Event
@@ -21,8 +21,12 @@ class AI4EuropeCmsEventConnector(ResourceConnector[Event]):
     def platform_name(self) -> PlatformName:
         return PlatformName.ai4europe_cms
 
-    def run(self, state: dict, **kwargs) -> Iterator[ResourceWithRelations[Event] | RecordError]:
-        """Fetch resources and update the state"""
+    def retry(self, identifier: int):
+        raise NotImplementedError("Not implemented.")
+
+    def fetch(
+        self, offset: int, from_identifier: int
+    ) -> Iterator[ResourceWithRelations[Event] | RecordError]:
 
         url_data = "https://community-dev-api.aiod.eu/api/events/"
 
@@ -45,50 +49,32 @@ class AI4EuropeCmsEventConnector(ResourceConnector[Event]):
             return
 
         for event in events:
+            identifier = int(event.get("platform_resource_identifier")[5:])
+            if identifier < from_identifier:
+                continue
             pydantic_class = resource_create(Event)
-            desc = event.get("description") or {}
-
             yield ResourceWithRelations[Event](
                 resource=pydantic_class(
-                    platform_resource_identifier=(
-                        event["platform_resource_identifier"]
-                        if event.get("platform_resource_identifier") is not None
-                        else None
-                    ),
-                    platform=event["platform"] if event.get("platform") is not None else None,
-                    name=event["name"] if event.get("name") is not None else None,
-                    date_published=event["date_published"]
-                    if event.get("date_published") is not None
+                    platform_resource_identifier=event.get("platform_resource_identifier")[5:],
+                    platform=event.get("platform"),
+                    name=event.get("name"),
+                    date_published=event.get("date_published"),
+                    start_date=event.get("start_date"),
+                    end_date=event.get("end_date"),
+                    registration_link=event.get("registration_link")
+                    if event.get("registration_link") and len(event.get("registration_link")) <= 256
                     else None,
-                    start_date=event["start_date"] if event.get("start_date") is not None else None,
-                    end_date=event["end_date"] if event.get("end_date") is not None else None,
-                    registration_link=event["registration_link"]
-                    if event.get("registration_link") is not None
-                    and len(event.get("registration_link")) <= 256
-                    else None,
-                    mode=event["mode"] if event.get("mode") is not None else None,
-                    scientific_domain=[sd for sd in event.get("scientific_domain")]
-                    if event.get("scientific_domain") is not None
-                    else [],
-                    industrial_sector=[ins for ins in event.get("industrial_sector")]
-                    if event.get("industrial_sector") is not None
-                    else [],
-                    relevant_link=[rl for rl in event.get("relevant_link")]
-                    if event.get("relevant_link") is not None
-                    else [],
-                    alternate_name=[an for an in event.get("alternate_name")]
-                    if event.get("alternate_name") is not None
-                    else [],
-                    application_area=[ar for ar in event.get("application_area")]
-                    if event.get("application_area") is not None
-                    else [],
-                    keyword=[k for k in event.get("keyword")]
-                    if event.get("keyword") is not None
-                    else [],
-                    same_as=event["same_as"] if event.get("same_as") is not None else None,
+                    mode=event.get("mode"),
+                    scientific_domain=event.get("scientific_domain", []),
+                    industrial_sector=event.get("industrial_sector", []),
+                    relevant_link=event.get("relevant_link", []),
+                    alternate_name=event.get("alternate_name", []),
+                    application_area=event.get("application_area", []),
+                    keyword=event.get("keyword", []),
+                    same_as=event.get("same_as"),
                     description=Text(
-                        plain=desc.get("plain") or "",
-                        html=desc.get("html") or "",
+                        plain=event.get("description", {}).get("plain", ""),
+                        html=event.get("description", {}).get("html", ""),
                     ),
                 ),
                 resource_ORM_class=Event,

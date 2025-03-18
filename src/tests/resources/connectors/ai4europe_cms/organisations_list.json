@@ -2,7 +2,7 @@
   {
     "name": "mock-organisation-1",
     "platform": "ai4europe_cms",
-    "platform_resource_identifier": "mock-node-1",
+    "platform_resource_identifier": "node-1",
     "date_published": "2023-01-01T00:00:00+00:00",
     "same_as": "https://www.mockedurl.com/organization/1",
     "legal_name": "mock-legal-name-1",
@@ -29,7 +29,7 @@
     "contact_details": {
       "name": "mock-contact-name-1",
       "platform": "mock-platform-1",
-      "platform_resource_identifier": "mock-node-1",
+      "platform_resource_identifier": "node-1",
       "email": [
         "contact1@mockedu.org"
       ],
@@ -59,7 +59,7 @@
   {
     "name": "mock-organisation-2",
     "platform": "ai4europe_cms",
-    "platform_resource_identifier": "mock-node-2",
+    "platform_resource_identifier": "node-2",
     "date_published": "2023-01-01T00:00:00+00:00",
     "same_as": "https://www.mockedurl.com/organization/2",
     "legal_name": "mock-legal-name-2",
@@ -85,7 +85,7 @@
     "contact_details": {
       "name": "mock-contact-name-2",
       "platform": "mock-platform-2",
-      "platform_resource_identifier": "mock-node-2",
+      "platform_resource_identifier": "node-2",
       "email": [
         "contact2@mockresearch.org"
       ],
@@ -115,7 +115,7 @@
   {
     "name": "mock-organisation-3",
     "platform": "ai4europe_cms",
-    "platform_resource_identifier": "mock-node-3",
+    "platform_resource_identifier": "node-3",
     "date_published": "2023-01-01T00:00:00+00:00",
     "same_as": "https://www.mockedurl.com/organization/3",
     "legal_name": "mock-legal-name-3",
@@ -141,7 +141,7 @@
     "contact_details": {
       "name": "mock-contact-name-3",
       "platform": "mock-platform-3",
-      "platform_resource_identifier": "mock-node-3",
+      "platform_resource_identifier": "node-3",
       "email": [
         "contact3@mocklab.org"
       ],

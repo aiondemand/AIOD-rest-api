@@ -2,7 +2,7 @@
     {
       "name": "mock-event-1",
       "platform": "ai4europe_cms",
-      "platform_resource_identifier": "mock-node-1",
+      "platform_resource_identifier": "node-1",
       "date_published": "2023-01-01T00:00:00+00:00",
       "same_as": "https://www.ai4europe.eu/news-and-events/news/mock-event-1",
       "headline": "Innovative AI Techniques in Wastewater Management",
@@ -19,7 +19,7 @@
     {
       "name": "mock-event-2",
       "platform": "ai4europe_cms",
-      "platform_resource_identifier": "mock-node-2",
+      "platform_resource_identifier": "node-2",
       "date_published": "2023-01-01T00:00:00+00:00",
       "same_as": "https://www.ai4europe.eu/news-and-events/news/mock-event-2",
       "headline": "Smart Sensors and Data Analytics in Water Treatment",
@@ -36,7 +36,7 @@
     {
       "name": "mock-event-3",
       "platform": "ai4europe_cms",
-      "platform_resource_identifier": "mock-node-3",
+      "platform_resource_identifier": "node-3",
       "date_published": "2023-01-01T00:00:00+00:00",
       "same_as": "https://www.ai4europe.eu/news-and-events/news/mock-event-3",
       "headline": "Eco-friendly Wastewater Solutions Powered by Machine Learning",

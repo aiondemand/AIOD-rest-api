@@ -33,7 +33,7 @@ def test_run_happy_path():
                 headers={"AuthorizationToken": "1234567890"},
                 status=200,
             )
-            fetched_resources = list(connector.run(state={}))
+            fetched_resources = list(connector.run(state={}, from_identifier=0, limit=None))
 
         mocked_datetime = datetime.fromisoformat("2023-01-01T00:00:00+00:00")
         assert len(fetched_resources) == 3
@@ -41,6 +41,6 @@ def test_run_happy_path():
             assert type(resource) == ResourceWithRelations
             assert resource.resource_ORM_class == Event
             assert resource.resource.platform == PlatformName.ai4europe_cms
-            assert resource.resource.platform_resource_identifier == f"mock-node-{str(i + 1)}"
+            assert resource.resource.platform_resource_identifier == f"{i + 1}"
             assert resource.resource.name == f"mock-event-{i + 1}"
             assert resource.resource.date_published == mocked_datetime
