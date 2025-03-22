@@ -35,9 +35,9 @@ def test_happy_path(
         "installation": "Build the Dockerfile",
         "installation_time_milliseconds": 100,
         "deployment_script": "./run.sh",
-        "deployment": "You can run the run.py file using python3. See README.md for required "
+        "deployment_process": "You can run the run.py file using python3. See README.md for required "
         "arguments.",
-        "deployment_time_milliseconds": 100,
+        "deployment_time_msec": 100,
         "os_requirement": "Windows 11.",
         "dependency": "Python packages as listed in requirements.txt.",
         "hardware_requirement": "4GB RAM; 100MB storage; 1GHz processor with 8 cores.",
