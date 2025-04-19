@@ -25,7 +25,16 @@
           "platform" : "A platform.",
           "description_plain" : "A plain text description.",
           "description_html" : "An html description.",
-          "type" : "educational_resource"
+          "type" : "educational_resource",
+          "alternate_name" : "An alternate name, Or more",
+          "application_area" : "An application area, Or more",
+          "industrial_sector" : "An industrial sector, Or more",
+          "research_area" : "A research area, Or more",
+          "scientific_domain" : "A scientific domain, Or more",
+          "edu_access_mode" : "An access mode, Or more",
+          "edu_educational_level" : "An educational level, Or more",
+          "edu_prerequisite" : "A prerequisite, Or more",
+          "edu_target_audience" : "A target audience, Or more"
         },
         "sort" : [
             1
