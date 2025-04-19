@@ -265,5 +265,10 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
         }
         for linked_field in self.linked_fields:
             if resource_dict[linked_field]:
-                setattr(resource, linked_field, resource_dict[linked_field].split(","))
+                field = (
+                    self.key_translations[linked_field]
+                    if linked_field in self.key_translations.keys()
+                    else linked_field
+                )
+                setattr(resource, field, resource_dict[linked_field].split(","))
         return resource
