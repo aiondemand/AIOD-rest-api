@@ -118,6 +118,9 @@ class LocationORM(LocationBase, table=True):  # type: ignore [call-arg]
     event_identifier: int | None = Field(
         sa_column=Column(Integer, ForeignKey("event.identifier", ondelete="CASCADE"))
     )
+    computational_asset_identifier: int | None = Field(
+        sa_column=Column(Integer, ForeignKey("computational_asset.identifier", ondelete="CASCADE"))
+    )
 
     class RelationshipConfig:
         address: Optional[Address] = OneToOne(deserializer=CastDeserializer(AddressORM))
