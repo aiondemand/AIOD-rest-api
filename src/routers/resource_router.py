@@ -472,6 +472,9 @@ class ResourceRouter(abc.ABC):
                 with DbSession() as session:
                     try:
                         resource = self.create_resource(session, resource_create)
+                        # Set platform to 'aiod' for user uploads
+                        resource.platform = "aiod"
+                        
                         register_user(user, session)
                         set_permission(
                             user, resource.aiod_entry, session, type_=PermissionType.ADMIN
