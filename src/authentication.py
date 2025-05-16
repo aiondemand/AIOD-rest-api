@@ -67,8 +67,22 @@ class KeycloakUser:
         return bool(set(roles) & self.roles)
 
     @property
-    def is_reviewer(self):
+    def is_reviewer(self) -> bool:
         return REVIEWER_ROLE in self.roles
+
+
+class WhiteList:
+    def __init__(self, *platforms: str):
+        self._allowed_platforms = set(platforms)
+
+    def __contains__(self, item: KeycloakUser) -> bool:
+        platforms = [
+            role.removeprefix("platform:") for role in item.roles if role.startswith("platform:")
+        ]
+        return bool(set(platforms) & self._allowed_platforms)
+
+
+white_list = WhiteList("adra_e")
 
 
 async def _get_user(token) -> KeycloakUser:

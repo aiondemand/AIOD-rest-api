@@ -13,7 +13,7 @@ from sqlalchemy.sql.operators import is_
 from sqlmodel import SQLModel, Session, select
 from starlette.responses import JSONResponse
 
-from authentication import KeycloakUser, get_user_or_none, get_user_or_raise
+from authentication import KeycloakUser, get_user_or_none, get_user_or_raise, white_list
 from converters.schema_converters.schema_converter import SchemaConverter
 from database.authorization import (
     user_can_administer,
@@ -433,6 +433,8 @@ class ResourceRouter(abc.ABC):
                         set_permission(
                             user, resource.aiod_entry, session, type_=PermissionType.ADMIN
                         )
+                        if user in white_list:
+                            resource.aiod_entry.status = EntryStatus.PUBLISHED
                         session.commit()
                         return self._wrap_with_headers({"identifier": resource.identifier})
                     except Exception as e:
