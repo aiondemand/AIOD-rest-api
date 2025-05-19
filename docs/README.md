@@ -1,7 +1,7 @@
 # 🇪🇺 AI-on-Demand Metadata Catalogue
 
 The AI-on-Demand Metadata Catalogue provides a unified view of AI assets and resources stored across the AI landscape.
-It collects metadata from platforms such as [_Hugging Face_](https://huggingface.co), [_OpenML_](https://openml.org), and [_Zendodo_](https://zenodo.org),
+It collects metadata from platforms such as [_Hugging Face_](https://huggingface.co), [_OpenML_](https://openml.org), and [_Zenodo_](https://zenodo.org),
 and is connected to European projects like [Bonsapps](https://bonsapps.eu) and [AIDA](https://www.i-aida.org).
 Metadata of datasets, models, papers, news, and more from all of these sources is available through a REST API at [api.aiod.eu](https://api.aiod.eu/).
 
