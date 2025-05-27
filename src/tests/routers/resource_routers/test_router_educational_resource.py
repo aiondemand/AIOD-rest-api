@@ -8,6 +8,7 @@ def test_happy_path(
     client: TestClient,
     mocked_privileged_token: Mock,
     body_asset: dict,
+    auto_publish: None,
 ):
     body = copy.deepcopy(body_asset)
     body["time_required"] = "3 weeks"

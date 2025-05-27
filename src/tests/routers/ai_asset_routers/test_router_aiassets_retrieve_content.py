@@ -8,6 +8,7 @@ from starlette.testclient import TestClient
 
 from database.model.agent.person import Person
 from database.session import DbSession
+from tests.testutils.users import logged_in_user, ALICE
 
 TEST_URL1 = "https://www.example.com/example1.csv/content"
 TEST_URL2 = "https://www.example.com/example2.tsv/content"
@@ -31,8 +32,8 @@ def resource_name(request: FixtureRequest) -> str:
 def test_ai_asset_has_endpoints(
     client: TestClient,
     body_asset_with_single_distribution: dict,
-    db_with_person: None,
     resource_name: str,
+    auto_publish: None,
 ):
     """
     Test the existence and functionality of endpoints for an AIAsset resource.
@@ -43,23 +44,25 @@ def test_ai_asset_has_endpoints(
     return a response with status code 200.
     """
     body = copy.deepcopy(body_asset_with_single_distribution)
-    response = client.post(
-        f"/{resource_name}/v1", json=body, headers={"Authorization": "Fake token"}
-    )
+    with logged_in_user():
+        response = client.post(
+            f"/{resource_name}/v1", json=body, headers={"Authorization": "Fake token"}
+        )
     assert response.status_code == status.HTTP_200_OK, response.json()
 
     default_endpoint = f"{resource_name}/v1/1/content"
 
-    response = client.get(default_endpoint, allow_redirects=False)
+    response = client.get(default_endpoint, follow_redirects=False)
     assert response.status_code == status.HTTP_303_SEE_OTHER, response.status_code
-    response0 = client.get(default_endpoint + "/0", allow_redirects=False)
+
+    response0 = client.get(default_endpoint + "/0", follow_redirects=False)
     assert response0.status_code == status.HTTP_303_SEE_OTHER, response0.status_code
 
 
 def test_endpoints_when_empty_distribution(
     client: TestClient,
     body_asset: dict,
-    db_with_person: None,
+    auto_publish: None,
 ):
     """
     Test retrieving content from an AIAsset with an empty distribution list.
@@ -71,9 +74,10 @@ def test_endpoints_when_empty_distribution(
     body = copy.deepcopy(body_asset)
     body["distribution"] = []
 
-    response = client.post(
-        f"/{SAMPLE_RESOURCE_NAME}/v1", json=body, headers={"Authorization": "Fake token"}
-    )
+    with logged_in_user(ALICE):
+        response = client.post(
+            f"/{SAMPLE_RESOURCE_NAME}/v1", json=body, headers={"Authorization": "Fake token"}
+        )
     assert response.status_code == status.HTTP_200_OK, response.json()
 
     response = client.get(SAMPLE_ENDPOINT, allow_redirects=False)
@@ -98,6 +102,7 @@ def test_endpoints_when_single_distribution(
     client: TestClient,
     body_asset_with_single_distribution: dict,
     db_with_person: None,
+    auto_publish: None,
 ):
     """
     Test retrieving content from an AIAsset with a single distribution.
@@ -107,9 +112,10 @@ def test_endpoints_when_single_distribution(
     content, and headers are returned.
     """
     body = copy.deepcopy(body_asset_with_single_distribution)
-    response = client.post(
-        f"/{SAMPLE_RESOURCE_NAME}/v1", json=body, headers={"Authorization": "Fake token"}
-    )
+    with logged_in_user(ALICE):
+        response = client.post(
+            f"/{SAMPLE_RESOURCE_NAME}/v1", json=body, headers={"Authorization": "Fake token"}
+        )
     assert response.status_code == status.HTTP_200_OK, response.json()
 
     response = client.get(SAMPLE_ENDPOINT, allow_redirects=False)
@@ -143,7 +149,7 @@ def body_asset_with_two_distributions(body_asset_with_single_distribution: dict)
 def test_endpoints_when_two_distributions(
     client: TestClient,
     body_asset_with_two_distributions: dict,
-    db_with_person: None,
+    auto_publish: None,
 ):
     """
     Test getting content from an AIAsset with multiple distributions.
@@ -153,9 +159,10 @@ def test_endpoints_when_two_distributions(
     content, and headers are returned.
     """
     body = copy.deepcopy(body_asset_with_two_distributions)
-    response = client.post(
-        f"/{SAMPLE_RESOURCE_NAME}/v1", json=body, headers={"Authorization": "Fake token"}
-    )
+    with logged_in_user(ALICE):
+        response = client.post(
+            f"/{SAMPLE_RESOURCE_NAME}/v1", json=body, headers={"Authorization": "Fake token"}
+        )
     assert response.status_code == status.HTTP_200_OK, response.json()
 
     response = client.get(SAMPLE_ENDPOINT, allow_redirects=False)

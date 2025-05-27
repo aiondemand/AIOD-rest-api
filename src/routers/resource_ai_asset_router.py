@@ -1,8 +1,9 @@
 from typing import Annotated
 
-from fastapi import APIRouter, HTTPException, status, Path
+from fastapi import APIRouter, HTTPException, status, Path, Depends
 from fastapi.responses import RedirectResponse
 
+from authentication import get_user_or_none, KeycloakUser
 from database.model.ai_asset.ai_asset import AIAsset
 from .resource_router import ResourceRouter
 
@@ -56,9 +57,13 @@ class ResourceAIAssetRouter(ResourceRouter):
                 int,
                 Path(description=f"The index of the distribution within the {self.resource_name}"),
             ],
+            user: KeycloakUser | None = Depends(get_user_or_none),
         ):
             metadata: AIAsset = self.get_resource(
-                identifier=identifier, schema="aiod", platform=None
+                identifier=identifier,
+                schema="aiod",
+                platform=None,
+                user=user,
             )  # type: ignore
 
             distributions = metadata.distribution
@@ -88,8 +93,9 @@ class ResourceAIAssetRouter(ResourceRouter):
             identifier: Annotated[
                 str, Path(description=f"The identifier of the {self.resource_name}")
             ],
+            user: KeycloakUser | None = Depends(get_user_or_none),
         ):
-            return get_resource_content(identifier=identifier, distribution_idx=0)
+            return get_resource_content(identifier=identifier, distribution_idx=0, user=user)
 
         if default:
             return get_resource_content_default

@@ -114,6 +114,7 @@ Then run the startup commands again (either `up.sh` or `docker compose`).
 By default, the server will create a database on the provided MySQL server if it does not yet exist.
 You can change this behavior through the **build-db** command-line parameter,
 it takes the following options:
+
 * never: *never* creates the database, not even if there does not exist one yet.
   Use this only if you expect the database to be created through other means, such
   as MySQL group replication.

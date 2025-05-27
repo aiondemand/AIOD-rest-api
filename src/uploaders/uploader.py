@@ -5,7 +5,6 @@ from typing import Any
 from fastapi import HTTPException, status, UploadFile
 
 from authentication import KeycloakUser
-from config import KEYCLOAK_CONFIG
 from database.model.dataset.dataset import Dataset
 from sqlmodel import Session, select
 

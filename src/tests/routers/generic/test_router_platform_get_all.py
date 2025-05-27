@@ -1,20 +1,23 @@
 from starlette.testclient import TestClient
 
 from database.session import DbSession
+from database.model.concept.aiod_entry import AIoDEntryORM
 from tests.testutils.test_resource import TestResource
 
 
-def test_get_all_happy_path(client_test_resource: TestClient):
+def test_get_all_happy_path(client_test_resource: TestClient, auto_publish):
     with DbSession() as session:
         session.add_all(
             [
                 TestResource(
-                    title="my_test_resource_1", platform="example", platform_resource_identifier="1"
+                    title="my_test_resource_1", platform="example", platform_resource_identifier="1",
+                    aiod_entry=AIoDEntryORM(),
                 ),
                 TestResource(
                     title="My second test resource",
                     platform="example",
                     platform_resource_identifier="2",
+                    aiod_entry=AIoDEntryORM(),
                 ),
             ]
         )

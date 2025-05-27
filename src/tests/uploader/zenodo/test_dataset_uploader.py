@@ -21,7 +21,8 @@ from database.model.dataset.dataset import Dataset
 from tests.testutils.paths import path_test_resources
 
 import tests.uploader.zenodo.mock_zenodo as zenodo
-from tests.testutils.users import logged_in_user, kc_user_with_roles
+from tests.testutils.users import logged_in_user, kc_user_with_roles, \
+    bypass_reviewer_publish_everything
 from uploaders.zenodo_uploader import ZenodoUploader
 
 ENDPOINT = "/upload/datasets/1/zenodo"
@@ -92,13 +93,13 @@ def body_with_dist(body_no_dist: dict) -> dict:
 
 
 def test_happy_path_creating_repo(
-    client: TestClient, body_empty: dict, db_with_person_and_contact: None
+    client: TestClient, body_empty: dict, db_with_person_and_contact: None, auto_publish: None,
 ):
     """
     Test the successful path for creating a new repository on Zenodo before uploading a file.
     The creation of a new repo must be triggered when platform_resource_identifier is None.
     """
-    with logged_in_user(kc_user_with_roles()):
+    with logged_in_user():
         response = client.post("/datasets/v1", json=body_empty, headers={"Authorization": "Fake token"})
     assert response.status_code == status.HTTP_200_OK, response.json()
 
@@ -134,7 +135,7 @@ def test_happy_path_existing_repo(
     When the platform_resource_identifier is not None (zenodo.org:int) the code should
     get metadata and url of the existing repo, then upload a file.
     """
-    with logged_in_user(kc_user_with_roles()):
+    with logged_in_user():
         response = client.post(
             "/datasets/v1", json=body_with_dist, headers={"Authorization": "Fake token"}
         )
@@ -154,6 +155,7 @@ def test_happy_path_existing_repo(
                 response = client.post(ENDPOINT, params=PARAMS_DRAFT, headers=HEADERS, files=test_file)
         assert response.status_code == status.HTTP_200_OK, response.json()
         assert response.json() == 1, response.json()
+    bypass_reviewer_publish_everything()
 
     response_json = client.get("datasets/v1/1").json()
     assert response_json["platform"] == "zenodo", response_json
@@ -169,7 +171,7 @@ def test_happy_path_existing_file(
     """
     Test uploading a second file to zenodo.
     """
-    with logged_in_user(kc_user_with_roles()):
+    with logged_in_user():
         response = client.post(
             "/datasets/v1", json=body_with_dist, headers={"Authorization": "Fake token"}
         )
@@ -188,6 +190,7 @@ def test_happy_path_existing_file(
                 response = client.post(ENDPOINT, params=PARAMS_DRAFT, headers=HEADERS, files=test_file)
         assert response.status_code == status.HTTP_200_OK, response.json()
         assert response.json() == 1, response.json()
+    bypass_reviewer_publish_everything()
 
     response_json = client.get("datasets/v1/1").json()
     assert response_json["platform"] == "zenodo", response_json
@@ -208,7 +211,7 @@ def test_happy_path_updating_an_existing_file(
     """
     updated_file_new_id = "newid000-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 
-    with logged_in_user(kc_user_with_roles()):
+    with logged_in_user():
         response = client.post(
             "/datasets/v1", json=body_with_dist, headers={"Authorization": "Fake token"}
         )
@@ -234,6 +237,7 @@ def test_happy_path_updating_an_existing_file(
                 response = client.post(ENDPOINT, params=PARAMS_DRAFT, headers=HEADERS, files=test_file)
         assert response.status_code == status.HTTP_200_OK, response.json()
         assert response.json() == 1, response.json()
+    bypass_reviewer_publish_everything()
 
     response_json = client.get("datasets/v1/1").json()
     assert response_json["platform"] == "zenodo", response_json
@@ -252,7 +256,7 @@ def test_happy_path_publishing(
     Test publishing the resource on Zenodo after uploading a file.
     The URL of the content should not be empty
     """
-    with logged_in_user(kc_user_with_roles()):
+    with logged_in_user():
         response = client.post("/datasets/v1", json=body_empty, headers={"Authorization": "Fake token"})
     assert response.status_code == status.HTTP_200_OK, response.json()
 
@@ -272,6 +276,7 @@ def test_happy_path_publishing(
         assert response.status_code == status.HTTP_200_OK, response.json()
         assert response.json() == 1, response.json()
 
+    bypass_reviewer_publish_everything()
     response_json = client.get("datasets/v1/1").json()
     assert response_json["aiod_entry"]["status"] == "published", response_json
     assert (
@@ -301,7 +306,7 @@ def test_attempt_to_upload_published_resource(
         session.add(contact)
         session.commit()
 
-    with logged_in_user(kc_user_with_roles()):
+    with logged_in_user():
         response = client.post("/datasets/v1", json=body, headers={"Authorization": "Fake token"})
     assert response.status_code == status.HTTP_200_OK, response.json()
 
@@ -355,7 +360,7 @@ def test_platform_name_conflict(
         session.add(contact)
         session.commit()
 
-    with logged_in_user(kc_user_with_roles()):
+    with logged_in_user():
         response = client.post("/datasets/v1", json=body, headers={"Authorization": "Fake token"})
     assert response.status_code == status.HTTP_200_OK, response.json()
 
@@ -371,6 +376,7 @@ def test_platform_name_conflict(
             "The dataset with identifier 1 should have platform=" f"{PlatformName.zenodo}."
         ), response.json()
 
+    bypass_reviewer_publish_everything()
     response_json = client.get("datasets/v1/1").json()
     assert response_json["platform"] == "huggingface", response_json
     assert response_json["platform_resource_identifier"] == "fake-id", response_json
@@ -392,7 +398,7 @@ def test_fail_due_to_missing_contact_name(
     with DbSession() as session:
         session.add(person)
         session.commit()
-    with logged_in_user(kc_user_with_roles()):
+    with logged_in_user():
         response = client.post("/datasets/v1", json=body, headers={"Authorization": "Fake token"})
     assert response.status_code == status.HTTP_200_OK, response.json()
 

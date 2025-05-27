@@ -2,6 +2,7 @@ import abc
 import datetime
 import traceback
 from functools import partial
+from http import HTTPStatus
 from typing import Annotated, Any, Literal, Sequence, Type, TypeVar, Union
 from wsgiref.handlers import format_date_time
 
@@ -13,7 +14,6 @@ from sqlmodel import SQLModel, Session, select
 from starlette.responses import JSONResponse
 
 from authentication import KeycloakUser, get_user_or_none, get_user_or_raise
-from config import KEYCLOAK_CONFIG
 from converters.schema_converters.schema_converter import SchemaConverter
 from database.authorization import (
     user_can_administer,
@@ -21,6 +21,7 @@ from database.authorization import (
     register_user,
     PermissionType,
     user_can_write,
+    user_can_read,
 )
 from database.model.ai_resource.resource import AIResource
 from database.model.concept.aiod_entry import AIoDEntryORM, EntryStatus
@@ -32,7 +33,7 @@ from database.model.resource_read_and_create import (
     resource_read,
 )
 from database.model.serializers import deserialize_resource_relationships
-from database.review import Decision, Review, Submission, ReviewCreate, SubmissionCreate
+from database.review import Submission, SubmissionCreate
 from database.session import DbSession
 from dependencies.filtering import ResourceFilters, ResourceFiltersParams
 from dependencies.pagination import Pagination, PaginationParams
@@ -211,7 +212,7 @@ class ResourceRouter(abc.ABC):
         user: KeycloakUser | None = None,
         platform: str | None = None,
     ):
-        """Fetch all resources of this platform in given schema, using pagination"""
+        """Fetch all published resources of this platform in given schema, using pagination"""
         _raise_error_on_invalid_schema(self._possible_schemas, schema)
         with DbSession(autoflush=False) as session:
             try:
@@ -244,6 +245,17 @@ class ResourceRouter(abc.ABC):
                 resource: Any = self._retrieve_resource_and_post_process(
                     session, identifier, user, platform=platform
                 )
+                if resource.aiod_entry.status != EntryStatus.PUBLISHED:
+                    if user is None:
+                        raise HTTPException(
+                            status_code=HTTPStatus.UNAUTHORIZED,
+                            detail="This asset is not published. It requires authentication to access.",
+                        )
+                    if not user_can_read(user, resource.aiod_entry):
+                        raise HTTPException(
+                            status_code=HTTPStatus.FORBIDDEN,
+                            detail="You are not allowed to view this resource.",
+                        )
                 if schema != "aiod":
                     return self.schema_converters[schema].convert(session, resource)
                 return self._wrap_with_headers(self.resource_class_read.from_orm(resource))
@@ -276,7 +288,7 @@ class ResourceRouter(abc.ABC):
 
     def get_resource_count_func(self):
         """
-        Gets the total number of resources from the database.
+        Gets the total number of published resources from the database.
         This function returns a function (instead of being that function directly) because the
         docstring and the variables are dynamic, and used in Swagger.
         """
@@ -291,7 +303,11 @@ class ResourceRouter(abc.ABC):
                     if not detailed:
                         return (
                             session.query(self.resource_class)
-                            .where(is_(self.resource_class.date_deleted, None))
+                            .join(self.resource_class.aiod_entry, isouter=True)
+                            .where(
+                                is_(self.resource_class.date_deleted, None),
+                                AIoDEntryORM.status == EntryStatus.PUBLISHED,
+                            )
                             .count()
                         )
                     else:
@@ -300,7 +316,11 @@ class ResourceRouter(abc.ABC):
                                 self.resource_class.platform,
                                 func.count(self.resource_class.identifier),
                             )
-                            .where(is_(self.resource_class.date_deleted, None))
+                            .join(self.resource_class.aiod_entry, isouter=True)
+                            .where(
+                                is_(self.resource_class.date_deleted, None),
+                                AIoDEntryORM.status == EntryStatus.PUBLISHED,
+                            )
                             .group_by(self.resource_class.platform)
                             .all()
                         )
@@ -612,8 +632,8 @@ class ResourceRouter(abc.ABC):
         platform: str | None = None,
     ) -> Sequence[type[RESOURCE_MODEL]]:
         """
-        Retrieve a sequence of resources from the database based on the provided identifier,
-        platform and resource filters (if applicable).
+        Retrieve a sequence of published resources from the database based on the
+        provided identifier, platform and resource filters (if applicable).
         """
         where_clause = and_(
             is_(self.resource_class.date_deleted, None),
@@ -624,6 +644,7 @@ class ResourceRouter(abc.ABC):
             AIoDEntryORM.date_modified < resource_filters.date_modified_before
             if resource_filters.date_modified_before is not None
             else True,
+            AIoDEntryORM.status == EntryStatus.PUBLISHED,
         )
         query = (
             select(self.resource_class)

@@ -8,6 +8,7 @@ def test_happy_path(
     client: TestClient,
     mocked_privileged_token: Mock,
     body_resource: dict,
+    auto_publish: None,
 ):
     body = copy.copy(body_resource)
     body["slogan"] = "Smart Blockchains for everyone!"

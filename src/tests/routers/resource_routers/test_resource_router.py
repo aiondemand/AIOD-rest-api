@@ -5,6 +5,7 @@ import pytest
 from starlette.testclient import TestClient
 
 
+
 @pytest.mark.parametrize(
     "resource_type",
     [
@@ -55,6 +56,7 @@ def test_happy_path_with_filters(
     resource_type,
     resource_filters: dict,
     expected_count: int,
+    auto_publish: None,
 ):
     response = client.post(
         f"/{resource_type}/v1", json=body_asset, headers={"Authorization": "Fake token"}

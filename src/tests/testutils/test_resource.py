@@ -19,7 +19,8 @@ class TestResource(TestResourceBase, AIoDConcept, table=True):  # type: ignore [
     identifier: int = Field(default=None, primary_key=True)
 
 
-def factory(
+# Note that the alternative name `test_resource_factory` would make pytest pick this up as a unit test
+def factory_test_resource(
     title="default_title", status=EntryStatus.DRAFT, platform="example", platform_resource_identifier="1", date_deleted=None
 ):
     return TestResource(

@@ -5,7 +5,7 @@ from sqlmodel import select
 from database.deletion import hard_delete
 from database.model.concept.aiod_entry import AIoDEntryORM, EntryStatus
 from database.session import DbSession
-from tests.testutils.test_resource import factory, TestResource
+from tests.testutils.test_resource import factory_test_resource, TestResource
 
 
 def test_hard_delete():
@@ -14,34 +14,18 @@ def test_hard_delete():
     with DbSession() as session:
         session.add_all(
             [
-                factory(
-                    title="test_resource_to_keep",
-                    platform="example",
-                    platform_resource_identifier=1,
-                    status=EntryStatus.DRAFT,
-                    date_deleted=None,
-                ),
-                factory(
-                    title="test_resource_to_keep_2",
-                    platform="example",
-                    platform_resource_identifier=2,
-                    status=EntryStatus.DRAFT,
-                    date_deleted=now,
-                ),
-                factory(
-                    title="my_test_resource",
-                    platform="example",
-                    platform_resource_identifier=3,
-                    status=EntryStatus.DRAFT,
-                    date_deleted=deletion_time,
-                ),
-                factory(
-                    title="second_test_resource",
-                    platform="example",
-                    platform_resource_identifier=4,
-                    status=EntryStatus.DRAFT,
-                    date_deleted=deletion_time,
-                ),
+                factory_test_resource(title="test_resource_to_keep", status=EntryStatus.DRAFT,
+                                      platform="example", platform_resource_identifier=1,
+                                      date_deleted=None),
+                factory_test_resource(title="test_resource_to_keep_2", status=EntryStatus.DRAFT,
+                                      platform="example", platform_resource_identifier=2,
+                                      date_deleted=now),
+                factory_test_resource(title="my_test_resource", status=EntryStatus.DRAFT,
+                                      platform="example", platform_resource_identifier=3,
+                                      date_deleted=deletion_time),
+                factory_test_resource(title="second_test_resource", status=EntryStatus.DRAFT,
+                                      platform="example", platform_resource_identifier=4,
+                                      date_deleted=deletion_time),
             ]
         )
         session.commit()

@@ -2,7 +2,6 @@ import copy
 from unittest.mock import Mock
 
 from starlette.testclient import TestClient
-from database.model.resource_bundle.resource_bundle import ResourceBundle
 from database.model.ai_resource.resource_table import AIResourceORM
 from database.session import DbSession
 
@@ -11,6 +10,7 @@ def test_resource_bundle_api(
     client: TestClient,
     mocked_privileged_token: Mock,
     body_asset: dict,
+    auto_publish: None,
 ):
     """
     Test creating and retrieving a ResourceBundle through the API.

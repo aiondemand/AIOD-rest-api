@@ -14,6 +14,7 @@ def test_happy_path(
     organisation: Organisation,
     contact: Contact,
     body_agent: dict,
+    auto_publish: None,
 ):
     with DbSession() as session:
         session.add(organisation)  # The new organisation will be a member of this organisation

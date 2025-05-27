@@ -1,21 +1,20 @@
-# 🇪🇺AI-on-Demand Metadata Catalogue
+# 🇪🇺 AI-on-Demand Metadata Catalogue
 
-This repository contains code and configurations for the AI-on-Demand Metadata Catalogue.
-The metadata catalogue provides a unified view of AI assets and resources stored across the AI landscape.
-It collects metadata from platforms such as [_Zendodo_](https://zenodo.org), [_Hugging Face_](https://huggingface.co) and [_OpenML_](https://openml.org),
+The [AI-on-Demand](https://aiod.eu) Metadata Catalogue is part of the provides a unified view of AI assets and resources stored across the AI landscape.
+It collects metadata from platforms such as [_Hugging Face_](https://huggingface.co), [_OpenML_](https://openml.org), and [_Zenodo_](https://zenodo.org),
 and is connected to European projects like [Bonsapps](https://bonsapps.eu) and [AIDA](https://www.i-aida.org).
-Metadata of datasets, models, papers, news, and more from all of these sources is available through a REST API at [api.aiod.eu](https://api.aiod.eu/).
+Metadata of datasets, models, papers, news, and more from all of these sources is available through a REST API at [https://api.aiod.eu](https://api.aiod.eu/).
 
 **🧑‍🔬 For most users:**
 Many users will only use the REST API indirectly, for example;
-through [My Resources](https://github.com/aiondemand/AIOD-marketplace-frontend/) to browse assets,
-through [RAIL](https://github.com/aiondemand/aiod-rail) to conduct ML experiments,
-or through the [Python SDK](https://github.com/aiondemand/aiondemand) to access the metadata in Python scripts.
-For documentation on how to use the REST API directly, visit the ["Using the API"](https://aiondemand.github.io/AIOD-rest-api/Using/).
+through the [Python SDK](https://aiondemand.github.io/aiondemand/) to access all (meta)data in Python scripts, the
+[AIoD website](https://aiod.eu), including services such as [My Resources](https://github.com/aiondemand/AIOD-marketplace-frontend/) to browse assets,
+and [RAIL](https://github.com/aiondemand/aiod-rail) to conduct reproducible ML experiments.
+For documentation on how to use the REST API directly, visit the ["Using the API"](https://aiondemand.github.io/AIOD-rest-api/using/) guide.
 
 **🧑‍💻 For service developers:**
 To use the metadata catalogue from your service, use the [Python SDK](https://github.com/aiondemand/aiondemand)
-or use the REST API directly as detailed in the ["Using the API"](https://aiondemand.github.io/AIOD-rest-api/Using/) documentation.
+or use the REST API directly as detailed in the ["Using the API"](https://aiondemand.github.io/AIOD-rest-api/using/) documentation.
 
 **🌍 Hosting:** For information on how to host the metadata catalogue, see the ["Hosting" documentation](https://aiondemand.github.io/AIOD-rest-api/hosting/).
 

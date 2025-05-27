@@ -9,7 +9,7 @@ from database.model.platform.platform_names import PlatformName
 @pytest.mark.parametrize(
     "mocked_token", [["create_platforms"]], indirect=True
 )
-def test_happy_path(mocked_token: Mock, client: TestClient):
+def test_happy_path(mocked_token: Mock, client: TestClient, auto_publish: None):
     body = {"name": "my_favourite_platform"}
     response = client.post("/platforms/v1", json=body, headers={"Authorization": "Fake token"})
     assert response.status_code == 200, response.json()

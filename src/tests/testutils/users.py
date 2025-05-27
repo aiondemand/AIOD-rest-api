@@ -2,9 +2,12 @@ import contextlib
 from typing import cast
 from unittest.mock import Mock
 
+from sqlalchemy import update
+from sqlalchemy.orm.exc import DetachedInstanceError
+
 from authentication import KeycloakUser, keycloak_openid, REVIEWER_ROLE
 from database.authorization import register_user, set_permission, PermissionType
-from database.model.concept.aiod_entry import EntryStatus
+from database.model.concept.aiod_entry import EntryStatus, AIoDEntryORM
 from database.model.concept.concept import AIoDConcept
 from database.review import Submission, Review, Decision
 from database.session import DbSession
@@ -30,8 +33,10 @@ def kc_user_with_roles(*roles: str) -> KeycloakUser:
     )
 
 @contextlib.contextmanager
-def logged_in_user(user: KeycloakUser | None):
+def logged_in_user(user: KeycloakUser | None = None):
+    """Act as if the specified user is logged in. If no user is specified, a new user will be generated. """
     original = keycloak_openid.introspect
+    user = user or kc_user_with_roles()
     keycloak_openid.introspect = Mock(
         return_value={
             "realm_access": {"roles": user.roles},
@@ -44,12 +49,20 @@ def logged_in_user(user: KeycloakUser | None):
             "active": True,
             "sub": user._subject_identifier,
         }
-    ) if user else None
+    )
     yield
     keycloak_openid.introspect = original
 
 
-def register_asset(asset: AIoDConcept, /, *, owner: KeycloakUser, status: EntryStatus):
+def register_asset(asset: AIoDConcept, /, *, owner: KeycloakUser | None = None, status: EntryStatus = EntryStatus.PUBLISHED):
+    owner = owner or kc_user_with_roles()
+
+    try:
+        if not asset.aiod_entry:
+            asset.aiod_entry = AIoDEntryORM()
+    except DetachedInstanceError:
+        pass  # if the asset came from a database connection, it already has an entry
+
     with DbSession() as session:
         session.add(asset)
         session.commit()
@@ -76,3 +89,12 @@ def register_asset(asset: AIoDConcept, /, *, owner: KeycloakUser, status: EntryS
                 session.add(review)
         session.commit()
         return asset.identifier
+
+def bypass_reviewer_publish_everything() -> None:
+    """Function to set the AIoD entry to published without a review.
+    This function is a *test utility* to simplify test setups, and avoid
+    e.g., authentication for get requests.
+    """
+    with DbSession() as session:
+        session.exec(update(AIoDEntryORM).values(status=EntryStatus.PUBLISHED))
+        session.commit()

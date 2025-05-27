@@ -18,6 +18,7 @@ def test_happy_path(
     organisation: Organisation,
     publication: Publication,
     dataset: Dataset,
+    auto_publish: None,
 ):
     with DbSession() as session:
         session.add(person)

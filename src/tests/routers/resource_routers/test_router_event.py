@@ -12,6 +12,7 @@ def test_happy_path(
     mocked_privileged_token: Mock,
     body_resource: dict,
     person: Person,
+    auto_publish: None,
 ):
 
     with DbSession() as session:

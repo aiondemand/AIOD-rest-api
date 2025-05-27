@@ -14,6 +14,7 @@ def test_happy_path(
     body_resource: dict,
     person: Person,
     organisation: Organisation,
+    auto_publish: None,
 ):
     with DbSession() as session:
         session.add(person)

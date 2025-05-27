@@ -8,6 +8,7 @@ def test_happy_path(
     client: TestClient,
     mocked_privileged_token: Mock,
     body_asset: dict,
+    auto_publish: None,
 ):
     body = copy.copy(body_asset)
     body["pid"] = "https://doi.org/10.1000/182"

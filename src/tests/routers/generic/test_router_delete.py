@@ -8,7 +8,7 @@ from starlette.testclient import TestClient
 from authentication import KeycloakUser
 from database.session import DbSession
 from database.model.concept.aiod_entry import EntryStatus
-from tests.testutils.test_resource import factory
+from tests.testutils.test_resource import factory_test_resource
 from tests.testutils.users import register_asset, ALICE, logged_in_user, BOB
 
 
@@ -18,21 +18,13 @@ def test_happy_path(
     identifier: int,
 ):
     resources = [
-            factory(
-                title="my_test_resource",
-                platform="example",
-                platform_resource_identifier=1,
-                status=EntryStatus.DRAFT,
-            ),
-            factory(
-                title="second_test_resource",
-                platform="example",
-                platform_resource_identifier=2,
-                status=EntryStatus.DRAFT,
-            ),
+        factory_test_resource(title="my_test_resource", status=EntryStatus.DRAFT,
+                              platform="example", platform_resource_identifier=1),
+        factory_test_resource(title="second_test_resource", status=EntryStatus.DRAFT,
+                              platform="example", platform_resource_identifier=2),
     ]
     for resource in resources:
-        register_asset(resource, owner=ALICE, status=EntryStatus.DRAFT)
+        register_asset(resource, owner=ALICE, status=EntryStatus.PUBLISHED)
 
     with logged_in_user(ALICE):
         response = client_test_resource.delete(
@@ -55,14 +47,13 @@ def test_delete_requires_admin(
         other: KeycloakUser,
         client_test_resource: TestClient,
 ):
-    identifier = register_asset(factory(), owner=owner, status=EntryStatus.DRAFT)
+    identifier = register_asset(factory_test_resource(), owner=owner, status=EntryStatus.DRAFT)
     try_delete = partial(
         client_test_resource.delete,
             f"/test_resources/v0/{identifier}",
         headers={"Authorization": "Fake token"}
     )
-    with logged_in_user(user=None):
-        assert try_delete().status_code == HTTPStatus.UNAUTHORIZED
+    assert try_delete().status_code == HTTPStatus.UNAUTHORIZED
     with logged_in_user(other):
         assert try_delete().status_code == HTTPStatus.FORBIDDEN
     with logged_in_user(owner):
@@ -78,18 +69,10 @@ def test_non_existent(
     with DbSession() as session:
         session.add_all(
             [
-                factory(
-                    title="my_test_resource",
-                    platform="example",
-                    platform_resource_identifier=1,
-                    status=EntryStatus.DRAFT,
-                ),
-                factory(
-                    title="second_test_resource",
-                    platform="example",
-                    platform_resource_identifier=2,
-                    status=EntryStatus.DRAFT,
-                ),
+                factory_test_resource(title="my_test_resource", status=EntryStatus.DRAFT,
+                                      platform="example", platform_resource_identifier=1),
+                factory_test_resource(title="second_test_resource", status=EntryStatus.DRAFT,
+                                      platform="example", platform_resource_identifier=2),
             ]
         )
         session.commit()

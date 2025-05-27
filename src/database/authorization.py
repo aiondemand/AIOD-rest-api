@@ -3,11 +3,10 @@ import functools
 
 import sqlalchemy
 from sqlalchemy import Column
-from sqlmodel import SQLModel, Field, Relationship, select, Session, and_
+from sqlmodel import SQLModel, Field, Relationship, select, Session
 
 from authentication import KeycloakUser
 from database.model.concept.aiod_entry import AIoDEntryORM, EntryStatus
-from database.model.concept.concept import AIoDConcept
 
 
 class User(SQLModel, table=True):  # type: ignore [call-arg]

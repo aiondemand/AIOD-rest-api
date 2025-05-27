@@ -36,7 +36,10 @@ def test_new_asset_is_draft(client, publication, mocked_privileged_token: Mock):
         )
         assert response.status_code == HTTPStatus.OK, response.json()
 
-        server_data = client.get(f"/publications/v1/{response.json()['identifier']}").json()
+        server_data = client.get(
+            f"/publications/v1/{response.json()['identifier']}",
+            headers={"Authorization": "Fake token"},
+        ).json()
         assert server_data["aiod_entry"]["status"] == EntryStatus.DRAFT
 
 
@@ -291,7 +294,10 @@ def test_user_can_edit_asset_in_draft(publication, client):
             headers={"Authorization": "Fake token"},
         )
         assert response.status_code == HTTPStatus.OK, response.json()
-        updated_publication = client.get(f"/publications/v1/{identifier}").json()
+        updated_publication = client.get(
+            f"/publications/v1/{identifier}",
+            headers={"Authorization": "Fake token"},
+        ).json()
         assert updated_publication["name"] == new_name
 
 
@@ -351,7 +357,12 @@ def test_reviewer_can_reject_submission(publication, client):
         )
         assert response.status_code == HTTPStatus.OK, response.json()
 
-    response = client.get(f"/publications/v1/{identifier}")
+    # Because the rejected asset is back in draft status, it requires authentication to access.
+    with logged_in_user(ALICE):
+        response = client.get(
+            f"/publications/v1/{identifier}",
+            headers={"Authorization": "Fake token"},
+        )
     assert response.status_code == HTTPStatus.OK, response.json()
     assert response.json()["aiod_entry"]["status"] == EntryStatus.DRAFT
 

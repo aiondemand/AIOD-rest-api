@@ -28,6 +28,10 @@ When user A uploads an asset and assigns user B administrator rights, they have 
 There is no special privilege for user A, and this also means that e.g., user B may remove administrator rights from user A.
 
 ## Reviews
+
+!!! info
+    The upload and review process is described from a user perspective in ["Uploading"](../using/upload.md).
+
 An asset uploaded by a user is by default in `draft` state.
 The user may request the asset to be `published` by submitting it for review through the REST API.
 To do this, they submit the identifier of the asset to the `ASSET_TYPE/submit/v1/{identifier}` endpoint.

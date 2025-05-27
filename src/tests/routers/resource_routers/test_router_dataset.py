@@ -6,13 +6,14 @@ from starlette.testclient import TestClient
 
 from database.model.agent.person import Person
 from database.session import DbSession
+from tests.testutils.users import logged_in_user
 
 
 def test_happy_path(
     client: TestClient,
-    mocked_privileged_token: Mock,
     body_asset: dict,
     person: Person,
+    auto_publish: None,
 ):
     with DbSession() as session:
         session.add(person)
@@ -30,7 +31,8 @@ def test_happy_path(
         "geo": {"latitude": 37.42242, "longitude": -122.08585, "elevation_millimeters": 2000},
     }
 
-    response = client.post("/datasets/v1", json=body, headers={"Authorization": "Fake token"})
+    with logged_in_user():
+        response = client.post("/datasets/v1", json=body, headers={"Authorization": "Fake token"})
     assert response.status_code == 200, response.json()
 
     response = client.get("/datasets/v1/1")

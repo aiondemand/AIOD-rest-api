@@ -11,6 +11,7 @@ def test_happy_path(
     mocked_privileged_token: Mock,
     body_asset: dict,
     dataset: Dataset,
+    auto_publish: None,
 ):
     body = copy.copy(body_asset)
     body["permanent_identifier"] = "http://dx.doi.org/10.1093/ajae/aaq063"

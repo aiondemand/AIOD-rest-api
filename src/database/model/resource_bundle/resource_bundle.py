@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List
 from sqlmodel import Relationship
 
 from database.model.ai_resource.resource import AIResource, AIResourceBase

@@ -1,6 +1,8 @@
 import copy
 import time
 from datetime import datetime
+from functools import partial
+from http import HTTPStatus
 from unittest.mock import Mock
 
 import dateutil.parser
@@ -19,15 +21,16 @@ from database.model.dataset.dataset import Dataset
 from database.model.knowledge_asset.publication import Publication
 from database.model.news.news import News
 from database.session import DbSession
+from tests.testutils.users import logged_in_user
 
 
 def test_happy_path(
     client: TestClient,
-    mocked_privileged_token: Mock,
     body_asset: dict,
     person: Person,
     publication: Publication,
     contact: Contact,
+    auto_publish: None,
 ):
     with DbSession() as session:
         session.add(person)
@@ -45,7 +48,8 @@ def test_happy_path(
     body["description"] = {"plain": description_plain, "html": description_html}
 
     datetime_create_request = datetime.utcnow().replace(tzinfo=pytz.utc)
-    response = client.post("/datasets/v1", json=body, headers={"Authorization": "Fake token"})
+    with logged_in_user():
+        response = client.post("/datasets/v1", json=body, headers={"Authorization": "Fake token"})
     assert response.status_code == 200, response.json()
 
     response = client.get("/datasets/v1/1")
@@ -59,7 +63,7 @@ def test_happy_path(
     assert response_json["platform"] == "example"
     assert response_json["platform_resource_identifier"] == "1"
     assert response_json["aiod_entry"]["editor"] == [1]
-    assert response_json["aiod_entry"]["status"] == EntryStatus.DRAFT
+    assert response_json["aiod_entry"]["status"] == EntryStatus.PUBLISHED
     date_created = dateutil.parser.parse(response_json["aiod_entry"]["date_created"] + "Z")
     date_modified = dateutil.parser.parse(response_json["aiod_entry"]["date_modified"] + "Z")
     assert 0 < (date_created - datetime_create_request).total_seconds() < 0.2
@@ -120,7 +124,8 @@ def test_happy_path(
 
     time.sleep(0.15)
     datetime_update_request = datetime.utcnow().replace(tzinfo=pytz.utc)
-    response = client.put("/datasets/v1/1", json=body, headers={"Authorization": "Fake token"})
+    with logged_in_user():
+        response = client.put("/datasets/v1/1", json=body, headers={"Authorization": "Fake token"})
     assert response.status_code == 200, response.json()
 
     response = client.get("/datasets/v1/1")
@@ -148,7 +153,7 @@ def test_happy_path(
 
 def test_post_duplicate_named_relations(
     client: TestClient,
-    mocked_privileged_token: Mock,
+    auto_publish: None,
 ):
     """
     Unittest mirroring situation reported during the data migration of AI4EU news.
@@ -182,10 +187,15 @@ def test_post_duplicate_named_relations(
         "ArtificialIntelligence",
     )
 
-    client.post("/news/v1", json=body1, headers={"Authorization": "Fake token"})
-    response = client.post("/news/v1", json=body2, headers={"Authorization": "Fake token"})
-    assert response.status_code == 200, response.json()
+    post_news = partial(client.post, "/news/v1", headers={"Authorization": "Fake token"})
+    with logged_in_user():
+        assert post_news(json=body1).status_code == HTTPStatus.OK
+        assert post_news(json=body2).status_code == HTTPStatus.OK
+        assert post_news(json=body3).status_code == HTTPStatus.OK
+        assert post_news(json=body4).status_code == HTTPStatus.OK
+
     response = client.get("/news/v1/2")
+    assert response.status_code == HTTPStatus.OK, response.json()
     assert set(response.json()["keyword"]) == {
         "ai",
         "artificialintelligence",
@@ -196,10 +206,8 @@ def test_post_duplicate_named_relations(
         "energy",
     }
 
-    client.post("/news/v1", json=body3, headers={"Authorization": "Fake token"})
     response = client.get("/news/v1/3")
     assert len(response.json()["keyword"]) == 0
-    client.post("/news/v1", json=body4, headers={"Authorization": "Fake token"})
     response = client.get("/news/v1/4")
     assert set(response.json()["keyword"]) == {
         "ai4eu experiments",
@@ -230,15 +238,16 @@ def test_post_duplicate_named_relations_with_different_capitals(
 
 def test_post_editors(
     client: TestClient,
-    mocked_privileged_token: Mock,
+    auto_publish: None,
 ):
     """
     Unittest mirroring situation reported during the data migration of AI4EU events.
     """
     headers = {"Authorization": "Fake token"}
-    client.post("/persons/v1", json={"name": "1"}, headers=headers)
-    client.post("/persons/v1", json={"name": "2"}, headers=headers)
-    client.post("/persons/v1", json={"name": "3"}, headers=headers)
+    with logged_in_user():
+        client.post("/persons/v1", json={"name": "1"}, headers=headers)
+        client.post("/persons/v1", json={"name": "2"}, headers=headers)
+        client.post("/persons/v1", json={"name": "3"}, headers=headers)
 
     def assert_editors_are_stored(id_: str, *editors: int):
         body = {
@@ -247,7 +256,8 @@ def test_post_editors(
             "name": "How user evaluation changed in times of COVID-19",
             "aiod_entry": {"editor": editors},
         }
-        response = client.post("/events/v1", json=body, headers=headers)
+        with logged_in_user():
+            response = client.post("/events/v1", json=body, headers=headers)
         assert response.status_code == 200, response.json()
         response = client.get(f"/events/v1/{response.json()['identifier']}")
         assert response.status_code == 200, response.json()
@@ -259,10 +269,11 @@ def test_post_editors(
     assert_editors_are_stored("36", 1, 2)
 
 
-def test_create_aiod_entry(client: TestClient, mocked_privileged_token: Mock):
+def test_create_aiod_entry(client: TestClient, auto_publish):
     body = {"name": "news"}
     start = datetime.now(pytz.utc)
-    response = client.post("/news/v1", json=body, headers={"Authorization": "Fake token"})
+    with logged_in_user():
+        response = client.post("/news/v1", json=body, headers={"Authorization": "Fake token"})
     end = datetime.now(pytz.utc)
     assert response.status_code == 200, response.json()
     response = client.get("/news/v1/1")
@@ -281,6 +292,7 @@ def test_update_aiod_entry(
     client: TestClient,
     mocked_privileged_token: Mock,
     person: Person,
+    auto_publish: None,
 ):
     with DbSession() as session:
         session.add(person)
@@ -323,7 +335,7 @@ def assert_distributions(client: TestClient, *content_urls: str):
         assert {distribution.content_url for distribution in distributions} == set(content_urls)
 
 
-def test_update_distribution(client: TestClient, mocked_privileged_token: Mock):
+def test_update_distribution(client: TestClient, mocked_privileged_token: Mock, auto_publish: None):
     body = {"name": "dataset", "distribution": [{"content_url": "url"}]}
     response = client.post("/datasets/v1", json=body, headers={"Authorization": "Fake token"})
     assert response.status_code == 200, response.json()
@@ -364,6 +376,7 @@ def test_relations_between_resources(
     dataset: Dataset,
     publication: Publication,
     organisation: Organisation,
+    auto_publish: None,
 ):
     with DbSession() as session:
         session.add(dataset)

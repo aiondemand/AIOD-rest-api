@@ -6,6 +6,7 @@ This way you have easy access to, for instance, an AIoDDataset filled with defau
 
 import copy
 import json
+import uuid
 from functools import partial
 from typing import Callable
 
@@ -75,12 +76,14 @@ def body_agent(body_resource: dict, load_body_agent: dict) -> dict:
     return copy.deepcopy(body)
 
 
-def make_publication(body_asset: dict) -> Publication:
+def make_publication(body_asset: dict, with_random_platform_identifier: bool = False) -> Publication:
     body = copy.deepcopy(body_asset)
     body["permanent_identifier"] = "http://dx.doi.org/10.1093/ajae/aaq063"
     body["isbn"] = "9783161484100"
     body["issn"] = "20493630"
     body["type"] = "journal"
+    if with_random_platform_identifier:
+        body["platform_resource_identifier"] = uuid.uuid4().hex
     return _create_class_with_body(Publication, body)
 
 
@@ -91,7 +94,7 @@ def publication(body_asset: dict) -> Publication:
 
 @pytest.fixture
 def publication_factory(body_asset: dict) -> Callable[[], Publication]:
-    return partial(make_publication, body_asset)
+    return partial(make_publication, body_asset, with_random_platform_identifier=True)
 
 
 @pytest.fixture

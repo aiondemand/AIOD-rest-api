@@ -6,19 +6,21 @@ from unittest.mock import Mock
 import pytest
 from fastapi import FastAPI
 from pytest import FixtureRequest
-from sqlalchemy import event
+from sqlalchemy import event, text
 from sqlalchemy.engine import Engine
 from sqlmodel import create_engine, SQLModel, Session, select
 from starlette.testclient import TestClient
 
 from authentication import keycloak_openid
 from database.deletion.triggers import create_delete_triggers
+from database.model.concept.aiod_entry import EntryStatus, AIoDEntryORM
 from database.model.concept.concept import AIoDConcept
 from database.model.platform.platform import Platform
 from database.model.platform.platform_names import PlatformName
 from database.session import EngineSingleton
 from main import build_app
-from tests.testutils.test_resource import RouterTestResource, factory
+from tests.testutils.test_resource import RouterTestResource, factory_test_resource
+from tests.testutils.users import bypass_reviewer_publish_everything
 
 
 @pytest.fixture(scope="session")
@@ -59,13 +61,11 @@ def clear_db(request, engine: Engine):
         session.add_all([Platform(name=name) for name in PlatformName])
         if any("engine" in fixture and "filled" in fixture for fixture in request.fixturenames):
             session.add(
-                factory(
-                    title="A title",
-                    platform="example",
-                    platform_resource_identifier="1",
-                )
+                factory_test_resource(title="A title", platform="example",
+                                      platform_resource_identifier="1")
             )
         session.commit()
+        bypass_reviewer_publish_everything()
 
     yield
 
@@ -94,6 +94,33 @@ def client(engine: Engine) -> TestClient:
     """
     app = build_app(version="unittest")
     yield TestClient(app, base_url="http://localhost")
+
+
+# *NEVER* broaden the scope of this fixture, bypassing reviews should be on a test-by-test basis
+@pytest.fixture(scope="function")
+def auto_publish(engine: Engine):
+    """Automatically sets *all* new insertions to the aiod_entry table as published.
+
+    This can be useful to bypass the reviewing workflow, as otherwise assets that were
+    just uploaded also require authenticated requests as they would be in a private
+    DRAFT status.
+    """
+    trigger_name = "publish_on_insert"
+    with Session(engine) as session:
+        session.execute(
+            text(f"""
+            CREATE TRIGGER {trigger_name}
+            AFTER INSERT ON {AIoDEntryORM.__tablename__}
+            BEGIN
+              UPDATE {AIoDEntryORM.__tablename__}
+              SET status='{EntryStatus.PUBLISHED.upper()}'
+              WHERE identifier=NEW.identifier;
+            END;
+            """)
+        )
+    yield
+    with Session(engine) as session:
+        session.execute(text(f"DROP TRIGGER {trigger_name}"))
 
 
 @pytest.fixture(scope="session")

@@ -4,6 +4,7 @@ repo_url: https://github.com/aiondemand/AIOD-rest-api
 edit_uri: edit/develop/docs/
 theme:
   name: material
+  logo: media/secondary-neg-white-25p.webp
   features:
     - content.code.copy
     - navigation.footer
@@ -12,10 +13,32 @@ theme:
   icon:
     edit: material/pencil
     view: material/eye
+  font:
+    text: 'Montserrat'
+  palette:
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+extra_css:
+  - stylesheets/extra.css
+
 
 nav:
   - Home: README.md
-  - Using the API: Using.md
+  - Using the API:
+      - using/index.md
+      - 'Uploading Metadata': using/upload.md
   - Hosting the API:
       - hosting/index.md
       - 'Authentication': hosting/authentication.md

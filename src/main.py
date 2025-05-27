@@ -31,6 +31,7 @@ from routers import (
     uploader_routers,
     search_routers,
     review_router,
+    user_router,
 )
 from setup_logger import setup_logger
 
@@ -101,7 +102,7 @@ def add_routes(app: FastAPI, url_prefix=""):
         + enum_routers.router_list
         + search_routers.router_list
         + uploader_routers.router_list
-        + [review_router]
+        + [review_router, user_router]
     ):
         app.include_router(router.create(url_prefix))
 
@@ -132,10 +133,11 @@ def build_app(url_prefix: str = "", version: str = "dev"):
         openapi_url=f"{url_prefix}/openapi.json",
         docs_url=f"{url_prefix}/docs",
         title="AIoD Metadata Catalogue",
-        description="This is the Swagger documentation of the AIoD Metadata Catalogue. For the "
-        "Changelog, refer to "
-        '<a href="https://github.com/aiondemand/AIOD-rest-api/releases">https'
-        "://github.com/aiondemand/AIOD-rest-api/releases</a>.",
+        description="This is the REST API documentation of the AIoD Metadata Catalogue. "
+        "See also our general "
+        '<a href="https://aiondemand.github.io/AIOD-rest-api/">metadata catalogue documentation</a>, '
+        "and our "
+        '<a href="https://github.com/aiondemand/AIOD-rest-api/releases">changelog</a>.',
         version=version,
         swagger_ui_oauth2_redirect_url=f"{url_prefix}/docs/oauth2-redirect",
         swagger_ui_init_oauth={
