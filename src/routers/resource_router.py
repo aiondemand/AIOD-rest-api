@@ -496,11 +496,11 @@ class ResourceRouter(abc.ABC):
         session.flush()
 
         # If the platform and platform_resource_identifier is already set by the connector, we donot need to change it.
-        # if resource.platform and resource.platform_resource_identifier is None:
-        #     # gets an upto date version of the object
-        resource.platform = "aiod"
-        resource.platform_resource_identifier = resource.aiod_entry_identifier
-            
+        if resource.platform_resource_identifier is None:
+            # gets an upto date version of the object
+            resource.platform = "aiod"
+            resource.platform_resource_identifier = resource.aiod_entry_identifier
+
         session.commit()
         return resource
 
