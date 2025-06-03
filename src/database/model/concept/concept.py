@@ -22,23 +22,28 @@ CONSTRAINT_LOWERCASE = f"{'platform' if IS_SQLITE else 'BINARY(platform)'} = LOW
 
 
 class AIoDConceptBase(SQLModel):
+    pass
+
+class AIoDConceptRead(AIoDConceptBase):
+    
     platform: str | None = Field(
-        max_length=SHORT,
-        default=None,
-        description="The external platform from which this resource originates. Leave empty if "
-        "this item originates from AIoD. If platform is not None, the "
-        "platform_resource_identifier should be set as well.",
-        schema_extra={"example": PlatformName.example},
-        foreign_key="platform.name",
+    max_length=SHORT,
+    default=None,
+    description="The external platform from which this resource originates. Leave empty if "
+    "this item originates from AIoD. If platform is not None, the "
+    "platform_resource_identifier should be set as well.",
+    schema_extra={"example": PlatformName.example},
+    foreign_key="platform.name",
     )
+    
     platform_resource_identifier: str | None = Field(
-        max_length=NORMAL,
-        description="A unique identifier issued by the external platform that's specified in "
-        "'platform'. Leave empty if this item is not part of an external platform. For example, "
-        "for HuggingFace, this should be the <namespace>/<dataset_name>, and for Openml, the "
-        "OpenML identifier.",
-        default=None,
-        schema_extra={"example": "1"},
+    max_length=NORMAL,
+    description="A unique identifier issued by the external platform that's specified in "
+    "'platform'. Leave empty if this item is not part of an external platform. For example, "
+    "for HuggingFace, this should be the <namespace>/<dataset_name>, and for Openml, the "
+    "OpenML identifier.",
+    default=None,
+    schema_extra={"example": "1"},
     )
 
     @validator("platform_resource_identifier")
@@ -65,8 +70,7 @@ class AIoDConceptBase(SQLModel):
                         platform_resource_identifier
                     )
         return platform_resource_identifier
-
-
+    
 class AIoDConcept(AIoDConceptBase):
     identifier: str = Field(
         max_length=IDENTIFIER_LENGTH,
@@ -78,6 +82,27 @@ class AIoDConcept(AIoDConceptBase):
         foreign_key=AIoDEntryORM.__tablename__ + ".identifier",
         unique=True,
     )
+    
+    platform: str | None = Field(
+    max_length=SHORT,
+    default=None,
+    description="The external platform from which this resource originates. Leave empty if "
+    "this item originates from AIoD. If platform is not None, the "
+    "platform_resource_identifier should be set as well.",
+    schema_extra={"example": PlatformName.example},
+    foreign_key="platform.name",
+    )
+    
+    platform_resource_identifier: str | None = Field(
+    max_length=NORMAL,
+    description="A unique identifier issued by the external platform that's specified in "
+    "'platform'. Leave empty if this item is not part of an external platform. For example, "
+    "for HuggingFace, this should be the <namespace>/<dataset_name>, and for Openml, the "
+    "OpenML identifier.",
+    default=None,
+    schema_extra={"example": "1"},
+    )
+    
     aiod_entry: AIoDEntryORM = Relationship()
 
     _id_generator: Callable[[], str] | None = None

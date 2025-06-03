@@ -472,7 +472,7 @@ class ResourceRouter(abc.ABC):
                 with DbSession() as session:
                     try:
                         resource = self.create_resource(session, resource_create)
-                        
+
                         register_user(user, session)
                         set_permission(
                             user, resource.aiod_entry, session, type_=PermissionType.ADMIN
@@ -493,16 +493,15 @@ class ResourceRouter(abc.ABC):
             session, self.resource_class, resource, resource_create_instance
         )
         session.add(resource)
-        session.commit()
-        
-        # If the platform_resource_identifier is already set by the connector, we donot need to change it. 
-        if resource.platform_resource_identifier is None:
-            # gets an upto date version of the object
-            session.refresh(resource)
+        session.flush()
+
+        # If the platform and platform_resource_identifier is already set by the connector, we donot need to change it.
+        # if resource.platform and resource.platform_resource_identifier is None:
+        #     # gets an upto date version of the object
+        resource.platform = "aiod"
+        resource.platform_resource_identifier = resource.aiod_entry_identifier
             
-            resource.platform_resource_identifier = resource.aiod_entry_identifier
-            session.add(resource)
-            session.commit()
+        session.commit()
         return resource
 
     def put_resource_func(self):
