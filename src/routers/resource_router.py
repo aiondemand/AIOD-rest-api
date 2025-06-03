@@ -472,8 +472,6 @@ class ResourceRouter(abc.ABC):
                 with DbSession() as session:
                     try:
                         resource = self.create_resource(session, resource_create)
-                        # Set platform to 'aiod' for user uploads
-                        resource.platform = "aiod"
                         
                         register_user(user, session)
                         set_permission(
@@ -496,6 +494,15 @@ class ResourceRouter(abc.ABC):
         )
         session.add(resource)
         session.commit()
+        
+        # If the platform_resource_identifier is already set by the connector, we donot need to change it. 
+        if resource.platform_resource_identifier is None:
+            # gets an upto date version of the object
+            session.refresh(resource)
+            
+            resource.platform_resource_identifier = resource.aiod_entry_identifier
+            session.add(resource)
+            session.commit()
         return resource
 
     def put_resource_func(self):
