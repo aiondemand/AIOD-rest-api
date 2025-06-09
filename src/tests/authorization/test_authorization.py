@@ -446,3 +446,35 @@ def test_user_can_administer(owner, publication):
         assert user_can_administer(owner, asset.aiod_entry)
         others = [u for u in [ALICE, BOB, REVIEWER] if u != owner]
         assert not any(user_can_administer(non_owner, asset.aiod_entry) for non_owner in others)
+
+
+@pytest.mark.parametrize(
+    ("user", "expected"),
+    [
+        (BOB, HTTPStatus.FORBIDDEN),
+        (ALICE, HTTPStatus.OK)
+    ]
+)
+def test_only_owner_can_set_permission(user, expected, publication, client: TestClient):
+    identifier = register_asset(publication, owner=ALICE, status=EntryStatus.PUBLISHED)
+    _register_user_in_db(BOB)
+    body = f'{{"resource_identifier": {identifier}, "user_identifier": "{BOB._subject_identifier}", "permission": "read"}}'
+    with logged_in_user(user):
+        response = client.post(
+            "/resources/permission",
+            content=body,
+            headers={"Authorization": "Fake token"},
+        )
+        assert response.status_code == expected
+
+
+def test_user_cannot_modify_own_permission(publication, client: TestClient):
+    identifier = register_asset(publication, owner=ALICE, status=EntryStatus.PUBLISHED)
+    body = f'{{"resource_identifier": {identifier}, "user_identifier": "{ALICE._subject_identifier}", "permission": "read"}}'
+    with logged_in_user(ALICE):
+        response = client.post(
+            "/resources/permission",
+            content=body,
+            headers={"Authorization": "Fake token"},
+        )
+        assert response.status_code == HTTPStatus.FORBIDDEN

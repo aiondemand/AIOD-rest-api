@@ -61,7 +61,7 @@ def create(url_prefix: str) -> APIRouter:
 
 
 def set_permission_endpoint(
-    identifier: Annotated[int, Body(description="The identifier for the asset.")],
+    resource_identifier: Annotated[int, Body(description="The identifier for the asset.")],
     user_identifier: Annotated[str, Body(description="The identifier for the user.")],
     permission: Annotated[
         PermissionType, Body(description="The permission the user should have for the asset.")
@@ -70,24 +70,26 @@ def set_permission_endpoint(
     session: Session = Depends(get_session),
 ) -> None:
     """Give a user some permission for an asset."""
-    if not user_can_administer(user, identifier):
+    if (resource := session.get(AIoDEntryORM, resource_identifier)) is None:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND,
+            detail=f"Resource with identifier {resource_identifier} not found.",
+        )
+    if not user_can_administer(user, resource):
         raise HTTPException(
             status_code=HTTPStatus.FORBIDDEN,
-            detail=f"You do not have administrator rights for asset {identifier}.",
+            detail=f"You do not have administrator rights for asset {resource_identifier}.",
         )
-
+    if user._subject_identifier == user_identifier:
+        raise HTTPException(
+            status_code=HTTPStatus.FORBIDDEN,
+            detail="You may not modify your own permissions, please ask a different administrator.",
+        )
     if (other_user := session.get(User, user_identifier)) is None:
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND,
             detail=f"User with identifier {user_identifier} not found.",
         )
-
-    if (resource := session.get(AIoDEntryORM, identifier)) is None:
-        raise HTTPException(
-            status_code=HTTPStatus.NOT_FOUND,
-            detail=f"Resource with identifier {identifier} not found.",
-        )
-
     set_permission(other_user, resource, session, type_=permission)
     session.commit()
 
