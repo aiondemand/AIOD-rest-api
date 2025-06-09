@@ -1,13 +1,19 @@
 from http import HTTPStatus
-from typing import List
+from typing import List, Annotated
 
-from fastapi import APIRouter, Depends
-from pydantic import BaseModel, create_model, Field
+from fastapi import APIRouter, Depends, HTTPException, Body
+from pydantic import create_model, Field
 from sqlalchemy import select
 from sqlmodel import Session
 
 from authentication import KeycloakUser, get_user_or_raise
-from database.authorization import Permission, PermissionType
+from database.authorization import (
+    Permission,
+    PermissionType,
+    user_can_administer,
+    User,
+    set_permission,
+)
 from database.session import get_session
 from database.model.concept.aiod_entry import AIoDEntryORM
 from database.model.concept.concept import AIoDConcept
@@ -41,7 +47,49 @@ def create(url_prefix: str) -> APIRouter:
             description="Return all assets for which you have administrator rights",
             response_model=Catalogue,
         )(get_resources_for_logged_in_user)
+
+    for path in [
+        f"{url_prefix}/v2/resources/permission",
+        f"{url_prefix}/resources/permission",
+    ]:
+        router.post(
+            path,
+            tags=["User"],
+            description="Give a user read, write, or administrator permission for an asset you have administrator rights to.",  # noqa: E501
+        )(set_permission_endpoint)
     return router
+
+
+def set_permission_endpoint(
+    identifier: Annotated[int, Body(description="The identifier for the asset.")],
+    user_identifier: Annotated[str, Body(description="The identifier for the user.")],
+    permission: Annotated[
+        PermissionType, Body(description="The permission the user should have for the asset.")
+    ],
+    user: KeycloakUser = Depends(get_user_or_raise),
+    session: Session = Depends(get_session),
+) -> None:
+    """Give a user some permission for an asset."""
+    if not user_can_administer(user, identifier):
+        raise HTTPException(
+            status_code=HTTPStatus.FORBIDDEN,
+            detail=f"You do not have administrator rights for asset {identifier}.",
+        )
+
+    if (other_user := session.get(User, user_identifier)) is None:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND,
+            detail=f"User with identifier {user_identifier} not found.",
+        )
+
+    if (resource := session.get(AIoDEntryORM, identifier)) is None:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND,
+            detail=f"Resource with identifier {identifier} not found.",
+        )
+
+    set_permission(other_user, resource, session, type_=permission)
+    session.commit()
 
 
 def get_resources_for_logged_in_user(
