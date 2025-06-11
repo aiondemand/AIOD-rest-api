@@ -514,7 +514,7 @@ class ResourceRouter(abc.ABC):
                     detail="You are not allowed to set platform or platform_resource_identifier fields directly.",
                 )
             # Set these fields as required for normal users
-            resource.platform = "aiod"
+            resource.platform = PlatformName.aiod
             resource.platform_resource_identifier = resource.aiod_entry_identifier
 
         session.commit()
