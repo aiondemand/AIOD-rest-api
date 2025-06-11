@@ -82,8 +82,8 @@ def make_publication(body_asset: dict, with_random_platform_identifier: bool = F
     body["isbn"] = "9783161484100"
     body["issn"] = "20493630"
     body["type"] = "journal"
-    if with_random_platform_identifier:
-        body["platform_resource_identifier"] = uuid.uuid4().hex
+    # if with_random_platform_identifier:
+    #     body["platform_resource_identifier"] = uuid.uuid4().hex
     return _create_class_with_body(Publication, body)
 
 
