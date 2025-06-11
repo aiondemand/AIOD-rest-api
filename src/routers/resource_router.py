@@ -471,7 +471,7 @@ class ResourceRouter(abc.ABC):
             try:
                 with DbSession() as session:
                     try:
-                        resource = self.create_resource(session, resource_create)
+                        resource = self.create_resource(session, resource_create, user)
 
                         register_user(user, session)
                         set_permission(
@@ -486,7 +486,12 @@ class ResourceRouter(abc.ABC):
 
         return register_resource
 
-    def create_resource(self, session: Session, resource_create_instance: SQLModel):
+    def create_resource(
+        self,
+        session: Session,
+        resource_create_instance: SQLModel,
+        user: KeycloakUser = Depends(get_user_or_raise),
+    ):
         """Store a resource in the database"""
         resource = self.resource_class.from_orm(resource_create_instance)
         deserialize_resource_relationships(
@@ -495,9 +500,20 @@ class ResourceRouter(abc.ABC):
         session.add(resource)
         session.flush()
 
-        # If the platform and platform_resource_identifier is already set by the connector, we donot need to change it.
-        if resource.platform_resource_identifier is None:
-            # gets an upto date version of the object
+        if user.is_connector:
+            # Trust connector's input, do not override platform/platform_resource_identifier
+            pass
+        # 2. Normal user: must NOT provide platform/platform_resource_identifier
+        else:
+            if (
+                getattr(resource, "platform", None) is not None
+                or getattr(resource, "platform_resource_identifier", None) is not None
+            ):
+                raise HTTPException(
+                    status_code=400,
+                    detail="You are not allowed to set platform or platform_resource_identifier fields directly.",
+                )
+            # Set these fields as required for normal users
             resource.platform = "aiod"
             resource.platform_resource_identifier = resource.aiod_entry_identifier
 

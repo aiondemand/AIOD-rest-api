@@ -22,10 +22,6 @@ CONSTRAINT_LOWERCASE = f"{'platform' if IS_SQLITE else 'BINARY(platform)'} = LOW
 
 
 class AIoDConceptBase(SQLModel):
-    pass
-
-
-class AIoDConceptRead(AIoDConceptBase):
     platform: str | None = Field(
         max_length=SHORT,
         default=None,
