@@ -219,31 +219,37 @@ def test_an_published_asset_is_not_pending_for_review(client, publication):
 
 
 @pytest.mark.parametrize(
-    ("user", "mode", "asset", "reason"),
+    ("user", "mode", "expected_owner", "reason"),
     [
-        (REVIEWER, ListMode.OLDEST, 2, "Reviewer can see both Alice and Bob's submission."),
-        (REVIEWER, ListMode.NEWEST, 3, "Reviewer can see both Alice and Bob's submission."),
-        (ALICE, ListMode.OLDEST, 2, "Alice only has one pending submission."),
-        (ALICE, ListMode.NEWEST, 2, "Alice only has one pending submission."),
-        (BOB, ListMode.OLDEST, 3, "Bob only has one pending submission."),
-        (BOB, ListMode.NEWEST, 3, "Bob only has one pending submission."),
+        (REVIEWER, ListMode.OLDEST, ALICE.name, "Reviewer can see both Alice and Bob's submission."),
+        (REVIEWER, ListMode.NEWEST, BOB.name, "Reviewer can see both Alice and Bob's submission."),
+        (ALICE, ListMode.OLDEST, ALICE.name, "Alice only has one pending submission."),
+        (ALICE, ListMode.NEWEST, ALICE.name, "Alice only has one pending submission."),
+        (BOB, ListMode.OLDEST, BOB.name, "Bob only has one pending submission."),
+        (BOB, ListMode.NEWEST, BOB.name, "Bob only has one pending submission."),
     ]
 )
-def test_retrieving_single_submission_works(user: KeycloakUser, mode: ListMode, asset: int, reason: str, client: TestClient, publication_factory):
+def test_retrieving_single_submission_works(user: KeycloakUser, mode: ListMode, expected_owner: str, reason: str, client: TestClient, publication_factory):
     publication = publication_factory()
     oldest = publication_factory()
-    oldest.platform_resource_identifier = "OLDEST"
+    # oldest.platform_resource_identifier = "OLDEST"
     newest = publication_factory()
-    newest.platform_resource_identifier = "NEWEST"
-
+    # newest.platform_resource_identifier = "NEWEST"
+    
     register_asset(publication, owner=ALICE, status=EntryStatus.PUBLISHED)
-    register_asset(oldest, owner=ALICE, status=EntryStatus.SUBMITTED)
-    register_asset(newest, owner=BOB, status=EntryStatus.SUBMITTED)
-
+    oldest_id = register_asset(oldest, owner=ALICE, status=EntryStatus.SUBMITTED)
+    newest_id = register_asset(newest, owner=BOB, status=EntryStatus.SUBMITTED)
+    
+    owner_to_id = {
+        ALICE.name: oldest_id,
+        BOB.name: newest_id,
+    }
+    
     with logged_in_user(user):
         queue = client.get(f"/submissions?mode={mode}", headers={"Authorization": "Fake token"})
         assert queue.status_code == HTTPStatus.OK, queue.json()
-        assert queue.json()[0]["aiod_entry_identifier"] == asset, reason
+        asset_id = queue.json()[0]["aiod_entry_identifier"]
+        assert asset_id == owner_to_id[expected_owner], reason
 
 
 def test_user_can_retract_assets(client, publication):
