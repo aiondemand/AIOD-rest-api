@@ -22,7 +22,7 @@ from tests.testutils.paths import path_test_resources
 
 import tests.uploader.zenodo.mock_zenodo as zenodo
 from tests.testutils.users import logged_in_user, kc_user_with_roles, \
-    bypass_reviewer_publish_everything
+    bypass_reviewer_publish_everything, kc_connector_with_roles
 from uploaders.zenodo_uploader import ZenodoUploader
 
 ENDPOINT = "/upload/datasets/{identifier}/zenodo"
@@ -115,8 +115,13 @@ def test_happy_path_creating_repo(
 
         with open(path_test_resources() / "contents" / FILE1, "rb") as f:
             test_file = {"file": f}
+<<<<<<< HEAD
             with logged_in_user(kc_user_with_roles("upload_PlatformName.zenodo")):
                 response = client.post(ENDPOINT.format(identifier=identifier), params=PARAMS_DRAFT, headers=HEADERS, files=test_file)
+=======
+            with logged_in_user(kc_connector_with_roles("upload_PlatformName.zenodo")):
+                response = client.post(ENDPOINT, params=PARAMS_DRAFT, headers=HEADERS, files=test_file)
+>>>>>>> 65a737eb (create connector user in keycloak)
         assert response.status_code == status.HTTP_200_OK, response.json()
         assert response.json() == identifier, response.json()
 
@@ -158,8 +163,13 @@ def test_happy_path_existing_repo(
         with open(path_test_resources() / "contents" / FILE1, "rb") as f:
             test_file = {"file": f}
 
+<<<<<<< HEAD
             with logged_in_user(kc_user_with_roles("upload_PlatformName.zenodo")):
                 response = client.post(ENDPOINT.format(identifier=identifier), params=PARAMS_DRAFT, headers=HEADERS, files=test_file)
+=======
+            with logged_in_user(kc_connector_with_roles("upload_PlatformName.zenodo")):
+                response = client.post(ENDPOINT, params=PARAMS_DRAFT, headers=HEADERS, files=test_file)
+>>>>>>> 65a737eb (create connector user in keycloak)
         assert response.status_code == status.HTTP_200_OK, response.json()
         assert response.json() == identifier, response.json()
     bypass_reviewer_publish_everything()
@@ -196,8 +206,13 @@ def test_happy_path_existing_file(
 
         with open(path_test_resources() / "contents" / FILE2, "rb") as f:
             test_file = {"file": f}
+<<<<<<< HEAD
             with logged_in_user(kc_user_with_roles("upload_PlatformName.zenodo")):
                 response = client.post(ENDPOINT.format(identifier=identifier), params=PARAMS_DRAFT, headers=HEADERS, files=test_file)
+=======
+            with logged_in_user(kc_connector_with_roles("upload_PlatformName.zenodo")):
+                response = client.post(ENDPOINT, params=PARAMS_DRAFT, headers=HEADERS, files=test_file)
+>>>>>>> 65a737eb (create connector user in keycloak)
         assert response.status_code == status.HTTP_200_OK, response.json()
         assert response.json() == identifier, response.json()
     bypass_reviewer_publish_everything()
@@ -246,8 +261,13 @@ def test_happy_path_updating_an_existing_file(
 
         with open(path_test_resources() / "contents" / FILE1, "rb") as f:
             test_file = {"file": f}
+<<<<<<< HEAD
             with logged_in_user(kc_user_with_roles("upload_PlatformName.zenodo")):
                 response = client.post(ENDPOINT.format(identifier=identifier), params=PARAMS_DRAFT, headers=HEADERS, files=test_file)
+=======
+            with logged_in_user(kc_connector_with_roles("upload_PlatformName.zenodo")):
+                response = client.post(ENDPOINT, params=PARAMS_DRAFT, headers=HEADERS, files=test_file)
+>>>>>>> 65a737eb (create connector user in keycloak)
         assert response.status_code == status.HTTP_200_OK, response.json()
         assert response.json() == identifier, response.json()
     bypass_reviewer_publish_everything()
@@ -285,7 +305,7 @@ def test_happy_path_publishing(
 
         with open(path_test_resources() / "contents" / FILE1, "rb") as f:
             test_file = {"file": f}
-            with logged_in_user(kc_user_with_roles("upload_PlatformName.zenodo")):
+            with logged_in_user(kc_connector_with_roles("upload_PlatformName.zenodo")):
                 response = client.post(
                     ENDPOINT.format(identifier=identifier), params=PARAMS_PUBLISH, headers=HEADERS, files=test_file
                 )
@@ -342,7 +362,7 @@ def test_attempt_to_upload_published_resource(
 
         with open(path_test_resources() / "contents" / FILE1, "rb") as f:
             test_file = {"file": f}
-            with logged_in_user(kc_user_with_roles("upload_PlatformName.zenodo")):
+            with logged_in_user(kc_connector_with_roles("upload_PlatformName.zenodo")):
                 response = client.post(
                     ENDPOINT.format(identifier=identifier), params=PARAMS_PUBLISH, headers=HEADERS, files=test_file
                 )
@@ -389,8 +409,13 @@ def test_platform_name_conflict(
         zenodo.mock_get_licenses(mocked_request)
         with open(path_test_resources() / "contents" / FILE1, "rb") as f:
             test_file = {"file": f}
+<<<<<<< HEAD
             with logged_in_user(kc_user_with_roles("upload_PlatformName.zenodo")):
                 response = client.post(ENDPOINT.format(identifier=identifier), params=PARAMS_DRAFT, headers=HEADERS, files=test_file)
+=======
+            with logged_in_user(kc_connector_with_roles("upload_PlatformName.zenodo")):
+                response = client.post(ENDPOINT, params=PARAMS_DRAFT, headers=HEADERS, files=test_file)
+>>>>>>> 65a737eb (create connector user in keycloak)
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST, response.json()
         assert response.json()["detail"] == (
@@ -427,7 +452,7 @@ def test_fail_due_to_missing_contact_name(
     with responses.RequestsMock():
         with open(path_test_resources() / "contents" / FILE1, "rb") as f:
             test_file = {"file": f}
-            with logged_in_user(kc_user_with_roles("upload_PlatformName.zenodo")):
+            with logged_in_user(kc_connector_with_roles("upload_PlatformName.zenodo")):
                 response = client.post(
                     ENDPOINT.format(identifier=identifier), params=PARAMS_PUBLISH, headers=HEADERS, files=test_file
                 )

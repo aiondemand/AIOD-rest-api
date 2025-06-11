@@ -5,7 +5,7 @@ from unittest.mock import Mock
 from sqlalchemy import update
 from sqlalchemy.orm.exc import DetachedInstanceError
 
-from authentication import KeycloakUser, keycloak_openid, REVIEWER_ROLE
+from authentication import KeycloakUser, keycloak_openid, REVIEWER_ROLE, CONNECTOR_ROLE
 from database.authorization import register_user, set_permission, PermissionType
 from database.model.concept.aiod_entry import EntryStatus, AIoDEntryORM
 from database.model.concept.concept import AIoDConcept
@@ -15,6 +15,8 @@ from database.session import DbSession
 ALICE = KeycloakUser("Alice", set(), "alice-sub")
 BOB = KeycloakUser("Bob", set(), "bob-sub")
 REVIEWER = KeycloakUser("Reviewer", {cast(str, REVIEWER_ROLE)}, "reviewer-sub")
+CONNECTOR = KeycloakUser("Connector", {CONNECTOR_ROLE}, "connector-sub")
+
 
 
 def _register_user_in_db(user: KeycloakUser) -> KeycloakUser:
@@ -23,6 +25,13 @@ def _register_user_in_db(user: KeycloakUser) -> KeycloakUser:
         session.commit()
     return user
 
+def kc_connector_with_roles(*roles: str) -> KeycloakUser:
+    """ Generates a connector user. """
+    return KeycloakUser(
+        name="Connector",
+        roles={CONNECTOR_ROLE, *roles},
+        _subject_identifier="connector-sub",
+    )
 
 def kc_user_with_roles(*roles: str) -> KeycloakUser:
     """ Generates a user with name 'Dummy' and identifier 'Foo' and the provided roles. """
