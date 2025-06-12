@@ -60,7 +60,7 @@ def test_get_count_detailed_happy_path(client_test_resource: TestClient):
     assert response_json == {"aiod": 1, "example": 2, "openml": 1}
     assert "deprecated" not in response.headers
 
-
+# default platfrom is "aiod"
 def test_get_count_total(
     client: TestClient,
     person: Person,
@@ -78,8 +78,8 @@ def test_get_count_total(
     response_json = response.json()
 
     assert response_json == {
-        "contacts": {"example": 1},
-        "persons": {"example": 1},
-        "publications": {"aiod": 2, "example": 1},
+        "contacts": {"aiod": 1},
+        "persons": {"aiod": 1},
+        "publications": {"aiod": 3},
     }
     assert "deprecated" not in response.headers
