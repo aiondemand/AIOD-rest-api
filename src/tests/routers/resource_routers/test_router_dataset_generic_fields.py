@@ -66,9 +66,15 @@ def test_happy_path(
     assert response_json["ai_resource_identifier"] == identifier
     assert response_json["ai_asset_identifier"] == identifier
 
+<<<<<<< HEAD
     assert response_json["platform"] == "example"
     assert response_json["platform_resource_identifier"] == "1"
     assert response_json["aiod_entry"]["editor"] == [person_identifier]
+=======
+    assert response_json["platform"] == "aiod"
+    # assert response_json["platform_resource_identifier"] == "2"
+    assert response_json["aiod_entry"]["editor"] == [1]
+>>>>>>> d819c410 (do not set platform and platfrom_resource_identifier in test)
     assert response_json["aiod_entry"]["status"] == EntryStatus.PUBLISHED
     date_created = dateutil.parser.parse(response_json["aiod_entry"]["date_created"] + "Z")
     date_modified = dateutil.parser.parse(response_json["aiod_entry"]["date_modified"] + "Z")
@@ -118,7 +124,7 @@ def test_happy_path(
     )
     assert lorem in notes
 
-    body["platform_resource_identifier"] = "2"
+    # body["platform_resource_identifier"] = "2"
     body["name"] = "new name"
     body["version"] = "1.b"
     body["distribution"] = [
@@ -136,17 +142,24 @@ def test_happy_path(
 
     response = client.get(f"/datasets/{identifier}")
     response_json = response.json()
+<<<<<<< HEAD
     assert response_json["identifier"] == identifier
     assert response_json["ai_resource_identifier"] == identifier
     assert response_json["ai_asset_identifier"] == identifier
+=======
+    
+    assert response_json["identifier"] == 1
+    assert response_json["ai_resource_identifier"] == 3
+    assert response_json["ai_asset_identifier"] == 2
+>>>>>>> d819c410 (do not set platform and platfrom_resource_identifier in test)
 
     date_created = dateutil.parser.parse(response_json["aiod_entry"]["date_created"] + "Z")
     date_modified = dateutil.parser.parse(response_json["aiod_entry"]["date_modified"] + "Z")
     assert 0 < (date_created - datetime_create_request).total_seconds() < 0.2
     assert 0 < (date_modified - datetime_update_request).total_seconds() < 0.4
 
-    assert response_json["platform"] == "example"
-    assert response_json["platform_resource_identifier"] == "2"
+    # assert response_json["platform"] == "aiod"
+    # assert response_json["platform_resource_identifier"] == "2"
 
     assert response_json["name"] == "new name"
 
@@ -259,8 +272,6 @@ def test_post_editors(
 
     def assert_editors_are_stored(id_: str, *editors: int):
         body = {
-            "platform": "example",
-            "platform_resource_identifier": id_,
             "name": "How user evaluation changed in times of COVID-19",
             "aiod_entry": {"editor": editors},
         }
