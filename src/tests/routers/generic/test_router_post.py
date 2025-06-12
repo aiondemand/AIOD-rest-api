@@ -3,6 +3,7 @@ import pytest
 from starlette.testclient import TestClient
 
 from tests.testutils.users import logged_in_user
+from database.model.platform.platform_names import PlatformName
 
 
 @pytest.mark.parametrize(
@@ -13,20 +14,28 @@ def test_unicode(client_test_resource: TestClient, title: str, auto_publish: Non
     with logged_in_user():
         response = client_test_resource.post(
             "/test_resources/v0",
-            json={"title": title, "platform": "example", "platform_resource_identifier": "1"},
+            json={"title": title},
             headers={"Authorization": "Fake token"},
         )
     assert response.status_code == 200, response.json()
+<<<<<<< HEAD
     identifier = response.json()['identifier']
 
+=======
+    assert "identifier" in response.json()
+    identifier = response.json()["identifier"]
+  
+>>>>>>> b6ab8ca9 (update tests post and get_count)
     response = client_test_resource.get(f"/test_resources/v0/{identifier}")
     assert response.status_code == 200, response.json()
     response_json = response.json()
     assert response_json["title"] == title
+    assert response_json["platform"] == "aiod"
+    assert response_json["platform_resource_identifier"] == str(identifier)
 
 
 def test_missing_value(client_test_resource: TestClient):
-    body = {"platform": "example", "platform_resource_identifier": "1"}
+    body = {}
     with logged_in_user():
         response = client_test_resource.post(
             "/test_resources/v0", json=body, headers={"Authorization": "Fake token"}
@@ -38,7 +47,7 @@ def test_missing_value(client_test_resource: TestClient):
 
 
 def test_null_value(client_test_resource: TestClient):
-    body = {"title": None, "platform": "example", "platform_resource_identifier": "1"}
+    body = {"title": None}
     with logged_in_user():
         response = client_test_resource.post(
             "/test_resources/v0", json=body, headers={"Authorization": "Fake token"}
@@ -52,7 +61,11 @@ def test_null_value(client_test_resource: TestClient):
         }
     ]
 
+# This test is commented out because it is no more relevant. 
+# The platform and platform_resource_identifier is set by the server, 
+# so platform_resource_identifier is unique everytime.
 
+<<<<<<< HEAD
 def test_posting_same_item_twice(client_test_resource: TestClient):
     headers = {"Authorization": "Fake token"}
     body = {"title": "title1", "platform": "example", "platform_resource_identifier": "1"}
@@ -68,15 +81,32 @@ def test_posting_same_item_twice(client_test_resource: TestClient):
         response.json()["detail"] == "There already exists a test_resource with the same "
         f"platform and platform_resource_identifier, with identifier={identifier}."
     )
+=======
+# def test_posting_same_item_twice(client_test_resource: TestClient):
+#     headers = {"Authorization": "Fake token"}
+#     body = {"title": "title1"}
+#     with logged_in_user():
+#         response = client_test_resource.post("/test_resources/v0", json=body, headers=headers)
+#     assert response.status_code == 200, response.json()
+#     body = {"title": "title2"}
+#     with logged_in_user():
+#         response = client_test_resource.post("/test_resources/v0", json=body, headers=headers)
+#     assert response.status_code == 409, response.json()
+#     assert (
+#         response.json()["detail"] == "There already exists a test_resource with the same "
+#         "platform and platform_resource_identifier, with identifier=1."
+#     )
+>>>>>>> b6ab8ca9 (update tests post and get_count)
 
 
 def test_posting_same_item_twice_but_deleted(
     client_test_resource: TestClient
 ):
     headers = {"Authorization": "Fake token"}
-    body = {"title": "title1", "platform": "example", "platform_resource_identifier": "1"}
+    body = {"title": "title1"}
     with logged_in_user():
         response = client_test_resource.post("/test_resources/v0", json=body, headers=headers)
+    identifier = response.json()["identifier"]
     assert response.status_code == 200, response.json()
     identifier = response.json()['identifier']
 
@@ -84,12 +114,13 @@ def test_posting_same_item_twice_but_deleted(
         response = client_test_resource.delete(f"/test_resources/v0/{identifier}", headers=headers)
     assert response.status_code == 200, response.json()
 
-    body = {"title": "title2", "platform": "example", "platform_resource_identifier": "1"}
+    body = {"title": "title2"}
     with logged_in_user():
         response = client_test_resource.post("/test_resources/v0", json=body, headers=headers)
     assert response.status_code == 200, response.json()
 
 
+# User not allowed to set platform and platform_resource_identifier.
 def test_no_platform_no_platform_resource_identifier(
     client_test_resource: TestClient
 ):
@@ -98,10 +129,25 @@ def test_no_platform_no_platform_resource_identifier(
     with logged_in_user():
         response = client_test_resource.post("/test_resources/v0", json=body, headers=headers)
     assert response.status_code == 200, response.json()
+    
     body = {"title": "title2", "platform": None, "platform_resource_identifier": None}
     with logged_in_user():
         response = client_test_resource.post("/test_resources/v0", json=body, headers=headers)
     assert response.status_code == 200, response.json()
+
+
+def test_post_platform_and_platform_resource_identifier_rejected(
+    client_test_resource: TestClient
+):
+    headers = {"Authorization": "Fake token"}
+    body = {"title": "title1", "platform": "aiod", "platform_resource_identifier": 2}
+    with logged_in_user():
+        response = client_test_resource.post("/test_resources/v0", json=body, headers=headers)
+    
+    assert response.status_code == 400
+    assert response.json()["detail"] == (
+        "You are not allowed to set platform or platform_resource_identifier fields directly.")
+
 
 
 def test_no_platform_with_platform_resource_identifier(
@@ -144,3 +190,21 @@ def test_non_existent_platform(client_test_resource: TestClient):
         response.json()["detail"] == "Platform this_does_not_exist does not exist. You can "
         "register it using the POST platforms endpoint."
     )
+
+from tests.testutils.users import KeycloakUser, logged_in_user, kc_connector_with_roles
+def test_connector_can_post_platform_and_platform_resource_identifier(
+    client_test_resource: TestClient,
+):
+    headers = {"Authorization": "Fake token"}
+    connector_user = kc_connector_with_roles()  
+    body = {
+        "title": "ConnectorResource",
+        "platform": "example",
+        "platform_resource_identifier": "conn-123"
+    }
+    with logged_in_user(connector_user):
+        response = client_test_resource.post("/test_resources/v0", json=body, headers=headers)
+    assert response.status_code == 200
+    
+    
+    
