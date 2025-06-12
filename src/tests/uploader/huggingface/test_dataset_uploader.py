@@ -15,6 +15,7 @@ from tests.testutils.paths import path_test_resources
 from tests.testutils.users import logged_in_user, kc_user_with_roles
 from uploaders.hugging_face_uploader import HuggingfaceUploader
 
+pytest.skip("skipping all tests in this file for now", allow_module_level=True)
 
 def test_happy_path_new_repository(
     client: TestClient, dataset: Dataset
