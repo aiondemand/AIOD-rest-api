@@ -99,11 +99,13 @@ def test_person_and_organisation_both_specified(client: TestClient):
 @pytest.fixture
 def contact2(body_concept) -> Contact:
     body = copy.copy(body_concept)
+    body["platform"] = "aiod"
     body["platform_resource_identifier"] = "fake:100"
     body["email"] = ["fake@email.com", "fake2@email.com"]
     return _create_class_with_body(Contact, body)
 
 
+<<<<<<< HEAD
 @pytest.mark.parametrize(
     "endpoint",
     [
@@ -111,6 +113,14 @@ def contact2(body_concept) -> Contact:
         "/contacts/1",
         "/platforms/example/contacts",
         "/platforms/example/contacts/fake:100",
+=======
+@pytest.fixture(
+    params=[
+        "/contacts/v1",
+        "/contacts/v1/1",
+        "/platforms/aiod/contacts/v1",
+        "/platforms/aiod/contacts/v1/fake:100",
+>>>>>>> a43d9d6a (debug test_router_contact)
     ]
 )
 def test_email_mask_for_not_authenticated_user(
@@ -125,7 +135,11 @@ def test_email_mask_for_not_authenticated_user(
         session.add(contact)
         session.add(contact2)
         session.commit()
+<<<<<<< HEAD
         session.refresh(contact)
+=======
+        
+>>>>>>> a43d9d6a (debug test_router_contact)
 
     # clunky way to account for random identifier because only 1 endpoint matches this pattern
     endpoint = endpoint.replace("/1", f"/{contact.identifier}")
@@ -134,6 +148,7 @@ def test_email_mask_for_not_authenticated_user(
     guest_response_json = guest_response.json()
     if not isinstance(guest_response_json, list):
         guest_response_json = [guest_response_json]
+        
     assert len(guest_response_json) > 0, guest_response_json
     for contact_json in guest_response_json:
         assert contact_json["email"] == ["******"]
@@ -150,6 +165,8 @@ def test_email_mask_for_authenticated_user(
     headers = {"Authorization": "Fake token"}
 
     with DbSession() as session:
+        contact.platform = 'aiod'
+        contact.platform_resource_identifier = '1'
         session.add(contact)
         session.add(contact2)
         session.commit()
@@ -167,14 +184,23 @@ def test_email_mask_for_authenticated_user(
     response_json = response.json()
     assert set(response_json["email"]) == {"fake2@email.com", "fake@email.com"}
 
+<<<<<<< HEAD
     response = client.get("/platforms/example/contacts", headers=headers)
+=======
+    response = client.get("/platforms/aiod/contacts/v1", headers=headers)
+>>>>>>> a43d9d6a (debug test_router_contact)
     response_json = response.json()
     assert response.status_code == 200, response_json
+    
     assert len(response_json) == 2, response_json
     assert response_json[0]["email"] == ["a@b.com"]
     assert set(response_json[1]["email"]) == {"fake2@email.com", "fake@email.com"}
 
+<<<<<<< HEAD
     response = client.get("/platforms/example/contacts/fake:100", headers=headers)
+=======
+    response = client.get("/platforms/aiod/contacts/v1/fake:100", headers=headers)
+>>>>>>> a43d9d6a (debug test_router_contact)
     response_json = response.json()
     assert response.status_code == 200, response_json
     assert set(response_json["email"]) == {"fake2@email.com", "fake@email.com"}
