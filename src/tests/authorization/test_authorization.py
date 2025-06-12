@@ -235,16 +235,16 @@ def test_retrieving_single_submission_works(user: KeycloakUser, mode: ListMode, 
     # oldest.platform_resource_identifier = "OLDEST"
     newest = publication_factory()
     # newest.platform_resource_identifier = "NEWEST"
-    
+
     register_asset(publication, owner=ALICE, status=EntryStatus.PUBLISHED)
     oldest_id = register_asset(oldest, owner=ALICE, status=EntryStatus.SUBMITTED)
     newest_id = register_asset(newest, owner=BOB, status=EntryStatus.SUBMITTED)
-    
+
     owner_to_id = {
         ALICE.name: oldest_id,
         BOB.name: newest_id,
     }
-    
+
     with logged_in_user(user):
         queue = client.get(f"/submissions?mode={mode}", headers={"Authorization": "Fake token"})
         assert queue.status_code == HTTPStatus.OK, queue.json()

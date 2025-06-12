@@ -42,11 +42,15 @@ class ZenodoUploader(Uploader):
             dataset = self._get_resource(session, identifier)
             metadata = self._generate_metadata(dataset, publish)
 
-            dataset.platform = dataset.platform or PlatformName.zenodo
+            if dataset.platform == PlatformName.aiod or dataset.platform is None:
+                # If the platform is not set, or set to default aiod, we assume it's Zenodo
+                # and set the platform name to Zenodo. Else we keep the platform as is.
+                dataset.platform = PlatformName.zenodo
+
             self._validate_platform_name(dataset.platform, identifier)
 
             platform_resource_id = dataset.platform_resource_identifier
-            if platform_resource_id is None:
+            if platform_resource_id is None or dataset.platform == PlatformName.zenodo:
                 zenodo_metadata = self._create_repo(metadata, token)
 
                 repo_id = zenodo_metadata["id"]

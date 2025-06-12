@@ -24,8 +24,12 @@ def test_unicode(client_test_resource: TestClient, title: str, auto_publish: Non
 =======
     assert "identifier" in response.json()
     identifier = response.json()["identifier"]
+<<<<<<< HEAD
   
 >>>>>>> b6ab8ca9 (update tests post and get_count)
+=======
+
+>>>>>>> 100516b3 (diable upload test)
     response = client_test_resource.get(f"/test_resources/v0/{identifier}")
     assert response.status_code == 200, response.json()
     response_json = response.json()
@@ -35,7 +39,7 @@ def test_unicode(client_test_resource: TestClient, title: str, auto_publish: Non
 
 
 def test_missing_value(client_test_resource: TestClient):
-    body = {}
+    body = {} # type: ignore
     with logged_in_user():
         response = client_test_resource.post(
             "/test_resources/v0", json=body, headers={"Authorization": "Fake token"}
@@ -61,8 +65,8 @@ def test_null_value(client_test_resource: TestClient):
         }
     ]
 
-# This test is commented out because it is no more relevant. 
-# The platform and platform_resource_identifier is set by the server, 
+# This test is commented out because it is no more relevant.
+# The platform and platform_resource_identifier is set by the server,
 # so platform_resource_identifier is unique everytime.
 
 <<<<<<< HEAD
@@ -129,7 +133,7 @@ def test_no_platform_no_platform_resource_identifier(
     with logged_in_user():
         response = client_test_resource.post("/test_resources/v0", json=body, headers=headers)
     assert response.status_code == 200, response.json()
-    
+
     body = {"title": "title2", "platform": None, "platform_resource_identifier": None}
     with logged_in_user():
         response = client_test_resource.post("/test_resources/v0", json=body, headers=headers)
@@ -143,7 +147,7 @@ def test_post_platform_and_platform_resource_identifier_rejected(
     body = {"title": "title1", "platform": "aiod", "platform_resource_identifier": 2}
     with logged_in_user():
         response = client_test_resource.post("/test_resources/v0", json=body, headers=headers)
-    
+
     assert response.status_code == 400
     assert response.json()["detail"] == (
         "You are not allowed to set platform or platform_resource_identifier fields directly.")
@@ -196,7 +200,7 @@ def test_connector_can_post_platform_and_platform_resource_identifier(
     client_test_resource: TestClient,
 ):
     headers = {"Authorization": "Fake token"}
-    connector_user = kc_connector_with_roles()  
+    connector_user = kc_connector_with_roles()
     body = {
         "title": "ConnectorResource",
         "platform": "example",
@@ -205,6 +209,3 @@ def test_connector_can_post_platform_and_platform_resource_identifier(
     with logged_in_user(connector_user):
         response = client_test_resource.post("/test_resources/v0", json=body, headers=headers)
     assert response.status_code == 200
-    
-    
-    
