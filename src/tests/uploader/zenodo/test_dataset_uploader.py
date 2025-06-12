@@ -34,7 +34,7 @@ HEADERS = {"Authorization": "Fake token"}
 PARAMS_DRAFT = {"token": "fake-token", "publish": False}
 PARAMS_PUBLISH = {"token": "fake-token", "publish": True}
 
-pytest.skip("skipping all tests in this file for now", allow_module_level=True)
+pytest.skip("skipping all tests in this file for now", allow_module_level=True) # see issue #538
 
 def distribution_from_zenodo(*filenames: str, is_published: bool = False) -> list[dict]:
     files_metadata = (
