@@ -65,6 +65,7 @@ def test_null_value(client_test_resource: TestClient):
         }
     ]
 
+<<<<<<< HEAD
 # This test is commented out because it is no more relevant.
 # The platform and platform_resource_identifier is set by the server,
 # so platform_resource_identifier is unique everytime.
@@ -79,10 +80,24 @@ def test_posting_same_item_twice(client_test_resource: TestClient):
     identifier = response.json()['identifier']
     body = {"title": "title2", "platform": "example", "platform_resource_identifier": "1"}
     with logged_in_user():
+=======
+# Prevents a connector from posting the same item twice.
+def test_posting_same_item_twice(client_test_resource: TestClient):
+    headers = {"Authorization": "Fake token"}
+    body = {"title": "title1", "platform": "example", "platform_resource_identifier": "1"}
+    connector_user = kc_connector_with_roles()
+    
+    with logged_in_user(connector_user):
+        response = client_test_resource.post("/test_resources/v0", json=body, headers=headers)
+    assert response.status_code == 200, response.json()
+    body = {"title": "title2", "platform": "example", "platform_resource_identifier": "1"}
+    with logged_in_user(connector_user):
+>>>>>>> 5d0d388b (add additional test)
         response = client_test_resource.post("/test_resources/v0", json=body, headers=headers)
     assert response.status_code == 409, response.json()
     assert (
         response.json()["detail"] == "There already exists a test_resource with the same "
+<<<<<<< HEAD
         f"platform and platform_resource_identifier, with identifier={identifier}."
     )
 =======
@@ -101,6 +116,10 @@ def test_posting_same_item_twice(client_test_resource: TestClient):
 #         "platform and platform_resource_identifier, with identifier=1."
 #     )
 >>>>>>> b6ab8ca9 (update tests post and get_count)
+=======
+        "platform and platform_resource_identifier, with identifier=1."
+    )
+>>>>>>> 5d0d388b (add additional test)
 
 
 def test_posting_same_item_twice_but_deleted(
