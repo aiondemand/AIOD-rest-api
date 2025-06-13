@@ -2,7 +2,7 @@
 import pytest
 from starlette.testclient import TestClient
 
-from tests.testutils.users import logged_in_user
+from tests.testutils.users import logged_in_user, kc_connector_with_roles
 from database.model.platform.platform_names import PlatformName
 
 
@@ -34,7 +34,7 @@ def test_unicode(client_test_resource: TestClient, title: str, auto_publish: Non
     assert response.status_code == 200, response.json()
     response_json = response.json()
     assert response_json["title"] == title
-    assert response_json["platform"] == "aiod"
+    assert response_json["platform"] == PlatformName.aiod
     assert response_json["platform_resource_identifier"] == str(identifier)
 
 
@@ -144,13 +144,13 @@ def test_post_platform_and_platform_resource_identifier_rejected(
     client_test_resource: TestClient
 ):
     headers = {"Authorization": "Fake token"}
-    body = {"title": "title1", "platform": "aiod", "platform_resource_identifier": 2}
+    body = {"title": "title1", "platform": PlatformName.aiod, "platform_resource_identifier": 2}
     with logged_in_user():
         response = client_test_resource.post("/test_resources/v0", json=body, headers=headers)
 
     assert response.status_code == 400
     assert response.json()["detail"] == (
-        "You are not allowed to set platform or platform_resource_identifier fields directly.")
+        "No permission to set platform or platform_resource_identifier fields.")
 
 
 
@@ -195,7 +195,7 @@ def test_non_existent_platform(client_test_resource: TestClient):
         "register it using the POST platforms endpoint."
     )
 
-from tests.testutils.users import KeycloakUser, logged_in_user, kc_connector_with_roles
+
 def test_connector_can_post_platform_and_platform_resource_identifier(
     client_test_resource: TestClient,
 ):
