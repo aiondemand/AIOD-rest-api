@@ -510,8 +510,8 @@ class ResourceRouter(abc.ABC):
                 or getattr(resource, "platform_resource_identifier", None) is not None
             ):
                 raise HTTPException(
-                    status_code=400,
-                    detail="You are not allowed to set platform or platform_resource_identifier fields directly.",
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="No permission to set platform or platform_resource_identifier fields.",
                 )
             # Set these fields as required for normal users
             resource.platform = PlatformName.aiod
