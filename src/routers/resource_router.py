@@ -501,13 +501,14 @@ class ResourceRouter(abc.ABC):
         session.flush()
 
         if user.is_connector:
-            # Trust connector's input, do not override platform/platform_resource_identifier
+        # 1. Trust connector's input, do not override platform/platform_resource_identifier
+            # error message is raised if the connector does not provide these fields.
             pass
         # 2. Normal user: must NOT provide platform/platform_resource_identifier
         else:
             if (
-                getattr(resource, "platform", None) is not None
-                or getattr(resource, "platform_resource_identifier", None) is not None
+                resource.platform is not None
+                or resource.platform_resource_identifier is not None
             ):
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
