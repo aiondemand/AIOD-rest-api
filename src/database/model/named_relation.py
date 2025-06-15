@@ -30,7 +30,7 @@ class NamedRelation(SQLModel):
 class Taxonomy(NamedRelation):
     """An extension of named relation which should only allow specific terms in the database."""
 
-    description: str = Field(description="", nullable=True, max_length=NORMAL)
+    definition: str = Field(description="", nullable=True, max_length=NORMAL)
     # 'official' shouldn't be shown to users, but used by the REST API for filtering.
     official: bool = Field(
         default=False, description="This term is part of the official AIoD taxonomy."

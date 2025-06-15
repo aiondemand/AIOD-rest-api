@@ -27,7 +27,7 @@ def upgrade() -> None:
         "industrial_sector",
         "application_area",
     ]
-    description_column = Column("description", String(NORMAL), nullable=True)
+    description_column = Column("definition", String(NORMAL), nullable=True)
     official_column = Column("official", Boolean(), nullable=True, default=False)
     for table in taxonomy_tables:
         for column in [description_column, official_column]:
@@ -42,5 +42,5 @@ def downgrade() -> None:
         "application_area",
     ]
     for table in taxonomy_tables:
-        op.drop_column(table_name=table, column_name="description")
+        op.drop_column(table_name=table, column_name="definition")
         op.drop_column(table_name=table, column_name="official")

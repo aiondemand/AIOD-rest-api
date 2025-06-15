@@ -46,7 +46,7 @@ def synchronize(
             term_object.definition = definition
             term_object.official = True
         else:
-            term_object = taxonomy_type(name=term, description=definition, official=True)
+            term_object = taxonomy_type(name=term, definition=definition, official=True)
             session.add(term_object)
 
     session.commit()
