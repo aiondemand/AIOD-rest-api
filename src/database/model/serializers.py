@@ -8,7 +8,7 @@ from sqlmodel import SQLModel, Session, select
 from starlette.status import HTTP_404_NOT_FOUND
 
 from database.model.helper_functions import get_relationships
-from database.model.named_relation import NamedRelation
+from database.model.named_relation import NamedRelation, Taxonomy
 
 MODEL = TypeVar("MODEL", bound=SQLModel)
 
@@ -160,8 +160,14 @@ class FindByNameDeserializerList(DeSerializer[NamedRelation]):
             raise ValueError("Expected a list. Do you need to use FindByNameDeserializer instead?")
         names = [n.lower() for n in name]
         query = select(self.clazz).where(self.clazz.name.in_(names))  # type: ignore[attr-defined]
-        existing = session.scalars(query).all()
+        existing = list(session.scalars(query).all())
         names_not_found = set(names) - {e.name for e in existing}
+        if issubclass(self.clazz, Taxonomy):
+            illegal_names = names_not_found | {e.name for e in existing if not e.official}
+            if illegal_names:
+                raise ValueError(
+                    f"The terms {illegal_names!r} are not part of the taxonomy for {self.clazz.__tablename__}."
+                )
         new_objects = [self.clazz(name=name) for name in names_not_found]
         if any(names_not_found):
             session.add_all(new_objects)
