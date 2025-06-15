@@ -1,5 +1,5 @@
-from database.model.named_relation import NamedRelation
+from database.model.named_relation import Taxonomy
 
 
-class IndustrialSector(NamedRelation, table=True):  # type: ignore [call-arg]
+class IndustrialSector(Taxonomy, table=True):  # type: ignore [call-arg]
     __tablename__ = "industrial_sector"

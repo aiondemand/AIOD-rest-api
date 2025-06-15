@@ -1,5 +1,5 @@
-from database.model.named_relation import NamedRelation
+from database.model.named_relation import Taxonomy
 
 
-class ResearchArea(NamedRelation, table=True):  # type: ignore [call-arg]
+class ResearchArea(Taxonomy, table=True):  # type: ignore [call-arg]
     __tablename__ = "research_area"
