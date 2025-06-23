@@ -1,7 +1,7 @@
 """Adds `description` and `official` columns to taxonomy tables
 
 Revision ID: 751c3f34323a
-Revises: 1662d64ebe23
+Revises: 459323683348
 Create Date: 2025-06-15 09:07:21.057214
 
 """
@@ -15,7 +15,7 @@ from database.model.field_length import NORMAL
 
 # revision identifiers, used by Alembic.
 revision: str = "751c3f34323a"
-down_revision: Union[str, None] = "1662d64ebe23"
+down_revision: Union[str, None] = "459323683348"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
