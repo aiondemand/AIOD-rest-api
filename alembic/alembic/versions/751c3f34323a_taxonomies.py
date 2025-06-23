@@ -35,9 +35,21 @@ def upgrade() -> None:
     for table in TAXONOMY_TABLES:
         for column in [description_column, official_column]:
             op.add_column(table_name=table, column=column)
+        op.alter_column(
+            table,
+            column_name="name",
+            type_=String(length=NORMAL, collation="utf8_bin"),
+            existing_nullable=False,
+        )
 
 
 def downgrade() -> None:
     for table in TAXONOMY_TABLES:
         op.drop_column(table_name=table, column_name="definition")
         op.drop_column(table_name=table, column_name="official")
+        op.alter_column(
+            table,
+            column_name="name",
+            type_=String(length=NORMAL),
+            existing_nullable=False,
+        )

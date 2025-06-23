@@ -53,7 +53,7 @@ DEFAULT_NEWS_CATEGORY = [
     Term("business: health", "for use in tests"),
 ]
 DEFAULT_LICENSE = [
-    Term("cc-by-4.0", "for use in tests")
+    Term("CC-BY-4.0", "for use in tests"),
 ]
 DEFAULT_TEST_RESOURCE_IDENTIFIER = "test_KwfnsoJOAejyRdv2PaXUPAbW"
 

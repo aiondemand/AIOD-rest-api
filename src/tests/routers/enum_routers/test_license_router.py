@@ -20,4 +20,4 @@ def test_taxonomy_router(client: TestClient):
     response = client.get("/licenses")
     assert response.status_code == 200, response.json()
     terms = {item["term"] for item in response.json()}
-    assert terms.issuperset({"cc-by-4.0"})
+    assert terms.issuperset({"CC-BY-4.0"})
