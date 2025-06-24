@@ -27,7 +27,7 @@ class ProjectBase(AIResourceBase):
         default=None,
         schema_extra={"example": "2022-01-01T15:15:00"},
     )
-    total_cost_euro: condecimal(max_digits=12, decimal_places=2) | None = Field(  # type: ignore
+    total_cost_euros: condecimal(max_digits=12, decimal_places=2) | None = Field(  # type: ignore
         description="The total budget of the project in euros.",
         schema_extra={"example": 1000000},
         default=None,
