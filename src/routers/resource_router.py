@@ -508,12 +508,12 @@ class ResourceRouter(abc.ABC):
         else:
             if resource.platform is not None or resource.platform_resource_identifier is not None:
                 raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
+                    status_code=status.HTTP_403_FORBIDDEN,
                     detail="No permission to set platform or platform_resource_identifier fields.",
                 )
             # Set these fields as required for normal users
             resource.platform = PlatformName.aiod
-            resource.platform_resource_identifier = resource.aiod_entry_identifier
+            resource.platform_resource_identifier = resource.identifier
 
         session.commit()
         return resource
