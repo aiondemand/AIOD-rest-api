@@ -2,7 +2,7 @@
 import pytest
 from starlette.testclient import TestClient
 
-from tests.testutils.users import logged_in_user, kc_connector_with_roles
+from tests.testutils.users import logged_in_user
 from database.model.platform.platform_names import PlatformName
 
 
@@ -18,24 +18,14 @@ def test_unicode(client_test_resource: TestClient, title: str, auto_publish: Non
             headers={"Authorization": "Fake token"},
         )
     assert response.status_code == 200, response.json()
-<<<<<<< HEAD
-    identifier = response.json()['identifier']
-
-=======
     assert "identifier" in response.json()
     identifier = response.json()["identifier"]
-<<<<<<< HEAD
-  
->>>>>>> b6ab8ca9 (update tests post and get_count)
-=======
 
->>>>>>> 100516b3 (diable upload test)
     response = client_test_resource.get(f"/test_resources/v0/{identifier}")
     assert response.status_code == 200, response.json()
     response_json = response.json()
     assert response_json["title"] == title
-    assert response_json["platform"] == PlatformName.aiod
-    assert response_json["platform_resource_identifier"] == str(identifier)
+    assert response_json["platform"] == "aiod"
 
 
 def test_missing_value(client_test_resource: TestClient):
@@ -65,22 +55,6 @@ def test_null_value(client_test_resource: TestClient):
         }
     ]
 
-<<<<<<< HEAD
-# This test is commented out because it is no more relevant.
-# The platform and platform_resource_identifier is set by the server,
-# so platform_resource_identifier is unique everytime.
-
-<<<<<<< HEAD
-def test_posting_same_item_twice(client_test_resource: TestClient):
-    headers = {"Authorization": "Fake token"}
-    body = {"title": "title1", "platform": "example", "platform_resource_identifier": "1"}
-    with logged_in_user():
-        response = client_test_resource.post("/test_resources/v0", json=body, headers=headers)
-    assert response.status_code == 200, response.json()
-    identifier = response.json()['identifier']
-    body = {"title": "title2", "platform": "example", "platform_resource_identifier": "1"}
-    with logged_in_user():
-=======
 # Prevents a connector from posting the same item twice.
 def test_posting_same_item_twice(client_test_resource: TestClient):
     headers = {"Authorization": "Fake token"}
@@ -89,37 +63,16 @@ def test_posting_same_item_twice(client_test_resource: TestClient):
 
     with logged_in_user(connector_user):
         response = client_test_resource.post("/test_resources/v0", json=body, headers=headers)
+    identifier = response.json()["identifier"]
     assert response.status_code == 200, response.json()
     body = {"title": "title2", "platform": "example", "platform_resource_identifier": "1"}
     with logged_in_user(connector_user):
->>>>>>> 5d0d388b (add additional test)
         response = client_test_resource.post("/test_resources/v0", json=body, headers=headers)
     assert response.status_code == 409, response.json()
     assert (
-        response.json()["detail"] == "There already exists a test_resource with the same "
-<<<<<<< HEAD
-        f"platform and platform_resource_identifier, with identifier={identifier}."
+        response.json()["detail"]
+        == f"There already exists a test_resource with the same platform and platform_resource_identifier, with identifier={identifier}."
     )
-=======
-# def test_posting_same_item_twice(client_test_resource: TestClient):
-#     headers = {"Authorization": "Fake token"}
-#     body = {"title": "title1"}
-#     with logged_in_user():
-#         response = client_test_resource.post("/test_resources/v0", json=body, headers=headers)
-#     assert response.status_code == 200, response.json()
-#     body = {"title": "title2"}
-#     with logged_in_user():
-#         response = client_test_resource.post("/test_resources/v0", json=body, headers=headers)
-#     assert response.status_code == 409, response.json()
-#     assert (
-#         response.json()["detail"] == "There already exists a test_resource with the same "
-#         "platform and platform_resource_identifier, with identifier=1."
-#     )
->>>>>>> b6ab8ca9 (update tests post and get_count)
-=======
-        "platform and platform_resource_identifier, with identifier=1."
-    )
->>>>>>> 5d0d388b (add additional test)
 
 
 def test_posting_same_item_twice_but_deleted(
@@ -163,7 +116,7 @@ def test_post_platform_and_platform_resource_identifier_rejected(
     client_test_resource: TestClient
 ):
     headers = {"Authorization": "Fake token"}
-    body = {"title": "title1", "platform": PlatformName.aiod, "platform_resource_identifier": 2}
+    body = {"title": "title1", "platform": "aiod", "platform_resource_identifier": 2}
     with logged_in_user():
         response = client_test_resource.post("/test_resources/v0", json=body, headers=headers)
 
@@ -214,7 +167,7 @@ def test_non_existent_platform(client_test_resource: TestClient):
         "register it using the POST platforms endpoint."
     )
 
-
+from tests.testutils.users import KeycloakUser, logged_in_user, kc_connector_with_roles
 def test_connector_can_post_platform_and_platform_resource_identifier(
     client_test_resource: TestClient,
 ):

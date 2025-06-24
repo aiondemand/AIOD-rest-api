@@ -105,22 +105,13 @@ def contact2(body_concept) -> Contact:
     return _create_class_with_body(Contact, body)
 
 
-<<<<<<< HEAD
 @pytest.mark.parametrize(
     "endpoint",
     [
         "/contacts",
         "/contacts/1",
-        "/platforms/example/contacts",
-        "/platforms/example/contacts/fake:100",
-=======
-@pytest.fixture(
-    params=[
-        "/contacts/v1",
-        "/contacts/v1/1",
-        "/platforms/aiod/contacts/v1",
-        "/platforms/aiod/contacts/v1/fake:100",
->>>>>>> a43d9d6a (debug test_router_contact)
+        "/platforms/aiod/contacts",
+        "/platforms/aiod/contacts/fake:100",
     ]
 )
 def test_email_mask_for_not_authenticated_user(
@@ -135,15 +126,7 @@ def test_email_mask_for_not_authenticated_user(
         session.add(contact)
         session.add(contact2)
         session.commit()
-<<<<<<< HEAD
-<<<<<<< HEAD
         session.refresh(contact)
-=======
-        
->>>>>>> a43d9d6a (debug test_router_contact)
-=======
-
->>>>>>> 100516b3 (diable upload test)
 
     # clunky way to account for random identifier because only 1 endpoint matches this pattern
     endpoint = endpoint.replace("/1", f"/{contact.identifier}")
@@ -187,16 +170,8 @@ def test_email_mask_for_authenticated_user(
     assert response.status_code == 200, response.json()
     response_json = response.json()
     assert set(response_json["email"]) == {"fake2@email.com", "fake@email.com"}
-
-<<<<<<< HEAD
-<<<<<<< HEAD
-    response = client.get("/platforms/example/contacts", headers=headers)
-=======
-    response = client.get("/platforms/aiod/contacts/v1", headers=headers)
->>>>>>> a43d9d6a (debug test_router_contact)
-=======
     response = client.get("/platforms/aiod/contacts/", headers=headers)
->>>>>>> 5202c88d (remove deprecated v1, fix bugs, add env variable to docker-compose.yaml)
+
     response_json = response.json()
     assert response.status_code == 200, response_json
 
@@ -204,15 +179,7 @@ def test_email_mask_for_authenticated_user(
     assert response_json[0]["email"] == ["a@b.com"]
     assert set(response_json[1]["email"]) == {"fake2@email.com", "fake@email.com"}
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-    response = client.get("/platforms/example/contacts/fake:100", headers=headers)
-=======
-    response = client.get("/platforms/aiod/contacts/v1/fake:100", headers=headers)
->>>>>>> a43d9d6a (debug test_router_contact)
-=======
     response = client.get("/platforms/aiod/contacts/fake:100", headers=headers)
->>>>>>> 5202c88d (remove deprecated v1, fix bugs, add env variable to docker-compose.yaml)
     response_json = response.json()
     assert response.status_code == 200, response_json
     assert set(response_json["email"]) == {"fake2@email.com", "fake@email.com"}

@@ -65,12 +65,8 @@ def test_happy_path(
     assert response_json["identifier"] == identifier
     assert response_json["ai_resource_identifier"] == identifier
     assert response_json["ai_asset_identifier"] == identifier
-
-    assert response_json["platform"] == "example"
-    assert response_json["platform_resource_identifier"] == "1"
-    assert response_json["aiod_entry"]["editor"] == [person_identifier]
     assert response_json["platform"] == "aiod"
-    # assert response_json["platform_resource_identifier"] == "2"
+    assert response_json["aiod_entry"]["editor"] == [person_identifier]
     assert response_json["aiod_entry"]["status"] == EntryStatus.PUBLISHED
     date_created = dateutil.parser.parse(response_json["aiod_entry"]["date_created"] + "Z")
     date_modified = dateutil.parser.parse(response_json["aiod_entry"]["date_modified"] + "Z")
