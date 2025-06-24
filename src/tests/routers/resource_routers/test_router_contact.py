@@ -189,10 +189,14 @@ def test_email_mask_for_authenticated_user(
     assert set(response_json["email"]) == {"fake2@email.com", "fake@email.com"}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     response = client.get("/platforms/example/contacts", headers=headers)
 =======
     response = client.get("/platforms/aiod/contacts/v1", headers=headers)
 >>>>>>> a43d9d6a (debug test_router_contact)
+=======
+    response = client.get("/platforms/aiod/contacts/", headers=headers)
+>>>>>>> 5202c88d (remove deprecated v1, fix bugs, add env variable to docker-compose.yaml)
     response_json = response.json()
     assert response.status_code == 200, response_json
 
@@ -201,10 +205,14 @@ def test_email_mask_for_authenticated_user(
     assert set(response_json[1]["email"]) == {"fake2@email.com", "fake@email.com"}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     response = client.get("/platforms/example/contacts/fake:100", headers=headers)
 =======
     response = client.get("/platforms/aiod/contacts/v1/fake:100", headers=headers)
 >>>>>>> a43d9d6a (debug test_router_contact)
+=======
+    response = client.get("/platforms/aiod/contacts/fake:100", headers=headers)
+>>>>>>> 5202c88d (remove deprecated v1, fix bugs, add env variable to docker-compose.yaml)
     response_json = response.json()
     assert response.status_code == 200, response_json
     assert set(response_json["email"]) == {"fake2@email.com", "fake@email.com"}

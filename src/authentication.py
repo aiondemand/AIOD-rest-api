@@ -36,7 +36,7 @@ oidc = OpenIdConnect(openIdConnectUrl=KEYCLOAK_CONFIG.get("openid_connect_url"),
 
 REVIEWER_ROLE = os.getenv("REVIEWER_ROLE_NAME")
 client_secret = os.getenv("KEYCLOAK_CLIENT_SECRET")
-CONNECTOR_ROLE = os.getenv("CONNECTOR_ROLE_NAME", "connector")
+CONNECTOR_ROLE = os.getenv("CONNECTOR_ROLE_NAME")
 
 keycloak_openid = KeycloakOpenID(
     server_url=KEYCLOAK_CONFIG.get("server_url"),

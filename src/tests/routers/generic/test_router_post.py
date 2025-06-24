@@ -86,7 +86,7 @@ def test_posting_same_item_twice(client_test_resource: TestClient):
     headers = {"Authorization": "Fake token"}
     body = {"title": "title1", "platform": "example", "platform_resource_identifier": "1"}
     connector_user = kc_connector_with_roles()
-    
+
     with logged_in_user(connector_user):
         response = client_test_resource.post("/test_resources/v0", json=body, headers=headers)
     assert response.status_code == 200, response.json()

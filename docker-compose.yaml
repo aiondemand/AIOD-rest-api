@@ -12,6 +12,7 @@ services:
       - REVIEWER_ROLE_NAME=$REVIEWER_ROLE_NAME
       - ES_USER=$ES_USER
       - ES_PASSWORD=$ES_PASSWORD
+      - CONNECTOR_ROLE_NAME=$CONNECTOR_ROLE_NAME
     ports:
       - ${AIOD_REST_PORT}:8000
     command: python main.py
