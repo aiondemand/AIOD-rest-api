@@ -57,7 +57,7 @@ def test_happy_path(
     assert response_json["member_of"] == body["member_of"]
 
     assert response_json["platform"] == "aiod"
-    assert response_json["platform_resource_identifier"] == "4"
+    assert response_json["platform_resource_identifier"] == response_json["identifier"]
 
 
 @pytest.mark.parametrize(
