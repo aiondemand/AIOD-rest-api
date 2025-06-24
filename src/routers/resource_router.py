@@ -508,7 +508,7 @@ class ResourceRouter(abc.ABC):
         else:
             if resource.platform is not None or resource.platform_resource_identifier is not None:
                 raise HTTPException(
-                    status_code=status.HTTP_403_FORBIDDEN,
+                    status_code=HTTPStatus.FORBIDDEN,
                     detail="No permission to set platform or platform_resource_identifier fields.",
                 )
             # Set these fields as required for normal users
