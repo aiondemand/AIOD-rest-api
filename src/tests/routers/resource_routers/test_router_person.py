@@ -53,16 +53,11 @@ def test_happy_path(
 
     assert response_json["price_per_hour_euro"] == 10.50
     assert response_json["wants_to_be_contacted"]
-<<<<<<< HEAD
     assert response_json["contact_details"] == body["contact_details"]
     assert response_json["member_of"] == body["member_of"]
-=======
-    assert response_json["contact_details"] == 1
-    assert response_json["member_of"] == [1]
 
     assert response_json["platform"] == "aiod"
     assert response_json["platform_resource_identifier"] == "4"
->>>>>>> d819c410 (do not set platform and platfrom_resource_identifier in test)
 
 
 @pytest.mark.parametrize(

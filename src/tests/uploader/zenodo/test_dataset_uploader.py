@@ -1,4 +1,3 @@
-
 import copy
 import responses
 import pytest
@@ -94,7 +93,7 @@ def body_with_dist(body_no_dist: dict) -> dict:
     body["distribution"] = distribution_from_zenodo(FILE1)
     return body
 
-@pytest.mark.skip()
+
 def test_happy_path_creating_repo(
     client: TestClient, body_empty: dict, db_with_person_and_contact: tuple[str, str], auto_publish: None,
 ):
@@ -117,19 +116,8 @@ def test_happy_path_creating_repo(
 
         with open(path_test_resources() / "contents" / FILE1, "rb") as f:
             test_file = {"file": f}
-<<<<<<< HEAD
-<<<<<<< HEAD
             with logged_in_user(kc_user_with_roles("upload_PlatformName.zenodo")):
                 response = client.post(ENDPOINT.format(identifier=identifier), params=PARAMS_DRAFT, headers=HEADERS, files=test_file)
-=======
-            with logged_in_user(kc_connector_with_roles("upload_PlatformName.zenodo")):
-                response = client.post(ENDPOINT, params=PARAMS_DRAFT, headers=HEADERS, files=test_file)
->>>>>>> 65a737eb (create connector user in keycloak)
-=======
-            with logged_in_user(kc_user_with_roles("upload_PlatformName.zenodo")):
-                response = client.post(ENDPOINT, params=PARAMS_DRAFT, headers=HEADERS, files=test_file)
-
->>>>>>> 100516b3 (diable upload test)
         assert response.status_code == status.HTTP_200_OK, response.json()
         assert response.json() == identifier, response.json()
 
@@ -171,17 +159,8 @@ def test_happy_path_existing_repo(
         with open(path_test_resources() / "contents" / FILE1, "rb") as f:
             test_file = {"file": f}
 
-<<<<<<< HEAD
-<<<<<<< HEAD
             with logged_in_user(kc_user_with_roles("upload_PlatformName.zenodo")):
                 response = client.post(ENDPOINT.format(identifier=identifier), params=PARAMS_DRAFT, headers=HEADERS, files=test_file)
-=======
-            with logged_in_user(kc_connector_with_roles("upload_PlatformName.zenodo")):
-=======
-            with logged_in_user(kc_user_with_roles("upload_PlatformName.zenodo")):
->>>>>>> 100516b3 (diable upload test)
-                response = client.post(ENDPOINT, params=PARAMS_DRAFT, headers=HEADERS, files=test_file)
->>>>>>> 65a737eb (create connector user in keycloak)
         assert response.status_code == status.HTTP_200_OK, response.json()
         assert response.json() == identifier, response.json()
     bypass_reviewer_publish_everything()
@@ -218,13 +197,8 @@ def test_happy_path_existing_file(
 
         with open(path_test_resources() / "contents" / FILE2, "rb") as f:
             test_file = {"file": f}
-<<<<<<< HEAD
             with logged_in_user(kc_user_with_roles("upload_PlatformName.zenodo")):
                 response = client.post(ENDPOINT.format(identifier=identifier), params=PARAMS_DRAFT, headers=HEADERS, files=test_file)
-=======
-            with logged_in_user(kc_connector_with_roles("upload_PlatformName.zenodo")):
-                response = client.post(ENDPOINT, params=PARAMS_DRAFT, headers=HEADERS, files=test_file)
->>>>>>> 65a737eb (create connector user in keycloak)
         assert response.status_code == status.HTTP_200_OK, response.json()
         assert response.json() == identifier, response.json()
     bypass_reviewer_publish_everything()
@@ -273,13 +247,8 @@ def test_happy_path_updating_an_existing_file(
 
         with open(path_test_resources() / "contents" / FILE1, "rb") as f:
             test_file = {"file": f}
-<<<<<<< HEAD
             with logged_in_user(kc_user_with_roles("upload_PlatformName.zenodo")):
                 response = client.post(ENDPOINT.format(identifier=identifier), params=PARAMS_DRAFT, headers=HEADERS, files=test_file)
-=======
-            with logged_in_user(kc_connector_with_roles("upload_PlatformName.zenodo")):
-                response = client.post(ENDPOINT, params=PARAMS_DRAFT, headers=HEADERS, files=test_file)
->>>>>>> 65a737eb (create connector user in keycloak)
         assert response.status_code == status.HTTP_200_OK, response.json()
         assert response.json() == identifier, response.json()
     bypass_reviewer_publish_everything()
@@ -421,13 +390,8 @@ def test_platform_name_conflict(
         zenodo.mock_get_licenses(mocked_request)
         with open(path_test_resources() / "contents" / FILE1, "rb") as f:
             test_file = {"file": f}
-<<<<<<< HEAD
             with logged_in_user(kc_user_with_roles("upload_PlatformName.zenodo")):
                 response = client.post(ENDPOINT.format(identifier=identifier), params=PARAMS_DRAFT, headers=HEADERS, files=test_file)
-=======
-            with logged_in_user(kc_connector_with_roles("upload_PlatformName.zenodo")):
-                response = client.post(ENDPOINT, params=PARAMS_DRAFT, headers=HEADERS, files=test_file)
->>>>>>> 65a737eb (create connector user in keycloak)
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST, response.json()
         assert response.json()["detail"] == (
