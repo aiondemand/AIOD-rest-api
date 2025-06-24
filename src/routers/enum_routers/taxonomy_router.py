@@ -45,7 +45,7 @@ class TaxonomyRouter(EnumRouter):
                 resources = session.scalars(query).all()
                 # TODO: With Pydantic V2 this can be 'automatic' by using `serialization_alias`
                 return (
-                    TaxonomyRead(term=term.name, definition=term.description)
+                    TaxonomyRead(term=term.name, definition=term.definition)
                     for term in resources
                     if term.official
                 )

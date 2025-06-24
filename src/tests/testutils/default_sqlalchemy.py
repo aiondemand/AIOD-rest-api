@@ -24,6 +24,9 @@ from database.model.ai_resource.application_area import ApplicationArea
 from database.model.ai_resource.industrial_sector import IndustrialSector
 from database.model.ai_resource.research_area import ResearchArea
 from database.model.ai_resource.scientific_domain import ScientificDomain
+from database.model.ai_asset.license import License
+from database.model.knowledge_asset.PublicationType import PublicationType
+from database.model.news.news_category import NewsCategory
 from tests.testutils.test_resource import RouterTestResource, factory_test_resource
 from tests.testutils.users import bypass_reviewer_publish_everything
 from taxonomies.synchronize_taxonomy import synchronize as synchronize_taxonomy, Term
@@ -41,6 +44,19 @@ DEFAULT_RESEARCH_AREAS = [
 DEFAULT_SCIENTIFIC_DOMAINS = [
     Term("voice recognition", "for use in tests")
 ]
+DEFAULT_PUBLICATION_TYPE = [
+    Term("article", "for use in tests")
+]
+DEFAULT_NEWS_CATEGORY = [
+    Term("research: education", "for use in tests"),
+    Term("research: awards", "for use in tests"),
+    Term("business: health", "for use in tests"),
+]
+DEFAULT_LICENSE = [
+    Term("cc-by-4.0", "for use in tests")
+]
+DEFAULT_TEST_RESOURCE_IDENTIFIER = "test_KwfnsoJOAejyRdv2PaXUPAbW"
+
 
 @pytest.fixture(scope="session")
 def engine() -> Iterator[Engine]:
@@ -88,10 +104,12 @@ def clear_db(request, engine: Engine):
         session.commit()
         bypass_reviewer_publish_everything()
         for taxonomy, terms in [
-            (ApplicationArea, DEFAULT_APPLICATION_AREAS),
             (IndustrialSector, DEFAULT_INDUSTRIAL_SECTORS),
             (ResearchArea, DEFAULT_RESEARCH_AREAS),
             (ScientificDomain, DEFAULT_SCIENTIFIC_DOMAINS),
+            (License, DEFAULT_LICENSE),
+            (PublicationType, DEFAULT_PUBLICATION_TYPE),
+            (NewsCategory, DEFAULT_NEWS_CATEGORY),
         ]:
             synchronize_taxonomy(taxonomy, terms, session)  # type: ignore[arg-type]
 

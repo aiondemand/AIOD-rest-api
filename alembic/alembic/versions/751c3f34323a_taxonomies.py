@@ -19,28 +19,25 @@ down_revision: Union[str, None] = "459323683348"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
+TAXONOMY_TABLES = [
+    "industrial_sector",
+    "license",
+    "news_category",
+    "publication_type",
+    "research_area",
+    "scientific_domain",
+]
+
 
 def upgrade() -> None:
-    taxonomy_tables = [
-        "scientific_domain",
-        "research_area",
-        "industrial_sector",
-        "application_area",
-    ]
     description_column = Column("definition", String(NORMAL), nullable=True)
     official_column = Column("official", Boolean(), nullable=True, default=False)
-    for table in taxonomy_tables:
+    for table in TAXONOMY_TABLES:
         for column in [description_column, official_column]:
             op.add_column(table_name=table, column=column)
 
 
 def downgrade() -> None:
-    taxonomy_tables = [
-        "scientific_domain",
-        "research_area",
-        "industrial_sector",
-        "application_area",
-    ]
-    for table in taxonomy_tables:
+    for table in TAXONOMY_TABLES:
         op.drop_column(table_name=table, column_name="definition")
         op.drop_column(table_name=table, column_name="official")
