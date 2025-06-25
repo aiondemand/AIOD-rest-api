@@ -1,9 +1,10 @@
 import os
-from typing import Tuple
+from typing import Tuple, ForwardRef, List
 
+from pydantic import create_model
 from sqlalchemy import CheckConstraint, Column, String
-from sqlalchemy.orm import declared_attr
-from sqlmodel import SQLModel, Field
+from sqlalchemy.orm import declared_attr, backref
+from sqlmodel import SQLModel, Field, Relationship
 
 from database.model.field_length import NORMAL
 
@@ -53,4 +54,47 @@ class Taxonomy(NamedRelation):
     @declared_attr
     def __table_args__(cls) -> Tuple:
         # We do not want to only support lower case for predefined terms
+        # So we override the `NamedRelation` behavior.
         return tuple()
+
+    # def __init_subclass__(cls):
+    #     """"""
+    #     super().__init_subclass__()
+    #     cls.__annotations__.update(Taxonomy.__annotations__)
+    # cls.__annotations__['children'] = List[ForwardRef(cls.__name__)]
+    # cls.__fields__['parent_id'] = Field(
+    #     foreign_key=f"{cls.__tablename__}.identifier", default=None, nullable=True
+    # )
+    #    .foreign_key = f"{cls.__tablename__}.identifier"
+    # cls.__fields__['children'] = Relationship(
+    #         sa_relationship_kwargs=dict(
+    #         cascade="all",
+    #         backref=backref("parent", remote_side=f"{cls.__name__}.identifier"),
+    #     )
+    # )
+
+
+def create_taxonomy(class_name: str, table_name: str) -> type[Taxonomy]:
+    clazz = create_model(
+        __model_name=class_name,
+        __base__=Taxonomy,
+        __cls_kwargs__=dict(table=True),
+        __tablename__=(str, table_name),
+        # Taxonomies are hierarchical, e.g., a Cow is also a Mammal.
+        # These fields are updated dynamically in `__init__subclass__`.
+        parent_id=(
+            int | None,
+            Field(foreign_key=f"{table_name}.identifier", default=None, nullable=True),
+        ),
+        children=(
+            List[ForwardRef(class_name)],  # type: ignore
+            Relationship(
+                sa_relationship_kwargs=dict(
+                    cascade="all",
+                    backref=backref("parent", remote_side=f"{class_name}.identifier"),
+                )
+            ),
+        ),
+    )
+    # a `parent: Self | None` attribute is automatically generated based on `children`.
+    return clazz
