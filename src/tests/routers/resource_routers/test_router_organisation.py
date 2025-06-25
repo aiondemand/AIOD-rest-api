@@ -17,7 +17,6 @@ def test_happy_path(
     auto_publish: None,
 ):
     body = copy.copy(body_agent)
-    # body["platform_resource_identifier"] = "2"
     body["date_founded"] = "2023-01-01"
     body["legal_name"] = "A name for the organisation"
     body["ai_relevance"] = "Part of CLAIRE"
