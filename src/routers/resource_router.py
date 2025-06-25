@@ -501,9 +501,15 @@ class ResourceRouter(abc.ABC):
         session.flush()
 
         if user.is_connector:
-            # 1. Trust connector's input, do not override platform/platform_resource_identifier
-            # error message is raised if the connector does not provide these fields.
-            pass
+            # Check if connector belongs to the specific platform it is registering the resource for.
+            print(type(resource.platform))
+            if not user.is_connector_for_platform(resource.platform):
+                raise HTTPException(
+                    status_code=HTTPStatus.FORBIDDEN,
+                    detail=f"No permission to set platform or platform_resource_identifier fields for {resource.platform} platform.",
+                )
+            else:
+                pass
         # 2. Normal user: must NOT provide platform/platform_resource_identifier
         else:
             if resource.platform is not None or resource.platform_resource_identifier is not None:

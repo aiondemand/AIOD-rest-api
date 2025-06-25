@@ -168,7 +168,7 @@ def test_non_existent_platform(client_test_resource: TestClient):
         "register it using the POST platforms endpoint."
     )
 
-def test_connector_can_post_platform_and_platform_resource_identifier(
+def test_connector_can_post_to_valid_platform(
     client_test_resource: TestClient,
 ):
     headers = {"Authorization": "Fake token"}
@@ -181,3 +181,19 @@ def test_connector_can_post_platform_and_platform_resource_identifier(
     with logged_in_user(connector_user):
         response = client_test_resource.post("/test_resources/v0", json=body, headers=headers)
     assert response.status_code == 200
+
+
+def test_connector_cannot_post_to_other_platform(
+    client_test_resource: TestClient,
+):
+    headers = {"Authorization": "Fake token"}
+    connector_user = kc_connector_with_roles()
+    body = {
+        "title": "ConnectorResource",
+        "platform": "aiod",
+        "platform_resource_identifier": "conn-123"
+    }
+    with logged_in_user(connector_user):
+        response = client_test_resource.post("/test_resources/v0", json=body, headers=headers)
+    assert response.status_code == HTTPStatus.FORBIDDEN
+    assert response.json()["detail"] == "No permission to set platform or platform_resource_identifier fields for aiod platform."

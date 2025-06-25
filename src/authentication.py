@@ -36,7 +36,6 @@ oidc = OpenIdConnect(openIdConnectUrl=KEYCLOAK_CONFIG.get("openid_connect_url"),
 
 REVIEWER_ROLE = os.getenv("REVIEWER_ROLE_NAME")
 client_secret = os.getenv("KEYCLOAK_CLIENT_SECRET")
-CONNECTOR_ROLE = os.getenv("CONNECTOR_ROLE_NAME")
 
 keycloak_openid = KeycloakOpenID(
     server_url=KEYCLOAK_CONFIG.get("server_url"),
@@ -52,7 +51,6 @@ def assert_required_settings_configured() -> None:
     # Should be managed together with other settings in the future (#67)
     assert REVIEWER_ROLE, "Environment variable 'REVIEWER_ROLE_NAME' not set."  # noqa: S101
     assert client_secret, "Environment variable 'KEYCLOAK_CLIENT_SECRET' not set."  # noqa: S101
-    assert CONNECTOR_ROLE, "Environment variable 'CONNECTOR_ROLE_NAME' not set."  # noqa: S101
 
 
 @dataclasses.dataclass
@@ -67,13 +65,22 @@ class KeycloakUser:
     def has_any_role(self, *roles: str) -> bool:
         return bool(set(roles) & self.roles)
 
+    def is_connector_for_platform(self, platform_name: str = "aiod") -> bool:
+        """
+        Check if the user is a connector for a specific platform.
+        """
+        return f"platform_{platform_name}" in self.roles
+
     @property
     def is_reviewer(self):
         return REVIEWER_ROLE in self.roles
 
     @property
     def is_connector(self) -> bool:
-        return CONNECTOR_ROLE in self.roles
+        """
+        Check if the user is a connector.
+        """
+        return any(role.startswith("platform_") for role in self.roles)
 
 
 async def _get_user(token) -> KeycloakUser:
