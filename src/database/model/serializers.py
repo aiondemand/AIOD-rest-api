@@ -137,14 +137,17 @@ class FindByNameDeserializer(DeSerializer[NamedRelation]):
                 "Expected a single value. Do you need to use FindByNameDeserializerList instead?"
             )
         name = name.lower()
-        query = select(self.clazz.identifier).where(self.clazz.name == name)
-        identifier = session.scalars(query).first()
-        if identifier is None:
-            new_object = self.clazz(name=name)
-            session.add(new_object)
+        query = select(self.clazz).where(self.clazz.name == name)
+        item = session.scalars(query).first()
+        if issubclass(self.clazz, Taxonomy) and (item is None or not item.official):
+            raise ValueError(
+                f"The term {name!r} is not part of the taxonomy for {self.clazz.__tablename__}."
+            )
+        if item is None:
+            item = self.clazz(name=name)
+            session.add(item)
             session.flush()
-            identifier = new_object.identifier
-        return identifier
+        return item.identifier
 
 
 @dataclasses.dataclass
