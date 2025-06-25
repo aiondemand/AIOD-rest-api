@@ -1,4 +1,4 @@
-from typing import Type
+from typing import Type, Union
 
 from fastapi import APIRouter
 from pydantic import BaseModel, Field
@@ -12,6 +12,12 @@ from database.session import DbSession
 class TaxonomyRead(BaseModel):
     term: str = Field(description="A short, unique name for the term.")
     definition: str = Field(description="The definition of the term.")
+
+
+class TaxonomyHierarchy(TaxonomyRead):
+    subterms: list["TaxonomyHierarchy"] = Field(
+        description="Direct subterms of this term.", default_factory=list
+    )
 
 
 class TaxonomyRouter(EnumRouter):
@@ -32,22 +38,27 @@ class TaxonomyRouter(EnumRouter):
             router.add_api_route(
                 path=path,
                 endpoint=self.get_official_terms_func(),
-                response_model=list[TaxonomyRead],
+                response_model=list[TaxonomyHierarchy],
                 name=self.resource_name,
                 **default_kwargs,
             )
         return router
 
     def get_official_terms_func(self):
+        def create_hierarchical_representation(term):
+            children = [create_hierarchical_representation(t) for t in term.children]
+            return TaxonomyHierarchy(term=term.name, definition=term.definition, subterms=children)
+
         def get_official():
             with DbSession() as session:
                 query = select(self.resource_class)
                 resources = session.scalars(query).all()
                 # TODO: With Pydantic V2 this can be 'automatic' by using `serialization_alias`
-                return (
-                    TaxonomyRead(term=term.name, definition=term.definition)
+                taxonomies = [
+                    create_hierarchical_representation(term)
                     for term in resources
-                    if term.official
-                )
+                    if term.official and term.parent is None
+                ]
+                return taxonomies
 
         return get_official

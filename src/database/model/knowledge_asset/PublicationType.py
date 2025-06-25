@@ -1,5 +1,3 @@
-from typing import Self, Optional
-
 from sqlalchemy.orm import backref
 from sqlmodel import Field, Relationship
 
@@ -19,4 +17,5 @@ class PublicationType(Taxonomy, table=True):  # type: ignore [call-arg]
             backref=backref("parent", remote_side="PublicationType.identifier"),
         )
     )
-    # parent: Optional['PublicationType'] = Relationship()
+    # above statement also generated a `parent: Self | None` attribute if there is a parent
+    # term in the taxonomy
