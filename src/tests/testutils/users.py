@@ -5,7 +5,7 @@ from unittest.mock import Mock
 from sqlalchemy import update
 from sqlalchemy.orm.exc import DetachedInstanceError
 
-from authentication import KeycloakUser, keycloak_openid, REVIEWER_ROLE, CONNECTOR_ROLE
+from authentication import KeycloakUser, keycloak_openid, REVIEWER_ROLE
 from database.authorization import register_user, set_permission, PermissionType
 from database.model.concept.aiod_entry import EntryStatus, AIoDEntryORM
 from database.model.concept.concept import AIoDConcept
@@ -15,7 +15,7 @@ from database.session import DbSession
 ALICE = KeycloakUser("Alice", set(), "alice-sub")
 BOB = KeycloakUser("Bob", set(), "bob-sub")
 REVIEWER = KeycloakUser("Reviewer", {cast(str, REVIEWER_ROLE)}, "reviewer-sub")
-CONNECTOR = KeycloakUser("Connector", {CONNECTOR_ROLE}, "connector-sub")  # type: ignore[arg-type]
+CONNECTOR_ROLE = "platform_example"
 
 
 
