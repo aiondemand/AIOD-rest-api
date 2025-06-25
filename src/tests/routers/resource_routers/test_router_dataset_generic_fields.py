@@ -103,7 +103,7 @@ def test_happy_path(
     assert distribution["content_url"] == "https://www.example.com/resource.pdf"
 
     assert response_json["date_published"] == "2022-01-01T15:15:00"
-    assert response_json["license"] == "https://creativecommons.org/licenses/by/4.0/"
+    assert response_json["license"] == "CC-BY-4.0"
     assert response_json["version"] == "1.a"
     notes = [note["value"] for note in response_json["note"]]
     assert len(notes) == 2

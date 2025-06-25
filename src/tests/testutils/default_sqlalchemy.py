@@ -45,7 +45,8 @@ DEFAULT_SCIENTIFIC_DOMAINS = [
     Term("voice recognition", "for use in tests")
 ]
 DEFAULT_PUBLICATION_TYPE = [
-    Term("article", "for use in tests")
+    Term("article", "for use in tests"),
+    Term("journal", "publication in a journal")
 ]
 DEFAULT_NEWS_CATEGORY = [
     Term("research: education", "for use in tests"),

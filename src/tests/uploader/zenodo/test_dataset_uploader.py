@@ -72,7 +72,7 @@ def body_empty(body_asset: dict) -> dict:
     body = copy.deepcopy(body_asset)
     body["platform"] = None
     body["platform_resource_identifier"] = None
-    body["license"] = "a-valid-license-id"
+    body["license"] = "CC-BY-4.0"
     body["distribution"] = []
     body["creator"] = [1]
     return body

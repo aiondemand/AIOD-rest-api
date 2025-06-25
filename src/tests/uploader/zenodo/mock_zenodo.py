@@ -44,7 +44,7 @@ def mock_get_licenses(mocked_requests: responses.RequestsMock) -> None:
     mocked_requests.add(
         responses.GET,
         LICENSES_URL,
-        json={"hits": {"hits": [{"id": "a-valid-license-id"}]}},
+        json={"hits": {"hits": [{"id": "CC-BY-4.0"}]}},
         status=200,
     )
 
