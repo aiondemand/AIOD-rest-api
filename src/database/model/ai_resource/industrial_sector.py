@@ -1,5 +1,3 @@
-from database.model.named_relation import Taxonomy
+from database.model.named_relation import create_taxonomy
 
-
-class IndustrialSector(Taxonomy, table=True):  # type: ignore [call-arg]
-    __tablename__ = "industrial_sector"
+IndustrialSector = create_taxonomy(class_name="IndustrialSector", table_name="industrial_sector")

@@ -57,22 +57,6 @@ class Taxonomy(NamedRelation):
         # So we override the `NamedRelation` behavior.
         return tuple()
 
-    # def __init_subclass__(cls):
-    #     """"""
-    #     super().__init_subclass__()
-    #     cls.__annotations__.update(Taxonomy.__annotations__)
-    # cls.__annotations__['children'] = List[ForwardRef(cls.__name__)]
-    # cls.__fields__['parent_id'] = Field(
-    #     foreign_key=f"{cls.__tablename__}.identifier", default=None, nullable=True
-    # )
-    #    .foreign_key = f"{cls.__tablename__}.identifier"
-    # cls.__fields__['children'] = Relationship(
-    #         sa_relationship_kwargs=dict(
-    #         cascade="all",
-    #         backref=backref("parent", remote_side=f"{cls.__name__}.identifier"),
-    #     )
-    # )
-
 
 def create_taxonomy(class_name: str, table_name: str) -> type[Taxonomy]:
     clazz = create_model(

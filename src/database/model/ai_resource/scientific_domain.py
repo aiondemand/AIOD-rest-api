@@ -1,5 +1,3 @@
-from database.model.named_relation import Taxonomy
+from database.model.named_relation import create_taxonomy
 
-
-class ScientificDomain(Taxonomy, table=True):  # type: ignore [call-arg]
-    __tablename__ = "scientific_domain"
+ScientificDomain = create_taxonomy(class_name="ScientificDomain", table_name="scientific_domain")

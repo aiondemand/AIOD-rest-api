@@ -1,5 +1,3 @@
-from database.model.named_relation import Taxonomy
+from database.model.named_relation import create_taxonomy
 
-
-class License(Taxonomy, table=True):  # type: ignore [call-arg]
-    __tablename__ = "license"
+License = create_taxonomy(class_name="License", table_name="license")

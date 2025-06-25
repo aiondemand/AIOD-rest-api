@@ -1,5 +1,3 @@
-from database.model.named_relation import Taxonomy
+from database.model.named_relation import create_taxonomy
 
-
-class ResearchArea(Taxonomy, table=True):  # type: ignore [call-arg]
-    __tablename__ = "research_area"
+ResearchArea = create_taxonomy(class_name="ResearchArea", table_name="research_area")
