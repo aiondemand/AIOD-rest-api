@@ -141,7 +141,8 @@ class FindByNameDeserializer(DeSerializer[NamedRelation]):
         item = session.scalars(query).first()
         if issubclass(self.clazz, Taxonomy) and (item is None or not item.official):
             raise ValueError(
-                f"The term {name!r} is not part of the taxonomy for {self.clazz.__tablename__}."
+                f"The term {name!r} is not part of the taxonomy for {self.clazz.__tablename__}. "
+                "Please see the endpoint for the taxonomy to see a list of allowed terms."
             )
         if item is None:
             item = self.clazz(name=name)
@@ -169,7 +170,8 @@ class FindByNameDeserializerList(DeSerializer[NamedRelation]):
             illegal_names = names_not_found | {e.name for e in existing if not e.official}
             if illegal_names:
                 raise ValueError(
-                    f"The terms {illegal_names!r} are not part of the taxonomy for {self.clazz.__tablename__}."
+                    f"The terms {illegal_names!r} are not part of the taxonomy for {self.clazz.__tablename__}. "
+                    "Please see the endpoint for the taxonomy to see a list of allowed terms."
                 )
         new_objects = [self.clazz(name=name) for name in names_not_found]
         if any(names_not_found):
