@@ -57,10 +57,10 @@ def load_taxonomies_from_json(file_path: Path):
 
         def create_term(element: dict) -> Taxonomy:
             term = element["label"]["value"]
-            if len(term) < 256:
+            if len(term) > 256:
                 raise ValueError(f"Term {term!r} exceeds maximum length of 256 characters.")
             definition = element["definition"]
-            if len(definition) < 1800:
+            if len(definition) > 1800:
                 definition_too_long = f"Definition for {term!r} exceeds maximum of 1800 characters."
                 raise ValueError(definition_too_long)
             return type_(  # type: ignore[misc]
