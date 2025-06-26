@@ -90,20 +90,27 @@ def synchronize(
     db_definitions = {
         term.name.casefold(): term for term in session.scalars(select(taxonomy_type)).all()
     }
+    added_terms = dict()
     for term_object in db_definitions.values():
         term_object.official = False
 
     def synchronize_term(term: Taxonomy):
-        for child in term.children:
-            synchronize_term(child)
+        synchronized_children = [synchronize_term(child) for child in term.children]
 
         if term_object := db_definitions.get(term.name.casefold()):
+            logging.info(f"Updating term {term.name!r}")
             term_object.name = term.name  # The name might change in capitalization
             term_object.definition = term.definition
             term_object.official = True
-            term_object.children = term.children
-        else:
+            term_object.children = synchronized_children
+            return term_object
+        if term.name not in added_terms:
+            logging.info(f"Adding new term {term.name!r}")
+            added_terms[term.name] = term
             session.add(term)
+            return term
+        logging.warning(f"Term {term.name!r} defined more than once!")
+        return added_terms[term.name]
 
     for term in definitions:
         synchronize_term(term)
@@ -114,7 +121,7 @@ def main():
     logging.info("Starting synchronization script.")
     args = parse_args()
     taxonomies = load_taxonomies_from_json(args.definitions_file)
-    with DbSession() as session:
+    with DbSession(autoflush=False) as session:
         for type_, definitions in taxonomies:
             synchronize(type_, definitions, session)
         logging.info("Committing changes to database.")
