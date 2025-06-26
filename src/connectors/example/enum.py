@@ -43,7 +43,7 @@ class EnumConnectorLanguage(EnumConnector[Language]):
         super().__init__(json_path, Language)
 
 
-class EnumConnectorLicense(EnumConnector[License]):
+class EnumConnectorLicense(EnumConnector[License]):  # type: ignore[valid-type]
     def __init__(self):
         json_path = ENUM_PATH / "licenses.json"
         super().__init__(json_path, License)
@@ -55,7 +55,7 @@ class EnumConnectorOrganisationType(EnumConnector[OrganisationType]):
         super().__init__(json_path, OrganisationType)
 
 
-class EnumConnectorNewsCategory(EnumConnector[NewsCategory]):
+class EnumConnectorNewsCategory(EnumConnector[NewsCategory]):  # type: ignore[valid-type]
     def __init__(self):
         json_path = ENUM_PATH / "news_categories.json"
         super().__init__(json_path, NewsCategory)
