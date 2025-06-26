@@ -75,9 +75,9 @@ class AIResource(AIResourceBase, AIoDConcept, metaclass=abc.ABCMeta):
     relevant_link: list[RelevantLink] = Relationship()
 
     application_area: list[ApplicationArea] = Relationship()
-    industrial_sector: list[IndustrialSector] = Relationship()
-    research_area: list[ResearchArea] = Relationship()
-    scientific_domain: list[ScientificDomain] = Relationship()
+    industrial_sector: list[IndustrialSector] = Relationship()  # type: ignore[valid-type]
+    research_area: list[ResearchArea] = Relationship()  # type: ignore[valid-type]
+    scientific_domain: list[ScientificDomain] = Relationship()  # type: ignore[valid-type]
 
     contact: list[Contact] = Relationship()
     creator: list[Contact] = Relationship()

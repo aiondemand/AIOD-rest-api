@@ -33,30 +33,29 @@ from taxonomies.synchronize_taxonomy import synchronize as synchronize_taxonomy,
 
 DEFAULT_TEST_RESOURCE_IDENTIFIER = "test_KwfnsoJOAejyRdv2PaXUPAbW"
 DEFAULT_APPLICATION_AREAS = [
-    Term("voice assistance", "for use in tests")
+    Term("voice assistance", "for use in tests", children=[])
 ]
 DEFAULT_INDUSTRIAL_SECTORS = [
-    Term("ecommerce", "for use in tests")
+    Term("ecommerce", "for use in tests", children=[])
 ]
 DEFAULT_RESEARCH_AREAS = [
-    Term("explainable ai", "for use in tests")
+    Term("explainable ai", "for use in tests", children=[])
 ]
 DEFAULT_SCIENTIFIC_DOMAINS = [
-    Term("voice recognition", "for use in tests")
+    Term("voice recognition", "for use in tests", children=[])
 ]
 DEFAULT_PUBLICATION_TYPE = [
-    Term("article", "for use in tests"),
-    Term("journal", "publication in a journal")
+    Term("article", "for use in tests", children=[]),
+    Term("journal", "publication in a journal", children=[])
 ]
 DEFAULT_NEWS_CATEGORY = [
-    Term("research: education", "for use in tests"),
-    Term("research: awards", "for use in tests"),
-    Term("business: health", "for use in tests"),
+    Term("research: education", "for use in tests", children=[]),
+    Term("research: awards", "for use in tests", children=[]),
+    Term("business: health", "for use in tests", children=[]),
 ]
 DEFAULT_LICENSE = [
-    Term("CC-BY-4.0", "for use in tests"),
+    Term("CC-BY-4.0", "for use in tests", children=[]),
 ]
-DEFAULT_TEST_RESOURCE_IDENTIFIER = "test_KwfnsoJOAejyRdv2PaXUPAbW"
 
 
 @pytest.fixture(scope="session")
@@ -112,7 +111,9 @@ def clear_db(request, engine: Engine):
             (PublicationType, DEFAULT_PUBLICATION_TYPE),
             (NewsCategory, DEFAULT_NEWS_CATEGORY),
         ]:
-            synchronize_taxonomy(taxonomy, terms, session)  # type: ignore[arg-type]
+            for term in terms:
+                session.add(taxonomy(**term._asdict(), official=True))
+        session.commit()
 
     yield
 

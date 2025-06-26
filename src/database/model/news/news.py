@@ -39,7 +39,7 @@ class News(NewsBase, AIResource, table=True):  # type: ignore [call-arg]
     __tablename__ = "news"
     __abbreviation__ = "news"
 
-    category: list[NewsCategory] = Relationship(
+    category: list[NewsCategory] = Relationship(  # type: ignore[valid-type]
         link_model=many_to_many_link_factory(
             "news", NewsCategory.__tablename__, from_identifier_type=str
         )

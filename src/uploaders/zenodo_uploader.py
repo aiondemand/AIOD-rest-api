@@ -261,7 +261,10 @@ class ZenodoUploader(Uploader):
 
         return distribution
 
-    def _get_and_validate_license(self, license_: License | None) -> str:
+    def _get_and_validate_license(
+        self,
+        license_: License | None,  # type: ignore[valid-type]
+    ) -> str:
         """
         Checks if the provided license is valid for uploading content to Zenodo.
         """

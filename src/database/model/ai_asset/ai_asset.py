@@ -50,7 +50,7 @@ class AIAsset(AIAssetBase, AIResource, metaclass=abc.ABCMeta):
     citation: list["Publication"] = Relationship()
     distribution: list = Relationship(sa_relationship_kwargs={"cascade": "all, delete"})
     license_identifier: int | None = Field(foreign_key=License.__tablename__ + ".identifier")
-    license: Optional[License] = Relationship()
+    license: Optional[License] = Relationship()  # type: ignore[valid-type]
 
     def __init_subclass__(cls):
         """

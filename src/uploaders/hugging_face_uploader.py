@@ -156,7 +156,8 @@ class HuggingfaceUploader(Uploader):
         #  https://huggingface.co/docs/hub/repositories-licenses
 
         if dataset.license in huggingface_license_identifiers:
-            content += f"license: {dataset.license.name if dataset.license else ''}"
+            license_ = dataset.license.name if dataset.license else ""  # type: ignore[attr-defined]
+            content += f"license: {license_}"
 
         content += "---\n"
         content += f"# {dataset.name}\n"

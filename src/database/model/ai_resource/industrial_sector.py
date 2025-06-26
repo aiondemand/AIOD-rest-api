@@ -1,3 +1,7 @@
-from database.model.named_relation import create_taxonomy
+from typing import Type
 
-IndustrialSector = create_taxonomy(class_name="IndustrialSector", table_name="industrial_sector")
+from database.model.named_relation import create_taxonomy, Taxonomy
+
+IndustrialSector: Type[Taxonomy] = create_taxonomy(
+    class_name="IndustrialSector", table_name="industrial_sector"
+)

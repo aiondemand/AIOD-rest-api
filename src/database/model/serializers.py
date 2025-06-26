@@ -161,10 +161,10 @@ class FindByNameDeserializerList(DeSerializer[NamedRelation]):
             return []
         if not isinstance(name, list):
             raise ValueError("Expected a list. Do you need to use FindByNameDeserializer instead?")
-        names = [n.lower() for n in name]
+        names = {n.casefold() for n in name}
         query = select(self.clazz).where(self.clazz.name.in_(names))  # type: ignore[attr-defined]
         existing = list(session.scalars(query).all())
-        names_not_found = set(names) - {e.name for e in existing}
+        names_not_found = names - {e.name.casefold() for e in existing}
         if issubclass(self.clazz, Taxonomy):
             illegal_names = names_not_found | {e.name for e in existing if not e.official}
             if illegal_names:

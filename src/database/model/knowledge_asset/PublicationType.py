@@ -1,3 +1,7 @@
-from database.model.named_relation import create_taxonomy
+from typing import Type
 
-PublicationType = create_taxonomy(class_name="PublicationType", table_name="publication_type")
+from database.model.named_relation import create_taxonomy, Taxonomy
+
+PublicationType: Type[Taxonomy] = create_taxonomy(
+    class_name="PublicationType", table_name="publication_type"
+)

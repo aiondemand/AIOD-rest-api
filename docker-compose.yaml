@@ -235,3 +235,11 @@ services:
     depends_on:
       es_logstash_setup:
         condition: service_completed_successfully
+
+  taxonomy:
+    container_name: taxonomy
+    image: aiod_metadata_catalogue
+    volumes:
+      - ./data/taxonomies.json:/data/taxonomies.json
+      - ./src:/app
+    command: python taxonomies/synchronize_taxonomy.py

@@ -6,11 +6,11 @@ from sqlalchemy import CheckConstraint, Column, String
 from sqlalchemy.orm import declared_attr, backref
 from sqlmodel import SQLModel, Field, Relationship
 
-from database.model.field_length import NORMAL
+from database.model.field_length import NORMAL, LONG
 
 IS_SQLITE = os.getenv("DB") == "SQLite"
 CONSTRAINT_LOWERCASE_NAME = f"{'name' if IS_SQLITE else 'BINARY(name)'} = LOWER(name)"
-COLLATION = "NOCASE" if IS_SQLITE else "utf8_bin"
+COLLATION = "NOCASE" if IS_SQLITE else None  # MySQL by default is case insensitive
 
 
 class NamedRelation(SQLModel):
@@ -39,22 +39,21 @@ class NamedRelation(SQLModel):
 class Taxonomy(NamedRelation):
     """An extension of named relation which should only allow specific terms in the database."""
 
-    definition: str = Field(description="", nullable=True, max_length=NORMAL)
+    definition: str = Field(description="The meaning of the term.", nullable=True, max_length=LONG)
     # 'official' shouldn't be shown to users, but used by the REST API for filtering.
     official: bool = Field(
-        default=False, description="This term is part of the official AIoD taxonomy."
+        default=False,
+        description="If true, indicates this term is part of the official AIoD taxonomy.",
     )
     # nb. `official` is a stopgap to support the fact that terms already
     # existed in the database prior to defining the taxonomies. The long-term plan is to evaluate the
     # unofficial terms and map them to official ones or add them to the taxonomy, which results in
     # all terms being official, at which point this can be deleted.
-    # If the NamedRelation is not defined in a taxonomy (e.g., e-mail, alias), then this term can be
-    # ignored.
 
     @declared_attr
     def __table_args__(cls) -> Tuple:
-        # We do not want to only support lower case for predefined terms
-        # So we override the `NamedRelation` behavior.
+        # `NamedRelation` would enforce lower-case to help normalize,
+        # which we do not want for predefined terms as we assume capitalization to be correct.
         return tuple()
 
 
