@@ -98,9 +98,10 @@ def create_v1_app():
         docs_url="/docs",
         redoc_url=None,
     )
-   
-    add_routes(app, url_prefix="/v1")  
+
+    add_routes(app, url_prefix="/v1")
     return app
+
 
 def create_v2_app():
     app = FastAPI(
@@ -110,9 +111,10 @@ def create_v2_app():
         docs_url="/docs",
         redoc_url=None,
     )
-    
+
     add_routes(app, url_prefix="/v2")
     return app
+
 
 app = FastAPI(
     title="AIoD Metadata Catalogue - Home page",
@@ -125,6 +127,7 @@ app_v2 = create_v2_app()
 app.mount("/v1", app_v1)
 app.mount("/v2", app_v2)
 
+
 @app.get("/docs", include_in_schema=False)
 def redirect_to_latest_docs():
     return HTMLResponse(
@@ -135,7 +138,6 @@ def redirect_to_latest_docs():
         </html>
         """
     )
-
 
 
 def create_app() -> FastAPI:
