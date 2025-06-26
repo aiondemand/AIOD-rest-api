@@ -90,6 +90,54 @@ def add_routes(app: FastAPI, url_prefix=""):
         app.include_router(router.create(url_prefix))
 
 
+def create_v1_app():
+    app = FastAPI(
+        title="AIoD Metadata Catalogue v1",
+        version="1.0",
+        openapi_url="/openapi.json",
+        docs_url="/docs",
+        redoc_url=None,
+    )
+   
+    add_routes(app, url_prefix="/v1")  
+    return app
+
+def create_v2_app():
+    app = FastAPI(
+        title="AIoD Metadata Catalogue v2",
+        version="2.0",
+        openapi_url="/openapi.json",
+        docs_url="/docs",
+        redoc_url=None,
+    )
+    
+    add_routes(app, url_prefix="/v2")
+    return app
+
+app = FastAPI(
+    title="AIoD Metadata Catalogue - Home page",
+    docs_url=None,  # disabled
+)
+
+app_v1 = create_v1_app()
+app_v2 = create_v2_app()
+
+app.mount("/v1", app_v1)
+app.mount("/v2", app_v2)
+
+@app.get("/docs", include_in_schema=False)
+def redirect_to_latest_docs():
+    return HTMLResponse(
+        content="""
+        <html>
+            <head><meta http-equiv="refresh" content="0; url='/v2/docs'" /></head>
+            <body>If you are not redirected, <a href="/v2/docs">click here</a>.</body>
+        </html>
+        """
+    )
+
+
+
 def create_app() -> FastAPI:
     """Create the FastAPI application, complete with routes."""
     setup_logger()
@@ -108,7 +156,7 @@ def create_app() -> FastAPI:
         build_database(drop_database=drop_database)
 
     pyproject_toml = pkg_resources.get_distribution("aiod_metadata_catalogue")
-    app = build_app(url_prefix=DEV_CONFIG.get("url_prefix", ""), version=pyproject_toml.version)
+    # app = build_app(url_prefix=DEV_CONFIG.get("url_prefix", ""), version=pyproject_toml.version)
     return app
 
 
