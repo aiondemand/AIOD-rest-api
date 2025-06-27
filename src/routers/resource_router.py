@@ -468,10 +468,35 @@ class ResourceRouter(abc.ABC):
             resource_create: clz_create,  # type: ignore
             user: KeycloakUser = Depends(get_user_or_raise),
         ):
+            platform = getattr(resource_create, "platform", None)
+            platform_resource_identifier = getattr(
+                resource_create, "platform_resource_identifier", None
+            )
+            if user.is_connector:
+                # Check if connector belongs to the specific platform it is registering the resource for.
+                if platform is None or not user.is_connector_for_platform(platform):
+                    raise HTTPException(
+                        status_code=HTTPStatus.FORBIDDEN,
+                        detail=f"No permission to upload assets for {platform} platform.",
+                    )
+                if platform_resource_identifier is None:
+                    raise HTTPException(
+                        status_code=HTTPStatus.FORBIDDEN,
+                        detail=f"Platform resource identifier may not be none.",
+                    )
+
+            # 2. Normal user: must NOT provide platform/platform_resource_identifier
+            else:
+                if platform is not None or platform_resource_identifier is not None:
+                    raise HTTPException(
+                        status_code=HTTPStatus.FORBIDDEN,
+                        detail="No permission to set platform or platform resource identifier.",
+                    )
+
             try:
                 with DbSession() as session:
                     try:
-                        resource = self.create_resource(session, resource_create, user)
+                        resource = self.create_resource(session, resource_create)
 
                         register_user(user, session)
                         set_permission(
@@ -490,7 +515,6 @@ class ResourceRouter(abc.ABC):
         self,
         session: Session,
         resource_create_instance: SQLModel,
-        user: KeycloakUser,
     ):
         """Store a resource in the database"""
         resource = self.resource_class.from_orm(resource_create_instance)
@@ -500,21 +524,7 @@ class ResourceRouter(abc.ABC):
         session.add(resource)
         session.flush()
 
-        if user.is_connector:
-            # Check if connector belongs to the specific platform it is registering the resource for.
-            if not user.is_connector_for_platform(resource.platform):
-                raise HTTPException(
-                    status_code=HTTPStatus.FORBIDDEN,
-                    detail=f"No permission to set platform or platform_resource_identifier fields for {resource.platform} platform.",
-                )
-
-        # 2. Normal user: must NOT provide platform/platform_resource_identifier
-        else:
-            if resource.platform is not None or resource.platform_resource_identifier is not None:
-                raise HTTPException(
-                    status_code=HTTPStatus.FORBIDDEN,
-                    detail="No permission to set platform or platform_resource_identifier fields.",
-                )
+        if resource.platform is None and resource.platform_resource_identifier is None:
             # Set these fields as required for normal users
             resource.platform = PlatformName.aiod
             resource.platform_resource_identifier = resource.identifier

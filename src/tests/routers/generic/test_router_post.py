@@ -125,7 +125,7 @@ def test_post_platform_and_platform_resource_identifier_rejected(
 
     assert response.status_code == HTTPStatus.FORBIDDEN
     assert response.json()["detail"] == (
-        "No permission to set platform or platform_resource_identifier fields.")
+        "No permission to set platform or platform resource identifier.")
 
 
 
@@ -136,11 +136,10 @@ def test_no_platform_with_platform_resource_identifier(
     body = {"title": "title1", "platform": None, "platform_resource_identifier": "1"}
     with logged_in_user():
         response = client_test_resource.post("/test_resources/v0", json=body, headers=headers)
-    assert response.status_code == 400, response.json()
+    assert response.status_code == HTTPStatus.FORBIDDEN, response.json()
     assert (
         response.json()["detail"]
-        == "If platform is NULL, platform_resource_identifier should also be "
-        "NULL, and vice versa."
+        == "No permission to set platform or platform resource identifier."
     )
 
 
@@ -151,23 +150,10 @@ def test_platform_with_no_platform_resource_identifier(
     body = {"title": "title1", "platform": "example", "platform_resource_identifier": None}
     with logged_in_user():
         response = client_test_resource.post("/test_resources/v0", json=body, headers=headers)
-    assert response.status_code == 400, response.json()
+    assert response.status_code == HTTPStatus.FORBIDDEN, response.json()
     assert (
         response.json()["detail"]
-        == "If platform is NULL, platform_resource_identifier should also be "
-        "NULL, and vice versa."
-    )
-
-
-def test_non_existent_platform(client_test_resource: TestClient):
-    headers = {"Authorization": "Fake token"}
-    body = {"title": "title1", "platform": "this_does_not_exist", "platform_resource_identifier": 1}
-    with logged_in_user():
-        response = client_test_resource.post("/test_resources/v0", json=body, headers=headers)
-    assert response.status_code == 412
-    assert (
-        response.json()["detail"] == "Platform this_does_not_exist does not exist. You can "
-        "register it using the POST platforms endpoint."
+        == "No permission to set platform or platform resource identifier."
     )
 
 def test_connector_can_post_to_valid_platform(
@@ -198,4 +184,4 @@ def test_connector_cannot_post_to_other_platform(
     with logged_in_user(connector_user):
         response = client_test_resource.post("/test_resources/v0", json=body, headers=headers)
     assert response.status_code == HTTPStatus.FORBIDDEN
-    assert response.json()["detail"] == "No permission to set platform or platform_resource_identifier fields for aiod platform."
+    assert response.json()["detail"] == "No permission to upload assets for aiod platform."

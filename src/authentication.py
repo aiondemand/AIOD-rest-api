@@ -65,7 +65,7 @@ class KeycloakUser:
     def has_any_role(self, *roles: str) -> bool:
         return bool(set(roles) & self.roles)
 
-    def is_connector_for_platform(self, platform_name: str = "aiod") -> bool:
+    def is_connector_for_platform(self, platform_name: str) -> bool:
         """
         Check if the user is a connector for a specific platform.
         """
