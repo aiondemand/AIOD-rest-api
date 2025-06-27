@@ -5,6 +5,8 @@ SCRIPT_DIR="$(dirname "$SCRIPT_PATH")"
 
 cd $SCRIPT_DIR/..
 source .env
+[ ! -f override.env ] && touch override.env
+source override.env
 
 DATA_PATH=$(realpath "$DATA_PATH")
 LOCAL_BACKUP_PATH="$DATA_PATH"/mysql_dump
