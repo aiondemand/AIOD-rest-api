@@ -30,7 +30,7 @@ def test_unicode(client_test_resource: TestClient, title: str, auto_publish: Non
 
 
 def test_missing_value(client_test_resource: TestClient):
-    body = {} # type: ignore
+    body: dict[str, str] = {}
     with logged_in_user():
         response = client_test_resource.post(
             "/test_resources/v0", json=body, headers={"Authorization": "Fake token"}
@@ -64,8 +64,9 @@ def test_posting_same_item_twice(client_test_resource: TestClient):
 
     with logged_in_user(connector_user):
         response = client_test_resource.post("/test_resources/v0", json=body, headers=headers)
-    identifier = response.json()["identifier"]
+
     assert response.status_code == 200, response.json()
+    identifier = response.json()["identifier"]
     body = {"title": "title2", "platform": "example", "platform_resource_identifier": "1"}
     with logged_in_user(connector_user):
         response = client_test_resource.post("/test_resources/v0", json=body, headers=headers)

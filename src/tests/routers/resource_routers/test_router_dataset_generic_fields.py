@@ -116,7 +116,6 @@ def test_happy_path(
     )
     assert lorem in notes
 
-    # body["platform_resource_identifier"] = "2"
     body["name"] = "new name"
     body["version"] = "1.b"
     body["distribution"] = [
@@ -142,9 +141,6 @@ def test_happy_path(
     date_modified = dateutil.parser.parse(response_json["aiod_entry"]["date_modified"] + "Z")
     assert 0 < (date_created - datetime_create_request).total_seconds() < 0.2
     assert 0 < (date_modified - datetime_update_request).total_seconds() < 0.4
-
-    # assert response_json["platform"] == "aiod"
-    # assert response_json["platform_resource_identifier"] == "2"
 
     assert response_json["name"] == "new name"
 

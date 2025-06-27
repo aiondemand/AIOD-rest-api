@@ -68,11 +68,11 @@ def test_get_count_total(
     publication: Publication,
     contact: Contact,
 ):
-    
+
     register_asset(person)
     register_asset(publication)
     register_asset(contact)
-    
+
     resources = [
         Publication(name="2", platform="example", platform_resource_identifier=2),
         Publication(name="3", platform="example", platform_resource_identifier=3)
@@ -80,7 +80,7 @@ def test_get_count_total(
     for res in resources:
         res.aiod_entry = AIoDEntryORM()
         res.aiod_entry.status = EntryStatus.PUBLISHED
-    
+
     with DbSession() as session:
         session.add_all(resources)
         session.commit()
