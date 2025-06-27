@@ -98,10 +98,12 @@ def test_posting_same_item_twice_but_deleted(
     assert response.status_code == 200, response.json()
 
 
-# User not allowed to set platform and platform_resource_identifier.
-def test_no_platform_no_platform_resource_identifier(
+def test_platform_and_platform_identifier_defaults_are_set_if_not_provided(
     client_test_resource: TestClient
 ):
+    """
+    The platform and platform_resource_identifier are set by the server.
+    """
     headers = {"Authorization": "Fake token"}
     body = {"title": "title1", "platform": None, "platform_resource_identifier": None}
     with logged_in_user():
@@ -112,7 +114,6 @@ def test_no_platform_no_platform_resource_identifier(
     with logged_in_user():
         response = client_test_resource.post("/test_resources/v0", json=body, headers=headers)
     assert response.status_code == 200, response.json()
-
 
 def test_post_platform_and_platform_resource_identifier_rejected(
     client_test_resource: TestClient
