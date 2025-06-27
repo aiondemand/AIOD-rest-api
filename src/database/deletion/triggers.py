@@ -25,12 +25,15 @@ def create_identifier_synchronization_triggers(dialect: str = "mysql"):
     from database.model.ai_asset.ai_asset_table import AIAssetTable
     from database.model.ai_resource.resource import AIResource
     from database.model.ai_resource.resource_table import AIResourceORM
+    from database.model.knowledge_asset.knowledge_asset import KnowledgeAsset
+    from database.model.knowledge_asset.knowledge_asset_table import KnowledgeAssetTable
 
     triggers = []
     for parent_class, reference_table in [
         (AIResource, AIResourceORM),
         (AIAsset, AIAssetTable),
         (Agent, AgentTable),
+        (KnowledgeAsset, KnowledgeAssetTable),
     ]:
         parent_table_name = reference_table.__tablename__  # type: ignore[attr-defined]
         for cls in non_abstract_subclasses(parent_class):

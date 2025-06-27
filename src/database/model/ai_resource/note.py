@@ -1,10 +1,11 @@
 from typing import Type
 
 from pydantic import create_model
-from sqlalchemy import Column, Integer, ForeignKey
+from sqlalchemy import Column, Integer, ForeignKey, String
 from sqlmodel import Field, SQLModel
 
 from database.model.field_length import VERY_LONG
+from database.model.field_length import IDENTIFIER_LENGTH
 
 
 class NoteBase(SQLModel):
@@ -24,10 +25,11 @@ def note_factory(table_from: str) -> Type:
         __cls_kwargs__=dict(table=True),
         identifier=(int | None, Field(primary_key=True)),
         linked_identifier=(
-            int | None,
+            str | None,
             Field(
                 sa_column=Column(
-                    Integer, ForeignKey(table_from + ".identifier", ondelete="CASCADE")
+                    String(IDENTIFIER_LENGTH),
+                    ForeignKey(table_from + ".identifier", ondelete="CASCADE"),
                 )
             ),
         ),

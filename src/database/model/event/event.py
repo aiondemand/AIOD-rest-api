@@ -76,13 +76,9 @@ class Event(EventBase, AIResource, table=True):  # type: ignore [call-arg]
         max_length=IDENTIFIER_LENGTH, foreign_key=AgentTable.__tablename__ + ".identifier"
     )
     organiser: Optional[AgentTable] = Relationship()
-    status_identifier: str | None = Field(
-        max_length=IDENTIFIER_LENGTH, foreign_key=EventStatus.__tablename__ + ".identifier"
-    )
+    status_identifier: int | None = Field(foreign_key=EventStatus.__tablename__ + ".identifier")
     status: Optional[EventStatus] = Relationship()
-    mode_identifier: str | None = Field(
-        max_length=IDENTIFIER_LENGTH, foreign_key=EventMode.__tablename__ + ".identifier"
-    )
+    mode_identifier: int | None = Field(foreign_key=EventMode.__tablename__ + ".identifier")
     mode: Optional[EventMode] = Relationship()
 
     class RelationshipConfig(AIResource.RelationshipConfig):

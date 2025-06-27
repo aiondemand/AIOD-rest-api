@@ -2,11 +2,12 @@ from datetime import datetime
 from typing import Type
 
 from pydantic import create_model
-from sqlalchemy import Column, Integer, ForeignKey
+from sqlalchemy import Column, Integer, ForeignKey, String
 from sqlmodel import Field
 
 from database.model.concept.concept import AIoDConceptBase
 from database.model.field_length import LONG, NORMAL, SHORT
+from database.model.field_length import IDENTIFIER_LENGTH
 
 
 class DistributionBase(AIoDConceptBase):
@@ -60,10 +61,11 @@ def distribution_factory(table_from: str, distribution_name="distribution") -> T
         __cls_kwargs__=dict(table=True),
         identifier=(int | None, Field(primary_key=True)),
         asset_identifier=(
-            int | None,
+            str | None,
             Field(
                 sa_column=Column(
-                    Integer, ForeignKey(table_from + ".identifier", ondelete="CASCADE")
+                    String(IDENTIFIER_LENGTH),
+                    ForeignKey(table_from + ".identifier", ondelete="CASCADE"),
                 )
             ),
         ),
