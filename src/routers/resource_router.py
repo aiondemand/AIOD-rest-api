@@ -490,7 +490,7 @@ class ResourceRouter(abc.ABC):
         self,
         session: Session,
         resource_create_instance: SQLModel,
-        user: KeycloakUser = Depends(get_user_or_raise),
+        user: KeycloakUser,
     ):
         """Store a resource in the database"""
         resource = self.resource_class.from_orm(resource_create_instance)
