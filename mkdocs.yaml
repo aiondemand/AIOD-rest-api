@@ -80,4 +80,3 @@ plugins:
       locale: en
       timezone: Europe/Amsterdam
       enable_creation_date: false
-      
