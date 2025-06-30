@@ -79,8 +79,9 @@ plugins:
   - section-index
   - search
   - git-revision-date-localized:
-      type: date
+      type: datetime
       fallback_to_build_date: true
       locale: en
       timezone: Europe/Amsterdam
+      enable_creation_date: false
       
