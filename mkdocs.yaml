@@ -10,6 +10,7 @@ theme:
     - navigation.footer
     - content.action.view
     - content.action.edit
+    - content.footer.last-updated
   icon:
     edit: material/pencil
     view: material/eye
@@ -73,3 +74,9 @@ markdown_extensions:
 plugins:
   - section-index
   - search
+  - git-revision-date-localized:
+      type: datetime
+      fallback_to_build_date: true
+      locale: en
+      timezone: Europe/Amsterdam
+      
