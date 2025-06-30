@@ -11,6 +11,10 @@ theme:
     - content.action.view
     - content.action.edit
     - content.footer.last-updated
+  language: en
+  language_options:
+    translations:
+      last_updated: "Last modified:"
   icon:
     edit: material/pencil
     view: material/eye
