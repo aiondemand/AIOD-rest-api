@@ -54,6 +54,7 @@ dev = [
 docs = [
     "mkdocs-material",
     "mkdocs-section-index",
+    "mkdocs-git-revision-date-localized-plugin",
 ]
 
 [tool.setuptools]
