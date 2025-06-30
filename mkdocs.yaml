@@ -78,5 +78,5 @@ plugins:
       type: datetime
       fallback_to_build_date: true
       locale: en
-      timezone: Europe/Amsterdam
+      timezone: UTC
       enable_creation_date: false
