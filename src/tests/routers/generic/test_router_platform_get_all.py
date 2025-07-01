@@ -22,7 +22,7 @@ def test_get_all_happy_path(client_test_resource: TestClient, auto_publish):
     with DbSession() as session:
         session.add_all(resources)
         session.commit()
-    response = client_test_resource.get("/platforms/example/test_resources/v0")
+    response = client_test_resource.get("/platforms/example/test_resources")
     assert response.status_code == 200, response.json()
     response_json = response.json()
 

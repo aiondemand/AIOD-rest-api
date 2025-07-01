@@ -24,9 +24,8 @@ def create(url_prefix: str) -> APIRouter:
     router = APIRouter()
 
     for path in [
-        f"{url_prefix}/submissions/retract/v1/{{submission_identifier}}",
-        f"{url_prefix}/v2/submissions/retract/{{submission_identifier}}",
         f"{url_prefix}/submissions/retract/{{submission_identifier}}",
+        f"{url_prefix}/v2/submissions/retract/{{submission_identifier}}",
     ]:
         router.post(
             path,
@@ -35,7 +34,7 @@ def create(url_prefix: str) -> APIRouter:
         )(retract_submission)
 
     for path in [
-        f"{url_prefix}/submissions/v1/{{identifier}}",
+        f"{url_prefix}/submissions/{{identifier}}",
         f"{url_prefix}/v2/submissions/{{identifier}}",
     ]:
         router.get(
@@ -46,7 +45,7 @@ def create(url_prefix: str) -> APIRouter:
         )(get_submission)
 
     for path in [
-        f"{url_prefix}/submissions/v1",
+        f"{url_prefix}/submissions",
         f"{url_prefix}/v2/submissions",
     ]:
         router.get(
@@ -56,26 +55,9 @@ def create(url_prefix: str) -> APIRouter:
             response_model=Sequence[SubmissionBase],
         )(list_submissions)
 
-    # Note that the versionless endpoints currently conflict with the
-    # v1 suffix endpoints. This may be simplified after v1 is removed.
-    router.get(
-        f"{url_prefix}/submissions/{{identifier}}",
-        tags=["Reviewing"],
-        description="Retrieve a specific submission.",
-        response_model=SubmissionView,
-    )(get_submission)
-
-    router.get(
-        f"{url_prefix}/submissions",
-        tags=["Reviewing"],
-        description="List all assets submitted for review.",
-        response_model=Sequence[SubmissionBase],
-    )(list_submissions)
-
     for path in [
-        f"{url_prefix}/reviews/v1",
-        f"{url_prefix}/v2/reviews",
         f"{url_prefix}/reviews",
+        f"{url_prefix}/v2/reviews",
     ]:
         router.post(
             path,
@@ -83,8 +65,6 @@ def create(url_prefix: str) -> APIRouter:
             description="Review an asset.",
             response_model=Review,
         )(_review_resource)
-
-    # Add MiddleWare which requires authentication as reviewer role
     return router
 
 

@@ -14,7 +14,7 @@ from http import HTTPStatus
 def test_unicode(client_test_resource: TestClient, title: str, auto_publish: None):
     with logged_in_user():
         response = client_test_resource.post(
-            "/test_resources/v0",
+            "/test_resources",
             json={"title": title},
             headers={"Authorization": "Fake token"},
         )
@@ -22,7 +22,7 @@ def test_unicode(client_test_resource: TestClient, title: str, auto_publish: Non
     assert "identifier" in response.json()
     identifier = response.json()["identifier"]
 
-    response = client_test_resource.get(f"/test_resources/v0/{identifier}")
+    response = client_test_resource.get(f"/test_resources/{identifier}")
     assert response.status_code == 200, response.json()
     response_json = response.json()
     assert response_json["title"] == title
@@ -33,7 +33,7 @@ def test_missing_value(client_test_resource: TestClient):
     body: dict[str, str] = {}
     with logged_in_user():
         response = client_test_resource.post(
-            "/test_resources/v0", json=body, headers={"Authorization": "Fake token"}
+            "/test_resources", json=body, headers={"Authorization": "Fake token"}
         )
     assert response.status_code == 422, response.json()
     assert response.json()["detail"] == [
@@ -45,7 +45,7 @@ def test_null_value(client_test_resource: TestClient):
     body = {"title": None}
     with logged_in_user():
         response = client_test_resource.post(
-            "/test_resources/v0", json=body, headers={"Authorization": "Fake token"}
+            "/test_resources", json=body, headers={"Authorization": "Fake token"}
         )
     assert response.status_code == 422, response.json()
     assert response.json()["detail"] == [
@@ -63,13 +63,13 @@ def test_posting_same_item_twice(client_test_resource: TestClient):
     connector_user = kc_connector_with_roles()
 
     with logged_in_user(connector_user):
-        response = client_test_resource.post("/test_resources/v0", json=body, headers=headers)
+        response = client_test_resource.post("/test_resources", json=body, headers=headers)
 
     assert response.status_code == 200, response.json()
     identifier = response.json()["identifier"]
     body = {"title": "title2", "platform": "example", "platform_resource_identifier": "1"}
     with logged_in_user(connector_user):
-        response = client_test_resource.post("/test_resources/v0", json=body, headers=headers)
+        response = client_test_resource.post("/test_resources", json=body, headers=headers)
     assert response.status_code == 409, response.json()
     assert (
         response.json()["detail"]
@@ -83,18 +83,18 @@ def test_posting_same_item_twice_but_deleted(
     headers = {"Authorization": "Fake token"}
     body = {"title": "title1"}
     with logged_in_user():
-        response = client_test_resource.post("/test_resources/v0", json=body, headers=headers)
+        response = client_test_resource.post("/test_resources", json=body, headers=headers)
     identifier = response.json()["identifier"]
     assert response.status_code == 200, response.json()
     identifier = response.json()['identifier']
 
     with logged_in_user():
-        response = client_test_resource.delete(f"/test_resources/v0/{identifier}", headers=headers)
+        response = client_test_resource.delete(f"/test_resources/{identifier}", headers=headers)
     assert response.status_code == 200, response.json()
 
     body = {"title": "title2"}
     with logged_in_user():
-        response = client_test_resource.post("/test_resources/v0", json=body, headers=headers)
+        response = client_test_resource.post("/test_resources", json=body, headers=headers)
     assert response.status_code == 200, response.json()
 
 
@@ -107,12 +107,12 @@ def test_platform_and_platform_identifier_defaults_are_set_if_not_provided(
     headers = {"Authorization": "Fake token"}
     body = {"title": "title1", "platform": None, "platform_resource_identifier": None}
     with logged_in_user():
-        response = client_test_resource.post("/test_resources/v0", json=body, headers=headers)
+        response = client_test_resource.post("/test_resources", json=body, headers=headers)
     assert response.status_code == 200, response.json()
 
     body = {"title": "title2", "platform": None, "platform_resource_identifier": None}
     with logged_in_user():
-        response = client_test_resource.post("/test_resources/v0", json=body, headers=headers)
+        response = client_test_resource.post("/test_resources", json=body, headers=headers)
     assert response.status_code == 200, response.json()
 
 def test_post_platform_and_platform_resource_identifier_rejected(
@@ -121,7 +121,7 @@ def test_post_platform_and_platform_resource_identifier_rejected(
     headers = {"Authorization": "Fake token"}
     body = {"title": "title1", "platform": "aiod", "platform_resource_identifier": 2}
     with logged_in_user():
-        response = client_test_resource.post("/test_resources/v0", json=body, headers=headers)
+        response = client_test_resource.post("/test_resources", json=body, headers=headers)
 
     assert response.status_code == HTTPStatus.FORBIDDEN
     assert response.json()["detail"] == (
@@ -135,7 +135,7 @@ def test_no_platform_with_platform_resource_identifier(
     headers = {"Authorization": "Fake token"}
     body = {"title": "title1", "platform": None, "platform_resource_identifier": "1"}
     with logged_in_user():
-        response = client_test_resource.post("/test_resources/v0", json=body, headers=headers)
+        response = client_test_resource.post("/test_resources", json=body, headers=headers)
     assert response.status_code == HTTPStatus.FORBIDDEN, response.json()
     assert (
         response.json()["detail"]
@@ -149,7 +149,7 @@ def test_platform_with_no_platform_resource_identifier(
     headers = {"Authorization": "Fake token"}
     body = {"title": "title1", "platform": "example", "platform_resource_identifier": None}
     with logged_in_user():
-        response = client_test_resource.post("/test_resources/v0", json=body, headers=headers)
+        response = client_test_resource.post("/test_resources", json=body, headers=headers)
     assert response.status_code == HTTPStatus.FORBIDDEN, response.json()
     assert (
         response.json()["detail"]
@@ -167,7 +167,7 @@ def test_connector_can_post_to_valid_platform(
         "platform_resource_identifier": "conn-123"
     }
     with logged_in_user(connector_user):
-        response = client_test_resource.post("/test_resources/v0", json=body, headers=headers)
+        response = client_test_resource.post("/test_resources", json=body, headers=headers)
     assert response.status_code == 200
 
 
@@ -182,6 +182,6 @@ def test_connector_cannot_post_to_other_platform(
         "platform_resource_identifier": "conn-123"
     }
     with logged_in_user(connector_user):
-        response = client_test_resource.post("/test_resources/v0", json=body, headers=headers)
+        response = client_test_resource.post("/test_resources", json=body, headers=headers)
     assert response.status_code == HTTPStatus.FORBIDDEN
     assert response.json()["detail"] == "No permission to upload assets for aiod platform."

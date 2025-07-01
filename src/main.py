@@ -60,7 +60,7 @@ def add_routes(app: FastAPI, url_prefix=""):
         </html>
         """
 
-    for path in ["/v2/{endpoint}", "/{endpoint}", "/{endpoint}/v1"]:
+    for path in ["/v2/{endpoint}", "/{endpoint}"]:
 
         @app.get(url_prefix + path.format(endpoint="authorization_test"))
         def test_authorization(user: KeycloakUser = Depends(get_user_or_raise)) -> KeycloakUser:

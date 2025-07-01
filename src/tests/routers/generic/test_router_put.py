@@ -18,12 +18,12 @@ def test_unicode(
 ):
     with logged_in_user(kc_user_with_roles("update_test_resources")):
         response = client_test_resource.put(
-            f"/test_resources/v0/{engine_test_resource_filled}",
+            f"/test_resources/{engine_test_resource_filled}",
             json={"title": title, "platform": "openml", "platform_resource_identifier": "2"},
             headers={"Authorization": "Fake token"},
         )
     assert response.status_code == 200, response.json()
-    response = client_test_resource.get(f"/test_resources/v0/{engine_test_resource_filled}")
+    response = client_test_resource.get(f"/test_resources/{engine_test_resource_filled}")
     assert response.status_code == 200, response.json()
     response_json = response.json()
     assert response_json["title"] == title
@@ -37,7 +37,7 @@ def test_non_existent(
     mocked_privileged_token: Mock,
 ):
     response = client_test_resource.put(
-        "/test_resources/v0/2",
+        "/test_resources/2",
         json={"title": "new_title", "platform": "other", "platform_resource_identifier": "2"},
         headers={"Authorization": "Fake token"},
     )
@@ -53,7 +53,7 @@ def test_too_long_name(
 ):
     name = "a" * 251
     response = client_test_resource.put(
-        f"/test_resources/v0/{engine_test_resource_filled}", json={"title": name}, headers={"Authorization": "Fake token"}
+        f"/test_resources/{engine_test_resource_filled}", json={"title": name}, headers={"Authorization": "Fake token"}
     )
     assert response.status_code == 422, response.json()
     response_json = response.json()
@@ -77,7 +77,7 @@ def test_no_platform_with_platform_resource_identifier(
     """
     with logged_in_user(kc_user_with_roles("update_test_resources")):
         response = client_test_resource.put(
-            f"/test_resources/v0/{engine_test_resource_filled}",
+            f"/test_resources/{engine_test_resource_filled}",
             json={"title": "title", "platform": "other", "platform_resource_identifier": None},
             headers={"Authorization": "Fake token"},
         )

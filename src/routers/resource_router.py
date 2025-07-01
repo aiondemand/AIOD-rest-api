@@ -117,7 +117,6 @@ class ResourceRouter(abc.ABC):
         version = f"v{self.version}"
 
         for path in [
-            f"{url_prefix}/{self.resource_name_plural}/{version}",
             f"{url_prefix}/v2/{self.resource_name_plural}",
             f"{url_prefix}/{self.resource_name_plural}",
         ]:
@@ -131,7 +130,6 @@ class ResourceRouter(abc.ABC):
             )
 
         for path in [
-            f"{url_prefix}/counts/{self.resource_name_plural}/v1",
             f"{url_prefix}/v2/counts/{self.resource_name_plural}",
             f"{url_prefix}/counts/{self.resource_name_plural}",
         ]:
@@ -145,7 +143,6 @@ class ResourceRouter(abc.ABC):
             )
 
         for path in [
-            f"{url_prefix}/{self.resource_name_plural}/submit/{version}/{{identifier}}",
             f"{url_prefix}/v2/{self.resource_name_plural}/submit/{{identifier}}",
             f"{url_prefix}/{self.resource_name_plural}/submit/{{identifier}}",
         ]:
@@ -173,7 +170,6 @@ class ResourceRouter(abc.ABC):
             )
 
         for path in [
-            url_prefix + f"/{self.resource_name_plural}/{version}/{{identifier}}",
             url_prefix + f"/v2/{self.resource_name_plural}/{{identifier}}",
             url_prefix + f"/{self.resource_name_plural}/{{identifier}}",
         ]:
@@ -188,7 +184,6 @@ class ResourceRouter(abc.ABC):
             )
 
         for path in [
-            f"{url_prefix}/{self.resource_name_plural}/{version}/{{identifier}}",
             f"{url_prefix}/v2/{self.resource_name_plural}/{{identifier}}",
             f"{url_prefix}/{self.resource_name_plural}/{{identifier}}",
         ]:
@@ -202,7 +197,6 @@ class ResourceRouter(abc.ABC):
             )
 
         for path in [
-            f"{url_prefix}/{self.resource_name_plural}/{version}/{{identifier}}",
             f"{url_prefix}/v2/{self.resource_name_plural}/{{identifier}}",
             f"{url_prefix}/{self.resource_name_plural}/{{identifier}}",
         ]:
@@ -217,7 +211,6 @@ class ResourceRouter(abc.ABC):
 
         if hasattr(self.resource_class, "platform"):
             for path in [
-                f"{url_prefix}/platforms/{{platform}}/{self.resource_name_plural}/{version}",
                 f"{url_prefix}/v2/platforms/{{platform}}/{self.resource_name_plural}",
                 f"{url_prefix}/platforms/{{platform}}/{self.resource_name_plural}",
             ]:
@@ -232,7 +225,6 @@ class ResourceRouter(abc.ABC):
                 )
 
             for path in [
-                f"{url_prefix}/platforms/{{platform}}/{self.resource_name_plural}/{version}/{{identifier}}",
                 f"{url_prefix}/v2/platforms/{{platform}}/{self.resource_name_plural}/{{identifier}}",
                 f"{url_prefix}/platforms/{{platform}}/{self.resource_name_plural}/{{identifier}}",
             ]:
