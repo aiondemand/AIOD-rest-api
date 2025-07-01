@@ -29,6 +29,7 @@ request_timeout = 10  # seconds
 log_level = "INFO"  # Python log levels: https://docs.python.org/3/library/logging.html#logging-levels
 disable_reviews = false  # set to true to automatically publish submissions
 url_prefix = ""
+taxonomy = ""  # Set to a JSON file containing a taxonomy to put into the database on startup
 
 # Authentication and authorization
 [keycloak]

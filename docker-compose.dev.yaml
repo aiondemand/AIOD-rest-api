@@ -3,6 +3,7 @@ services:
     stdin_open: true
     volumes:
       - ./src:/app:ro
+      - ${DATA_PATH}/taxonomies:/data/taxonomies
     command: python main.py
 
   fill-db-with-examples:

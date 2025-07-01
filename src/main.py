@@ -8,6 +8,7 @@ Note: order matters for overloaded paths
 import argparse
 from datetime import datetime, timezone
 import logging
+from pathlib import Path
 
 import pkg_resources
 import uvicorn
@@ -28,6 +29,7 @@ from database.model.platform.platform import Platform
 from database.model.platform.platform_names import PlatformName
 from database.session import EngineSingleton, DbSession
 from database.setup import create_database, database_exists
+from taxonomies.synchronize_taxonomy import synchronize_taxonomy_from_file
 from triggers import disable_review_process, enable_review_process
 from error_handling import http_exception_handler
 from database.model.agent.agent import Agent
@@ -104,6 +106,11 @@ def create_app() -> FastAPI:
     else:
         drop_database = build_database_setting == "drop-then-build"
         build_database(drop_database=drop_database)
+
+    if taxonomy_path := DEV_CONFIG.get("taxonomy"):
+        if not (taxonomy_file := Path(taxonomy_path)).is_file():
+            raise ValueError(f"dev.taxonomy must be a path to a file, but is {taxonomy_path!r}.")
+        synchronize_taxonomy_from_file(taxonomy_file)
 
     pyproject_toml = pkg_resources.get_distribution("aiod_metadata_catalogue")
     app = build_app(url_prefix=DEV_CONFIG.get("url_prefix", ""), version=pyproject_toml.version)
