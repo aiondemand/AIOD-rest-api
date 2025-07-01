@@ -30,7 +30,7 @@ def parse_args():
 class Term(NamedTuple):
     name: str
     definition: str
-    children: list[Self]  #  type: ignore[valid-type]
+    children: list[Self]  # type: ignore[valid-type]
 
 
 type_by_name: dict[str, type] = {
@@ -116,16 +116,20 @@ def synchronize(
         synchronize_term(term)
 
 
-def main():
-    logging.basicConfig(level=logging.INFO)
-    logging.info("Starting synchronization script.")
-    args = parse_args()
-    taxonomies = load_taxonomies_from_json(args.definitions_file)
+def synchronize_taxonomy_from_file(file: Path) -> None:
+    taxonomies = load_taxonomies_from_json(file)
     with DbSession(autoflush=False) as session:
         for type_, definitions in taxonomies:
             synchronize(type_, definitions, session)
         logging.info("Committing changes to database.")
         session.commit()
+
+
+def main():
+    logging.basicConfig(level=logging.INFO)
+    logging.info("Starting synchronization script.")
+    args = parse_args()
+    synchronize_taxonomy_from_file(args.definitions_file)
 
 
 if __name__ == "__main__":
