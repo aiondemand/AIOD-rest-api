@@ -1,7 +1,6 @@
 from datetime import date
 from typing import Optional
 
-from sqlalchemy import Column, Integer, ForeignKey
 from sqlmodel import Field, Relationship
 
 from database.model.agent.agent import AgentBase, Agent

@@ -80,6 +80,7 @@ class AIResource(AIResourceBase, AIoDConcept, metaclass=abc.ABCMeta):
     scientific_domain: list[ScientificDomain] = Relationship()  # type: ignore[valid-type]
 
     contact: list[Contact] = Relationship()
+    contacts: list[Contact] = Relationship(sa_relationship_kwargs=dict(viewonly=True))
     creator: list[Contact] = Relationship()
 
     media: list = Relationship(sa_relationship_kwargs={"cascade": "all, delete"})
@@ -188,6 +189,10 @@ class AIResource(AIResourceBase, AIoDConcept, metaclass=abc.ABCMeta):
             deserializer=FindByIdentifierDeserializerList(Contact),
             default_factory_pydantic=list,
         )
+        contacts: list[Contact] = ManyToMany(
+            description="Contact information corresponding to the identifiers found in `contact`.",
+            default_factory_pydantic=list,
+        )
         creator: list[str] = ManyToMany(
             description="The identifiers of the contact information of the persons and/or "
             "organisations that created this resource.",
@@ -272,6 +277,7 @@ class AIResource(AIResourceBase, AIoDConcept, metaclass=abc.ABCMeta):
             to_identifier_type=str,
         )
         relationships["contact"].link_model = link_model_contact
+        relationships["contacts"].link_model = link_model_contact
         relationships["creator"].link_model = link_model_creator
 
         relationships["description"].sa_relationship_kwargs = dict(
