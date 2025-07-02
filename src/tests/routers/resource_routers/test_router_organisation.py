@@ -63,3 +63,27 @@ def test_happy_path(
 
     response = client.delete(f"/organisations/{identifier}", headers={"Authorization": "Fake token"})
     assert response.status_code == 200, response.json()
+
+
+def test_ai_resource_contacts_field_is_ignored(
+        client: TestClient,
+        mocked_privileged_token: Mock,
+        organisation: Organisation,
+        contact: Contact,
+        body_agent: dict,
+        auto_publish: None,
+):
+    with DbSession() as session:
+        session.add(contact)
+        session.commit()
+        session.refresh(contact)
+
+    body = copy.copy(body_agent)
+    body["contacts"] = [contact.json()]
+    response = client.post("/organisations", json=body, headers={"Authorization": "Fake token"})
+    assert response.status_code == 200, response.json()
+    identifier = response.json()['identifier']
+
+    response = client.get(f"/organisations/{identifier}")
+    assert response.status_code == 200, response.json()
+    assert response.json()["contacts"] == []

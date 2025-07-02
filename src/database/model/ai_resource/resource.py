@@ -191,6 +191,7 @@ class AIResource(AIResourceBase, AIoDConcept, metaclass=abc.ABCMeta):
         )
         contacts: list[Contact] = ManyToMany(
             description="Contact information corresponding to the identifiers found in `contact`.",
+            include_in_create=False,
             default_factory_pydantic=list,
         )
         creator: list[str] = ManyToMany(
