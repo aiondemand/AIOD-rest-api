@@ -80,6 +80,12 @@ def non_abstract_subclasses(cls):
     for child in cls.__subclasses__():
         has_grandchild = False
         for grand_child in non_abstract_subclasses(child):
+            # Since commit 6913a7e2c00732a12f1f998844555c363362bd70, Pydantic automatically
+            # creates a child class of Contact. This class is no longer mapped to a table,
+            # which results in an error if used in a sqlalchemy query -- which is what
+            # the output of this function is used for. For that reason, we want to ignore it.
+            if grand_child.__module__ == "pydantic.main":
+                continue
             has_grandchild = True
             yield grand_child
         if not has_grandchild:
