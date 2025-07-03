@@ -28,6 +28,7 @@ def test_happy_path(
 
         body["member"] = [organisation.identifier]
         body["contact_details"] = contact.identifier
+        body["contact"] = [contact.identifier]
 
     response = client.post("/organisations", json=body, headers={"Authorization": "Fake token"})
     assert response.status_code == 200, response.json()
@@ -47,6 +48,7 @@ def test_happy_path(
     assert response_json["type"] == "research institute"
     assert response_json["member"] == body["member"]
     assert response_json["contact_details"] == body["contact_details"]
+    assert response_json["contacts"][0]["name"] == contact.name
 
     # response = client.delete("/organisations/1", headers={"Authorization": "Fake token"})
     # assert response.status_code == 200

@@ -99,6 +99,7 @@ def publication_factory(body_asset: dict) -> Callable[[], Publication]:
 def contact(body_concept, engine: Engine) -> Contact:
     body = copy.deepcopy(body_concept)
     body["email"] = ["a@b.com"]
+    body["name"] = "Aaron Bar"
     body["telephone"] = ["0032 XXXX XXXX"]
     body["location"] = [
         {
