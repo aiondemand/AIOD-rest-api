@@ -8,28 +8,28 @@
       
       
       
-        <link rel="canonical" href="https://api.aiod.eu/docs/hosting/authentication/">
+        <link rel="canonical" href="https://api.aiod.eu/docs/developer/schema/taxonomies/">
       
       
-        <link rel="prev" href="../">
+        <link rel="prev" href="../migration/">
       
       
-        <link rel="next" href="../connectors/">
+        <link rel="next" href="../../elastic_search/">
       
       
-      <link rel="icon" href="../../assets/images/favicon.png">
+      <link rel="icon" href="../../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.15">
     
     
       
-        <title>Authentication - AI-on-Demand REST API</title>
+        <title>Taxonomies - AI-on-Demand REST API</title>
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.342714a4.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.342714a4.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.06af60db.min.css">
       
       
 
@@ -48,9 +48,9 @@
       
     
     
-      <link rel="stylesheet" href="../../stylesheets/extra.css">
+      <link rel="stylesheet" href="../../../stylesheets/extra.css">
     
-    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -76,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#keycloak-service" class="md-skip">
+        <a href="#taxonomies" class="md-skip">
           Skip to content
         </a>
       
@@ -92,9 +92,9 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="AI-on-Demand REST API" class="md-header__button md-logo" aria-label="AI-on-Demand REST API" data-md-component="logo">
+    <a href="../../.." title="AI-on-Demand REST API" class="md-header__button md-logo" aria-label="AI-on-Demand REST API" data-md-component="logo">
       
-  <img src="../../media/secondary-neg-white-25p.webp" alt="logo">
+  <img src="../../../media/secondary-neg-white-25p.webp" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -111,7 +111,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Authentication
+              Taxonomies
             
           </span>
         </div>
@@ -227,9 +227,9 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="AI-on-Demand REST API" class="md-nav__button md-logo" aria-label="AI-on-Demand REST API" data-md-component="logo">
+    <a href="../../.." title="AI-on-Demand REST API" class="md-nav__button md-logo" aria-label="AI-on-Demand REST API" data-md-component="logo">
       
-  <img src="../../media/secondary-neg-white-25p.webp" alt="logo">
+  <img src="../../../media/secondary-neg-white-25p.webp" alt="logo">
 
     </a>
     AI-on-Demand REST API
@@ -256,7 +256,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../.." class="md-nav__link">
+      <a href="../../.." class="md-nav__link">
         
   
   
@@ -290,7 +290,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../using/" class="md-nav__link ">
+            <a href="../../../using/" class="md-nav__link ">
               
   
   
@@ -323,7 +323,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../using/upload/" class="md-nav__link">
+      <a href="../../../using/upload/" class="md-nav__link">
         
   
   
@@ -346,12 +346,133 @@
   
   
     <li class="md-nav__item">
-      <a href="../../using/migration-v1-v2/" class="md-nav__link">
+      <a href="../../../using/migration-v1-v2/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     Migration v1 to v2
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../hosting/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    Hosting the API
+    
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Hosting the API
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../hosting/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Authentication
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../hosting/connectors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Connectors
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../hosting/synchronization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Synchronization
     
   </span>
   
@@ -386,243 +507,11 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../" class="md-nav__link ">
-              
-  
-  
-  <span class="md-ellipsis">
-    Hosting the API
-    
-  </span>
-  
-
-            </a>
-            
-              
-              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
-                <span class="md-nav__icon md-icon"></span>
-              </label>
-            
-          </div>
-        
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_3">
-            <span class="md-nav__icon md-icon"></span>
-            Hosting the API
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-    
-  
-  
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    Authentication
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
-        
-  
-  
-  <span class="md-ellipsis">
-    Authentication
-    
-  </span>
-  
-
-      </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#configuring-keycloak" class="md-nav__link">
-    <span class="md-ellipsis">
-      Configuring Keycloak
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#using-external-identity-providers" class="md-nav__link">
-    <span class="md-ellipsis">
-      Using External Identity Providers
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Using External Identity Providers">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#option-1-update-the-configuration-files" class="md-nav__link">
-    <span class="md-ellipsis">
-      Option 1: Update the configuration files
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#option-2-use-keycloak-as-an-identity-broker" class="md-nav__link">
-    <span class="md-ellipsis">
-      Option 2: use keycloak as an identity broker
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#roles" class="md-nav__link">
-    <span class="md-ellipsis">
-      Roles
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#verifying-keycloak-is-working" class="md-nav__link">
-    <span class="md-ellipsis">
-      Verifying Keycloak is Working
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#importing-and-exporting-realm-and-user-files" class="md-nav__link">
-    <span class="md-ellipsis">
-      Importing and Exporting Realm and User Files
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../connectors/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Connectors
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../synchronization/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Synchronization
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
-        
-          
-          <div class="md-nav__link md-nav__container">
-            <a href="../../developer/" class="md-nav__link ">
+            <a href="../../" class="md-nav__link ">
               
   
   
@@ -641,7 +530,7 @@
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
             Developer Resources
@@ -655,7 +544,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../developer/authentication/" class="md-nav__link">
+      <a href="../../authentication/" class="md-nav__link">
         
   
   
@@ -678,7 +567,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../developer/users/" class="md-nav__link">
+      <a href="../../users/" class="md-nav__link">
         
   
   
@@ -698,22 +587,24 @@
                 
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3" checked>
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../developer/schema/" class="md-nav__link ">
+            <a href="../" class="md-nav__link ">
               
   
   
@@ -732,7 +623,7 @@
             
           </div>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_4_3">
             <span class="md-nav__icon md-icon"></span>
             Metadata Schema
@@ -746,7 +637,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../developer/schema/attributes/" class="md-nav__link">
+      <a href="../attributes/" class="md-nav__link">
         
   
   
@@ -769,7 +660,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../developer/schema/relationships/" class="md-nav__link">
+      <a href="../relationships/" class="md-nav__link">
         
   
   
@@ -792,7 +683,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../developer/schema/objects/" class="md-nav__link">
+      <a href="../objects/" class="md-nav__link">
         
   
   
@@ -815,7 +706,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../developer/schema/migration/" class="md-nav__link">
+      <a href="../migration/" class="md-nav__link">
         
   
   
@@ -835,10 +726,32 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../developer/schema/taxonomies/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Taxonomies
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -849,6 +762,44 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#importing-the-taxonomy" class="md-nav__link">
+    <span class="md-ellipsis">
+      Importing the Taxonomy
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#development-taxonomy" class="md-nav__link">
+    <span class="md-ellipsis">
+      Development Taxonomy
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -869,7 +820,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../developer/elastic_search/" class="md-nav__link">
+      <a href="../../elastic_search/" class="md-nav__link">
         
   
   
@@ -892,7 +843,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../developer/scripts/" class="md-nav__link">
+      <a href="../../scripts/" class="md-nav__link">
         
   
   
@@ -915,7 +866,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../developer/releases/" class="md-nav__link">
+      <a href="../../releases/" class="md-nav__link">
         
   
   
@@ -938,7 +889,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../developer/troubleshooting/" class="md-nav__link">
+      <a href="../../troubleshooting/" class="md-nav__link">
         
   
   
@@ -968,7 +919,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../contributing/" class="md-nav__link">
+      <a href="../../../contributing/" class="md-nav__link">
         
   
   
@@ -1010,69 +961,18 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#configuring-keycloak" class="md-nav__link">
+  <a href="#importing-the-taxonomy" class="md-nav__link">
     <span class="md-ellipsis">
-      Configuring Keycloak
+      Importing the Taxonomy
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#using-external-identity-providers" class="md-nav__link">
+  <a href="#development-taxonomy" class="md-nav__link">
     <span class="md-ellipsis">
-      Using External Identity Providers
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Using External Identity Providers">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#option-1-update-the-configuration-files" class="md-nav__link">
-    <span class="md-ellipsis">
-      Option 1: Update the configuration files
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#option-2-use-keycloak-as-an-identity-broker" class="md-nav__link">
-    <span class="md-ellipsis">
-      Option 2: use keycloak as an identity broker
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#roles" class="md-nav__link">
-    <span class="md-ellipsis">
-      Roles
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#verifying-keycloak-is-working" class="md-nav__link">
-    <span class="md-ellipsis">
-      Verifying Keycloak is Working
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#importing-and-exporting-realm-and-user-files" class="md-nav__link">
-    <span class="md-ellipsis">
-      Importing and Exporting Realm and User Files
+      Development Taxonomy
     </span>
   </a>
   
@@ -1094,7 +994,7 @@
 
 
   
-    <a href="https://github.com/aiondemand/AIOD-rest-api/edit/develop/docs/hosting/authentication.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+    <a href="https://github.com/aiondemand/AIOD-rest-api/edit/develop/docs/developer/schema/taxonomies.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75z"/></svg>
     </a>
@@ -1103,87 +1003,33 @@
     
       
     
-    <a href="https://github.com/aiondemand/AIOD-rest-api/raw/develop/docs/hosting/authentication.md" title="View source of this page" class="md-content__button md-icon">
+    <a href="https://github.com/aiondemand/AIOD-rest-api/raw/develop/docs/developer/schema/taxonomies.md" title="View source of this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0 8a5 5 0 0 1-5-5 5 5 0 0 1 5-5 5 5 0 0 1 5 5 5 5 0 0 1-5 5m0-12.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5"/></svg>
     </a>
   
 
 
-<h1 id="keycloak-service">Keycloak Service</h1>
-<p>When running the metadata catalogue in production, you want to ensure that users can authenticate
-so that proper authorization over the endpoints can take place.
-Keycloak is typically configured to allow users to sign on with credentials from other services,
-such as a Google account or an institutional one.</p>
-<h2 id="configuring-keycloak">Configuring Keycloak</h2>
-<p>To configure Keycloak, set the following environment variables (preferably through the <code>override.env</code> file):</p>
+<h1 id="taxonomies">Taxonomies</h1>
+<p>AI-on-Demand uses <a href="https://en.wikipedia.org/wiki/Taxonomy">taxonomies</a> to standardize terms across assets, for example, for <a href="https://aiod-dev.i3a.es/docs#/Taxonomies/license_licenses_get">licenses</a>, <a href="https://aiod-dev.i3a.es/docs#/Taxonomies/industrial_sector_industrial_sectors_get">business sectors</a>, or <a href="https://aiod-dev.i3a.es/docs#/Taxonomies/news_category_news_categorys_get">news categories</a>.
+These taxonomies are defined by the <a href="https://github.com/aiondemand/metadata-schema">conceptual model</a>.
+Each term in a taxonomy has a specific definition and may have subterms defined. e.g., the business sector <code>construction</code> has subsectors for <code>infrastructure</code> and <code>buildings</code>, which each may also have subterms.</p>
+<h2 id="importing-the-taxonomy">Importing the Taxonomy</h2>
+<p>The JSON file produced by the export script in the metadata repository can be used as input for the <code>taxonomy</code> service of this project's <code>docker compose</code>.
+Put the JSON file at <code>${DATA_PATH}/taxonomies/taxonomies.json</code>, where <code>DATA_PATH</code> is an environment variable (typically set from the <code>.env</code> file).
+Then invoke docker compose with the "taxonomy" profile. The script will then:</p>
 <ul>
-<li><code>HOSTNAME</code>: URL for issued tokens (<a href="https://www.keycloak.org/server/hostname">documentation</a>). For example: <code>auth.aiod.eu</code>.</li>
-<li><code>AIOD_KEYCLOAK_PORT</code>: The port at which the Keycloak server should be available in the host machine, e.g., <code>8081</code>.</li>
-<li><code>REDIRECT_URIS</code>: URI a successful login action should redirect back to. E.g., <code>https://${HOSTNAME}/docs/oauth2-redirect</code>.</li>
-<li><code>POST_LOGOUT_REDIRECT_URIS</code>: URI a successful logout action should redirect back to. E.g., <code>https://${HOSTNAME}/aiod-auth/realms/aiod/protocol/openid-connect/logout</code>.</li>
+<li>invalidate all old known terms that are no longer part of the taxonomy: assets which already use them will keep them, but they may not be added to new items.</li>
+<li>update existing terms, e.g., with new definitions</li>
+<li>add new terms to the taxonomy</li>
 </ul>
-<p>As well as the <code>openid_connect_url</code> in <code>./src/config.override.toml</code> (for authentication on the Swagger page):
-<div class="highlight"><pre><span></span><code><span class="k">[keycloak]</span>
-<span class="n">openid_connect_url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;https://auth.aiod.eu/aiod-auth/realms/aiod/.well-known/openid-configuration&quot;</span>
-</code></pre></div></p>
-<h2 id="using-external-identity-providers">Using External Identity Providers</h2>
-<p>There are two ways to integrate external identity providers (e.g. Google, <a href="https://docs.egi.eu/users/aai/check-in/">EGI Check-in</a>).</p>
-<p>Create both a private and a public client in the external provider (this step is required for both options below).</p>
-<h3 id="option-1-update-the-configuration-files">Option 1: Update the configuration files</h3>
-<ul>
-<li>Replace <code>KEYCLOAK_CLIENT_SECRET</code> in <code>.env.override</code> with the value provided by the external IdP.</li>
-<li>Update <code>server_url</code>, <code>client_idr</code>, <code>client_id_swagger</code> <code>openid_connect_url</code> and <code>scopes</code> in <code>./src/config.override.toml</code>.</li>
-<li>In this setup, the Keycloak container is not required and can be shut down.</li>
-</ul>
-<h3 id="option-2-use-keycloak-as-an-identity-broker">Option 2: use keycloak as an identity broker</h3>
-<ul>
-<li>Details can be found in the Keycloak documentation: <a href="https://www.keycloak.org/docs/latest/server_admin/index.html#_identity_broker">Integrating identity providers</a>.</li>
-<li>This method allows to configure multiple IdPs.</li>
-</ul>
-<h2 id="roles">Roles</h2>
-<p>Roles identify a type or category of user and determine their access and permissions within applications.
-Roles are generally only necessary for special cases.
-The normal flow for granting individual users permissions for individual assets is detailed in the <a href="../../developer/users/">"user model"</a> documentation.
-These are the roles the metadata catalogue uses (<code>*</code> in a role indicates its defined for each asset type individually):</p>
-<ul>
-<li><code>review_aiod_resources</code>: identifies the user as having permission to view asset submissions and review them.</li>
-<li><code>read_*</code>: allows the user read access to all assets on the platform, regardless of the asset-specific permissions.</li>
-<li><code>update_*</code>: allows the user update permission for all assets on the platform, regardless of the asset-specific permissions.</li>
-<li><code>delete_*</code>: allows the user delete permission for all assets on the platform, regardless of the asset-specific permissions.</li>
-<li><code>create_platforms</code>: allows the user to define new platforms.</li>
-</ul>
-<p>Note that roles may be used for services other than the metadata catalogue.
-New roles can be created from the admin console, see <a href="https://www.keycloak.org/docs/latest/server_admin/index.html#proc-creating-realm-roles_server_administration_guide">"Creating a realm role"</a>.</p>
-<h2 id="verifying-keycloak-is-working">Verifying Keycloak is Working</h2>
-<p>To verify the Keycloak service is configured correctly using the Swagger interface, follows these steps:</p>
-<ol>
-<li>Open your browser and go to <code>http://$HOSTNAME</code></li>
-<li>Go to <code>/authorization_test</code>, click on <code>try it out</code> and <code>execute</code>.<ul>
-<li>You should get an <code>Error: Unauthorized</code></li>
-</ul>
-</li>
-<li>Log in:<ul>
-<li>Click the <code>Authorize</code> button in the top-right corner.</li>
-<li>Select <code>OpenIdConnect (OAuth2, authorization_code with PKCE)</code>.</li>
-<li>Click <code>Authorize</code> and log in using any available identity provider.</li>
-</ul>
-</li>
-<li>Return to <code>/authorization_test</code>, click <code>try it out</code> and then <code>execute</code> again.</li>
-</ol>
-<p>If authentication is successful, the request should now be authtorised.</p>
-<h2 id="importing-and-exporting-realm-and-user-files">Importing and Exporting Realm and User Files</h2>
-<p>See also <a href="https://www.keycloak.org/server/importExport">"Importing and Exporting Realms"</a> in the Keycloak documentation.</p>
-<p>Keycloak has "realm" configurations (e.g., roles that exist for AIoD),
-as well as "user" configurations (e.g., user Alice with password X is a Reviewer).
-We advise to export these separately, so you can share the non-sensitive realm configuration
-without sharing sensitive user information.</p>
-<p>To <strong>export</strong> run the following command while the keycloak container is running:
-<div class="highlight"><pre><span></span><code>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>keycloak<span class="w"> </span>/opt/keycloak/bin/kc.sh<span class="w"> </span><span class="nb">export</span><span class="w"> </span>--dir<span class="w"> </span>/opt/keycloak/data/export<span class="w">  </span>--realm<span class="w"> </span>aiod
-</code></pre></div></p>
-<p>This puts the exported files in the <code>${DATA_PATH}/keycloak/data/export</code> directory.</p>
-<p>To <strong>import</strong>, just place the export files into the <code>{DATA_PATH}/keycloak/data/import</code> directory.
-When running the <code>develop</code> preset using <code>USE_LOCAL_DEV=true</code>, the import directly is populated by the data found in <code>./authentication/import/</code>.</p>
+<h2 id="development-taxonomy">Development Taxonomy</h2>
+<p>When using the development configuration, you put a file in the <code>${DATA_PATH}/taxonomies</code> directory and point to it from the API configuration file (<code>config.override.toml</code>), where <code>${DATA_PATH}/taxonomies</code> will be mounted as <code>/data/taxonomies</code>. For example, with <code>DATA_PATH=./data</code> and <code>./data/taxonomies/example_taxonomies.json</code> present:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[dev]</span>
+<span class="n">taxonomy</span><span class="o">=</span><span class="s2">&quot;/data/taxonomies/example_taxonomies.json&quot;</span>
+</code></pre></div>
+<p>It is not intended to use this in production, since it might result in accidentally overwriting the taxonomies.
+In production, use the <code>taxonomy</code> service discussed above.</p>
 
 
 
@@ -1204,7 +1050,7 @@ When running the <code>develop</code> preset using <code>USE_LOCAL_DEV=true</cod
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime">May 29, 2025 16:23:27</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime">July 3, 2025 10:36:51</span>
   </span>
 
     
@@ -1234,7 +1080,7 @@ When running the <code>develop</code> preset using <code>USE_LOCAL_DEV=true</cod
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../" class="md-footer__link md-footer__link--prev" aria-label="Previous: Hosting the API">
+          <a href="../migration/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Schema Migration">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -1244,20 +1090,20 @@ When running the <code>develop</code> preset using <code>USE_LOCAL_DEV=true</cod
                 Previous
               </span>
               <div class="md-ellipsis">
-                Hosting the API
+                Schema Migration
               </div>
             </div>
           </a>
         
         
           
-          <a href="../connectors/" class="md-footer__link md-footer__link--next" aria-label="Next: Connectors">
+          <a href="../../elastic_search/" class="md-footer__link md-footer__link--next" aria-label="Next: Elastic Search">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Connectors
+                Elastic Search
               </div>
             </div>
             <div class="md-footer__button md-icon">
@@ -1293,10 +1139,10 @@ When running the <code>develop</code> preset using <code>USE_LOCAL_DEV=true</cod
     
     
       
-      <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy", "navigation.footer", "content.action.view", "content.action.edit", "content.footer.last-updated"], "search": "../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"base": "../../..", "features": ["content.code.copy", "navigation.footer", "content.action.view", "content.action.edit", "content.footer.last-updated"], "search": "../../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.56ea9cef.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.56ea9cef.min.js"></script>
       
     
   </body>
