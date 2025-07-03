@@ -36,6 +36,7 @@ from database.model.serializers import (
     FindByIdentifierDeserializerList,
     FindByNameDeserializerList,
 )
+from database.model.resource_read_and_create import resource_read
 
 
 class AIResourceBase(AIoDConceptBase, metaclass=abc.ABCMeta):
@@ -189,8 +190,10 @@ class AIResource(AIResourceBase, AIoDConcept, metaclass=abc.ABCMeta):
             deserializer=FindByIdentifierDeserializerList(Contact),
             default_factory_pydantic=list,
         )
+
         contacts: list[Contact] = ManyToMany(
             description="Contact information corresponding to the identifiers found in `contact`.",
+            class_read=list[resource_read(Contact)],  # type: ignore
             include_in_create=False,
             default_factory_pydantic=list,
         )

@@ -44,9 +44,8 @@ class Contact(ContactBase, AIoDConcept, table=True):  # type: ignore [call-arg]
             table_from="contact", from_identifier_type=str, table_to=Email.__tablename__
         )
     )
-    location: list[LocationORM] = Relationship(sa_relationship_kwargs={"lazy":"selectin", "cascade": "all, delete"})
+    location: list[LocationORM] = Relationship(sa_relationship_kwargs={"cascade": "all, delete"})
     telephone: list[Telephone] = Relationship(
-        sa_relationship_kwargs=dict(lazy='selectin'),
         link_model=many_to_many_link_factory(
             table_from="contact", from_identifier_type=str, table_to=Telephone.__tablename__
         )
