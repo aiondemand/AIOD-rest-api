@@ -49,6 +49,7 @@ def test_happy_path(
     assert response_json["member"] == body["member"]
     assert response_json["contact_details"] == body["contact_details"]
     assert response_json["contacts"][0]["name"] == contact.name
+    assert response_json["contacts"][0]["telephone"] == contact.telephone
 
     # response = client.delete("/organisations/1", headers={"Authorization": "Fake token"})
     # assert response.status_code == 200
