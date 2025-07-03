@@ -5,6 +5,7 @@ not be able to modify this date yourself in a POST request, but you should retri
 request.
 """
 
+import functools
 from typing import Type, Tuple, TYPE_CHECKING
 
 from pydantic import create_model
@@ -57,6 +58,7 @@ def _get_field_definitions_create(
     }
 
 
+@functools.cache  # For Pydantic 'bug', see note at `resource_read`
 def resource_create(resource_class: Type["AIoDConcept"] | Type["Platform"]) -> Type[SQLModel]:
     """
     Create a SQLModel for a Create class of a resource. This Create class is a Pydantic class
@@ -77,6 +79,11 @@ def resource_create(resource_class: Type["AIoDConcept"] | Type["Platform"]) -> T
     return model
 
 
+# We cache this not for performance reason, but because if the model would be created multiple times,
+# this leads to a conflicting state in the Pydantic model map, erasing the older model.
+# Related to https://github.com/fastapi/fastapi/issues/4191 and might be fixed by upgrading to the
+# latest Pydantic version
+@functools.cache
 def resource_read(resource_class: Type["AIoDConcept"] | Type["Platform"]) -> Type[SQLModel]:
     """
     Create a SQLModel for a Read class of a resource. This Read class is a Pydantic class
