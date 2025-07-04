@@ -23,3 +23,6 @@ taxonomy="/data/taxonomies/example_taxonomies.json"
 
 It is not intended to use this in production, since it might result in accidentally overwriting the taxonomies.
 In production, use the `taxonomy` service discussed above.
+
+## Other
+As of [#565](https://github.com/aiondemand/AIOD-rest-api/pull/565), connectors are exempt from adhering to the taxonomies. This is currently planned to be only a temporary solution while we discuss how to move forward.
