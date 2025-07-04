@@ -810,6 +810,11 @@ class ResourceRouter(abc.ABC):
                 "contact the maintainers.",
             ) from e
         error = e.args[0]
+        if isinstance(e, ValueError) and "taxonomy" in error:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=error,
+            )
         # Note that the "real" errors are different from testing errors, because we use a
         # sqlite db while testing and a mysql db when running the application. The correct error
         # handling is therefore not tested. TODO: can we improve this?

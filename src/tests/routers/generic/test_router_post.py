@@ -185,3 +185,47 @@ def test_connector_cannot_post_to_other_platform(
         response = client_test_resource.post("/test_resources/v0", json=body, headers=headers)
     assert response.status_code == HTTPStatus.FORBIDDEN
     assert response.json()["detail"] == "No permission to upload assets for aiod platform."
+
+
+def test_taxonomy_is_enforced_for_user(
+        client: TestClient,
+        body_asset: dict
+    ):
+    body_asset["scientific_domain"] = ["not-a-domain"]
+    with logged_in_user():
+        response = client.post(
+            "/datasets/", json=body_asset, headers={"Authorization": "Fake token"}
+        )
+        assert response.status_code == HTTPStatus.BAD_REQUEST, response.json()
+
+        body_asset["scientific_domain"] = []
+        response = client.post(
+            "/datasets/", json=body_asset, headers={"Authorization": "Fake token"}
+        )
+        assert response.status_code == HTTPStatus.OK, response.json()
+
+        body_asset["scientific_domain"] = ["not-a-domain"]
+        response = client.put(
+            f"/datasets/{response.json()['identifier']}", json=body_asset, headers={"Authorization": "Fake token"}
+        )
+        assert response.status_code == HTTPStatus.BAD_REQUEST, response.json()
+
+
+def test_taxonomy_is_not_enforced_for_connector(
+        client: TestClient,
+        body_asset: dict
+):
+    body_asset["scientific_domain"] = ["not-a-domain"]
+    body_asset["platform"] = "example"
+    body_asset["platform_resource_identifier"] = "example"
+    with logged_in_user(kc_connector_with_roles()):
+        response = client.post(
+            "/datasets/", json=body_asset, headers={"Authorization": "Fake token"}
+        )
+        assert response.status_code == HTTPStatus.OK, response.json()
+
+        body_asset["scientific_domain"] = ["also-not-a-domain"]
+        response = client.put(
+            f"/datasets/{response.json()['identifier']}", json=body_asset, headers={"Authorization": "Fake token"}
+        )
+        assert response.status_code == HTTPStatus.OK, response.json()
