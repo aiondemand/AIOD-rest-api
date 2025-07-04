@@ -515,7 +515,7 @@ class ResourceRouter(abc.ABC):
         self,
         session: Session,
         resource_create_instance: SQLModel,
-        user: KeycloakUser,
+        user: KeycloakUser | None = None,
     ):
         """Store a resource in the database"""
         resource = self.resource_class.from_orm(resource_create_instance)

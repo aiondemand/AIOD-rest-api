@@ -229,7 +229,7 @@ class PlatformRouter:
         return register_resource
 
     def create_resource(
-        self, session: Session, resource_create_instance: SQLModel, user: KeycloakUser
+        self, session: Session, resource_create_instance: SQLModel, user: KeycloakUser | None = None
     ):
         """Store a resource in the database"""
         resource = self.resource_class.model_validate(resource_create_instance)
