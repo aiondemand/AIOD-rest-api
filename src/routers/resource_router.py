@@ -496,7 +496,7 @@ class ResourceRouter(abc.ABC):
             try:
                 with DbSession() as session:
                     try:
-                        resource = self.create_resource(session, resource_create)
+                        resource = self.create_resource(session, resource_create, user)
 
                         register_user(user, session)
                         set_permission(
@@ -515,11 +515,12 @@ class ResourceRouter(abc.ABC):
         self,
         session: Session,
         resource_create_instance: SQLModel,
+        user: KeycloakUser,
     ):
         """Store a resource in the database"""
         resource = self.resource_class.from_orm(resource_create_instance)
         deserialize_resource_relationships(
-            session, self.resource_class, resource, resource_create_instance
+            session, self.resource_class, resource, resource_create_instance, user
         )
         session.add(resource)
         session.flush()
@@ -567,7 +568,7 @@ class ResourceRouter(abc.ABC):
                             new_value = getattr(resource_create_instance, attribute_name)
                             setattr(resource, attribute_name, new_value)
                     deserialize_resource_relationships(
-                        session, self.resource_class, resource, resource_create_instance
+                        session, self.resource_class, resource, resource_create_instance, user
                     )
                     if hasattr(resource, "aiod_entry"):
                         resource.aiod_entry.date_modified = datetime.datetime.utcnow()

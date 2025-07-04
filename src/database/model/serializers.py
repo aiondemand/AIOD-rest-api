@@ -7,6 +7,7 @@ from pydantic.utils import GetterDict
 from sqlmodel import SQLModel, Session, select
 from starlette.status import HTTP_404_NOT_FOUND
 
+from authentication import KeycloakUser
 from database.model.helper_functions import get_relationships
 from database.model.named_relation import NamedRelation, Taxonomy
 
@@ -29,7 +30,9 @@ class DeSerializer(abc.ABC, Generic[MODEL]):
     """Deserialization from ORM class to Pydantic class"""
 
     @abc.abstractmethod
-    def deserialize(self, session: Session, serialized: Any) -> int | None | MODEL | List[MODEL]:
+    def deserialize(
+        self, session: Session, serialized: Any, user: KeycloakUser | None = None
+    ) -> int | None | MODEL | List[MODEL]:
         pass
 
 
@@ -74,7 +77,9 @@ class FindByIdentifierDeserializer(DeSerializer[SQLModel]):
 
     clazz: type[SQLModel]
 
-    def deserialize(self, session: Session, input_: int | None) -> SQLModel | None:
+    def deserialize(
+        self, session: Session, input_: int | None, user: KeycloakUser | None = None
+    ) -> SQLModel | None:
         if input_ is None:
             return None
         elif isinstance(input_, list):
@@ -114,7 +119,9 @@ class FindByIdentifierDeserializerList(DeSerializer[SQLModel]):
 
     clazz: type[SQLModel]
 
-    def deserialize(self, session: Session, input_: list[int] | None) -> list[SQLModel]:
+    def deserialize(
+        self, session: Session, input_: list[int] | None, user: KeycloakUser | None = None
+    ) -> list[SQLModel]:
         if isinstance(input_, int):
             raise ValueError("Expected a list. Do you need to use FindByNameDeserializer instead?")
         elif input_ is None or len(input_) == 0:
@@ -129,7 +136,9 @@ class FindByNameDeserializer(DeSerializer[NamedRelation]):
 
     clazz: type[NamedRelation]
 
-    def deserialize(self, session: Session, name: str | None) -> int | None:
+    def deserialize(
+        self, session: Session, name: str | None, user: KeycloakUser | None = None
+    ) -> int | None:
         if name is None:
             return None
         if isinstance(name, list):
@@ -139,11 +148,15 @@ class FindByNameDeserializer(DeSerializer[NamedRelation]):
         name = name.lower()
         query = select(self.clazz).where(self.clazz.name == name)
         item = session.scalars(query).first()
-        if issubclass(self.clazz, Taxonomy) and (item is None or not item.official):
-            raise ValueError(
-                f"The term {name!r} is not part of the taxonomy for {self.clazz.__tablename__}. "
-                "Please see the endpoint for the taxonomy to see a list of allowed terms."
-            )
+        enforced_taxonomy = issubclass(self.clazz, Taxonomy) and (
+            user is None or not user.is_connector
+        )
+        if enforced_taxonomy:
+            if item is None or not item.official:
+                raise ValueError(
+                    f"The term {name!r} is not part of the taxonomy for {self.clazz.__tablename__}. "
+                    "Please see the endpoint for the taxonomy to see a list of allowed terms."
+                )
         if item is None:
             item = self.clazz(name=name)
             session.add(item)
@@ -157,7 +170,9 @@ class FindByNameDeserializerList(DeSerializer[NamedRelation]):
 
     clazz: type[NamedRelation]
 
-    def deserialize(self, session: Session, name: list[str] | None) -> list[NamedRelation]:
+    def deserialize(
+        self, session: Session, name: list[str] | None, user: KeycloakUser | None = None
+    ) -> list[NamedRelation]:
         if name is None:
             return []
         if not isinstance(name, list):
@@ -166,7 +181,10 @@ class FindByNameDeserializerList(DeSerializer[NamedRelation]):
         query = select(self.clazz).where(self.clazz.name.in_(names))  # type: ignore[attr-defined]
         existing = list(session.scalars(query).all())
         names_not_found = names - {e.name.casefold() for e in existing}
-        if issubclass(self.clazz, Taxonomy):
+        enforced_taxonomy = issubclass(self.clazz, Taxonomy) and (
+            user is None or not user.is_connector
+        )
+        if enforced_taxonomy:
             illegal_names = names_not_found | {e.name for e in existing if not e.official}
             if illegal_names:
                 raise ValueError(
@@ -188,18 +206,20 @@ class CastDeserializer(DeSerializer[SQLModel]):
 
     clazz: type[SQLModel]
 
-    def deserialize(self, session: Session, serialized: Any) -> None | SQLModel:
+    def deserialize(
+        self, session: Session, serialized: Any, user: KeycloakUser | None = None
+    ) -> None | SQLModel:
         if serialized is None:
             return None
         if isinstance(serialized, list):
             raise ValueError(
                 "Expected a single value. Do you need to use CastDeserializerList instead?"
             )
-        return self._deserialize_single_resource(serialized, session)
+        return self._deserialize_single_resource(serialized, session, user)
 
-    def _deserialize_single_resource(self, serialized, session):
+    def _deserialize_single_resource(self, serialized, session, user):
         resource = self.clazz.from_orm(serialized)
-        deserialize_resource_relationships(session, self.clazz, resource, serialized)
+        deserialize_resource_relationships(session, self.clazz, resource, serialized, user)
         return resource
 
 
@@ -210,12 +230,14 @@ class CastDeserializerList(CastDeserializer):
 
     clazz: type[SQLModel]
 
-    def deserialize(self, session: Session, serialized: list | None) -> list[SQLModel]:
+    def deserialize(
+        self, session: Session, serialized: list | None, user: KeycloakUser | None = None
+    ) -> list[SQLModel]:
         if serialized is None:
             return []
         if not isinstance(serialized, list):
             raise ValueError("Expected a list. Do you need to use CastDeserializer instead?")
-        return [self._deserialize_single_resource(v, session) for v in serialized]
+        return [self._deserialize_single_resource(v, session, user) for v in serialized]
 
 
 def create_getter_dict(attribute_serializers: Dict[str, Serializer]):
@@ -248,6 +270,7 @@ def deserialize_resource_relationships(
     resource_class: Type[SQLModel],
     resource: SQLModel,
     resource_create_instance: SQLModel,
+    user: KeycloakUser | None = None,
 ):
     """After deserialization of a resource, this function will deserialize all it's related
     objects in place."""
@@ -265,7 +288,9 @@ def deserialize_resource_relationships(
             and hasattr(resource, attribute)
             and getattr(resource, attribute)
         ):
-            deserialize_object_relationship(session, resource, resource_create_instance, attribute)
+            deserialize_object_relationship(
+                session, resource, resource_create_instance, attribute, user
+            )
             continue
 
         # Attribute is automatically created if not present, modified otherwise
@@ -278,7 +303,7 @@ def deserialize_resource_relationships(
                 session.flush()
                 new_value = relation
             if relationship.deserializer is not None:
-                new_value = relationship.deserializer.deserialize(session, new_value)
+                new_value = relationship.deserializer.deserialize(session, new_value, user)
             setattr(resource, relationship.attribute(attribute), new_value)
             continue
 
@@ -309,14 +334,16 @@ def deserialize_resource_relationships(
 
         new_value = getattr(resource_create_instance, attribute)
         if relationship.deserializer:
-            new_value = relationship.deserializer.deserialize(session, new_value)
+            new_value = relationship.deserializer.deserialize(session, new_value, user)
 
         # e.g., AIResourceORM for has_part of case_study, relevant_resource, ..
         inner_model = getattr(resource, relationship.deserialized_path)
         setattr(inner_model, attribute, new_value)
 
 
-def deserialize_object_relationship(session, resource, resource_create_instance, attribute):
+def deserialize_object_relationship(
+    session, resource, resource_create_instance, attribute, user: KeycloakUser | None = None
+):
     """
     In place deserialization of an object relationship (a relationship to an object that is
     completely present in the json, instead of linked using an identifier).
@@ -334,12 +361,12 @@ def deserialize_object_relationship(session, resource, resource_create_instance,
             if hasattr(child_create, child_attribute):
                 child_value = getattr(child_create, child_attribute)
                 setattr(child, child_attribute, child_value)
-        deserialize_resource_relationships(session, child_class, child, child_create)
+        deserialize_resource_relationships(session, child_class, child, child_create, user)
     n_create = len(children_create)
     for child in children[n_create:]:
         session.delete(child)
     n_existing = len(children)
     for child_create in children_create[n_existing:]:
         child = child_class.from_orm(child_create)
-        deserialize_resource_relationships(session, child_class, child, child_create)
+        deserialize_resource_relationships(session, child_class, child, child_create, user)
         children.append(child)

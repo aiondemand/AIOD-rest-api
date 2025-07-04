@@ -219,7 +219,7 @@ class PlatformRouter:
             try:
                 with DbSession() as session:
                     try:
-                        resource = self.create_resource(session, resource_create)
+                        resource = self.create_resource(session, resource_create, user)
                         return {"identifier": resource.identifier}
                     except Exception as e:
                         self._raise_clean_http_exception(e, session)
@@ -228,11 +228,13 @@ class PlatformRouter:
 
         return register_resource
 
-    def create_resource(self, session: Session, resource_create_instance: SQLModel):
+    def create_resource(
+        self, session: Session, resource_create_instance: SQLModel, user: KeycloakUser
+    ):
         """Store a resource in the database"""
         resource = self.resource_class.model_validate(resource_create_instance)
         deserialize_resource_relationships(
-            session, self.resource_class, resource, resource_create_instance
+            session, self.resource_class, resource, resource_create_instance, user
         )
         session.add(resource)
         session.commit()
@@ -265,7 +267,7 @@ class PlatformRouter:
                             new_value = getattr(resource_create_instance, attribute_name)
                             setattr(resource, attribute_name, new_value)
                     deserialize_resource_relationships(
-                        session, self.resource_class, resource, resource_create_instance
+                        session, self.resource_class, resource, resource_create_instance, user
                     )
                     try:
                         session.merge(resource)

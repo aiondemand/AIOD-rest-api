@@ -151,7 +151,7 @@ def _create_class_with_body(clz, body: dict):
     res_create = pydantic_class(**body)
     res = clz.from_orm(res_create)
     with DbSession() as session:
-        deserialize_resource_relationships(session, clz, res, res_create)
+        deserialize_resource_relationships(session, clz, res, res_create, user=None)
         session.commit()
     if hasattr(res, "ai_resource"):
         res.ai_resource.type = clz.__tablename__
