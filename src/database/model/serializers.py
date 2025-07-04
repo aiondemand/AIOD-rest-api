@@ -151,12 +151,11 @@ class FindByNameDeserializer(DeSerializer[NamedRelation]):
         enforced_taxonomy = issubclass(self.clazz, Taxonomy) and (
             user is None or not user.is_connector
         )
-        if enforced_taxonomy:
-            if item is None or not item.official:
-                raise ValueError(
-                    f"The term {name!r} is not part of the taxonomy for {self.clazz.__tablename__}. "
-                    "Please see the endpoint for the taxonomy to see a list of allowed terms."
-                )
+        if enforced_taxonomy and (item is None or not item.official):
+            raise ValueError(
+                f"The term {name!r} is not part of the taxonomy for {self.clazz.__tablename__}. "
+                "Please see the endpoint for the taxonomy to see a list of allowed terms."
+            )
         if item is None:
             item = self.clazz(name=name)
             session.add(item)
