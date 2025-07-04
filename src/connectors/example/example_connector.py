@@ -1,12 +1,13 @@
 import json
 import pathlib
-from typing import Iterator, TypeVar
+from typing import Iterator, TypeVar, cast, Hashable
 
 from sqlmodel import SQLModel
 
 from connectors.abstract.resource_connector_on_start_up import ResourceConnectorOnStartUp
 from database.model.platform.platform_names import PlatformName
 from database.model.resource_read_and_create import resource_create
+from database.model.concept.concept import AIoDConcept
 
 RESOURCE = TypeVar("RESOURCE", bound=SQLModel)
 
@@ -31,6 +32,6 @@ class ExampleConnector(ResourceConnectorOnStartUp[RESOURCE]):
     def fetch(self, limit: int | None = None) -> Iterator[RESOURCE]:
         with open(self.json_path) as f:
             json_data = json.load(f)
-        pydantic_class = resource_create(self.resource_class)
+        pydantic_class = resource_create(cast(Hashable, self.resource_class))
         for json_item in json_data[:limit]:
             yield pydantic_class(**json_item)
