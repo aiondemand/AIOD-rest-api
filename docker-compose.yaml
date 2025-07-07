@@ -243,3 +243,6 @@ services:
     volumes:
       - ${DATA_PATH}/taxonomies/taxonomies.json:/data/taxonomies.json
     command: python taxonomies/synchronize_taxonomy.py
+    depends_on:
+      sqlserver:
+        condition: service_healthy
