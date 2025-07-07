@@ -1,6 +1,8 @@
 # Configures the REST API
 # TODO: refactor configuration (https://github.com/aiondemand/AIOD-rest-api/issues/82)
 
+domain = "https://api.aiod.eu/"
+
 # Information on which database to connect to
 [database]
 host = "sqlserver"
