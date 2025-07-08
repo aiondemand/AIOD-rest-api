@@ -67,7 +67,7 @@ class Publication(PublicationBase, KnowledgeAsset, table=True):  # type: ignore 
             identifier_name="type_identifier",
             _serializer=AttributeSerializer("name"),
             deserializer=FindByNameDeserializer(PublicationType),
-            example="journal",
+            example="Article",
         )
 
 
