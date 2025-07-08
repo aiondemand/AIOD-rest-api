@@ -78,7 +78,7 @@ class AIAsset(AIAssetBase, AIResource, metaclass=abc.ABCMeta):
             identifier_name="license_identifier",
             _serializer=AttributeSerializer("name"),
             deserializer=FindByNameDeserializer(License),
-            example="https://creativecommons.org/share-your-work/public-domain/cc0/",
+            example="CC-BY-4.0",
         )
         citation: list[str] = ManyToMany(
             description="Publication identifiers that are a bibliographic reference.",

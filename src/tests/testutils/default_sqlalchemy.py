@@ -29,20 +29,24 @@ from database.model.knowledge_asset.PublicationType import PublicationType
 from database.model.news.news_category import NewsCategory
 from tests.testutils.test_resource import RouterTestResource, factory_test_resource
 from tests.testutils.users import bypass_reviewer_publish_everything
-from taxonomies.synchronize_taxonomy import synchronize as synchronize_taxonomy, Term
+from taxonomies.synchronize_taxonomy import Term
 
 DEFAULT_TEST_RESOURCE_IDENTIFIER = "test_KwfnsoJOAejyRdv2PaXUPAbW"
-DEFAULT_APPLICATION_AREAS = [
-    Term("voice assistance", "for use in tests", children=[])
-]
 DEFAULT_INDUSTRIAL_SECTORS = [
-    Term("ecommerce", "for use in tests", children=[])
+    Term("ecommerce", "for use in tests", children=[]),
+    Term("Pharmaceuticals", "for use in tests", children=[]),
+    Term("Computer Programming", "for use in tests", children=[]),
+    Term("Cybersecurity", "for use in tests", children=[]),
 ]
 DEFAULT_RESEARCH_AREAS = [
-    Term("explainable ai", "for use in tests", children=[])
+    Term("explainable ai", "for use in tests", children=[]),
+    Term("ai services", "for use in tests", children=[]),
+    Term("multi-agent systems", "for use in tests", children=[]),
 ]
 DEFAULT_SCIENTIFIC_DOMAINS = [
-    Term("voice recognition", "for use in tests", children=[])
+    Term("voice recognition", "for use in tests", children=[]),
+    Term("mathematics", "for use in tests", children=[]),
+    Term("computer and information sciences", "for use in tests", children=[]),
 ]
 DEFAULT_PUBLICATION_TYPE = [
     Term("article", "for use in tests", children=[]),

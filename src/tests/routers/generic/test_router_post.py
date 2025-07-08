@@ -229,3 +229,25 @@ def test_taxonomy_is_not_enforced_for_connector(
             f"/datasets/{response.json()['identifier']}", json=body_asset, headers={"Authorization": "Fake token"}
         )
         assert response.status_code == HTTPStatus.OK, response.json()
+
+
+# @pytest.mark.parametrize()
+def test_example_is_valid(client: TestClient):
+    from database.model.knowledge_asset.publication import Publication
+    from database.model.resource_read_and_create import resource_create
+
+    example_values = {}
+    pub_create = resource_create(Publication)
+    for attribute, model_field in pub_create.__fields__.items():
+        if example := model_field.field_info.extra.get('example'):
+           example_values[attribute] = example
+        elif examples := model_field.field_info.extra.get('examples'):
+            if isinstance(examples, list):
+                example_values[attribute] = examples[0]
+            else:
+                example_values[attribute] = examples
+
+    # Can't validate on Pydantic model directly: bypasses e.g., taxonomy checks
+    with logged_in_user():
+        response = client.post('/publications', json=example_values, headers={"Authorization": "Fake token"})
+    assert response.status_code == HTTPStatus.OK, response.json()
