@@ -59,7 +59,7 @@ class News(NewsBase, AIResource, table=True):  # type: ignore [call-arg]
             description="News categories related to this item.",
             _serializer=AttributeSerializer("name"),
             deserializer=FindByNameDeserializerList(NewsCategory),
-            example=["research: education", "research: awards", "business: robotics"],
+            example=["Education"],
             default_factory_pydantic=list,
         )
         content: Optional[Text] = OneToOne(

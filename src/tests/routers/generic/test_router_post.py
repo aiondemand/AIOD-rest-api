@@ -1,10 +1,11 @@
-
+from http import HTTPStatus
 import pytest
 from starlette.testclient import TestClient
 
-from tests.testutils.users import logged_in_user, kc_connector_with_roles
+from tests.testutils.users import logged_in_user, kc_connector_with_roles, kc_user_with_roles
 from database.model.platform.platform_names import PlatformName
-from http import HTTPStatus
+from database.model.resource_read_and_create import resource_create
+from routers import resource_routers
 
 
 @pytest.mark.parametrize(
@@ -231,14 +232,15 @@ def test_taxonomy_is_not_enforced_for_connector(
         assert response.status_code == HTTPStatus.OK, response.json()
 
 
-# @pytest.mark.parametrize()
-def test_example_is_valid(client: TestClient):
-    from database.model.knowledge_asset.publication import Publication
-    from database.model.resource_read_and_create import resource_create
-
+@pytest.mark.parametrize(
+    "router",
+    tested_routers := [r for r in resource_routers.router_list if r.resource_name != 'platform'],
+    ids=map(lambda r: r.resource_name, tested_routers),
+)
+def test_example_is_valid(router, client: TestClient):
     example_values = {}
-    pub_create = resource_create(Publication)
-    for attribute, model_field in pub_create.__fields__.items():
+    res_create = resource_create(router.resource_class)
+    for attribute, model_field in res_create.__fields__.items():
         if example := model_field.field_info.extra.get('example'):
            example_values[attribute] = example
         elif examples := model_field.field_info.extra.get('examples'):
@@ -249,5 +251,5 @@ def test_example_is_valid(client: TestClient):
 
     # Can't validate on Pydantic model directly: bypasses e.g., taxonomy checks
     with logged_in_user():
-        response = client.post('/publications', json=example_values, headers={"Authorization": "Fake token"})
+        response = client.post(f'/{router.resource_name_plural}', json=example_values, headers={"Authorization": "Fake token"})
     assert response.status_code == HTTPStatus.OK, response.json()

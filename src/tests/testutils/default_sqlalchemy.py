@@ -53,6 +53,7 @@ DEFAULT_PUBLICATION_TYPE = [
     Term("journal", "publication in a journal", children=[])
 ]
 DEFAULT_NEWS_CATEGORY = [
+    Term("Education", "for use in tests", children=[]),
     Term("research: education", "for use in tests", children=[]),
     Term("research: awards", "for use in tests", children=[]),
     Term("business: health", "for use in tests", children=[]),
