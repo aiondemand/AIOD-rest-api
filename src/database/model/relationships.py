@@ -56,7 +56,11 @@ class _ResourceRelationship(abc.ABC, Representation):
     def field(self):
         return Field(
             description=self.description,
-            schema_extra={"example": self.example},
+            # Wrapping the example in a list means that the actual value is used (default None),
+            # this allows `null` to be shown in place of `"string"` or `0` when no example is
+            # provided for resp. a string or an integer.
+            schema_extra={"examples": [self.example]},
+            # schema_extra={"example": self.example},
             default_factory=self.default_factory_pydantic,
         )
 
