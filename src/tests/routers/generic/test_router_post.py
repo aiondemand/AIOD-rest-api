@@ -240,10 +240,11 @@ def test_taxonomy_is_not_enforced_for_connector(
 def test_example_is_valid(router, client: TestClient):
     example_values = {}
     res_create = resource_create(router.resource_class)
+    NOT_SET = object()  # to distinguish from `None`
     for attribute, model_field in res_create.__fields__.items():
-        if example := model_field.field_info.extra.get('example'):
+        if (example := model_field.field_info.extra.get('example', NOT_SET)) is not NOT_SET:
            example_values[attribute] = example
-        elif examples := model_field.field_info.extra.get('examples'):
+        elif (examples := model_field.field_info.extra.get('examples', NOT_SET)) is not NOT_SET:
             if isinstance(examples, list):
                 example_values[attribute] = examples[0]
             else:
