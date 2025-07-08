@@ -121,6 +121,7 @@ class AIoDConcept(AIoDConceptBase):
         aiod_entry: Optional[AIoDEntryRead] = OneToOne(
             deserializer=CastDeserializer(AIoDEntryORM),
             default_factory_pydantic=AIoDEntryCreate,
+            default_factory_orm=AIoDEntryORM,
             class_read=Optional[AIoDEntryRead],
             class_create=Optional[AIoDEntryCreate],
             on_delete_trigger_deletion_by="aiod_entry_identifier",
