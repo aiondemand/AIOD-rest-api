@@ -39,6 +39,8 @@ from dependencies.filtering import ResourceFilters, ResourceFiltersParams
 from dependencies.pagination import Pagination, PaginationParams
 from error_handling import as_http_exception
 
+from fastapi import UploadFile, File
+
 RESOURCE = TypeVar("RESOURCE", bound=AIResource)
 RESOURCE_CREATE = TypeVar("RESOURCE_CREATE", bound=SQLModel)
 RESOURCE_READ = TypeVar("RESOURCE_READ", bound=SQLModel)
@@ -245,6 +247,10 @@ class ResourceRouter(abc.ABC):
                     "platform-specific-identifier.",
                     **default_kwargs,
                 )
+
+        if hasattr(self, "add_custom_routes"):
+            self.add_custom_routes(router, url_prefix)
+
         return router
 
     def get_resources(
