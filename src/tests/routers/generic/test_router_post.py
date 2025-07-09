@@ -241,6 +241,7 @@ def test_example_is_valid(router, client: TestClient):
     example_values = {}
     res_create = resource_create(router.resource_class)
     for attribute, model_field in res_create.__fields__.items():
+        # We don't use `dict.get` because we want to know about -any- value, including None
         if "example" in model_field.field_info.extra:
             example_values[attribute] = model_field.field_info.extra["example"]
         elif "examples" in model_field.field_info.extra:
