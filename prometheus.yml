@@ -1,0 +1,7 @@
+global:
+  scrape_interval: 15s
+scrape_configs:
+  - job_name: 'aiod_rest_api'
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['aiod-rest-api:8000']
