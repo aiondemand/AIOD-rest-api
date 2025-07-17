@@ -7,6 +7,8 @@ from database.model.agent.contact import Contact
 from database.model.agent.organisation import Organisation
 from database.session import DbSession
 
+import io
+import json
 
 def test_happy_path(
     client: TestClient,
@@ -21,6 +23,10 @@ def test_happy_path(
     body["legal_name"] = "A name for the organisation"
     body["ai_relevance"] = "Part of CLAIRE"
     body["type"] = "Research Institute"
+
+    fake_image = io.BytesIO(b"\x89PNG\r\n\x1a\n...")  # a few valid PNG bytes
+    fake_image.name = "logo.png"
+
     with DbSession() as session:
         session.add(organisation)  # The new organisation will be a member of this organisation
         session.add(contact)
@@ -30,7 +36,13 @@ def test_happy_path(
         body["contact_details"] = contact.identifier
         body["contact"] = [contact.identifier]
 
-    response = client.post("/organisations", json=body, headers={"Authorization": "Fake token"})
+    response = client.post(
+        "/organisations",
+        data={"data": json.dumps(body)},
+        files={"image": ("logo.png", fake_image, "image/png")},
+        headers={"Authorization": "Fake token"},
+    )
+
     assert response.status_code == 200, response.json()
     identifier = response.json()['identifier']
 
