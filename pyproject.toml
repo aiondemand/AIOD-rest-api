@@ -25,7 +25,6 @@ dependencies = [
     "python-keycloak==3.7.0",
     "python-dotenv==1.0.1",
     "pytz==2024.2",
-    "pydantic_schemaorg==1.0.6",
     "python-dateutil==2.9.0.post0",
     "ratelimit==2.2.1",
     "sqlmodel==0.0.22",
