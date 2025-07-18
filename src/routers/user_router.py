@@ -2,7 +2,7 @@ from http import HTTPStatus
 from typing import List
 
 from fastapi import APIRouter, Depends
-from pydantic import BaseModel, create_model, Field
+from pydantic.v1 import BaseModel, create_model, Field
 from sqlalchemy import select
 from sqlmodel import Session
 

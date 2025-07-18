@@ -2,7 +2,7 @@ import abc
 from typing import TypeVar, Generic, Any, Type, Literal, Annotated, TypeAlias
 
 from fastapi import APIRouter, HTTPException, Query
-from pydantic import BaseModel
+from pydantic.v1 import BaseModel
 from pydantic.generics import GenericModel
 from sqlmodel import SQLModel, select, Field
 from starlette import status

@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pydantic import condecimal
+from pydantic.v1 import condecimal
 from sqlalchemy import Column, Integer, ForeignKey
 from sqlmodel import Relationship, Field
 

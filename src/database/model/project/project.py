@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic import condecimal
+from pydantic.v1 import condecimal
 from sqlmodel import Field, Relationship
 
 from database.model.agent.organisation import Organisation

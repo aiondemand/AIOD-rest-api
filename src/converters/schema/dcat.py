@@ -12,7 +12,7 @@ import datetime
 from abc import ABC
 from typing import Union
 
-from pydantic import BaseModel, Field, Extra
+from pydantic.v1 import BaseModel, Field, Extra
 
 
 class DcatAPContext(BaseModel):

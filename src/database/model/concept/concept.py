@@ -3,7 +3,7 @@ import datetime
 import os
 from typing import Optional, Tuple, Any, Callable
 
-from pydantic import validator
+from pydantic.v1 import validator
 from sqlalchemy import CheckConstraint, Index
 from sqlalchemy.orm import declared_attr
 from sqlalchemy.sql.functions import coalesce

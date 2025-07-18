@@ -2,7 +2,7 @@ from typing import Any, Type
 
 import pytest
 from fastapi import FastAPI
-from pydantic import BaseModel, Field
+from pydantic.v1 import BaseModel, Field
 from sqlalchemy.engine import Engine
 from sqlmodel import Session
 from starlette.testclient import TestClient

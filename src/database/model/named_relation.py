@@ -1,9 +1,9 @@
 import os
 from typing import Tuple, ForwardRef, List
 
-from pydantic import create_model
+from pydantic.v1 import create_model
 from sqlalchemy import CheckConstraint, Column, String
-from sqlalchemy.orm import declared_attr, backref
+from sqlalchemy.orm import declared_attr
 from sqlmodel import SQLModel, Field, Relationship
 
 from database.model.field_length import NORMAL, LONG
@@ -18,8 +18,8 @@ class NamedRelation(SQLModel):
 
     identifier: int = Field(default=None, primary_key=True)
     name: str = Field(
-        sa_column=Column(
-            String(length=NORMAL, collation=COLLATION),
+        sa_type=String(length=NORMAL, collation=COLLATION),
+        sa_column_kwargs=dict(
             index=True,
             unique=True,
         ),

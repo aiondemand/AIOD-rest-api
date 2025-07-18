@@ -5,7 +5,7 @@ import uuid
 from http import HTTPStatus
 
 from fastapi import HTTPException, status
-from pydantic import BaseModel
+from pydantic.v1 import BaseModel
 from starlette.responses import JSONResponse
 
 

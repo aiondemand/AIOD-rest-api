@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Type
 
-from pydantic import create_model
+from pydantic.v1 import create_model
 from sqlalchemy import Column, Integer, ForeignKey, String
 from sqlmodel import Field
 

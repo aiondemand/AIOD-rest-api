@@ -8,7 +8,7 @@ request.
 import functools
 from typing import Type, Tuple, TYPE_CHECKING
 
-from pydantic import create_model
+from pydantic.v1 import create_model
 from sqlmodel import SQLModel, Field
 from sqlmodel.main import FieldInfo
 

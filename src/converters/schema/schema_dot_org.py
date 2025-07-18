@@ -9,7 +9,7 @@ references present in the schema.
 
 import datetime
 
-from pydantic import BaseModel, Field, Extra
+from pydantic.v1 import BaseModel, Field, Extra
 
 
 class SchemaDotOrgContext(BaseModel):
