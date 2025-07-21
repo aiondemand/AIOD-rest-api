@@ -4,14 +4,11 @@ import traceback
 from functools import partial
 from http import HTTPStatus
 from typing import Annotated, Any, Literal, Sequence, Type, TypeVar, Union
-from wsgiref.handlers import format_date_time
 
 from fastapi import APIRouter, Depends, HTTPException, status, Query, Path
-from fastapi.encoders import jsonable_encoder
 from sqlalchemy import and_, func
 from sqlalchemy.sql.operators import is_
 from sqlmodel import SQLModel, Session, select
-from starlette.responses import JSONResponse
 
 from authentication import KeycloakUser, get_user_or_none, get_user_or_raise
 from converters.schema_converters.schema_converter import SchemaConverter
@@ -39,21 +36,12 @@ from dependencies.filtering import ResourceFilters, ResourceFiltersParams
 from dependencies.pagination import Pagination, PaginationParams
 from error_handling import as_http_exception
 
-from fastapi import UploadFile, File, Form, Body
+from fastapi import UploadFile, File, Form
 import json
-from database.model.ai_asset.distribution import Distribution
-from fastapi import Request
 from starlette.status import HTTP_403_FORBIDDEN, HTTP_500_INTERNAL_SERVER_ERROR
 from typing import Optional
 from http import HTTPStatus
-from fastapi import Request
-from pydantic import ValidationError
-import json
-
-import shutil
-import os
-from uuid import uuid4
-from pydantic import BaseModel
+from pydantic import ValidationError, BaseModel
 
 
 RESOURCE = TypeVar("RESOURCE", bound=AIResource)
@@ -503,6 +491,9 @@ class ResourceRouter(abc.ABC):
         organisation.media.append(media)
         return organisation, media
 
+    def generate_example(self, model_cls: Type[BaseModel]) -> dict:
+        return model_cls.schema().get("example") or model_cls.schema().get("examples", {})
+
     def register_resource_func(self):
         """
         Return a function that can be used to register a resource.
@@ -514,7 +505,13 @@ class ResourceRouter(abc.ABC):
         if self.resource_class.__name__ == "Organisation":
 
             async def register_organisation_resource(
-                data: str = Form(...),
+                data: str = Form(
+                    ...,
+                    openapi_extra={
+                        "description": "JSON-encoded ResourceCreate object",
+                        "examples": self.generate_example(clz_create),
+                    },
+                ),  # type: ignore
                 image: Optional[UploadFile] = File(None),
                 user: KeycloakUser = Depends(get_user_or_raise),
             ):
