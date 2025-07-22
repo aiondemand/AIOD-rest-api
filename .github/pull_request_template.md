@@ -25,13 +25,14 @@ This field contains the full contact information of the contacts whose identifie
 <!-- Describe a way to test the change of this PR if it requires special steps beyond CI/CD. You're writing this for the reviewer. -->
 
 ## Checklist
-- [ ] Tests have been added or updated to reflect the changes, or their absence is explicitly explained.
+- [ ] Tests have been added or updated to reflect the changes, or their absence is explicitly explained. <!-- For code changes -->
 - [ ] Documentation has been added or updated to reflect the changes, or their absence is explicitly explained.
 - [ ] A self-review has been conducted checking:
   - No unintended changes have been committed.
   - The changes in isolation seem reasonable.
   - Anything that may be odd or unintuitive is provided with a GitHub comment explaining it (but consider if this should not be a code comment or in the documentation instead).
 - [ ] All CI checks pass before pinging a reviewer, or provide an explanation if they do not.
+- [ ] The PR title matches the changelog entry's one-line description.
 
 ## Related Issues
 <!-- Provide a list of relevant issues and/or pull requests, if any. -->
