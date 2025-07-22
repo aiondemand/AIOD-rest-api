@@ -1,4 +1,4 @@
-<!-- 
+<!--
 Please carefully follow the instructions of the template, as they allow for more effective reviews with fewer back-and-forth, making a smoother process for everyone.
 Prefer small, independent PRs over big monolithic ones when possible.
 If you are only looking for feedback, clearly indicate this and open it as a "draft" instead (use the green "v" button next to "create pull request").
@@ -13,7 +13,7 @@ Change Category: <!-- Documentation/Interface/Internal/Other -->
 
 Changelog Entry: <!-- Brief description of the change, possibly followed by more details in a separate paragraph. For example: -->
 
-<!-- 
+<!--
 Added the `contacts` field to the `AIResource` `GET` endpoints with full contact information.
 
 This field contains the full contact information of the contacts whose identifiers are currently already provided through the `contact` field.
@@ -37,4 +37,3 @@ This field contains the full contact information of the contacts whose identifie
 ## Related Issues
 <!-- Provide a list of relevant issues and/or pull requests, if any. -->
 <!-- If the pull request closes and issue, specify "Closes #X" (where X is the issue number). -->
-
