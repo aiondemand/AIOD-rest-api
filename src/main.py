@@ -6,7 +6,6 @@ Note: order matters for overloaded paths
 """
 
 import argparse
-from datetime import datetime, timezone
 import logging
 from pathlib import Path
 
@@ -15,7 +14,6 @@ import uvicorn
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.responses import HTMLResponse
 from sqlmodel import select, SQLModel
-from starlette.requests import Request
 
 from authentication import get_user_or_raise, KeycloakUser, assert_required_settings_configured
 from config import KEYCLOAK_CONFIG, DB_CONFIG, DEV_CONFIG
@@ -32,7 +30,6 @@ from database.setup import create_database, database_exists
 from taxonomies.synchronize_taxonomy import synchronize_taxonomy_from_file
 from triggers import disable_review_process, enable_review_process
 from error_handling import http_exception_handler
-from database.model.agent.agent import Agent
 from routers import (
     resource_routers,
     parent_routers,
@@ -43,6 +40,7 @@ from routers import (
     bookmark_router,
 )
 from setup_logger import setup_logger
+from versioning import add_deprecation_and_sunset_header_data
 
 
 def add_routes(app: FastAPI, url_prefix=""):
@@ -140,39 +138,7 @@ def build_app(*, url_prefix: str = "", version: str = "dev"):
     )
     add_routes(app, url_prefix=url_prefix)
     app.add_exception_handler(HTTPException, http_exception_handler)
-
-    @app.middleware("http")
-    async def add_deprecation_header(request: Request, call_next):
-        """Adds a deprecation header: https://datatracker.ietf.org/doc/html/rfc9745"""
-        response = await call_next(request)
-        if "v1" in request.scope["path"]:
-            deprecation_date = datetime(year=2025, month=5, day=30, tzinfo=timezone.utc)
-            response.headers["Deprecation"] = f"@{int(deprecation_date.timestamp())}"
-            deprecation_link = '<https://aiondemand.github.io/AIOD-rest-api/using/migration-v1-v2>; rel="deprecation"; type="text/html"'
-            if links := response.headers.get("Link"):
-                response.headers["Link"] = ", ".join([links, deprecation_link])
-            else:
-                response.headers["Link"] = deprecation_link
-        return response
-
-    @app.middleware("http")
-    async def add_sunset_header(request: Request, call_next):
-        """Adds a sunset header: https://datatracker.ietf.org/doc/html/rfc8594"""
-        response = await call_next(request)
-        if "v1" in request.scope["path"]:
-            sunset_date = datetime(year=2025, month=6, day=11, tzinfo=timezone.utc)
-            response.headers["Sunset"] = sunset_date.strftime("%a, %d %b %Y %H:%M:%S %Z")
-            sunset_link = '<https://aiondemand.github.io/AIOD-rest-api/using/migration-v1-v2>; rel="sunset"; type="text/html"'
-            if links := response.headers.get("Link"):
-                response.headers["Link"] = ", ".join([links, sunset_link])
-            else:
-                response.headers["Link"] = sunset_link
-        return response
-
-    # Adds a visual deprecation style to the generated docs:
-    for route in app.routes:
-        if "v1" in route.path:
-            route.deprecated = True
+    add_deprecation_and_sunset_header_data(app)
     return app
 
 
