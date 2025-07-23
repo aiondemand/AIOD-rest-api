@@ -47,7 +47,7 @@ These are the roles the metadata catalogue uses (`*` in a role indicates its def
  * `update_*`: allows the user update permission for all assets on the platform, regardless of the asset-specific permissions.
  * `delete_*`: allows the user delete permission for all assets on the platform, regardless of the asset-specific permissions.
  * `create_platforms`: allows the user to define new platforms.
- * `platform_NAME`: identifiers the 'user' as being allowed to register assets of platform 'NAME', used for connectors.
+ * `platform_NAME`: identifies the 'user' as being allowed to register assets of platform 'NAME', used for connectors.
 
 Note that roles may be used for services other than the metadata catalogue.
 New roles can be created from the admin console, see ["Creating a realm role"](https://www.keycloak.org/docs/latest/server_admin/index.html#proc-creating-realm-roles_server_administration_guide).
