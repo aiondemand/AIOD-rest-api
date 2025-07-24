@@ -114,7 +114,6 @@ class ResourceRouter(abc.ABC):
         response_model_plural = Union[  # type:ignore
             list[self.resource_class_read], *[list[s] for s in available_schemas]  # type:ignore
         ]
-        version = f"v{self.version}"
 
         router.add_api_route(
             path=f"/{self.resource_name_plural}",
@@ -163,7 +162,7 @@ class ResourceRouter(abc.ABC):
         )
 
         router.add_api_route(
-            path=f"{url_prefix}/{self.resource_name_plural}/{{identifier}}",
+            path=f"/{self.resource_name_plural}/{{identifier}}",
             methods={"PUT"},
             endpoint=self.put_resource_func(),
             name=self.resource_name,
@@ -172,7 +171,7 @@ class ResourceRouter(abc.ABC):
         )
 
         router.add_api_route(
-            path=f"{url_prefix}/{self.resource_name_plural}/{{identifier}}",
+            path=f"/{self.resource_name_plural}/{{identifier}}",
             methods={"DELETE"},
             endpoint=self.delete_resource_func(),
             name=self.resource_name,
@@ -182,7 +181,7 @@ class ResourceRouter(abc.ABC):
 
         if hasattr(self.resource_class, "platform"):
             router.add_api_route(
-                path=f"{url_prefix}/platforms/{{platform}}/{self.resource_name_plural}",
+                path=f"/platforms/{{platform}}/{self.resource_name_plural}",
                 endpoint=self.get_platform_resources_func(),
                 response_model=response_model_plural,  # type: ignore
                 name=f"List {self.resource_name_plural}",
@@ -192,7 +191,7 @@ class ResourceRouter(abc.ABC):
             )
 
             router.add_api_route(
-                path=f"{url_prefix}/platforms/{{platform}}/{self.resource_name_plural}/{{identifier}}",
+                path=f"/platforms/{{platform}}/{self.resource_name_plural}/{{identifier}}",
                 endpoint=self.get_platform_resource_func(),
                 response_model=response_model,  # type: ignore
                 name=self.resource_name,
