@@ -40,7 +40,7 @@ from routers import (
     bookmark_router,
 )
 from setup_logger import setup_logger
-from versioning import add_deprecation_and_sunset_header_data, versions, add_version_to_openapi
+from versioning import versions, add_version_to_openapi, add_deprecation_and_sunset_middleware
 
 
 def add_routes(app: FastAPI, url_prefix=""):
@@ -143,7 +143,7 @@ def build_app(*, url_prefix: str = "", version: str = "dev"):
         )
         add_routes(app)
         app.add_exception_handler(HTTPException, http_exception_handler)
-        add_deprecation_and_sunset_header_data(app)
+        add_deprecation_and_sunset_middleware(app)
         add_version_to_openapi(app)
         main_app.mount(f"/{version}", app)
     return main_app

@@ -1,60 +1,60 @@
 from datetime import datetime, timezone
+import logging
 
 from fastapi import FastAPI
 from starlette.requests import Request
 
+logger = logging.getLogger(__file__)
 
-async def add_deprecation_header(request: Request, call_next):
-    """Adds a deprecation header: https://datatracker.ietf.org/doc/html/rfc9745"""
-    response = await call_next(request)
-    for version, info in versions.items():
-        if not request.scope["path"].startswith(f"/{version}"):
-            continue
-        if (deprecation_date := info.get("deprecated")) is None:
-            continue
-        response.headers["Deprecation"] = f"@{int(deprecation_date.timestamp())}"
 
-        if (link := info.get("link")) is None:
-            break
+def add_deprecation_header_middleware(app: FastAPI, date: datetime, link: str | None = None):
+    async def add_deprecation_header(request: Request, call_next):
+        """Adds a deprecation header: https://datatracker.ietf.org/doc/html/rfc9745"""
+        response = await call_next(request)
+        response.headers["Deprecation"] = f"@{int(date.timestamp())}"
+        if link is None:
+            return response
+
         deprecation_link = f'<{link}>; rel="deprecation"; type="text/html"'
         current_link = response.headers.get("Link") or ""
         separator = ", " if current_link else ""
         response.headers["Link"] = f"{current_link}{separator}{deprecation_link}"
-        break
-    return response
+        return response
+
+    app.middleware("http")(add_deprecation_header)
 
 
-async def add_sunset_header(request: Request, call_next):
-    """Adds a sunset header: https://datatracker.ietf.org/doc/html/rfc8594"""
-    response = await call_next(request)
-    for version, info in versions.items():
-        if not request.scope["path"].startswith(f"/{version}"):
-            continue
-        if (sunset_date := info.get("sunset")) is None:
-            continue
-        response.headers["Sunset"] = sunset_date.strftime("%a, %d %b %Y %H:%M:%S %Z")
+def add_sunset_header_middleware(app: FastAPI, date: datetime, link: str | None = None):
+    async def add_sunset_header(request: Request, call_next):
+        """Adds a sunset header: https://datatracker.ietf.org/doc/html/rfc8594"""
+        response = await call_next(request)
+        response.headers["Sunset"] = date.strftime("%a, %d %b %Y %H:%M:%S %Z")
+        if link is None:
+            return response
 
-        if (link := info.get("link")) is None:
-            continue
         sunset_link = f'<{link}>; rel="sunset"; type="text/html"'
         current_link = response.headers.get("Link") or ""
         separator = ", " if current_link else ""
         response.headers["Link"] = f"{current_link}{separator}{sunset_link}"
-        break
-    return response
+        return response
 
-
-def add_deprecation_and_sunset_header_data(app: FastAPI):
-    app.middleware("http")(add_deprecation_header)
     app.middleware("http")(add_sunset_header)
 
-    # Adds a visual deprecation style to the generated docs:
-    for version, info in versions.items():
-        if info.get("deprecated") is None:
-            continue
+
+def add_deprecation_and_sunset_middleware(app: FastAPI):
+    info = versions.get(app.version)
+    if info is None:
+        logger.warning(f"Version {app.version!r} isn't present in `versions`.")
+        return
+
+    if (deprecation := info.get("deprecated")) is not None:
+        add_deprecation_header_middleware(app, date=deprecation, link=info.get("link"))
         for route in app.routes:
-            if route.path.startswith(f"/{version}"):
-                route.deprecated = True
+            # Adds a visual deprecation style to the generated docs:
+            route.deprecated = True
+
+    if (sunset := info.get("sunset")) is not None:
+        add_sunset_header_middleware(app, date=sunset, link=info.get("link"))
 
 
 def add_version_to_openapi(versioned_api):
