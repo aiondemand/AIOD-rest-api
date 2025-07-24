@@ -57,19 +57,14 @@ class PlatformRouter:
         response_model = self.resource_class_read  # type:ignore
         response_model_plural = list[self.resource_class_read]  # type:ignore
 
-        for path in [
-            f"{url_prefix}/{self.resource_name_plural}/{version}",
-            f"{url_prefix}/v2/{self.resource_name_plural}",
-            f"{url_prefix}/{self.resource_name_plural}",
-        ]:
-            router.add_api_route(
-                path=path,
-                endpoint=self.get_resources_func(),
-                response_model=response_model_plural,  # type: ignore
-                name=f"List {self.resource_name_plural}",
-                description=f"Retrieve all meta-data of the {self.resource_name_plural}.",
-                **default_kwargs,
-            )
+        router.add_api_route(
+            path=f"/{self.resource_name_plural}",
+            endpoint=self.get_resources_func(),
+            response_model=response_model_plural,  # type: ignore
+            name=f"List {self.resource_name_plural}",
+            description=f"Retrieve all meta-data of the {self.resource_name_plural}.",
+            **default_kwargs,
+        )
 
         for path in [
             f"{url_prefix}/counts/{self.resource_name_plural}/{version}",

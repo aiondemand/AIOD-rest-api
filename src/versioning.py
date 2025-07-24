@@ -57,6 +57,25 @@ def add_deprecation_and_sunset_header_data(app: FastAPI):
                 route.deprecated = True
 
 
+def add_version_to_openapi(versioned_api):
+    """Adds the version prefix to all paths in the schema."""
+
+    def custom_openapi():
+        if versioned_api.openapi_schema:
+            return versioned_api.openapi_schema
+        schema = versioned_api._openapi()
+        versioned_api.openapi_schema = schema
+        del schema["servers"]
+        paths = schema["paths"].copy()
+        for path, metadata in paths.items():
+            schema["paths"][f"{versioned_api.version}{path}"] = metadata
+            del schema["paths"][path]
+        return schema
+
+    versioned_api._openapi = versioned_api.openapi
+    versioned_api.openapi = custom_openapi
+
+
 versions: dict[str, dict] = {
     "v2": {},
     "v1": {
