@@ -23,48 +23,32 @@ from database.model.concept.aiod_entry import EntryStatus, AIoDEntryORM
 def create(url_prefix: str) -> APIRouter:
     router = APIRouter()
 
-    for path in [
-        f"{url_prefix}/submissions/retract/{{submission_identifier}}",
-        f"{url_prefix}/v2/submissions/retract/{{submission_identifier}}",
-    ]:
-        router.post(
-            path,
-            tags=["Reviewing"],
-            description="Retract an asset under review, setting its status to 'draft'.",
-        )(retract_submission)
+    router.post(
+        "/submissions/retract/{submission_identifier}",
+        tags=["Reviewing"],
+        description="Retract an asset under review, setting its status to 'draft'.",
+    )(retract_submission)
 
-    for path in [
-        f"{url_prefix}/submissions/{{identifier}}",
-        f"{url_prefix}/v2/submissions/{{identifier}}",
-    ]:
-        router.get(
-            path,
-            tags=["Reviewing"],
-            description="Retrieve a specific submission.",
-            response_model=SubmissionView,
-        )(get_submission)
+    router.get(
+        "/submissions/{identifier}",
+        tags=["Reviewing"],
+        description="Retrieve a specific submission.",
+        response_model=SubmissionView,
+    )(get_submission)
 
-    for path in [
-        f"{url_prefix}/submissions",
-        f"{url_prefix}/v2/submissions",
-    ]:
-        router.get(
-            path,
-            tags=["Reviewing"],
-            description="List all assets submitted for review.",
-            response_model=Sequence[SubmissionBase],
-        )(list_submissions)
+    router.get(
+        "/submissions",
+        tags=["Reviewing"],
+        description="List all assets submitted for review.",
+        response_model=Sequence[SubmissionBase],
+    )(list_submissions)
 
-    for path in [
-        f"{url_prefix}/reviews",
-        f"{url_prefix}/v2/reviews",
-    ]:
-        router.post(
-            path,
-            tags=["Reviewing"],
-            description="Review an asset.",
-            response_model=Review,
-        )(_review_resource)
+    router.post(
+        "/reviews",
+        tags=["Reviewing"],
+        description="Review an asset.",
+        response_model=Review,
+    )(_review_resource)
     return router
 
 
