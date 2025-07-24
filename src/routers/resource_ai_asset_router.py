@@ -18,33 +18,25 @@ class ResourceAIAssetRouter(ResourceRouter):
 
         router = super().create(url_prefix)
 
-        for path in [
-            f"{url_prefix}/v2/{self.resource_name_plural}/{{identifier}}/content",
-            f"{url_prefix}/{self.resource_name_plural}/{{identifier}}/content",
-        ]:
-            router.add_api_route(
-                path=path,
-                endpoint=self.get_resource_content_func(default=True),
-                name=self.resource_name,
-                description="Retrieve the actual content of the first distribution (index 0 as "
-                "default) for a {self.resource_name} identified by its identifier.",
-                response_model=str,
-                **default_kwargs,
-            )
+        router.add_api_route(
+            path=f"/{self.resource_name_plural}/{{identifier}}/content",
+            endpoint=self.get_resource_content_func(default=True),
+            name=self.resource_name,
+            description="Retrieve the actual content of the first distribution (index 0 as "
+            "default) for a {self.resource_name} identified by its identifier.",
+            response_model=str,
+            **default_kwargs,
+        )
 
-        for path in [
-            f"{url_prefix}/v2/{self.resource_name_plural}/{{identifier}}/content/{{distribution_idx}}",
-            f"{url_prefix}/{self.resource_name_plural}/{{identifier}}/content/{{distribution_idx}}",
-        ]:
-            router.add_api_route(
-                path=path,
-                endpoint=self.get_resource_content_func(default=False),
-                name=self.resource_name,
-                description=f"Retrieve the actual content of a distribution for a {self.resource_name} "
-                "identified by its identifier.",
-                response_model=str,
-                **default_kwargs,
-            )
+        router.add_api_route(
+            path=f"/{self.resource_name_plural}/{{identifier}}/content/{{distribution_idx}}",
+            endpoint=self.get_resource_content_func(default=False),
+            name=self.resource_name,
+            description=f"Retrieve the actual content of a distribution for a {self.resource_name} "
+            "identified by its identifier.",
+            response_model=str,
+            **default_kwargs,
+        )
 
         return router
 

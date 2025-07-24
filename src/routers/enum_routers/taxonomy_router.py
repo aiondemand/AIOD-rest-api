@@ -31,17 +31,13 @@ class TaxonomyRouter(EnumRouter):
             "tags": ["Taxonomies"],
         }
 
-        for path in [
-            url_prefix + f"/v2/{self.resource_name_plural}",
-            url_prefix + f"/{self.resource_name_plural}",
-        ]:
-            router.add_api_route(
-                path=path,
-                endpoint=self.get_official_terms_func(),
-                response_model=list[TaxonomyHierarchy],
-                name=self.resource_name,
-                **default_kwargs,
-            )
+        router.add_api_route(
+            path=f"/{self.resource_name_plural}",
+            endpoint=self.get_official_terms_func(),
+            response_model=list[TaxonomyHierarchy],
+            name=self.resource_name,
+            **default_kwargs,
+        )
         return router
 
     def get_official_terms_func(self):
