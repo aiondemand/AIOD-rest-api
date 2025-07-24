@@ -94,5 +94,6 @@ versions: dict[str, dict] = {
         "deprecated": datetime(year=2025, month=5, day=30, tzinfo=timezone.utc),
         "sunset": datetime(year=2025, month=6, day=11, tzinfo=timezone.utc),
         "link": "https://aiondemand.github.io/AIOD-rest-api/using/migration-v1-v2",
+        "retired": True,
     },
 }

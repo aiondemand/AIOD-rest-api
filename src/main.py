@@ -135,7 +135,9 @@ def build_app(*, url_prefix: str = "", version: str = "dev"):
     add_routes(main_app)
     main_app.add_exception_handler(HTTPException, http_exception_handler)
 
-    for version in versions:
+    for version, info in versions.items():
+        if info.get("retired", False):
+            continue
         app = FastAPI(
             title=f"AIoD Metadata Catalogue {version}",
             version=f"{version}",
