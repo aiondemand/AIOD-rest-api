@@ -138,7 +138,7 @@ def build_app(*, url_prefix: str = "", version: str = "dev"):
     for version in versions:
         app = FastAPI(
             title=f"AIoD Metadata Catalogue {version}",
-            version=f"/{version}",
+            version=f"{version}",
             **kwargs,
         )
         add_routes(app)

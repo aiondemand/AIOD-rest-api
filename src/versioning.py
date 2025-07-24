@@ -64,12 +64,24 @@ def add_version_to_openapi(versioned_api):
         if versioned_api.openapi_schema:
             return versioned_api.openapi_schema
         schema = versioned_api._openapi()
-        versioned_api.openapi_schema = schema
-        del schema["servers"]
+        version_prefix = f"/{versioned_api.version}"
+
+        # When the server is served under a `root_path`, this is
+        # not directly available through `versioned_api.root_path`,
+        # so we directly edit the generated server URLs instead.
+        for server in schema["servers"]:
+            server["url"] = server["url"].removesuffix(version_prefix)
+
+        # We prefer the `/vX/...` be explicit in our documentation,
+        # so that it is always obvious what documentation you are looking at.
+        # Additionally, it also clearly states the entire `path`, provided that
+        # the main app is not mounted to a `root_path`.
         paths = schema["paths"].copy()
         for path, metadata in paths.items():
-            schema["paths"][f"{versioned_api.version}{path}"] = metadata
+            schema["paths"][f"{version_prefix}{path}"] = metadata
             del schema["paths"][path]
+
+        versioned_api.openapi_schema = schema
         return schema
 
     versioned_api._openapi = versioned_api.openapi
