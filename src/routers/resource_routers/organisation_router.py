@@ -39,7 +39,8 @@ class OrganisationRouter(ResourceRouter):
 
             if not org:
                 raise HTTPException(
-                    status_code=HTTPStatus.NOT_FOUND, detail="Organisation not found"
+                    status_code=HTTPStatus.NOT_FOUND,
+                    detail=f"Organisation {identifier} not found in the database.",
                 )
             # Donot allow image upload with same name.
             # However, we deliberately donot check if same image is being uploaded.
@@ -67,4 +68,42 @@ class OrganisationRouter(ResourceRouter):
             session.add(org)
             session.commit()
 
-            return {"detail": "Image uploaded successfully"}
+            return org.identifier
+
+        @router.put("/organisations/{identifier}/update-image")
+        async def update_organisation_logo(
+            identifier: str,
+            file: UploadFile = File(...),
+            name: str = Query(...),
+            session=Depends(get_session),
+        ):
+            org = session.exec(
+                select(Organisation).where(Organisation.identifier == identifier)
+            ).one_or_none()
+
+            if not org:
+                raise HTTPException(
+                    status_code=HTTPStatus.NOT_FOUND,
+                    detail=f"Organisation {identifier} not found in the database.",
+                )
+
+            existing_media = next((m for m in org.media if m.name == name), None)
+            if not existing_media:
+                raise HTTPException(
+                    status_code=HTTPStatus.NOT_FOUND,
+                    detail=f"No image with the name '{name}' found in the database.",
+                )
+
+            blob = await file.read()
+            if len(blob) > 1 * 1024 * 1024:
+                raise HTTPException(
+                    status_code=HTTPStatus.REQUEST_ENTITY_TOO_LARGE,
+                    detail="File too large (max 1MB)",
+                )
+
+            existing_media.image_blob = blob
+            existing_media.encoding_format = file.content_type
+            session.add(existing_media)
+            session.commit()
+
+            return None
