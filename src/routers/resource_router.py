@@ -280,12 +280,16 @@ class ResourceRouter(abc.ABC):
             except Exception as e:
                 raise as_http_exception(e)
 
+    def _add_image_bytes_to_resource(session, resource):
+        pass
+
     def get_resource(
         self,
         identifier: str,
         schema: str,
         user: KeycloakUser | None = None,
         platform: str | None = None,
+        get_image: bool = False,
     ):
         """
         Get the resource identified by AIoD identifier (if platform is None) or by platform AND
@@ -308,6 +312,10 @@ class ResourceRouter(abc.ABC):
                             status_code=HTTPStatus.FORBIDDEN,
                             detail="You are not allowed to view this resource.",
                         )
+
+                    if get_image:
+                        resource = self._add_image_bytes_to_resource(session, resource)
+
                 if schema != "aiod":
                     return self.schema_converters[schema].convert(session, resource)
                 return self.resource_class_read.from_orm(resource)
@@ -416,6 +424,12 @@ class ResourceRouter(abc.ABC):
 
         return get_resources
 
+    def _remove_image_bytes(self, resource):
+        if hasattr(resource, "media"):
+            for media_obj in resource.media:
+                if hasattr(media_obj, "image"):
+                    media_obj.image = None
+ 
     def get_resource_func(self):
         """
         Return a function that can be used to retrieve a single resource.
@@ -426,11 +440,15 @@ class ResourceRouter(abc.ABC):
         def get_resource(
             identifier: str,
             schema: self._possible_schemas_type = "aiod",  # type: ignore
+            get_image: bool = Query(False, description="Include image bytes in response"),
             user: KeycloakUser | None = Depends(get_user_or_none),
         ):
             resource = self.get_resource(
-                identifier=identifier, schema=schema, user=user, platform=None
+                identifier=identifier, schema=schema, user=user, platform=None, get_image=get_image
             )
+            if not get_image:
+                self._remove_image_bytes(resource)
+                
             return resource
 
         return get_resource
@@ -486,13 +504,16 @@ class ResourceRouter(abc.ABC):
 
         media_cls = organisation.__class__.media.property.mapper.class_
 
-        media = media_cls(image_blob=blob, name="Logo", encoding_format=image.content_type)
+        media = media_cls(
+            image_blob=blob, name="organisation logo", encoding_format=image.content_type
+        )
 
         organisation.media.append(media)
         return organisation, media
 
     def generate_example(self, model_cls: Type[BaseModel]) -> dict:
-        return model_cls.schema().get("example") or model_cls.schema().get("examples", {})
+        
+        return model_cls.schema()
 
     def register_resource_func(self):
         """
@@ -508,15 +529,16 @@ class ResourceRouter(abc.ABC):
                 data: str = Form(
                     ...,
                     openapi_extra={
-                        "description": "JSON-encoded ResourceCreate object",
-                        "examples": self.generate_example(clz_create),
+                        "schema": clz_create.schema(),
+                        "description": "JSON representation of the resource to create",
                     },
-                ),  # type: ignore
+    ),
                 image: Optional[UploadFile] = File(None),
                 user: KeycloakUser = Depends(get_user_or_raise),
             ):
                 try:
-                    resource_create = clz_create(**json.loads(data))
+                    # resource_create = clz_create(**json.loads(data))
+                    resource_create = clz_create.parse_raw(data)
                 except (json.JSONDecodeError, ValidationError) as e:
                     raise HTTPException(
                         status_code=HTTPStatus.BAD_REQUEST,
