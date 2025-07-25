@@ -116,6 +116,8 @@ def create_app() -> FastAPI:
 
 def build_app(*, url_prefix: str = "", version: str = "dev"):
     kwargs = dict(
+        docs_url=None,  # We override the default pages with custom html
+        redoc_url=None,
         description="This is the REST API documentation of the AIoD Metadata Catalogue. "
         "See also our general "
         '<a href="https://aiondemand.github.io/AIOD-rest-api/">metadata catalogue documentation</a>, '

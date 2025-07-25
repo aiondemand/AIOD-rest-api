@@ -3,6 +3,7 @@ import logging
 
 from fastapi import FastAPI
 from starlette.requests import Request
+from fastapi.openapi.docs import get_swagger_ui_html, get_redoc_html
 
 logger = logging.getLogger(__file__)
 
@@ -86,6 +87,26 @@ def add_version_to_openapi(versioned_api):
 
     versioned_api._openapi = versioned_api.openapi
     versioned_api.openapi = custom_openapi
+
+    def overridden_swagger():
+        html = get_swagger_ui_html(
+            openapi_url="/openapi.json",
+            title="AI-on-Demand REST API",
+            swagger_favicon_url="https://aiod.eu/wp-content/themes/aiod-v2/assets/img/favicon-192x192.png",
+        )
+        return html
+
+    versioned_api.get("/docs", include_in_schema=False)(overridden_swagger)
+
+    def overridden_redoc():
+        html = get_redoc_html(
+            openapi_url="/openapi.json",
+            title="AI-on-Demand REST API",
+            redoc_favicon_url="https://aiod.eu/wp-content/themes/aiod-v2/assets/img/favicon-192x192.png",
+        )
+        return html
+
+    versioned_api.get("/redoc", include_in_schema=False)(overridden_redoc)
 
 
 versions: dict[str, dict] = {
