@@ -290,16 +290,15 @@ class ResourceRouter(abc.ABC):
                 resource: Any = self._retrieve_resource_and_post_process(
                     session, identifier, user, platform=platform
                 )
-                
+
                 # Remove images if not requested
                 if not get_image and hasattr(resource, "media") and resource.media:
                     for media_obj in resource.media:
                         media_obj.image_blob = None
-                        
+
                 if get_image:
                     resource = self._add_image_bytes_to_resource(session, resource)
 
-                
                 if resource.aiod_entry.status != EntryStatus.PUBLISHED:
                     if user is None:
                         raise HTTPException(
@@ -420,7 +419,7 @@ class ResourceRouter(abc.ABC):
             return resources
 
         return get_resources
-                    
+
     def _add_image_bytes_to_resource(self, session: Session, resource: AIoDConcept):
         """
         Attach image_blob bytes as base64 encoded image from the resource's media.
@@ -432,7 +431,7 @@ class ResourceRouter(abc.ABC):
                 else:
                     media_obj.image_blob = None
         return resource
-    
+
     def get_resource_func(self):
         """
         Return a function that can be used to retrieve a single resource.
@@ -449,7 +448,7 @@ class ResourceRouter(abc.ABC):
             resource = self.get_resource(
                 identifier=identifier, schema=schema, user=user, platform=None, get_image=get_image
             )
-                
+
             return resource
 
         return get_resource
@@ -484,36 +483,7 @@ class ResourceRouter(abc.ABC):
 
         return get_resource
 
-    async def save_media_to_organisation(self, organisation, image: UploadFile):
-        """
-        Saves a media file (e.g., logo) to an Organisation instance.
-
-        Parameters:
-            session: SQLModel database session.
-            organisation: An instance of the Organisation model.
-            file (UploadFile): The uploaded file.
-        """
-        blob = await image.read()
-
-        # Limit file size to 1MB
-        max_size = 1 * 1024 * 1024  # 1 MB
-        if len(blob) > max_size:
-            raise HTTPException(
-                status_code=HTTPStatus.REQUEST_ENTITY_TOO_LARGE,
-                detail=f"File too large (max {max_size // 1024}KB)",
-            )
-
-        media_cls = organisation.__class__.media.property.mapper.class_
-
-        media = media_cls(
-            image_blob=blob, name="organisation logo", encoding_format=image.content_type
-        )
-
-        organisation.media.append(media)
-        return organisation, media
-
     def generate_example(self, model_cls: Type[BaseModel]) -> dict:
-        
         return model_cls.schema()
 
     def register_resource_func(self):
@@ -523,7 +493,7 @@ class ResourceRouter(abc.ABC):
         docstring is dynamic and used in Swagger.
         """
         clz_create = self.resource_class_create
-        
+
         def register_resource(
             resource_create: clz_create,  # type: ignore
             user: KeycloakUser = Depends(get_user_or_raise),
