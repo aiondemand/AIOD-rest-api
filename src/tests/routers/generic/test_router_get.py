@@ -9,7 +9,7 @@ from tests.testutils.test_resource import factory_test_resource
 
 
 def test_get_happy_path(client_test_resource: TestClient, engine_test_resource_filled: str):
-    response = client_test_resource.get(f"/test_resources/v0/{engine_test_resource_filled}")
+    response = client_test_resource.get(f"/test_resources/{engine_test_resource_filled}")
     assert response.status_code == HTTPStatus.OK, response.json()
     response_json = response.json()
 
@@ -19,26 +19,26 @@ def test_get_happy_path(client_test_resource: TestClient, engine_test_resource_f
 
 
 def test_not_found(client_test_resource: TestClient, engine_test_resource_filled: str):
-    response = client_test_resource.get("/test_resources/v0/99")
+    response = client_test_resource.get("/test_resources/99")
     assert response.status_code == HTTPStatus.NOT_FOUND, response.json()
     assert response.json()["detail"] == "Test_resource '99' not found in the database."
 
 
 def test_get_draft_unauthenticated_not_allowed(client_test_resource: TestClient):
     identifier = register_asset(factory_test_resource(), owner=ALICE, status=EntryStatus.DRAFT)
-    response = client_test_resource.get(f"/test_resources/v0/{identifier}")
+    response = client_test_resource.get(f"/test_resources/{identifier}")
     assert response.status_code == HTTPStatus.UNAUTHORIZED
 
 
 def test_get_draft_no_permission_not_allowed(client_test_resource: TestClient):
     identifier = register_asset(factory_test_resource(), owner=ALICE, status=EntryStatus.DRAFT)
     with logged_in_user():
-        response = client_test_resource.get(f"/test_resources/v0/{identifier}", headers={"Authorization": "fake-token"})
+        response = client_test_resource.get(f"/test_resources/{identifier}", headers={"Authorization": "fake-token"})
     assert response.status_code == HTTPStatus.FORBIDDEN
 
 
 def test_get_draft_with_permission_is_allowed(client_test_resource: TestClient):
     identifier = register_asset(factory_test_resource(), owner=ALICE, status=EntryStatus.DRAFT)
     with logged_in_user(ALICE):
-        response = client_test_resource.get(f"/test_resources/v0/{identifier}", headers={"Authorization": "fake-token"})
+        response = client_test_resource.get(f"/test_resources/{identifier}", headers={"Authorization": "fake-token"})
     assert response.status_code == HTTPStatus.OK

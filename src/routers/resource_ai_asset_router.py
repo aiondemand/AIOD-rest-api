@@ -10,7 +10,6 @@ from .resource_router import ResourceRouter
 
 class ResourceAIAssetRouter(ResourceRouter):
     def create(self, url_prefix: str) -> APIRouter:
-        version = "v1"
         default_kwargs = {
             "response_model_exclude_none": True,
             "deprecated": False,
@@ -20,7 +19,6 @@ class ResourceAIAssetRouter(ResourceRouter):
         router = super().create(url_prefix)
 
         for path in [
-            f"{url_prefix}/{self.resource_name_plural}/{version}/{{identifier}}/content",
             f"{url_prefix}/v2/{self.resource_name_plural}/{{identifier}}/content",
             f"{url_prefix}/{self.resource_name_plural}/{{identifier}}/content",
         ]:
@@ -35,7 +33,6 @@ class ResourceAIAssetRouter(ResourceRouter):
             )
 
         for path in [
-            f"{url_prefix}/{self.resource_name_plural}/{version}/{{identifier}}/content/{{distribution_idx}}",
             f"{url_prefix}/v2/{self.resource_name_plural}/{{identifier}}/content/{{distribution_idx}}",
             f"{url_prefix}/{self.resource_name_plural}/{{identifier}}/content/{{distribution_idx}}",
         ]:

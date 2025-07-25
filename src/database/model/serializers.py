@@ -301,7 +301,7 @@ def deserialize_resource_relationships(
                 session.add(relation)
                 session.flush()
                 new_value = relation
-            if relationship.deserializer is not None:
+            elif new_value is not None and relationship.deserializer is not None:
                 new_value = relationship.deserializer.deserialize(session, new_value, user)
             setattr(resource, relationship.attribute(attribute), new_value)
             continue

@@ -9,7 +9,7 @@ from database.model.knowledge_asset.publication import Publication
 from database.session import DbSession
 from tests.testutils.test_resource import factory_test_resource
 from tests.testutils.users import register_asset
-
+from database.model.concept.aiod_entry import EntryStatus, AIoDEntryORM
 
 def test_get_count_happy_path(client_test_resource: TestClient):
     with DbSession() as session:
@@ -60,7 +60,6 @@ def test_get_count_detailed_happy_path(client_test_resource: TestClient):
     assert response_json == {"aiod": 1, "example": 2, "openml": 1}
     assert "deprecated" not in response.headers
 
-from database.model.concept.aiod_entry import EntryStatus, AIoDEntryORM
 # default platfrom is "aiod"
 def test_get_count_total(
     client: TestClient,

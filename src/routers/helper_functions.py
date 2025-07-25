@@ -1,6 +1,7 @@
 import routers
 from database.model.concept.concept import AIoDConcept
 from database.model.helper_functions import non_abstract_subclasses
+from functools import cache
 
 
 def get_all_read_classes() -> dict[str, AIoDConcept]:
@@ -22,3 +23,12 @@ def get_all_asset_schemas():
     return [
         {"$ref": f"#/components/schemas/{clz.__name__}"} for clz in get_all_read_classes().values()
     ]
+
+
+@cache
+def get_asset_type_by_abbreviation() -> dict[str, type[AIoDConcept]]:
+    return {
+        cls.__abbreviation__: cls
+        for cls in non_abstract_subclasses(AIoDConcept)
+        if hasattr(cls, "__abbreviation__")
+    }

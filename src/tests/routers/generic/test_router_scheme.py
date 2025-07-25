@@ -54,7 +54,7 @@ def test_resources_aiod(
 ):
 
     for client in [client_test_resource_other_schema, client_test_resource]:
-        response = client.get("/test_resources/v0" + schema_string)
+        response = client.get("/test_resources" + schema_string)
         assert response.status_code == 200, response.json()
         json_ = response.json()
         assert len(json_) == 1
@@ -70,7 +70,7 @@ def test_resource_aiod(
     schema_string: str,
 ):
     for client in [client_test_resource_other_schema, client_test_resource]:
-        response = client.get(f"/test_resources/v0/{engine_test_resource_filled}" + schema_string)
+        response = client.get(f"/test_resources/{engine_test_resource_filled}" + schema_string)
         assert response.status_code == 200, response.json()
         json_ = response.json()
         assert json_["title"] == "A title"
@@ -79,7 +79,7 @@ def test_resource_aiod(
 
 @pytest.mark.parametrize("url_part", ["?schema=other-schema", "/1?schema=other-schema"])
 def test_aiod_only_other_schema(client_test_resource: TestClient, url_part: str):
-    response = client_test_resource.get("/test_resources/v0" + url_part)
+    response = client_test_resource.get("/test_resources" + url_part)
     assert response.status_code == 422, response.json()
     assert response.json()["detail"][0]["msg"] == "unexpected value; permitted: 'aiod'"
 
@@ -87,7 +87,7 @@ def test_aiod_only_other_schema(client_test_resource: TestClient, url_part: str)
 def test_resources_other_schema(
     client_test_resource_other_schema: TestClient, engine_test_resource_filled: Engine
 ):
-    response = client_test_resource_other_schema.get("/test_resources/v0?schema=other-schema")
+    response = client_test_resource_other_schema.get("/test_resources?schema=other-schema")
     assert response.status_code == 200, response.json()
     json_ = response.json()
     assert len(json_) == 1
@@ -98,7 +98,7 @@ def test_resources_other_schema(
 def test_resource_other_schema(
     client_test_resource_other_schema: TestClient, engine_test_resource_filled: Engine
 ):
-    response = client_test_resource_other_schema.get(f"/test_resources/v0/{engine_test_resource_filled}?schema=other-schema")
+    response = client_test_resource_other_schema.get(f"/test_resources/{engine_test_resource_filled}?schema=other-schema")
     assert response.status_code == 200, response.json()
     json_ = response.json()
     assert json_["title_with_alternative_name"] == "A title"
@@ -106,7 +106,7 @@ def test_resource_other_schema(
 
 
 @pytest.mark.parametrize(
-    "url", ["/test_resources/v0?schema=nonexistent", "/test_resources/v0/1?schema=nonexistent"]
+    "url", ["/test_resources?schema=nonexistent", "/test_resources/1?schema=nonexistent"]
 )
 def test_nonexistent_schema(client_test_resource_other_schema: TestClient, url: str):
     response = client_test_resource_other_schema.get(url)

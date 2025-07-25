@@ -29,26 +29,31 @@ from database.model.knowledge_asset.PublicationType import PublicationType
 from database.model.news.news_category import NewsCategory
 from tests.testutils.test_resource import RouterTestResource, factory_test_resource
 from tests.testutils.users import bypass_reviewer_publish_everything
-from taxonomies.synchronize_taxonomy import synchronize as synchronize_taxonomy, Term
+from taxonomies.synchronize_taxonomy import Term
 
 DEFAULT_TEST_RESOURCE_IDENTIFIER = "test_KwfnsoJOAejyRdv2PaXUPAbW"
-DEFAULT_APPLICATION_AREAS = [
-    Term("voice assistance", "for use in tests", children=[])
-]
 DEFAULT_INDUSTRIAL_SECTORS = [
-    Term("ecommerce", "for use in tests", children=[])
+    Term("ecommerce", "for use in tests", children=[]),
+    Term("Pharmaceuticals", "for use in tests", children=[]),
+    Term("Computer Programming", "for use in tests", children=[]),
+    Term("Cybersecurity", "for use in tests", children=[]),
 ]
 DEFAULT_RESEARCH_AREAS = [
-    Term("explainable ai", "for use in tests", children=[])
+    Term("explainable ai", "for use in tests", children=[]),
+    Term("ai services", "for use in tests", children=[]),
+    Term("multi-agent systems", "for use in tests", children=[]),
 ]
 DEFAULT_SCIENTIFIC_DOMAINS = [
-    Term("voice recognition", "for use in tests", children=[])
+    Term("voice recognition", "for use in tests", children=[]),
+    Term("mathematics", "for use in tests", children=[]),
+    Term("computer and information sciences", "for use in tests", children=[]),
 ]
 DEFAULT_PUBLICATION_TYPE = [
     Term("article", "for use in tests", children=[]),
     Term("journal", "publication in a journal", children=[])
 ]
 DEFAULT_NEWS_CATEGORY = [
+    Term("Education", "for use in tests", children=[]),
     Term("research: education", "for use in tests", children=[]),
     Term("research: awards", "for use in tests", children=[]),
     Term("business: health", "for use in tests", children=[]),
@@ -120,7 +125,11 @@ def clear_db(request, engine: Engine):
     with engine.connect() as connection:
         transaction = connection.begin()
         for table in reversed(SQLModel.metadata.sorted_tables):
-            connection.execute(table.delete())
+            try:
+                connection.execute(table.delete())
+            except Exception as e:
+                print(f"Error while clearing table {table.name}: {e}")
+                raise
         transaction.commit()
 
 
@@ -141,11 +150,7 @@ def client(request, engine: Engine) -> TestClient:
     Create a TestClient that can be used to mock sending requests to our application
     """
     app = build_app(version="unittest")
-    if request.param != "v1":
-        yield TestClient(app, base_url=f"http://localhost/{request.param}")
-    else:
-        # v1 still has a deviating versioning schema, can remove with sunset release
-        yield TestClient(app, base_url=f"http://localhost/")
+    yield TestClient(app, base_url=f"http://localhost/{request.param}")
 
 
 # *NEVER* broaden the scope of this fixture, bypassing reviews should be on a test-by-test basis

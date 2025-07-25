@@ -17,7 +17,6 @@ from routers.helper_functions import get_all_read_classes
 
 def create(url_prefix: str) -> APIRouter:
     router = APIRouter()
-    version = "v1"
 
     # We define a custom response class here to ensure all the asset
     # types are included, and the (schema) documentation is generated.
@@ -31,7 +30,6 @@ def create(url_prefix: str) -> APIRouter:
         },
     )
     for path in [
-        f"{url_prefix}/user/resources/{version}",
         f"{url_prefix}/v2/user/resources",
         f"{url_prefix}/user/resources",
     ]:

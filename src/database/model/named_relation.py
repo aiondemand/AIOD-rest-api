@@ -69,13 +69,17 @@ def create_taxonomy(class_name: str, table_name: str) -> type[Taxonomy]:
             int | None,
             Field(foreign_key=f"{table_name}.identifier", default=None, nullable=True),
         ),
+        parent=(
+            ForwardRef(class_name) | None,
+            Relationship(
+                back_populates="children",
+                sa_relationship_kwargs=dict(remote_side=f"{class_name}.identifier"),
+            ),
+        ),
         children=(
             List[ForwardRef(class_name)],  # type: ignore
             Relationship(
-                sa_relationship_kwargs=dict(
-                    cascade="all",
-                    backref=backref("parent", remote_side=f"{class_name}.identifier"),
-                )
+                back_populates="parent",
             ),
         ),
     )

@@ -104,11 +104,17 @@ def synchronize(
             term_object.official = True
             term_object.children = synchronized_children
             return term_object
+
         if term.name not in added_terms:
             logging.info(f"Adding new term {term.name!r}")
+            if term.parent is not None and (
+                parent := db_definitions.get(term.parent.name.casefold())
+            ):
+                term.parent = parent
             added_terms[term.name] = term
             session.add(term)
             return term
+
         logging.warning(f"Term {term.name!r} defined more than once!")
         return added_terms[term.name]
 

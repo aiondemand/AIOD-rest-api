@@ -40,6 +40,7 @@ from routers import (
     search_routers,
     review_router,
     user_router,
+    bookmark_router,
 )
 from setup_logger import setup_logger
 
@@ -62,7 +63,7 @@ def add_routes(app: FastAPI, url_prefix=""):
         </html>
         """
 
-    for path in ["/v2/{endpoint}", "/{endpoint}", "/{endpoint}/v1"]:
+    for path in ["/v2/{endpoint}", "/{endpoint}"]:
 
         @app.get(url_prefix + path.format(endpoint="authorization_test"))
         def test_authorization(user: KeycloakUser = Depends(get_user_or_raise)) -> KeycloakUser:
@@ -85,7 +86,7 @@ def add_routes(app: FastAPI, url_prefix=""):
         + parent_routers.router_list
         + enum_routers.router_list
         + search_routers.router_list
-        + [review_router, user_router]
+        + [review_router, user_router, bookmark_router]
     ):
         app.include_router(router.create(url_prefix))
 

@@ -13,6 +13,7 @@ from typing import Any, Optional
 from sqlalchemy import ForeignKey
 from sqlmodel import Field, Relationship
 
+from config import CONFIG
 from database.model.agent.contact import Contact
 from database.model.ai_asset.distribution import Distribution, distribution_factory
 from database.model.ai_resource.alternate_name import AlternateName
@@ -160,26 +161,29 @@ class AIResource(AIResourceBase, AIoDConcept, metaclass=abc.ABCMeta):
             default_factory_pydantic=list,
         )
         industrial_sector: list[str] = ManyToMany(
-            description="A business domain where a resource is or can be used.",
+            description="A business domain where a resource is or can be used,"
+            f'see <a href="{CONFIG.get("domain")}docs#/Taxonomies/industrial_sector_industrial_sectors_get">Industrial Sector</a> for more information.',  # noqa: E501
             _serializer=AttributeSerializer("name"),
             deserializer=FindByNameDeserializerList(IndustrialSector),
-            example=["Finance", "eCommerce", "Healthcare"],
+            example=["Pharmaceuticals", "Computer Programming", "Cybersecurity"],
             default_factory_pydantic=list,
         )
         research_area: list[str] = ManyToMany(
-            description="The research area is similar to the scientific_domain, but more "
-            "high-level.",
+            description="Research Areas related to the asset. See "
+            f'<a href="{CONFIG.get("domain")}docs#/Taxonomies/research_area_research_areas_get">Research Areas</a> '  # noqa: E501
+            "for more information.",
             _serializer=AttributeSerializer("name"),
             deserializer=FindByNameDeserializerList(ResearchArea),
-            example=["Explainable AI", "Physical AI"],
+            example=["AI Services", "Multi-agent Systems"],
             default_factory_pydantic=list,
         )
         scientific_domain: list[str] = ManyToMany(
-            description="The scientific domain is related to the methods with which an objective "
-            "is reached.",
+            description="The methods with which an objective is reached. See "
+            f'<a href="{CONFIG.get("domain")}docs#/Taxonomies/scientific_domain_scientific_domains_get">Scientific Domains</a> '  # noqa: E501
+            "for more information.",
             _serializer=AttributeSerializer("name"),
             deserializer=FindByNameDeserializerList(ScientificDomain),
-            example=["Anomaly Detection", "Voice Recognition", "Computer Vision."],
+            example=["Computer and Information Sciences", "Mathematics"],
             default_factory_pydantic=list,
         )
         # TODO(jos): documentedIn - KnowledgeAsset. This should probably be defined on ResourceTable

@@ -169,7 +169,7 @@ def client_with_testobject(test_objects: list[TestObject]) -> TestClient:
 
 def test_get_happy_path(test_objects: list[TestObject], client_with_testobject: TestClient):
     identifier = test_objects[0].identifier
-    response = client_with_testobject.get(f"/test_resources/v0/{identifier}")
+    response = client_with_testobject.get(f"/test_resources/{identifier}")
     assert response.status_code == 200, response.json()
     response_json = response.json()
 
@@ -181,7 +181,7 @@ def test_get_happy_path(test_objects: list[TestObject], client_with_testobject: 
 
 
 def test_get_all_happy_path(client_with_testobject: TestClient):
-    response = client_with_testobject.get("/test_resources/v0")
+    response = client_with_testobject.get("/test_resources")
     assert response.status_code == 200, response.json()
     response_json = response.json()
     assert "deprecated" not in response.headers
@@ -200,7 +200,7 @@ def test_get_all_happy_path(client_with_testobject: TestClient):
 def test_post_happy_path(client_with_testobject: TestClient, auto_publish: None):
     with logged_in_user():
         response = client_with_testobject.post(
-            "/test_resources/v0",
+            "/test_resources",
             json={
                 "title": "title",
                 "named_string": "named_string1",
@@ -213,7 +213,7 @@ def test_post_happy_path(client_with_testobject: TestClient, auto_publish: None)
             headers={"Authorization": "Fake token"},
         )
     assert response.status_code == 200, response.json()
-    objects = client_with_testobject.get("/test_resources/v0").json()
+    objects = client_with_testobject.get("/test_resources").json()
     obj = objects[-1]
     assert obj["title"] == "title"
     assert obj["named_string"] == "named_string1"
@@ -231,7 +231,7 @@ def test_put_happy_path(test_objects: list[TestObject], client_with_testobject: 
     identifier = test_objects[3].identifier
     with logged_in_user(kc_user_with_roles("update_test_resources")):
         response = client_with_testobject.put(
-            f"/test_resources/v0/{identifier}",
+            f"/test_resources/{identifier}",
             json={
                 "title": "new title",
                 "named_string": "new_string",
@@ -244,7 +244,7 @@ def test_put_happy_path(test_objects: list[TestObject], client_with_testobject: 
             headers={"Authorization": "Fake token"},
         )
     assert response.status_code == 200, response.json()
-    changed_resource = client_with_testobject.get(f"/test_resources/v0/{identifier}").json()
+    changed_resource = client_with_testobject.get(f"/test_resources/{identifier}").json()
     assert changed_resource["title"] == "new title"
     assert changed_resource["named_string"] == "new_string"
     assert sorted(changed_resource["named_string_list"]) == ["1", "4", "9"]

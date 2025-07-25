@@ -24,14 +24,13 @@ if TYPE_CHECKING:
 class ContactBase(AIoDConceptBase):
     name: str | None = Field(
         max_length=NORMAL,
-        schema_extra={
-            "example": "The name of this contact, especially useful if "
-            "it is not known whether this contact is a person "
-            "or organisation. For persons, it is preferred to "
-            "store this information as contact.person.surname "
-            "and contact.person.firstname. For organisations, "
-            "store it as contact.organisation.legal_name."
-        },
+        description="The name of this contact, especially useful if "
+        "it is not known whether this contact is a person "
+        "or organisation. For persons, it is preferred to "
+        "store this information as contact.person.surname "
+        "and contact.person.firstname. For organisations, "
+        "store it as contact.organisation.legal_name.",
+        schema_extra={"example": "Ada Lovelace"},
     )
 
 

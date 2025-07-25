@@ -84,7 +84,6 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
         indexed_fields: TypeAlias = Literal[tuple(self.indexed_fields)]  # type: ignore
 
         for path in [
-            f"{url_prefix}/search/{self.resource_name_plural}/v1",
             f"{url_prefix}/v2/search/{self.resource_name_plural}",
             f"{url_prefix}/search/{self.resource_name_plural}",
         ]:

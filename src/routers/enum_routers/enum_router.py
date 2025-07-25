@@ -23,14 +23,12 @@ class EnumRouter(abc.ABC):
 
     def create(self, url_prefix: str) -> APIRouter:
         router = APIRouter()
-        version = "v1"
         default_kwargs = {
             "response_model_exclude_none": True,
             "tags": ["enums"],
         }
 
         for path in [
-            url_prefix + f"/{self.resource_name_plural}/{version}",
             url_prefix + f"/v2/{self.resource_name_plural}",
             url_prefix + f"/{self.resource_name_plural}",
         ]:

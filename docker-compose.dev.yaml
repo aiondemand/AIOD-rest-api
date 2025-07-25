@@ -53,3 +53,8 @@ services:
   es_logstash_setup:
     volumes:
       - ./src:/app:ro
+
+  taxonomy:
+    stdin_open: true
+    volumes:
+       - ./src:/app:ro

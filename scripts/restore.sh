@@ -14,6 +14,8 @@ if [ "$ENV_MODE" != "testing" ]; then
 
     cd $SCRIPT_DIR/..
     source .env
+    [ ! -f override.env ] && touch override.env
+    source override.env
 fi
 
 DESTINATION_PATH=$(realpath "$DATA_PATH")

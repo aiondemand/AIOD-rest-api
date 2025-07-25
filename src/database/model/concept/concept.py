@@ -25,21 +25,30 @@ class AIoDConceptBase(SQLModel):
     platform: str | None = Field(
         max_length=SHORT,
         default=None,
-        description="The external platform from which this resource originates. Leave empty if "
-        "this item originates from AIoD. If platform is not None, the "
-        "platform_resource_identifier should be set as well.",
-        schema_extra={"example": PlatformName.example},
+        schema_extra=dict(examples=[None, "aiod", "huggingface", "zenodo"]),
+        description="The platform from which this resource originates. "
+        "Defaults to `aiod` for assets registered directly on AI-on-Demand. "
+        "This field should only be set by connectors, "
+        "leave empty for users submitting assets. "
+        "If platform is not None, `platform_resource_identifier` should also be set.",
         foreign_key="platform.name",
     )
 
     platform_resource_identifier: str | None = Field(
         max_length=NORMAL,
-        description="A unique identifier issued by the external platform that's specified in "
-        "'platform'. Leave empty if this item is not part of an external platform. For example, "
-        "for HuggingFace, this should be the <namespace>/<dataset_name>, and for Openml, the "
-        "OpenML identifier.",
         default=None,
-        schema_extra={"example": "1"},
+        schema_extra=dict(
+            examples=[
+                None,
+                "data_rPQvKrL8cgXhtL4HEHijXSiC",
+                "621ffdd236468d709f181d58",
+                "zenodo.org:10000008",
+            ]
+        ),
+        description="The identifier by which the external platform (from `platform`) identifies the asset. "
+        "Defaults to the asset identifier for assets registered directly on AIoD. "
+        "This field should only be set by connectors, "
+        "leave empty for users submitting assets. ",
     )
 
     @validator("platform_resource_identifier")
@@ -112,6 +121,7 @@ class AIoDConcept(AIoDConceptBase):
         aiod_entry: Optional[AIoDEntryRead] = OneToOne(
             deserializer=CastDeserializer(AIoDEntryORM),
             default_factory_pydantic=AIoDEntryCreate,
+            default_factory_orm=AIoDEntryORM,
             class_read=Optional[AIoDEntryRead],
             class_create=Optional[AIoDEntryCreate],
             on_delete_trigger_deletion_by="aiod_entry_identifier",
