@@ -122,15 +122,3 @@ def _update_model_serialization(resource_class: Type[SQLModel], resource_class_r
             }
         )
         resource_class_read.__config__.getter_dict = getter_dict
-
-
-def get_read_model_with_image(resource_class, image_field_name="image_bytes"):
-    base_read_model = resource_read(resource_class)
-
-    # Create a new model that extends base_read_model and adds image bytes as optional string
-    new_model = create_model(
-        f"{resource_class.__name__}ReadWithImage",
-        **{image_field_name: (Optional[str], None)},
-        __base__=base_read_model,
-    )
-    return new_model

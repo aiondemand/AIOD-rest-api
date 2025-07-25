@@ -36,12 +36,8 @@ from dependencies.filtering import ResourceFilters, ResourceFiltersParams
 from dependencies.pagination import Pagination, PaginationParams
 from error_handling import as_http_exception
 
-from fastapi import UploadFile, File, Form
-import json
-from starlette.status import HTTP_403_FORBIDDEN, HTTP_500_INTERNAL_SERVER_ERROR
-from typing import Optional
 from http import HTTPStatus
-from pydantic import ValidationError, BaseModel
+from pydantic import BaseModel
 import base64
 
 RESOURCE = TypeVar("RESOURCE", bound=AIResource)

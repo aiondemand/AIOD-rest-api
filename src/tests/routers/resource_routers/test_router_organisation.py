@@ -103,7 +103,7 @@ def test_ai_resource_contacts_field_is_ignored(
     assert response.json()["contacts"] == []
 
 @pytest.mark.skip()
-def test_image_post(
+def test_image_post_endpoint(
     client: TestClient,
     organisation: Organisation
     ):
