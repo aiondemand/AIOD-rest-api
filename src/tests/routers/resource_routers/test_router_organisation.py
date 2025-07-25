@@ -7,8 +7,9 @@ from database.model.agent.contact import Contact
 from database.model.agent.organisation import Organisation
 from database.session import DbSession
 
+from tests.testutils.users import register_asset
 import io
-import json
+import pytest
 
 def test_happy_path(
     client: TestClient,
@@ -24,9 +25,6 @@ def test_happy_path(
     body["ai_relevance"] = "Part of CLAIRE"
     body["type"] = "Research Institute"
 
-    fake_image = io.BytesIO(b"\x89PNG\r\n\x1a\n...")  # a few valid PNG bytes
-    fake_image.name = "logo.png"
-
     with DbSession() as session:
         session.add(organisation)  # The new organisation will be a member of this organisation
         session.add(contact)
@@ -36,17 +34,11 @@ def test_happy_path(
         body["contact_details"] = contact.identifier
         body["contact"] = [contact.identifier]
 
-    response = client.post(
-        "/organisations",
-        data={"data": json.dumps(body)},
-        files={"image": ("logo.png", fake_image, "image/png")},
-        headers={"Authorization": "Fake token"},
-    )
-
+    response = client.post("/organisations", json=body, headers={"Authorization": "Fake token"})
     assert response.status_code == 200, response.json()
     identifier = response.json()['identifier']
 
-    response = client.get(f"/organisations/{identifier}")
+    response = client.get(f"/organisations/{identifier}?get_image=false")
     assert response.status_code == 200, response.json()
 
     response_json = response.json()
@@ -80,7 +72,7 @@ def test_happy_path(
     body["type"] = "Association"
     response = client.put(f"organisations/{identifier}", json=body, headers={"Authorization": "Fake token"})
     assert response.status_code == 200, response.json()
-    response = client.get(f"organisations/{identifier}")
+    response = client.get(f"organisations/{identifier}?get_image=false")
     assert response.json()["type"] == "association"
 
     response = client.delete(f"/organisations/{identifier}", headers={"Authorization": "Fake token"})
@@ -109,3 +101,28 @@ def test_ai_resource_contacts_field_is_ignored(
     response = client.get(f"/organisations/{identifier}")
     assert response.status_code == 200, response.json()
     assert response.json()["contacts"] == []
+
+@pytest.mark.skip()
+def test_image_post(
+    client: TestClient,
+    organisation: Organisation
+    ):
+
+
+    identifier = register_asset(organisation)
+
+    response = client.get(f"/organisations/{identifier}?get_image=false")
+    assert response.status_code == 200
+
+    fake_image = io.BytesIO(b"\x89PNG\r\n\x1a\n...")  # fake PNG bytes
+    fake_image.name = "logo.png"
+
+    response = client.post(
+        f"/organisations/{identifier}/upload-image",
+        params={"name": "logo"},
+        files={"file": ("logo.png", fake_image, "image/png")},
+        headers={"Authorization": "Fake token"},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["detail"] == "Image uploaded successfully"

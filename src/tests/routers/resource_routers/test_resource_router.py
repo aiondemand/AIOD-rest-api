@@ -59,24 +59,9 @@ def test_happy_path_with_filters(
     expected_count: int,
     auto_publish: None,
 ):
-
-    if resource_type == "organisations":
-        response = client.post(
-            f"/{resource_type}",
-            data={"data": json.dumps(body_asset)},
-            files={"image": ("logo.png", io.BytesIO(b"image"), "image/png")},
-            headers={"Authorization": "Fake token"},
-        )
-    else:
-        response = client.post(
-            f"/{resource_type}",
-            json=body_asset,
-            headers={"Authorization": "Fake token"},
-        )
-
-    # response = client.post(
-    #     f"/{resource_type}", json=body_asset, headers={"Authorization": "Fake token"}
-    # )
+    response = client.post(
+        f"/{resource_type}", json=body_asset, headers={"Authorization": "Fake token"}
+    )
     assert response.status_code == 200, response.json()
 
     response = client.get(f"/{resource_type}", params=resource_filters)

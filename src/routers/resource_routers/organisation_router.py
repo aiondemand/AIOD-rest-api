@@ -5,7 +5,6 @@ from http import HTTPStatus
 from fastapi import APIRouter, Depends
 from sqlmodel import select
 from database.model.agent.organisation import Organisation
-from starlette.status import HTTP_404_NOT_FOUND, HTTP_413_REQUEST_ENTITY_TOO_LARGE
 from database.session import get_session
 
 
@@ -42,7 +41,9 @@ class OrganisationRouter(ResourceRouter):
                 raise HTTPException(
                     status_code=HTTPStatus.NOT_FOUND, detail="Organisation not found"
                 )
-
+            # Donot allow image upload with same name.
+            # However, we deliberately donot check if same image is being uploaded.
+            # At some point we should introduce limit on no of image uploaded.
             existing_media = next((m for m in org.media if m.name == name), None)
             if existing_media:
                 raise HTTPException(
@@ -66,4 +67,4 @@ class OrganisationRouter(ResourceRouter):
             session.add(org)
             session.commit()
 
-            return {"detail": "Logo uploaded successfully"}
+            return {"detail": "Image uploaded successfully"}
