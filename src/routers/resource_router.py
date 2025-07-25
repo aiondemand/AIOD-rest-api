@@ -251,6 +251,7 @@ class ResourceRouter(abc.ABC):
         resource_filters: ResourceFilters,
         user: KeycloakUser | None = None,
         platform: str | None = None,
+        get_image: bool = False,
     ):
         """Fetch all published resources of this platform in given schema, using pagination"""
         _raise_error_on_invalid_schema(self._possible_schemas, schema)
@@ -264,6 +265,15 @@ class ResourceRouter(abc.ABC):
                 resources: Any = self._retrieve_resources_and_post_process(
                     session, pagination, resource_filters, user, platform
                 )
+                for resource in resources:
+                    if not get_image and hasattr(resource, "media") and resource.media:
+                        for media_obj in resource.media:
+                            media_obj.image_blob = None
+
+                    # Add image blobs if requested
+                    if get_image:
+                        self._add_image_bytes_to_resource(session, resource)
+
                 return [convert_schema(resource) for resource in resources]
             except Exception as e:
                 raise as_http_exception(e)
@@ -325,6 +335,7 @@ class ResourceRouter(abc.ABC):
             pagination: PaginationParams,
             resource_filters: ResourceFiltersParams,
             schema: self._possible_schemas_type = "aiod",  # type:ignore
+            get_image: bool = Query(False, description="Include image bytes in response?"),
             user: KeycloakUser | None = Depends(get_user_or_none),
         ):
             resources = self.get_resources(
@@ -333,6 +344,7 @@ class ResourceRouter(abc.ABC):
                 resource_filters=resource_filters,
                 user=user,
                 platform=None,
+                get_image=False,
             )
             return resources
 

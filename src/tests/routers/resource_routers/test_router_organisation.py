@@ -126,3 +126,33 @@ def test_image_post_endpoint(
 
     assert response.status_code == 200
     assert response.json()["detail"] == "Image uploaded successfully"
+
+
+# def test_organisation_get_with_and_without_image(client: TestClient, organisation: Organisation):
+#     identifier = register_asset(organisation)
+
+
+#     response = client.get(f"/organisations/{identifier}?get_image=false")
+#     assert response.status_code == 200
+#     data = response.json()
+#     breakpoint()
+
+#     with DbSession() as session:
+#         identifier = register_asset(organisation)
+#         media_cls = organisation.__class__.media.property.mapper.class_
+#         image = media_cls(
+#             name="logo",
+#             encoding_format="image/png",
+#             image_blob=b"\x89PNG\r\n\x1a\n..."
+#         )
+#         organisation.media.append(image)
+#         session.add(organisation)
+#         session.commit()
+
+
+#     response = client.get(f"/organisations/{identifier}?get_image=true")
+#     assert response.status_code == 200
+#     data = response.json()
+#     assert "media" in data and isinstance(data["media"], list)
+#     assert data["media"][0]["name"] == "logo"
+#     assert data["media"][0]["encoding_format"] == "image/png"
