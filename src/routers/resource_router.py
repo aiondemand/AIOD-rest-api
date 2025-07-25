@@ -42,7 +42,7 @@ from starlette.status import HTTP_403_FORBIDDEN, HTTP_500_INTERNAL_SERVER_ERROR
 from typing import Optional
 from http import HTTPStatus
 from pydantic import ValidationError, BaseModel
-
+import base64
 
 RESOURCE = TypeVar("RESOURCE", bound=AIResource)
 RESOURCE_CREATE = TypeVar("RESOURCE_CREATE", bound=SQLModel)
@@ -243,8 +243,8 @@ class ResourceRouter(abc.ABC):
                     **default_kwargs,
                 )
 
-        # if hasattr(self, "add_custom_routes"):
-        #     self.add_custom_routes(router, url_prefix)
+        if hasattr(self, "add_custom_routes"):
+            self.add_custom_routes(router, url_prefix)
 
         return router
 
@@ -272,9 +272,6 @@ class ResourceRouter(abc.ABC):
             except Exception as e:
                 raise as_http_exception(e)
 
-    def _add_image_bytes_to_resource(session, resource):
-        pass
-
     def get_resource(
         self,
         identifier: str,
@@ -293,6 +290,16 @@ class ResourceRouter(abc.ABC):
                 resource: Any = self._retrieve_resource_and_post_process(
                     session, identifier, user, platform=platform
                 )
+                
+                # Remove images if not requested
+                if not get_image and hasattr(resource, "media") and resource.media:
+                    for media_obj in resource.media:
+                        media_obj.image_blob = None
+                        
+                if get_image:
+                    resource = self._add_image_bytes_to_resource(session, resource)
+
+                
                 if resource.aiod_entry.status != EntryStatus.PUBLISHED:
                     if user is None:
                         raise HTTPException(
@@ -305,11 +312,9 @@ class ResourceRouter(abc.ABC):
                             detail="You are not allowed to view this resource.",
                         )
 
-                    if get_image:
-                        resource = self._add_image_bytes_to_resource(session, resource)
-
                 if schema != "aiod":
                     return self.schema_converters[schema].convert(session, resource)
+                print(self.resource_class_read)
                 return self.resource_class_read.from_orm(resource)
         except Exception as e:
             raise as_http_exception(e)
@@ -415,13 +420,19 @@ class ResourceRouter(abc.ABC):
             return resources
 
         return get_resources
-
-    def _remove_image_bytes(self, resource):
-        if hasattr(resource, "media"):
+                    
+    def _add_image_bytes_to_resource(self, session: Session, resource: AIoDConcept):
+        """
+        Attach image_blob bytes as base64 encoded image from the resource's media.
+        """
+        if hasattr(resource, "media") and resource.media:
             for media_obj in resource.media:
-                if hasattr(media_obj, "image"):
-                    media_obj.image = None
- 
+                if media_obj.image_blob:
+                    media_obj.image_blob = base64.b64encode(media_obj.image_blob).decode("utf-8")
+                else:
+                    media_obj.image_blob = None
+        return resource
+    
     def get_resource_func(self):
         """
         Return a function that can be used to retrieve a single resource.
@@ -432,14 +443,12 @@ class ResourceRouter(abc.ABC):
         def get_resource(
             identifier: str,
             schema: self._possible_schemas_type = "aiod",  # type: ignore
-            get_image: bool = Query(False, description="Include image bytes in response"),
+            get_image: bool = Query(False, description="Include image bytes in response?"),
             user: KeycloakUser | None = Depends(get_user_or_none),
         ):
             resource = self.get_resource(
                 identifier=identifier, schema=schema, user=user, platform=None, get_image=get_image
             )
-            if not get_image:
-                self._remove_image_bytes(resource)
                 
             return resource
 
@@ -514,129 +523,53 @@ class ResourceRouter(abc.ABC):
         docstring is dynamic and used in Swagger.
         """
         clz_create = self.resource_class_create
-
-        if self.resource_class.__name__ == "Organisation":
-
-            async def register_organisation_resource(
-                data: str = Form(
-                    ...,
-                    openapi_extra={
-                        "schema": clz_create.schema(),
-                        "description": "JSON representation of the resource to create",
-                    },
-    ),
-                image: Optional[UploadFile] = File(None),
-                user: KeycloakUser = Depends(get_user_or_raise),
-            ):
-                try:
-                    # resource_create = clz_create(**json.loads(data))
-                    resource_create = clz_create.parse_raw(data)
-                except (json.JSONDecodeError, ValidationError) as e:
+        
+        def register_resource(
+            resource_create: clz_create,  # type: ignore
+            user: KeycloakUser = Depends(get_user_or_raise),
+        ):
+            platform = getattr(resource_create, "platform", None)
+            platform_resource_identifier = getattr(
+                resource_create, "platform_resource_identifier", None
+            )
+            if user.is_connector:
+                # Check if connector belongs to the specific platform it is registering the resource for.
+                if platform is None or not user.is_connector_for_platform(platform):
                     raise HTTPException(
-                        status_code=HTTPStatus.BAD_REQUEST,
-                        detail=f"Invalid data: {str(e)}",
+                        status_code=HTTPStatus.FORBIDDEN,
+                        detail=f"No permission to upload assets for {platform} platform.",
+                    )
+                if platform_resource_identifier is None:
+                    raise HTTPException(
+                        status_code=HTTPStatus.FORBIDDEN,
+                        detail=f"Platform resource identifier may not be none.",
                     )
 
-                platform = getattr(resource_create, "platform", None)
-                platform_resource_identifier = getattr(
-                    resource_create, "platform_resource_identifier", None
-                )
+            # Normal user: must NOT provide platform/platform_resource_identifier
+            else:
+                if platform is not None or platform_resource_identifier is not None:
+                    raise HTTPException(
+                        status_code=HTTPStatus.FORBIDDEN,
+                        detail="No permission to set platform or platform resource identifier.",
+                    )
 
-                if user.is_connector:
-                    # Check if connector belongs to the specific platform it is registering the resource for.
-                    if platform is None or not user.is_connector_for_platform(platform):
-                        raise HTTPException(
-                            status_code=HTTPStatus.FORBIDDEN,
-                            detail=f"No permission to upload assets for {platform} platform.",
+            try:
+                with DbSession() as session:
+                    try:
+                        resource = self.create_resource(session, resource_create, user)
+
+                        register_user(user, session)
+                        set_permission(
+                            user, resource.aiod_entry, session, type_=PermissionType.ADMIN
                         )
-                    if platform_resource_identifier is None:
-                        raise HTTPException(
-                            status_code=HTTPStatus.FORBIDDEN,
-                            detail=f"Platform resource identifier may not be none.",
-                        )
+                        session.commit()
+                        return {"identifier": resource.identifier}
+                    except Exception as e:
+                        self._raise_clean_http_exception(e, session, resource_create)
+            except Exception as e:
+                raise as_http_exception(e)
 
-                # Normal user: must NOT provide platform/platform_resource_identifier
-                else:
-                    if platform is not None or platform_resource_identifier is not None:
-                        raise HTTPException(
-                            status_code=HTTPStatus.FORBIDDEN,
-                            detail="No permission to set platform or platform resource identifier.",
-                        )
-
-                try:
-                    with DbSession() as session:
-                        try:
-                            resource = self.create_resource(session, resource_create, user)
-
-                            if hasattr(image, "read") and hasattr(image, "filename"):
-                                organisation, media = await self.save_media_to_organisation(
-                                    resource, image
-                                )
-                                session.add(organisation)
-                                session.add(media)
-                                # ToDo: Error if image of incorrect type.
-
-                            register_user(user, session)
-                            set_permission(
-                                user, resource.aiod_entry, session, type_=PermissionType.ADMIN
-                            )
-                            session.commit()
-                            return {"identifier": resource.identifier}
-                        except Exception as e:
-                            self._raise_clean_http_exception(e, session, resource_create)
-                except Exception as e:
-                    raise as_http_exception(e)
-
-            return register_organisation_resource
-
-        else:
-
-            def register_resource(
-                resource_create: clz_create,  # type: ignore
-                user: KeycloakUser = Depends(get_user_or_raise),
-            ):
-                platform = getattr(resource_create, "platform", None)
-                platform_resource_identifier = getattr(
-                    resource_create, "platform_resource_identifier", None
-                )
-                if user.is_connector:
-                    # Check if connector belongs to the specific platform it is registering the resource for.
-                    if platform is None or not user.is_connector_for_platform(platform):
-                        raise HTTPException(
-                            status_code=HTTPStatus.FORBIDDEN,
-                            detail=f"No permission to upload assets for {platform} platform.",
-                        )
-                    if platform_resource_identifier is None:
-                        raise HTTPException(
-                            status_code=HTTPStatus.FORBIDDEN,
-                            detail=f"Platform resource identifier may not be none.",
-                        )
-
-                # Normal user: must NOT provide platform/platform_resource_identifier
-                else:
-                    if platform is not None or platform_resource_identifier is not None:
-                        raise HTTPException(
-                            status_code=HTTPStatus.FORBIDDEN,
-                            detail="No permission to set platform or platform resource identifier.",
-                        )
-
-                try:
-                    with DbSession() as session:
-                        try:
-                            resource = self.create_resource(session, resource_create, user)
-
-                            register_user(user, session)
-                            set_permission(
-                                user, resource.aiod_entry, session, type_=PermissionType.ADMIN
-                            )
-                            session.commit()
-                            return {"identifier": resource.identifier}
-                        except Exception as e:
-                            self._raise_clean_http_exception(e, session, resource_create)
-                except Exception as e:
-                    raise as_http_exception(e)
-
-            return register_resource
+        return register_resource
 
     def create_resource(
         self,
@@ -791,6 +724,7 @@ class ResourceRouter(abc.ABC):
         platform: str | None = None,
         *,
         is_entry_identifier: bool = False,
+        include_image: bool = False,
     ) -> type[RESOURCE_MODEL]:
         """
         Retrieve a resource from the database based on the provided identifier

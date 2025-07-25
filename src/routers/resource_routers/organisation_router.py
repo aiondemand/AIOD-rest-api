@@ -24,3 +24,40 @@ class OrganisationRouter(ResourceRouter):
     @property
     def resource_class(self) -> type[Organisation]:
         return Organisation
+
+
+    def add_custom_routes(self, router: APIRouter, url_prefix: str):
+        @router.post(f"{url_prefix}/organisations/{{identifier}}/upload-image")
+        async def upload_organisation_logo(
+            identifier: str,
+            file: UploadFile = File(...),
+            session=Depends(get_session),
+        ):
+            org = session.exec(
+                select(Organisation).where(Organisation.identifier == identifier)
+            ).one_or_none()
+
+            if not org:
+                raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail="Organisation not found")
+
+            blob = await file.read()
+
+            if len(blob) > 1 * 1024 * 1024:
+                raise HTTPException(
+                    status_code=HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+                    detail="File too large (max 1MB)",
+                )
+
+            media_cls = org.__class__.media.property.mapper.class_
+
+            media = media_cls(
+                image_blob=blob,
+                name="Logo",
+                encoding_format=file.content_type
+            )
+            org.media.append(media)
+            session.add(media)
+            session.add(org)
+            session.commit()
+
+            return {"detail": "Logo uploaded successfully"}
