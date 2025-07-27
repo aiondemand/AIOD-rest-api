@@ -45,8 +45,9 @@ class OrganisationRouter(ResourceRouter):
                     detail=f"Organisation {identifier} not found in the database.",
                 )
             # Donot allow image upload with same name.
-            # However, we deliberately donot check if same image is being uploaded.
-            # At some point we should introduce limit on no of image uploaded.
+            # We do not check for identical image content (only name).
+            # Consider adding a limit on the number of uploaded images in the future.
+
             existing_media = next((m for m in org.media if m.name == name), None)
             if existing_media:
                 raise HTTPException(
