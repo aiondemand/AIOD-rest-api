@@ -26,8 +26,9 @@ class OrganisationRouter(ResourceRouter):
         return Organisation
 
     def add_custom_routes(self, router: APIRouter, url_prefix: str):
-        @router.post(f"{url_prefix}/organisations/{{identifier}}/upload-image",
-                     tags=["organisations"])
+        @router.post(
+            f"{url_prefix}/organisations/{{identifier}}/upload-image", tags=["organisations"]
+        )
         async def upload_organisation_logo(
             identifier: str,
             file: UploadFile = File(...),
@@ -71,8 +72,7 @@ class OrganisationRouter(ResourceRouter):
 
             return {"identifier": org.identifier}
 
-        @router.put("/organisations/{identifier}/update-image",
-                    tags=["organisations"])
+        @router.put("/organisations/{identifier}/update-image", tags=["organisations"])
         async def update_organisation_logo(
             identifier: str,
             file: UploadFile = File(...),
