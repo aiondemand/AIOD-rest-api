@@ -216,3 +216,40 @@ def test_organisation_image_put(
     )
 
     assert response.status_code == 200, response.json()
+
+def test_organisation_delete_image(
+    client: TestClient
+    ):
+
+    with logged_in_user():
+        response = client.post(
+            "/organisations",
+            json={"name": "Test Organisation"},
+            headers={"Authorization": "Fake token"},
+        )
+        assert response.status_code == 200
+        identifier = response.json()["identifier"]
+
+        image_data = io.BytesIO(b"\x89PNG\r\n\x1a\nFAKEIMAGE")
+        response = client.post(
+            f"/organisations/{identifier}/upload-image",
+            params={"name": "logo"},
+            files={"file": ("logo.png", image_data, "image/png")},
+            headers={"Authorization": "Fake token"},
+        )
+        assert response.status_code == 200, response.json()
+
+        response = client.delete(
+            f"/organisations/{identifier}/delete-image",
+            params={"name": "logo"},
+            headers={"Authorization": "Fake token"},
+        )
+        assert response.status_code == 200
+
+        second_delete_response = client.delete(
+            f"/organisations/{identifier}/delete-image",
+            params={"name": "logo"},
+            headers={"Authorization": "Fake token"},
+        )
+        assert second_delete_response.status_code == 404
+        assert "No image with the name" in second_delete_response.json()["detail"]

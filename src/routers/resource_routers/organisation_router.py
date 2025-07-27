@@ -109,3 +109,35 @@ class OrganisationRouter(ResourceRouter):
             session.commit()
 
             return None
+
+        @router.delete(
+            f"{url_prefix}/organisations/{{identifier}}/delete-image", tags=["organisations"]
+        )
+        async def delete_organisation_logo(
+            identifier: str,
+            name: str = Query(..., description="Name of the image to delete"),
+            session=Depends(get_session),
+        ):
+            org = session.exec(
+                select(Organisation).where(Organisation.identifier == identifier)
+            ).one_or_none()
+
+            if not org:
+                raise HTTPException(
+                    status_code=HTTPStatus.NOT_FOUND,
+                    detail=f"Organisation {identifier} not found in the database.",
+                )
+
+            existing_media = next((m for m in org.media if m.name == name), None)
+            if not existing_media:
+                raise HTTPException(
+                    status_code=HTTPStatus.NOT_FOUND,
+                    detail=f"No image with the name '{name}' found for this organisation.",
+                )
+
+            org.media.remove(existing_media)
+            session.delete(existing_media)
+            session.add(org)
+            session.commit()
+
+            return None
