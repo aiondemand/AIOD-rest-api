@@ -4,6 +4,7 @@ import logging
 from fastapi import FastAPI
 from starlette.requests import Request
 from fastapi.openapi.docs import get_swagger_ui_html, get_redoc_html
+from starlette.responses import HTMLResponse
 
 logger = logging.getLogger(__file__)
 
@@ -89,12 +90,21 @@ def add_version_to_openapi(versioned_api):
     versioned_api.openapi = custom_openapi
 
     def overridden_swagger():
-        html = get_swagger_ui_html(
+        html_response = get_swagger_ui_html(
             openapi_url="/openapi.json",
             title="AI-on-Demand REST API",
             swagger_favicon_url="https://aiod.eu/wp-content/themes/aiod-v2/assets/img/favicon-192x192.png",
         )
-        return html
+        html_str = html_response.body.decode()
+        start_of_swagger = html_str.find('<div id="swagger-ui">')
+        menu = generate_version_menu(
+            dict(v2="/v2/docs", v1="/v1/docs", latest="/"),
+            selected=versioned_api.version,
+        )
+        new_html = (html_str[:start_of_swagger] + menu + html_str[start_of_swagger:]).encode()
+        return HTMLResponse(
+            content=new_html,
+        )
 
     versioned_api.get("/docs", include_in_schema=False)(overridden_swagger)
 
@@ -107,6 +117,24 @@ def add_version_to_openapi(versioned_api):
         return html
 
     versioned_api.get("/redoc", include_in_schema=False)(overridden_redoc)
+
+
+def generate_version_menu(all_versions: dict[str, str], selected: str) -> str:
+    DARK_BLUE = "#0047BB"
+    LIGHT_BLUE = "#41B6E6"
+    button = '<a href={dest} style="background: {bg_color}; color: white; text-decoration: none; font-weight: bold; border-radius: 0.5em; padding: 10px 5px;">{alias}</a>'
+    buttons = []
+    for name, url in all_versions.items():
+        bg_color = LIGHT_BLUE if name == selected else DARK_BLUE
+        buttons.append(
+            button.format(
+                dest=url,
+                bg_color=bg_color,
+                alias=name,
+            )
+        )
+    menu_div = "".join(buttons)
+    return f'<div class="swagger-ui"><div class="wrapper">{menu_div}</div></div>'
 
 
 versions: dict[str, dict] = {
