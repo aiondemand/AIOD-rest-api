@@ -1,17 +1,33 @@
 import copy
+import logging
 import pathlib
 import tomllib
-from typing import Any
+from collections import deque
+from typing import Any, Sequence
 
-with open(pathlib.Path(__file__).parent / "config.default.toml", "rb") as fh:
+
+# The logger isn't yet configured when we load our configuration,
+# since the configuration includes our log settings. Instead, we
+# keep track of what we want to log so it can be logged later.
+_log_lines: deque[tuple[int, str]] = deque()
+logger = logging.getLogger(__file__)
+
+default_config_path = pathlib.Path(__file__).parent / "config.default.toml"
+with open(default_config_path, "rb") as fh:
     DEFAULT_CONFIG = tomllib.load(fh)
+    _log_lines.append((logging.INFO, f"Loaded default configuration from {default_config_path}"))
+    logger.info("Actually Foo")
 
 OVERRIDE_CONFIG_PATH = pathlib.Path(__file__).parent / "config.override.toml"
 if OVERRIDE_CONFIG_PATH.exists() and OVERRIDE_CONFIG_PATH.is_file():
     with open(OVERRIDE_CONFIG_PATH, "rb") as fh:
         OVERRIDE_CONFIG = tomllib.load(fh)
+        _log_lines.append(
+            (logging.INFO, f"Loaded configuration overrides from {OVERRIDE_CONFIG_PATH}")
+        )
 else:
     OVERRIDE_CONFIG = {}
+    _log_lines.append((logging.INFO, f"No custom overrides detected in {OVERRIDE_CONFIG_PATH}"))
 
 
 def _merge_configurations(
@@ -27,6 +43,28 @@ def _merge_configurations(
         else:
             merged[key] = value
     return merged
+
+
+def _mask_configuration(
+    configuration: dict[str, Any], to_mask: Sequence[str] | None = None
+) -> dict[str, Any]:
+    if to_mask is None:
+        to_mask = ["password"]
+    masked = copy.copy(configuration)
+    for key, value in configuration.items():
+        if key in to_mask:
+            masked[key] = "****"
+        elif isinstance(value, dict):
+            masked[key] = _mask_configuration(value, to_mask)
+    return masked
+
+
+def log_configuration():
+    """Logs stacked log lines and then outputs the current configuration."""
+    while _log_lines:
+        level, message = _log_lines.popleft()
+        logger.log(level, message)
+    logger.info(f"Starting with merged configuration: {_mask_configuration(CONFIG)}")
 
 
 CONFIG = _merge_configurations(DEFAULT_CONFIG, OVERRIDE_CONFIG)

@@ -27,6 +27,7 @@ from database.model.platform.platform import Platform
 from database.model.platform.platform_names import PlatformName
 from database.session import EngineSingleton, DbSession
 from database.setup import create_database, database_exists
+from setup_logger import setup_logger
 from taxonomies.synchronize_taxonomy import synchronize_taxonomy_from_file
 from triggers import disable_review_process, enable_review_process
 from error_handling import http_exception_handler
@@ -39,7 +40,6 @@ from routers import (
     user_router,
     bookmark_router,
 )
-from setup_logger import setup_logger
 from versioning import versions, add_version_to_openapi, add_deprecation_and_sunset_middleware
 
 
@@ -132,7 +132,6 @@ def build_app(*, url_prefix: str = "", version: str = "dev"):
             "scopes": KEYCLOAK_CONFIG.get("scopes"),
         },
     )
-
     main_app = FastAPI(title="AI-on-Demand Metadata Catalogue REST API", version="latest", **kwargs)
     add_routes(main_app)
     main_app.add_exception_handler(HTTPException, http_exception_handler)
