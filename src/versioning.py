@@ -114,6 +114,8 @@ def add_version_to_openapi(versioned_api: FastAPI, root_path: str = ""):
             openapi_url=f"{root_path}{version_prefix}/openapi.json",
             title="AI-on-Demand REST API",
             swagger_favicon_url="https://aiod.eu/wp-content/themes/aiod-v2/assets/img/favicon-192x192.png",
+            oauth2_redirect_url=versioned_api.swagger_ui_oauth2_redirect_url,
+            init_oauth=versioned_api.swagger_ui_init_oauth,
         )
         html_str = html_response.body.decode()
         start_of_swagger = html_str.find('<div id="swagger-ui">')
