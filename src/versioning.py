@@ -61,18 +61,25 @@ def add_deprecation_and_sunset_middleware(app: FastAPI):
 
 def add_version_to_openapi(versioned_api):
     """Adds the version prefix to all paths in the schema."""
+    if versioned_api.version == "latest":
+        version_prefix = ""
+    else:
+        version_prefix = f"/{versioned_api.version}"
 
     def custom_openapi():
         if versioned_api.openapi_schema:
             return versioned_api.openapi_schema
         schema = versioned_api._openapi()
-        version_prefix = f"/{versioned_api.version}"
 
-        # When the server is served under a `root_path`, this is
-        # not directly available through `versioned_api.root_path`,
-        # so we directly edit the generated server URLs instead.
-        for server in schema["servers"]:
-            server["url"] = server["url"].removesuffix(version_prefix)
+        # We are rewriting the paths below to account for where the app
+        # is mounted, so we can drop the server list and avoid the drop-down menu.
+        # todo: undo for root_path??
+        if "servers" in schema:
+            del schema["servers"]
+
+        versioned_api.openapi_schema = schema
+        if not version_prefix:
+            return schema
 
         # We prefer the `/vX/...` be explicit in our documentation,
         # so that it is always obvious what documentation you are looking at.
@@ -82,8 +89,6 @@ def add_version_to_openapi(versioned_api):
         for path, metadata in paths.items():
             schema["paths"][f"{version_prefix}{path}"] = metadata
             del schema["paths"][path]
-
-        versioned_api.openapi_schema = schema
         return schema
 
     versioned_api._openapi = versioned_api.openapi
@@ -91,14 +96,14 @@ def add_version_to_openapi(versioned_api):
 
     def overridden_swagger():
         html_response = get_swagger_ui_html(
-            openapi_url="/openapi.json",
+            openapi_url=f"{version_prefix}/openapi.json",
             title="AI-on-Demand REST API",
             swagger_favicon_url="https://aiod.eu/wp-content/themes/aiod-v2/assets/img/favicon-192x192.png",
         )
         html_str = html_response.body.decode()
         start_of_swagger = html_str.find('<div id="swagger-ui">')
         menu = generate_version_menu(
-            dict(v2="/v2/docs", v1="/v1/docs", latest="/"),
+            dict(v2="/v2/docs", v1="/v1/docs", latest="/docs"),
             selected=versioned_api.version,
         )
         new_html = (html_str[:start_of_swagger] + menu + html_str[start_of_swagger:]).encode()

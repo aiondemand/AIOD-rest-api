@@ -122,10 +122,7 @@ def build_app(*, url_prefix: str = "", version: str = "dev"):
         "See also our general "
         '<a href="https://aiondemand.github.io/AIOD-rest-api/">metadata catalogue documentation</a>, '
         "and our "
-        '<a href="https://github.com/aiondemand/AIOD-rest-api/releases">changelog</a>.'
-        '<ul><li><a href="/">latest</a></li>'
-        '<li><a href="/v2">v2</a></li><ul>'
-        "<!-- REPLACE ME -->",
+        '<a href="https://github.com/aiondemand/AIOD-rest-api/releases">changelog</a>.',
         swagger_ui_oauth2_redirect_url=f"/docs/oauth2-redirect",
         swagger_ui_init_oauth={
             "clientId": KEYCLOAK_CONFIG.get("client_id_swagger"),
@@ -136,9 +133,10 @@ def build_app(*, url_prefix: str = "", version: str = "dev"):
         },
     )
 
-    main_app = FastAPI(title="AI-on-Demand Metadata Catalogue REST API", **kwargs)
+    main_app = FastAPI(title="AI-on-Demand Metadata Catalogue REST API", version="latest", **kwargs)
     add_routes(main_app)
     main_app.add_exception_handler(HTTPException, http_exception_handler)
+    add_version_to_openapi(main_app)
 
     for version, info in versions.items():
         # if info.get("retired", False):
