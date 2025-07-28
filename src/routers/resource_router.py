@@ -319,7 +319,6 @@ class ResourceRouter(abc.ABC):
 
                 if schema != "aiod":
                     return self.schema_converters[schema].convert(session, resource)
-                print(self.resource_class_read)
                 return self.resource_class_read.from_orm(resource)
         except Exception as e:
             raise as_http_exception(e)
