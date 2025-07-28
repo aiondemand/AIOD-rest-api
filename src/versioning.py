@@ -151,6 +151,7 @@ def generate_version_menu(all_versions: dict[str, str], selected: str) -> str:
             )
         )
     menu_div = f'<div style="display:flex; gap: 0.2em;">{"".join(buttons)}</div>'
+    # Ensures the same kind of centering and other inherited properties
     return f'<div class="swagger-ui"><div class="wrapper">{menu_div}</div></div>'
 
 
