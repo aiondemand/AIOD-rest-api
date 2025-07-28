@@ -73,11 +73,11 @@ def add_version_to_openapi(versioned_api: FastAPI, root_path: str = ""):
 
         # We edit the servers instead of dropping them to preserve information
         # on the root_path and hostname.
-        for server in schema["servers"]:
+        for server in schema.get("servers", []):
             server["url"] = server["url"].removesuffix(version_prefix)
         # If everything is simply relative to the hostname, then we can drop the
         # server information, which ensures there isn't an empty dropdown menu.
-        if schema["servers"] == [{"url": ""}]:
+        if schema.get("servers", []) == [{"url": ""}]:
             del schema["servers"]
 
         versioned_api.openapi_schema = schema
