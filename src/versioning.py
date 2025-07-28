@@ -127,7 +127,7 @@ def add_version_to_openapi(versioned_api: FastAPI, root_path: str = ""):
 
     def overridden_redoc():
         html = get_redoc_html(
-            openapi_url="/openapi.json",
+            openapi_url=f"{root_path}{version_prefix}/openapi.json",
             title="AI-on-Demand REST API",
             redoc_favicon_url="https://aiod.eu/wp-content/themes/aiod-v2/assets/img/favicon-192x192.png",
         )
