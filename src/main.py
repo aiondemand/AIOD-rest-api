@@ -61,14 +61,14 @@ def add_routes(app: FastAPI, url_prefix=""):
         </html>
         """
 
-    @app.get(f"/authorization_test")
+    @app.get("/authorization_test")
     def test_authorization(user: KeycloakUser = Depends(get_user_or_raise)) -> KeycloakUser:
         """
         Returns the user, if authenticated correctly.
         """
         return user
 
-    @app.get(f"/counts")
+    @app.get("/counts")
     def counts() -> dict:
         return {
             router.resource_name_plural: count
