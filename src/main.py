@@ -143,7 +143,7 @@ def build_app(*, url_prefix: str = "", version: str = "dev"):
     add_version_to_openapi(main_app, root_path=url_prefix)
 
     for version, info in versions.items():
-        if info.get("retired", False):
+        if info.retired:
             continue
         app = FastAPI(
             title=f"AIoD Metadata Catalogue {version}",

@@ -1,10 +1,15 @@
+import tomllib
 from datetime import datetime, timezone
 import logging
+from pathlib import Path
+from typing import NamedTuple
 
 from fastapi import FastAPI
 from starlette.requests import Request
 from fastapi.openapi.docs import get_swagger_ui_html, get_redoc_html
 from starlette.responses import HTMLResponse
+
+from config import CONFIG, default_config_path
 
 logger = logging.getLogger(__file__)
 
@@ -49,14 +54,14 @@ def add_deprecation_and_sunset_middleware(app: FastAPI):
         logger.warning(f"Version {app.version!r} isn't present in `versions`.")
         return
 
-    if (deprecation := info.get("deprecated")) is not None:
-        add_deprecation_header_middleware(app, date=deprecation, link=info.get("link"))
+    if info.deprecated is not None:
+        add_deprecation_header_middleware(app, date=info.deprecated, link=info.link)
         for route in app.routes:
             # Adds a visual deprecation style to the generated docs:
             route.deprecated = True
 
-    if (sunset := info.get("sunset")) is not None:
-        add_sunset_header_middleware(app, date=sunset, link=info.get("link"))
+    if info.sunset is not None:
+        add_sunset_header_middleware(app, date=info.sunset, link=info.link)
 
 
 def add_version_to_openapi(versioned_api: FastAPI, root_path: str = ""):
@@ -98,6 +103,13 @@ def add_version_to_openapi(versioned_api: FastAPI, root_path: str = ""):
     versioned_api.openapi = custom_openapi
 
     def overridden_swagger():
+        show_versions = {"latest": f"{root_path}/docs"} | {
+            version: f"{root_path}/{version}/docs"
+            for version, info in versions.items()
+            if not info.retired
+        }
+        menu = generate_version_menu(all_versions=show_versions, selected=versioned_api.version)
+
         html_response = get_swagger_ui_html(
             openapi_url=f"{root_path}{version_prefix}/openapi.json",
             title="AI-on-Demand REST API",
@@ -105,10 +117,7 @@ def add_version_to_openapi(versioned_api: FastAPI, root_path: str = ""):
         )
         html_str = html_response.body.decode()
         start_of_swagger = html_str.find('<div id="swagger-ui">')
-        menu = generate_version_menu(
-            dict(v2=f"{root_path}/v2/docs", v1=f"{root_path}/v1/docs", latest=f"{root_path}/docs"),
-            selected=versioned_api.version,
-        )
+
         new_html = (html_str[:start_of_swagger] + menu + html_str[start_of_swagger:]).encode()
         return HTMLResponse(
             content=new_html,
@@ -130,7 +139,7 @@ def add_version_to_openapi(versioned_api: FastAPI, root_path: str = ""):
 def generate_version_menu(all_versions: dict[str, str], selected: str) -> str:
     DARK_BLUE = "#0047BB"
     LIGHT_BLUE = "#41B6E6"
-    button = '<a href={dest} style="background: {bg_color}; color: white; text-decoration: none; font-weight: bold; border-radius: 0.5em; padding: 10px 5px;">{alias}</a>'
+    button = '<a href={dest} style="background: {bg_color}; color: white; text-decoration: none; font-weight: bold; border-radius: 0.5em; padding: .5em 1em;">{alias}</a>'
     buttons = []
     for name, url in all_versions.items():
         bg_color = LIGHT_BLUE if name == selected else DARK_BLUE
@@ -145,12 +154,33 @@ def generate_version_menu(all_versions: dict[str, str], selected: str) -> str:
     return f'<div class="swagger-ui"><div class="wrapper">{menu_div}</div></div>'
 
 
-versions: dict[str, dict] = {
-    "v2": {},
-    "v1": {
-        "deprecated": datetime(year=2025, month=5, day=30, tzinfo=timezone.utc),
-        "sunset": datetime(year=2025, month=6, day=11, tzinfo=timezone.utc),
-        "link": "https://aiondemand.github.io/AIOD-rest-api/using/migration-v1-v2",
-        "retired": True,
-    },
-}
+class VersionMetadata(NamedTuple):
+    name: str
+    deprecated: datetime | None
+    sunset: datetime | None
+    link: str | None
+    retired: bool
+
+
+def load_version_metadata(file_path: Path) -> dict[str, VersionMetadata]:
+    version_metadata = tomllib.loads(file_path.read_text())
+
+    def _safe_date_parse(date: str | None) -> datetime | None:
+        if not date:
+            return None
+        return datetime.strptime(date, "%Y-%m-%d").astimezone(timezone.utc)
+
+    return {
+        version: VersionMetadata(
+            name=version,
+            deprecated=_safe_date_parse(metadata.get("deprecated")),
+            sunset=_safe_date_parse(metadata.get("sunset")),
+            link=metadata.get("link"),
+            retired=metadata.get("retired", True),
+        )
+        for version, metadata in version_metadata.items()
+    }
+
+
+version_file = CONFIG.get("configuration", {}).get("versions")
+versions = load_version_metadata(default_config_path.parent / version_file)
