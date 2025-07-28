@@ -59,7 +59,7 @@ def add_deprecation_and_sunset_middleware(app: FastAPI):
         add_sunset_header_middleware(app, date=sunset, link=info.get("link"))
 
 
-def add_version_to_openapi(versioned_api):
+def add_version_to_openapi(versioned_api: FastAPI, root_path: str = ""):
     """Adds the version prefix to all paths in the schema."""
     if versioned_api.version == "latest":
         version_prefix = ""
@@ -71,10 +71,13 @@ def add_version_to_openapi(versioned_api):
             return versioned_api.openapi_schema
         schema = versioned_api._openapi()
 
-        # We are rewriting the paths below to account for where the app
-        # is mounted, so we can drop the server list and avoid the drop-down menu.
-        # todo: undo for root_path??
-        if "servers" in schema:
+        # We edit the servers instead of dropping them to preserve information
+        # on the root_path and hostname.
+        for server in schema["servers"]:
+            server["url"] = server["url"].removesuffix(version_prefix)
+        # If everything is simply relative to the hostname, then we can drop the
+        # server information, which ensures there isn't an empty dropdown menu.
+        if schema["servers"] == [{"url": ""}]:
             del schema["servers"]
 
         versioned_api.openapi_schema = schema
@@ -96,14 +99,14 @@ def add_version_to_openapi(versioned_api):
 
     def overridden_swagger():
         html_response = get_swagger_ui_html(
-            openapi_url=f"{version_prefix}/openapi.json",
+            openapi_url=f"{root_path}{version_prefix}/openapi.json",
             title="AI-on-Demand REST API",
             swagger_favicon_url="https://aiod.eu/wp-content/themes/aiod-v2/assets/img/favicon-192x192.png",
         )
         html_str = html_response.body.decode()
         start_of_swagger = html_str.find('<div id="swagger-ui">')
         menu = generate_version_menu(
-            dict(v2="/v2/docs", v1="/v1/docs", latest="/docs"),
+            dict(v2=f"{root_path}/v2/docs", v1=f"{root_path}/v1/docs", latest=f"{root_path}/docs"),
             selected=versioned_api.version,
         )
         new_html = (html_str[:start_of_swagger] + menu + html_str[start_of_swagger:]).encode()

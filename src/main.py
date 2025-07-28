@@ -46,7 +46,7 @@ from versioning import versions, add_version_to_openapi, add_deprecation_and_sun
 def add_routes(app: FastAPI, url_prefix=""):
     """Add routes to the FastAPI application"""
 
-    @app.get(url_prefix + "/", response_class=HTMLResponse)
+    @app.get(url_prefix + "/", include_in_schema=False, response_class=HTMLResponse)
     def home() -> str:
         """Provides a redirect page to the docs."""
         return """
@@ -132,10 +132,15 @@ def build_app(*, url_prefix: str = "", version: str = "dev"):
             "scopes": KEYCLOAK_CONFIG.get("scopes"),
         },
     )
-    main_app = FastAPI(title="AI-on-Demand Metadata Catalogue REST API", version="latest", **kwargs)
+    main_app = FastAPI(
+        root_path=url_prefix,
+        title="AI-on-Demand Metadata Catalogue REST API",
+        version="latest",
+        **kwargs,
+    )
     add_routes(main_app)
     main_app.add_exception_handler(HTTPException, http_exception_handler)
-    add_version_to_openapi(main_app)
+    add_version_to_openapi(main_app, root_path=url_prefix)
 
     for version, info in versions.items():
         # if info.get("retired", False):
@@ -148,7 +153,7 @@ def build_app(*, url_prefix: str = "", version: str = "dev"):
         add_routes(app)
         app.add_exception_handler(HTTPException, http_exception_handler)
         add_deprecation_and_sunset_middleware(app)
-        add_version_to_openapi(app)
+        add_version_to_openapi(app, root_path=url_prefix)
         main_app.mount(f"/{version}", app)
     return main_app
 
