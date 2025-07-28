@@ -39,5 +39,5 @@ server_url = "http://keycloak:8080/aiod-auth/"
 realm = "aiod"
 client_id = "aiod-api"  # a private client, used by the backend
 client_id_swagger = "aiod-api-swagger"  # a public client, used by the Swagger Frontend
-openid_connect_url = "http://localhost/aiod-auth/realms/aiod/.well-known/openid-configuration"
+openid_connect_url = "http://localhost:8080/aiod-auth/realms/aiod/.well-known/openid-configuration"
 scopes = "openid profile roles"

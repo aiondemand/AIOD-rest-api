@@ -28,8 +28,8 @@ services:
       - ./authentication/import:/opt/keycloak/data/import
     command: >
       start
-      --hostname-url http://${HOSTNAME}/aiod-auth
-      --hostname-admin-url http://${HOSTNAME}/aiod-auth
+      --hostname-url http://${HOSTNAME}:8080/aiod-auth
+      --hostname-admin-url http://${HOSTNAME}:8080/aiod-auth
       --http-relative-path=/aiod-auth
       --http-enabled=true
       --hostname-strict-https=false

@@ -512,8 +512,8 @@
     "alwaysDisplayInConsole" : false,
     "clientAuthenticatorType" : "client-secret",
     "secret" : "QJiOGn09eCEfnqAmcPP2l4vMU8grlmVQ",
-    "redirectUris" : [ "http://localhost/docs/oauth2-redirect" ],
-    "webOrigins" : [ "http://localhost" ],
+    "redirectUris" : [ "http://localhost:8080/docs/oauth2-redirect" ],
+    "webOrigins" : [ "http://localhost:8080" ],
     "notBefore" : 0,
     "bearerOnly" : false,
     "consentRequired" : false,
@@ -529,7 +529,7 @@
       "oidc.ciba.grant.enabled" : "false",
       "client.secret.creation.time" : "1689156970",
       "backchannel.logout.session.required" : "true",
-      "post.logout.redirect.uris" : "http://localhost/aiod-auth/realms/aiod/protocol/openid-connect/logout",
+      "post.logout.redirect.uris" : "http://localhost:8080/aiod-auth/realms/aiod/protocol/openid-connect/logout",
       "oauth2.device.authorization.grant.enabled" : "false",
       "display.on.consent.screen" : "false",
       "backchannel.logout.revoke.offline.tokens" : "false"
@@ -602,7 +602,7 @@
     "enabled" : true,
     "alwaysDisplayInConsole" : false,
     "clientAuthenticatorType" : "client-secret",
-    "redirectUris" : [ "http://localhost/docs/oauth2-redirect" ],
+    "redirectUris" : [ "http://localhost:8080/docs/oauth2-redirect" ],
     "webOrigins" : [ "http://localhost:8000" ],
     "notBefore" : 0,
     "bearerOnly" : false,
@@ -617,7 +617,7 @@
     "attributes" : {
       "oidc.ciba.grant.enabled" : "false",
       "backchannel.logout.session.required" : "true",
-      "post.logout.redirect.uris" : "http://localhost/aiod-auth/realms/aiod/protocol/openid-connect/logout",
+      "post.logout.redirect.uris" : "http://localhost:8080/aiod-auth/realms/aiod/protocol/openid-connect/logout",
       "oauth2.device.authorization.grant.enabled" : "false",
       "display.on.consent.screen" : "false",
       "backchannel.logout.revoke.offline.tokens" : "false"

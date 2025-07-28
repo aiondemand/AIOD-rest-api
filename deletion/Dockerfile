@@ -1,4 +1,4 @@
-FROM aiod_metadata_catalogue
+FROM aiod/metadata_catalogue
 
 COPY cron /etc/cron.d/aiod
 COPY delete_old.sh /opt/deletion/script/delete_old.sh

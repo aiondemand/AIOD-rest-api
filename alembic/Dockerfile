@@ -1,4 +1,4 @@
-FROM aiod_metadata_catalogue
+FROM aiod/metadata_catalogue
 RUN python -m pip install alembic
 ENV PYTHONPATH="$PYTHONPATH:/app"
 WORKDIR /alembic

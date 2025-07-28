@@ -1,4 +1,4 @@
-FROM aiod_metadata_catalogue
+FROM aiod/metadata_catalogue
 
 USER root
 RUN apt-get update
