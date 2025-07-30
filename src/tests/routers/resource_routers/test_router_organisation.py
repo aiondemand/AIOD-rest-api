@@ -209,8 +209,8 @@ def test_organisation_put_image_non_existent(
         )
         assert response.status_code == 404
         assert response.json()["detail"] == "No image with the name 'LOGO' found in the database."
-        
-        
+
+
 def test_organisation_get_with_and_without_image(client: TestClient, organisation: Organisation):
 
     identifier = register_asset(organisation)
