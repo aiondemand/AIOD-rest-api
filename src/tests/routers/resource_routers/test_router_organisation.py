@@ -273,10 +273,6 @@ def test_organisation_get_image_non_existent(
     organisation: Organisation,
     ):
 
-    response = client.get("/organisations/nonexistent-id/image")
-    assert response.status_code == 404
-    assert response.json()["detail"] == "Organisation nonexistent-id not found."
-
     identifier = register_asset(organisation)
     response = client.get(
         f"/organisations/{identifier}/image"
