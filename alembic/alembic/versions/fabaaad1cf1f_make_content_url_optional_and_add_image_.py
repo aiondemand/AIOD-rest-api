@@ -26,7 +26,7 @@ def upgrade() -> None:
 
     op.add_column(
         table_name="media_organisation",
-        column=sa.Column("image_blob", sa.LargeBinary(), nullable=True),
+        column=sa.Column("binary_blob", sa.LargeBinary(), nullable=True),
     )
 
 
@@ -35,4 +35,4 @@ def downgrade() -> None:
         "media_organisation", "content_url", existing_type=sa.String(length=1800), nullable=False
     )
 
-    op.drop_column("media_organisation", "image_blob")
+    op.drop_column("media_organisation", "binary_blob")
