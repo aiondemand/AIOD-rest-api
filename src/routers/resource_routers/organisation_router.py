@@ -28,7 +28,7 @@ class OrganisationRouter(ResourceRouter):
 
     def add_custom_routes(self, router: APIRouter, url_prefix: str):
         @router.post(f"{url_prefix}/organisations/{{identifier}}/image", tags=["organisations"])
-        async def organisation_image(  # type: ignore[no-redef]
+        async def organisation_image(
             identifier: str,
             file: UploadFile = File(...),
             name: str = Query(..., description="Uploaded image filename", example="logo"),
@@ -72,8 +72,8 @@ class OrganisationRouter(ResourceRouter):
 
             return {"identifier": org.identifier}
 
-        @router.put(f"{url_prefix}/organisations/{{identifier}}/image", tags=["organisations"])
-        async def organisation_media(  # type: ignore[no-redef]
+        @router.put(f"{url_prefix}/organisations/{{identifier}}/image", tags=["organisations"])  # type: ignore[no-redef]
+        async def organisation_image(
             identifier: str,
             file: UploadFile = File(...),
             name: str = Query(...),
@@ -111,7 +111,7 @@ class OrganisationRouter(ResourceRouter):
             return None
 
         @router.get(f"{url_prefix}/organisations/{{identifier}}/image", tags=["organisations"])  # type: ignore[no-redef]
-        async def organisation_image(  # type: ignore[no-redef]
+        async def organisation_image(
             identifier: str,
             session=Depends(get_session),
         ):
@@ -133,11 +133,9 @@ class OrganisationRouter(ResourceRouter):
             return org_image_media
 
         @router.delete(  # type: ignore[no-redef]
-            f"{url_prefix}/organisations/{{identifier}}/image",
-            tags=["organisations"],
-            operation_id="organisation_image",
+            f"{url_prefix}/organisations/{{identifier}}/image", tags=["organisations"]
         )
-        async def organisation_image(  # type: ignore[no-redef]
+        async def organisation_image(
             identifier: str,
             name: str = Query(..., description="Name of the image to delete"),
             session=Depends(get_session),

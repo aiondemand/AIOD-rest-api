@@ -217,19 +217,37 @@ def test_organisation_image_put(
 
     assert response.status_code == 200, response.json()
 
-def test_organisation_delete_image(
+
+def test_organisation_get_image(
     client: TestClient,
     organisation: Organisation
     ):
 
-    # with logged_in_user():
-        # response = client.post(
-        #     "/organisations",
-        #     json={"name": "Test Organisation"},
-        #     headers={"Authorization": "Fake token"},
-        # )
-        # assert response.status_code == 200
-        # identifier = response.json()["identifier"]
+    identifier = register_asset(organisation)
+
+    image_data = io.BytesIO(b"\x89PNG\r\n\x1a\nFAKEIMAGE")
+    response = client.post(
+        f"/organisations/{identifier}/image",
+        params={"name": "logo"},
+        files={"file": ("logo.png", image_data, "image/png")},
+        headers={"Authorization": "Fake token"},
+    )
+    assert response.status_code == 200, response.json()
+
+    response = client.get(
+        f"/organisations/{identifier}/image"
+    )
+    assert response.status_code == 200
+    response = response.json()
+    assert response[0]["binary_blob"]
+    assert response[0]["name"] == "logo"
+    assert response[0]["encoding_format"] == "image/png"
+
+
+def test_organisation_delete_image(
+    client: TestClient,
+    organisation: Organisation
+    ):
 
     identifier = register_asset(organisation)
 
