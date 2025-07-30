@@ -9,7 +9,7 @@ from database.session import DbSession
 
 from tests.testutils.users import register_asset, logged_in_user
 import io
-import pytest
+from routers.resource_routers.organisation_router import ALLOWED_IMAGE_TYPES
 
 def test_happy_path(
     client: TestClient,
@@ -145,7 +145,26 @@ def test_orgnisation_post_image_too_large(client: TestClient):
         )
 
         assert response.status_code == 413
-        assert response.json()["detail"] == "File too large (max 1MB)"
+        assert response.json()["detail"] == "File too large (max 1MB)."
+
+def test_orgnisation_post_image_incorrect_type(
+    client: TestClient,
+    organisation: Organisation):
+
+    with logged_in_user():
+        identifier = register_asset(organisation)
+
+        pdf_data = io.BytesIO(b"%PDF-1.4 test-pdf content")
+
+        response = client.post(
+            f"/organisations/{identifier}/image",
+            params={"name": "wrong_logo_type"},
+            files={"file": ("wrong_logo_type.pdf", pdf_data, "application/pdf")},
+            headers={"Authorization": "Fake token"},
+        )
+
+        assert response.status_code == 415
+        assert response.json()["detail"] == f"Unsupported file type application/pdf. Allowed image types: {ALLOWED_IMAGE_TYPES}."
 
 
 def test_organisation_get_with_and_without_image(client: TestClient, organisation: Organisation):
@@ -249,7 +268,6 @@ def test_organisation_get_image_non_existent(
     client: TestClient,
     organisation: Organisation,
     ):
-
 
     response = client.get("/organisations/nonexistent-id/image")
     assert response.status_code == 404

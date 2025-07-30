@@ -10,6 +10,17 @@ import base64
 from authentication import KeycloakUser, get_user_or_none, get_user_or_raise
 
 
+ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/gif", "image/webp", "image/bmp"}
+
+
+def validate_image_type(file: UploadFile):
+    if file.content_type not in ALLOWED_IMAGE_TYPES:
+        raise HTTPException(
+            status_code=HTTPStatus.UNSUPPORTED_MEDIA_TYPE,
+            detail=f"Unsupported file type {file.content_type}. Allowed image types: {ALLOWED_IMAGE_TYPES}.",
+        )
+
+
 class OrganisationRouter(ResourceRouter):
     @property
     def version(self) -> int:
@@ -36,6 +47,8 @@ class OrganisationRouter(ResourceRouter):
             session=Depends(get_session),
             user: KeycloakUser | None = Depends(get_user_or_raise),
         ):
+            validate_image_type(file)
+
             org = session.exec(
                 select(Organisation).where(Organisation.identifier == identifier)
             ).one_or_none()
@@ -61,7 +74,7 @@ class OrganisationRouter(ResourceRouter):
             if len(blob) > 1 * 1024 * 1024:
                 raise HTTPException(
                     status_code=HTTPStatus.REQUEST_ENTITY_TOO_LARGE,
-                    detail="File too large (max 1MB)",
+                    detail="File too large (max 1MB).",
                 )
 
             media_cls = org.__class__.media.property.mapper.class_
@@ -82,6 +95,8 @@ class OrganisationRouter(ResourceRouter):
             session=Depends(get_session),
             user: KeycloakUser | None = Depends(get_user_or_raise),
         ):
+            validate_image_type(file)
+
             org = session.exec(
                 select(Organisation).where(Organisation.identifier == identifier)
             ).one_or_none()
@@ -103,7 +118,7 @@ class OrganisationRouter(ResourceRouter):
             if len(blob) > 1 * 1024 * 1024:
                 raise HTTPException(
                     status_code=HTTPStatus.REQUEST_ENTITY_TOO_LARGE,
-                    detail="File too large (max 1MB)",
+                    detail="File too large (max 1MB).",
                 )
 
             existing_media.binary_blob = blob
