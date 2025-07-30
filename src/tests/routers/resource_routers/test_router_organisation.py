@@ -164,20 +164,20 @@ def test_organisation_get_with_and_without_image(client: TestClient, organisatio
         )
         assert response.status_code == 200, response.json()
 
-        response = client.get(f"/organisations/{identifier}?get_image=false")
-        assert response.status_code == 200
-        data = response.json()
-        assert not data["media"][1].get("binary_blob")
-        assert data["media"][1]["name"] == "logo"
-        assert data["media"][1]["encoding_format"] == "image/png"
+    response = client.get(f"/organisations/{identifier}?get_image=false")
+    assert response.status_code == 200
+    data = response.json()
+    assert not data["media"][1].get("binary_blob")
+    assert data["media"][1]["name"] == "logo"
+    assert data["media"][1]["encoding_format"] == "image/png"
 
-        response = client.get(f"/organisations/{identifier}?get_image=true")
-        assert response.status_code == 200
-        data = response.json()
-        assert "media" in data and isinstance(data["media"], list)
-        assert data["media"][1]["name"] == "logo"
-        assert data["media"][1]["encoding_format"] == "image/png"
-        assert data["media"][1]["binary_blob"]
+    response = client.get(f"/organisations/{identifier}?get_image=true")
+    assert response.status_code == 200
+    data = response.json()
+    assert "media" in data and isinstance(data["media"], list)
+    assert data["media"][1]["name"] == "logo"
+    assert data["media"][1]["encoding_format"] == "image/png"
+    assert data["media"][1]["binary_blob"]
 
 def test_organisation_image_put(
     client: TestClient
@@ -235,14 +235,14 @@ def test_organisation_get_image(
         )
         assert response.status_code == 200, response.json()
 
-        response = client.get(
-            f"/organisations/{identifier}/image"
-        )
-        assert response.status_code == 200
-        response = response.json()
-        assert response[0]["binary_blob"]
-        assert response[0]["name"] == "logo"
-        assert response[0]["encoding_format"] == "image/png"
+    response = client.get(
+        f"/organisations/{identifier}/image"
+    )
+    assert response.status_code == 200
+    response = response.json()
+    assert response[0]["binary_blob"]
+    assert response[0]["name"] == "logo"
+    assert response[0]["encoding_format"] == "image/png"
 
 
 def test_organisation_get_image_non_existent(
@@ -250,17 +250,17 @@ def test_organisation_get_image_non_existent(
     organisation: Organisation,
     ):
 
-    with logged_in_user():
-        response = client.get("/organisations/nonexistent-id/image")
-        assert response.status_code == 404
-        assert response.json()["detail"] == "Organisation nonexistent-id not found."
 
-        identifier = register_asset(organisation)
-        response = client.get(
-            f"/organisations/{identifier}/image"
-        )
-        assert response.status_code == 200
-        assert response.json() == []
+    response = client.get("/organisations/nonexistent-id/image")
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Organisation nonexistent-id not found."
+
+    identifier = register_asset(organisation)
+    response = client.get(
+        f"/organisations/{identifier}/image"
+    )
+    assert response.status_code == 200
+    assert response.json() == []
 
 
 def test_organisation_delete_image(

@@ -7,7 +7,7 @@ from sqlmodel import select
 from database.model.agent.organisation import Organisation
 from database.session import get_session
 import base64
-from authentication import KeycloakUser, get_user_or_none
+from authentication import KeycloakUser, get_user_or_none, get_user_or_raise
 
 
 class OrganisationRouter(ResourceRouter):
@@ -34,7 +34,7 @@ class OrganisationRouter(ResourceRouter):
             file: UploadFile = File(...),
             name: str = Query(..., description="Uploaded image filename", example="logo"),
             session=Depends(get_session),
-            user: KeycloakUser | None = Depends(get_user_or_none),
+            user: KeycloakUser | None = Depends(get_user_or_raise),
         ):
             org = session.exec(
                 select(Organisation).where(Organisation.identifier == identifier)
@@ -80,7 +80,7 @@ class OrganisationRouter(ResourceRouter):
             file: UploadFile = File(...),
             name: str = Query(...),
             session=Depends(get_session),
-            user: KeycloakUser | None = Depends(get_user_or_none),
+            user: KeycloakUser | None = Depends(get_user_or_raise),
         ):
             org = session.exec(
                 select(Organisation).where(Organisation.identifier == identifier)
@@ -143,7 +143,7 @@ class OrganisationRouter(ResourceRouter):
             identifier: str,
             name: str = Query(..., description="Name of the image to delete"),
             session=Depends(get_session),
-            user: KeycloakUser | None = Depends(get_user_or_none),
+            user: KeycloakUser | None = Depends(get_user_or_raise),
         ):
             org = session.exec(
                 select(Organisation).where(Organisation.identifier == identifier)
