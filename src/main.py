@@ -28,6 +28,7 @@ from database.model.platform.platform_names import PlatformName
 from database.session import EngineSingleton, DbSession
 from database.setup import create_database, database_exists
 from database.model.case_study.case_study import CaseStudy
+from routers.new_resource_router import AddedFieldRouter
 from routers.new_resource_router import create_router
 from setup_logger import setup_logger
 from taxonomies.synchronize_taxonomy import synchronize_taxonomy_from_file
@@ -88,6 +89,7 @@ def add_routes(app: FastAPI, url_prefix=""):
     ):
         app.include_router(router.create(url_prefix))
     app.include_router(create_router(CaseStudy, "custom_study", "custom_studies"))
+    app.include_router(AddedFieldRouter)
 
 
 def create_app() -> FastAPI:
