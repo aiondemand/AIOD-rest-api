@@ -11,7 +11,7 @@ from authentication import KeycloakUser, get_user_or_none, get_user_or_raise
 
 
 ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/gif", "image/webp", "image/bmp"}
-
+MAX_FILE_SIZE = 1 * 1024 * 1024  # 1MB
 
 def validate_image_type(file: UploadFile):
     if file.content_type not in ALLOWED_IMAGE_TYPES:
@@ -71,7 +71,7 @@ class OrganisationRouter(ResourceRouter):
 
             blob = await file.read()
 
-            if len(blob) > 1 * 1024 * 1024:
+            if len(blob) > MAX_FILE_SIZE:
                 raise HTTPException(
                     status_code=HTTPStatus.REQUEST_ENTITY_TOO_LARGE,
                     detail="File too large (max 1MB).",
@@ -115,7 +115,7 @@ class OrganisationRouter(ResourceRouter):
                 )
 
             blob = await file.read()
-            if len(blob) > 1 * 1024 * 1024:
+            if len(blob) > MAX_FILE_SIZE:
                 raise HTTPException(
                     status_code=HTTPStatus.REQUEST_ENTITY_TOO_LARGE,
                     detail="File too large (max 1MB).",
