@@ -7,6 +7,7 @@ from sqlmodel import select
 from database.model.agent.organisation import Organisation
 from database.session import get_session
 import base64
+from authentication import KeycloakUser, get_user_or_none
 
 
 class OrganisationRouter(ResourceRouter):
@@ -26,13 +27,14 @@ class OrganisationRouter(ResourceRouter):
     def resource_class(self) -> type[Organisation]:
         return Organisation
 
-    def add_custom_routes(self, router: APIRouter, url_prefix: str):
-        @router.post(f"{url_prefix}/organisations/{{identifier}}/image", tags=["organisations"])
+    def add_custom_routes(self, router: APIRouter, path: str):
+        @router.post(path, tags=["organisations"])
         async def organisation_image(
             identifier: str,
             file: UploadFile = File(...),
             name: str = Query(..., description="Uploaded image filename", example="logo"),
             session=Depends(get_session),
+            user: KeycloakUser | None = Depends(get_user_or_none),
         ):
             org = session.exec(
                 select(Organisation).where(Organisation.identifier == identifier)
@@ -72,12 +74,13 @@ class OrganisationRouter(ResourceRouter):
 
             return {"identifier": org.identifier}
 
-        @router.put(f"{url_prefix}/organisations/{{identifier}}/image", tags=["organisations"])  # type: ignore[no-redef]
+        @router.put(path, tags=["organisations"])  # type: ignore[no-redef]
         async def organisation_image(
             identifier: str,
             file: UploadFile = File(...),
             name: str = Query(...),
             session=Depends(get_session),
+            user: KeycloakUser | None = Depends(get_user_or_none),
         ):
             org = session.exec(
                 select(Organisation).where(Organisation.identifier == identifier)
@@ -110,10 +113,11 @@ class OrganisationRouter(ResourceRouter):
 
             return None
 
-        @router.get(f"{url_prefix}/organisations/{{identifier}}/image", tags=["organisations"])  # type: ignore[no-redef]
+        @router.get(path, tags=["organisations"])  # type: ignore[no-redef]
         async def organisation_image(
             identifier: str,
             session=Depends(get_session),
+            user: KeycloakUser | None = Depends(get_user_or_none),
         ):
             org = session.exec(
                 select(Organisation).where(Organisation.identifier == identifier)
@@ -133,12 +137,13 @@ class OrganisationRouter(ResourceRouter):
             return org_image_media
 
         @router.delete(  # type: ignore[no-redef]
-            f"{url_prefix}/organisations/{{identifier}}/image", tags=["organisations"]
+            path, tags=["organisations"]
         )
         async def organisation_image(
             identifier: str,
             name: str = Query(..., description="Name of the image to delete"),
             session=Depends(get_session),
+            user: KeycloakUser | None = Depends(get_user_or_none),
         ):
             org = session.exec(
                 select(Organisation).where(Organisation.identifier == identifier)

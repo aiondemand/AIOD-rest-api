@@ -239,8 +239,12 @@ class ResourceRouter(abc.ABC):
                     **default_kwargs,
                 )
 
-        if hasattr(self, "add_custom_routes"):
-            self.add_custom_routes(router, url_prefix)
+        for path in [
+            f"{url_prefix}/v2/{self.resource_name_plural}/{{identifier}}/image",
+            f"{url_prefix}/{self.resource_name_plural}/{{identifier}}/image",
+        ]:
+            if hasattr(self, "add_custom_routes"):
+                self.add_custom_routes(router, path)
 
         return router
 
