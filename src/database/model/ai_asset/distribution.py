@@ -51,9 +51,10 @@ class DistributionBase(AIoDConceptBase):
         "stands for 'actual system proven in operational environment'.",
         schema_extra={"example": 1},
     )
-    image_blob: bytes | None = Field(
+    # Currently, only organisation accepts this field, potentially to store images (ex. organisation logo).
+    binary_blob: bytes | None = Field(
         default=None,
-        description="Binary blob for storing image/logo data.",
+        description="Binary blob for storing image (or other type of media) data.",
         sa_column=Column(LargeBinary),
     )
 

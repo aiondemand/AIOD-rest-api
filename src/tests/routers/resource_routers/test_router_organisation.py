@@ -166,7 +166,7 @@ def test_organisation_get_with_and_without_image(client: TestClient, organisatio
     response = client.get(f"/organisations/{identifier}?get_image=false")
     assert response.status_code == 200
     data = response.json()
-    assert not data["media"][1].get("image_blob")
+    assert not data["media"][1].get("binary_blob")
     assert data["media"][1]["name"] == "logo"
     assert data["media"][1]["encoding_format"] == "image/png"
 
@@ -176,7 +176,7 @@ def test_organisation_get_with_and_without_image(client: TestClient, organisatio
     assert "media" in data and isinstance(data["media"], list)
     assert data["media"][1]["name"] == "logo"
     assert data["media"][1]["encoding_format"] == "image/png"
-    assert data["media"][1]["image_blob"]
+    assert data["media"][1]["binary_blob"]
 
 def test_organisation_image_put(
     client: TestClient
@@ -218,38 +218,41 @@ def test_organisation_image_put(
     assert response.status_code == 200, response.json()
 
 def test_organisation_delete_image(
-    client: TestClient
+    client: TestClient,
+    organisation: Organisation
     ):
 
-    with logged_in_user():
-        response = client.post(
-            "/organisations",
-            json={"name": "Test Organisation"},
-            headers={"Authorization": "Fake token"},
-        )
-        assert response.status_code == 200
-        identifier = response.json()["identifier"]
+    # with logged_in_user():
+        # response = client.post(
+        #     "/organisations",
+        #     json={"name": "Test Organisation"},
+        #     headers={"Authorization": "Fake token"},
+        # )
+        # assert response.status_code == 200
+        # identifier = response.json()["identifier"]
 
-        image_data = io.BytesIO(b"\x89PNG\r\n\x1a\nFAKEIMAGE")
-        response = client.post(
-            f"/organisations/{identifier}/upload-image",
-            params={"name": "logo"},
-            files={"file": ("logo.png", image_data, "image/png")},
-            headers={"Authorization": "Fake token"},
-        )
-        assert response.status_code == 200, response.json()
+    identifier = register_asset(organisation)
 
-        response = client.delete(
-            f"/organisations/{identifier}/delete-image",
-            params={"name": "logo"},
-            headers={"Authorization": "Fake token"},
-        )
-        assert response.status_code == 200
+    image_data = io.BytesIO(b"\x89PNG\r\n\x1a\nFAKEIMAGE")
+    response = client.post(
+        f"/organisations/{identifier}/upload-image",
+        params={"name": "logo"},
+        files={"file": ("logo.png", image_data, "image/png")},
+        headers={"Authorization": "Fake token"},
+    )
+    assert response.status_code == 200, response.json()
 
-        second_delete_response = client.delete(
-            f"/organisations/{identifier}/delete-image",
-            params={"name": "logo"},
-            headers={"Authorization": "Fake token"},
-        )
-        assert second_delete_response.status_code == 404
-        assert "No image with the name" in second_delete_response.json()["detail"]
+    response = client.delete(
+        f"/organisations/{identifier}/delete-image",
+        params={"name": "logo"},
+        headers={"Authorization": "Fake token"},
+    )
+    assert response.status_code == 200
+
+    second_delete_response = client.delete(
+        f"/organisations/{identifier}/delete-image",
+        params={"name": "logo"},
+        headers={"Authorization": "Fake token"},
+    )
+    assert second_delete_response.status_code == 404
+    assert "No image with the name" in second_delete_response.json()["detail"]

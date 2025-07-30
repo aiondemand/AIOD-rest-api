@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends
 from sqlmodel import select
 from database.model.agent.organisation import Organisation
 from database.session import get_session
+import base64
 
 
 class OrganisationRouter(ResourceRouter):
@@ -65,7 +66,7 @@ class OrganisationRouter(ResourceRouter):
 
             media_cls = org.__class__.media.property.mapper.class_
 
-            media = media_cls(image_blob=blob, name=name, encoding_format=file.content_type)
+            media = media_cls(binary_blob=blob, name=name, encoding_format=file.content_type)
             org.media.append(media)
             session.add(media)
             session.add(org)
@@ -104,12 +105,32 @@ class OrganisationRouter(ResourceRouter):
                     detail="File too large (max 1MB)",
                 )
 
-            existing_media.image_blob = blob
+            existing_media.binary_blob = blob
             existing_media.encoding_format = file.content_type
             session.add(existing_media)
             session.commit()
 
             return None
+
+        @router.get("/organisations/{identifier}/get-image", tags=["organisations"])
+        async def organisation_media(
+            identifier: str,
+            session=Depends(get_session),
+        ):
+            org = session.exec(
+                select(Organisation).where(Organisation.identifier == identifier)
+            ).one_or_none()
+
+            if not org:
+                raise HTTPException(
+                    status_code=HTTPStatus.NOT_FOUND, detail=f"Organisation {identifier} not found."
+                )
+
+            # image_media = []
+            for media in org.media:
+                if media.binary_blob:
+                    media.binary_blob = base64.b64encode(media.binary_blob).decode("utf-8")
+            return org.media
 
         @router.delete(
             f"{url_prefix}/organisations/{{identifier}}/delete-image", tags=["organisations"]
