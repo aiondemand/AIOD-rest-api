@@ -3,7 +3,7 @@ import datetime
 import traceback
 from functools import partial
 from http import HTTPStatus
-from typing import Annotated, Any, Literal, Sequence, Type, TypeVar, Union
+from typing import Annotated, Any, Literal, Sequence, Type, TypeVar, Union, Callable
 from wsgiref.handlers import format_date_time
 
 from fastapi import APIRouter, Depends, HTTPException, status, Query, Path
@@ -60,9 +60,31 @@ class ResourceRouter(abc.ABC):
     - DELETE /[resource]s/{identifier}
     """
 
-    def __init__(self):
-        self.resource_class_create = resource_create(self.resource_class)
-        self.resource_class_read = resource_read(self.resource_class)
+    def __init__(
+        self,
+        resource_class_create: type[SQLModel] | None = None,
+        resource_class_read: type[SQLModel] | None = None,
+        create_to_orm: Callable[[SQLModel], SQLModel] | None = None,
+        orm_to_read: Callable[[SQLModel], SQLModel] | None = None,
+    ):
+        """
+
+        Args:
+            resource_class_create: type[SQLModel], optional
+                The definition of the 'Create' interface used for `POST` and `PUT` requests.
+            resource_class_read: type[SQLModel], optional
+                The definition of the 'Read' interface used for all `GET` requests.
+            create_to_orm: Callable[[SQLModel], SQLModel], optional
+                A function which takes a `resource_class_create` (e.g., CaseStudyCreate),
+                and produces an ORM object corresponding to the type (e.g., CaseStudy).
+            orm_to_read: Callable[[SQLModel], SQLModel], optional
+                A function which takes an ORM object of the router's type (e.g., CaseStudy),
+                and produces an `resource_class_read` corresponding object (e.g., CaseStudyRead).
+        """
+        self.resource_class_create = resource_class_create or resource_create(self.resource_class)
+        self.resource_class_read = resource_class_read or resource_read(self.resource_class)
+        self.create_to_orm = create_to_orm or self.resource_class.model_validate
+        self.orm_to_read = orm_to_read or self.resource_class_read.model_validate
 
     @property
     @abc.abstractmethod
@@ -216,7 +238,7 @@ class ResourceRouter(abc.ABC):
                 convert_schema = (
                     partial(self.schema_converters[schema].convert, session)
                     if schema != "aiod"
-                    else self.resource_class_read.from_orm
+                    else self.orm_to_read
                 )
                 resources: Any = self._retrieve_resources_and_post_process(
                     session, pagination, resource_filters, user, platform
@@ -255,7 +277,7 @@ class ResourceRouter(abc.ABC):
                         )
                 if schema != "aiod":
                     return self.schema_converters[schema].convert(session, resource)
-                return self.resource_class_read.from_orm(resource)
+                return self.orm_to_read(resource)
         except Exception as e:
             raise as_http_exception(e)
 
@@ -472,7 +494,7 @@ class ResourceRouter(abc.ABC):
         user: KeycloakUser | None = None,
     ):
         """Store a resource in the database"""
-        resource = self.resource_class.from_orm(resource_create_instance)
+        resource = self.create_to_orm(resource_create_instance)
         deserialize_resource_relationships(
             session, self.resource_class, resource, resource_create_instance, user
         )
@@ -517,6 +539,8 @@ class ResourceRouter(abc.ABC):
                             status_code=status.HTTP_403_FORBIDDEN,
                             detail="You cannot edit an asset under submission.",
                         )
+                    # TODO: Versioning, probably need to change the Create instance into
+                    # ORM object and then do the updates so they are of the same schema.
                     for attribute_name in resource.schema()["properties"]:
                         if hasattr(resource_create_instance, attribute_name):
                             new_value = getattr(resource_create_instance, attribute_name)
