@@ -27,10 +27,8 @@ class OrganisationRouter(ResourceRouter):
         return Organisation
 
     def add_custom_routes(self, router: APIRouter, url_prefix: str):
-        @router.post(
-            f"{url_prefix}/organisations/{{identifier}}/upload-image", tags=["organisations"]
-        )
-        async def upload_organisation_logo(
+        @router.post(f"{url_prefix}/organisations/{{identifier}}/image", tags=["organisations"])
+        async def organisation_image(  # type: ignore[no-redef]
             identifier: str,
             file: UploadFile = File(...),
             name: str = Query(..., description="Uploaded image filename", example="logo"),
@@ -74,8 +72,8 @@ class OrganisationRouter(ResourceRouter):
 
             return {"identifier": org.identifier}
 
-        @router.put("/organisations/{identifier}/update-image", tags=["organisations"])
-        async def update_organisation_logo(
+        @router.put(f"{url_prefix}/organisations/{{identifier}}/image", tags=["organisations"])
+        async def organisation_media(  # type: ignore[no-redef]
             identifier: str,
             file: UploadFile = File(...),
             name: str = Query(...),
@@ -112,8 +110,8 @@ class OrganisationRouter(ResourceRouter):
 
             return None
 
-        @router.get("/organisations/{identifier}/get-image", tags=["organisations"])
-        async def organisation_media(
+        @router.get(f"{url_prefix}/organisations/{{identifier}}/image", tags=["organisations"])  # type: ignore[no-redef]
+        async def organisation_image(  # type: ignore[no-redef]
             identifier: str,
             session=Depends(get_session),
         ):
@@ -126,16 +124,20 @@ class OrganisationRouter(ResourceRouter):
                     status_code=HTTPStatus.NOT_FOUND, detail=f"Organisation {identifier} not found."
                 )
 
-            # image_media = []
+            org_image_media = []
             for media in org.media:
                 if media.binary_blob:
                     media.binary_blob = base64.b64encode(media.binary_blob).decode("utf-8")
-            return org.media
+                    org_image_media.append(media)
 
-        @router.delete(
-            f"{url_prefix}/organisations/{{identifier}}/delete-image", tags=["organisations"]
+            return org_image_media
+
+        @router.delete(  # type: ignore[no-redef]
+            f"{url_prefix}/organisations/{{identifier}}/image",
+            tags=["organisations"],
+            operation_id="organisation_image",
         )
-        async def delete_organisation_logo(
+        async def organisation_image(  # type: ignore[no-redef]
             identifier: str,
             name: str = Query(..., description="Name of the image to delete"),
             session=Depends(get_session),

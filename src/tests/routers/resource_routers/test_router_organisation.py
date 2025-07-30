@@ -115,7 +115,7 @@ def test_organisation_image_post(
     fake_image.name = "logo.png"
 
     response = client.post(
-        f"/organisations/{identifier}/upload-image",
+        f"/organisations/{identifier}/image",
         params={"name": "logo"},
         files={"file": ("logo.png", fake_image, "image/png")},
         headers={"Authorization": "Fake token"},
@@ -138,7 +138,7 @@ def test_orgnisation_post_image_too_large(client: TestClient):
     large_image.name = "big_logo.png"
 
     response = client.post(
-        f"/organisations/{identifier}/upload-image",
+        f"/organisations/{identifier}/image",
         params={"name": "big_logo"},
         files={"file": ("big_logo.png", large_image, "image/png")},
         headers={"Authorization": "Fake token"},
@@ -156,7 +156,7 @@ def test_organisation_get_with_and_without_image(client: TestClient, organisatio
     fake_image.name = "logo.png"
 
     response = client.post(
-        f"/organisations/{identifier}/upload-image",
+        f"/organisations/{identifier}/image",
         params={"name": "logo"},
         files={"file": ("logo.png", fake_image, "image/png")},
         headers={"Authorization": "Fake token"},
@@ -191,7 +191,7 @@ def test_organisation_image_put(
     fake_image.name = "logo.png"
 
     response = client.post(
-        f"/organisations/{identifier}/upload-image",
+        f"/organisations/{identifier}/image",
         params={"name": "logo"},
         files={"file": ("logo.png", fake_image, "image/png")},
         headers={"Authorization": "Fake token"},
@@ -199,7 +199,7 @@ def test_organisation_image_put(
     assert response.status_code == 200, response.json()
 
     response = client.put(
-        f"/organisations/{identifier}/update-image",
+        f"/organisations/{identifier}/image",
         params={"name": "LOGO"},
         files={"file": ("logo.png", fake_image, "image/png")},
         headers={"Authorization": "Fake token"},
@@ -209,7 +209,7 @@ def test_organisation_image_put(
 
 
     response = client.put(
-        f"/organisations/{identifier}/update-image",
+        f"/organisations/{identifier}/image",
         params={"name": "logo"},
         files={"file": ("logo.png", fake_image, "image/png")},
         headers={"Authorization": "Fake token"},
@@ -235,7 +235,7 @@ def test_organisation_delete_image(
 
     image_data = io.BytesIO(b"\x89PNG\r\n\x1a\nFAKEIMAGE")
     response = client.post(
-        f"/organisations/{identifier}/upload-image",
+        f"/organisations/{identifier}/image",
         params={"name": "logo"},
         files={"file": ("logo.png", image_data, "image/png")},
         headers={"Authorization": "Fake token"},
@@ -243,14 +243,14 @@ def test_organisation_delete_image(
     assert response.status_code == 200, response.json()
 
     response = client.delete(
-        f"/organisations/{identifier}/delete-image",
+        f"/organisations/{identifier}/image",
         params={"name": "logo"},
         headers={"Authorization": "Fake token"},
     )
     assert response.status_code == 200
 
     second_delete_response = client.delete(
-        f"/organisations/{identifier}/delete-image",
+        f"/organisations/{identifier}/image",
         params={"name": "logo"},
         headers={"Authorization": "Fake token"},
     )
