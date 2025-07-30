@@ -162,35 +162,6 @@ def test_organisation_post_image_incorrect_type(client: TestClient, organisation
     assert response.json()["detail"] == f"Unsupported file type application/pdf. Allowed image types: {ALLOWED_IMAGE_TYPES}."
 
 
-def test_organisation_get_with_and_without_image(client: TestClient, organisation: Organisation):
-
-    identifier = register_asset(organisation)
-
-    fake_image = io.BytesIO(b"\x89PNG\r\n\x1a\n...")  # fake PNG bytes
-    fake_image.name = "logo.png"
-
-    with logged_in_user():
-        response = client.post(
-            f"/organisations/{identifier}/image",
-            params={"name": "logo"},
-            files={"file": ("logo.png", fake_image, "image/png")},
-            headers={"Authorization": "Fake token"},
-        )
-
-    assert response.status_code == 200, response.json()
-
-    response = client.get(f"/organisations/{identifier}?get_image=false")
-    assert response.status_code == 200
-    response = response.json()
-    assert not response["media"][1].get("binary_blob")
-    assert response["media"][1]["name"] == "logo"
-    assert response["media"][1]["encoding_format"] == "image/png"
-
-    response = client.get(f"/organisations/{identifier}?get_image=true")
-    assert response.status_code == 200
-    assert response.json()["media"][1]["binary_blob"]
-
-
 def test_organisation_put_image(
     client: TestClient,
     organisation: Organisation,
@@ -238,7 +209,35 @@ def test_organisation_put_image_non_existent(
         )
         assert response.status_code == 404
         assert response.json()["detail"] == "No image with the name 'LOGO' found in the database."
+        
+        
+def test_organisation_get_with_and_without_image(client: TestClient, organisation: Organisation):
 
+    identifier = register_asset(organisation)
+
+    fake_image = io.BytesIO(b"\x89PNG\r\n\x1a\n...")  # fake PNG bytes
+    fake_image.name = "logo.png"
+
+    with logged_in_user():
+        response = client.post(
+            f"/organisations/{identifier}/image",
+            params={"name": "logo"},
+            files={"file": ("logo.png", fake_image, "image/png")},
+            headers={"Authorization": "Fake token"},
+        )
+
+    assert response.status_code == 200, response.json()
+
+    response = client.get(f"/organisations/{identifier}?get_image=false")
+    assert response.status_code == 200
+    response = response.json()
+    assert not response["media"][1].get("binary_blob")
+    assert response["media"][1]["name"] == "logo"
+    assert response["media"][1]["encoding_format"] == "image/png"
+
+    response = client.get(f"/organisations/{identifier}?get_image=true")
+    assert response.status_code == 200
+    assert response.json()["media"][1]["binary_blob"]
 
 def test_organisation_get_image(
     client: TestClient,
