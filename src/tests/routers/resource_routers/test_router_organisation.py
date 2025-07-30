@@ -102,18 +102,18 @@ def test_ai_resource_contacts_field_is_ignored(
     assert response.status_code == 200, response.json()
     assert response.json()["contacts"] == []
 
-def test_organisation_image_post(
-    client: TestClient
+
+def test_organisation_post_image(
+    client: TestClient,
+    organisation: Organisation,
     ):
+
+    identifier = register_asset(organisation)
+
+    fake_image = io.BytesIO(b"\x89PNG\r\n\x1a\n...")  # fake PNG bytes
+    fake_image.name = "logo.png"
+
     with logged_in_user():
-        response = client.post("/organisations", json={"name": "test organisation"}, headers={"Authorization": "Fake token"})
-
-        assert response.status_code == 200, response.json()
-        identifier = response.json()["identifier"]
-
-        fake_image = io.BytesIO(b"\x89PNG\r\n\x1a\n...")  # fake PNG bytes
-        fake_image.name = "logo.png"
-
         response = client.post(
             f"/organisations/{identifier}/image",
             params={"name": "logo"},
@@ -122,21 +122,18 @@ def test_organisation_image_post(
         )
     assert response.status_code == 200, response.json()
 
+def test_organisation_post_image_too_large(
+    client: TestClient,
+    organisation: Organisation
+    ):
 
-def test_orgnisation_post_image_too_large(client: TestClient):
+    identifier = register_asset(organisation)
+
+    large_content = b"x" * (1 * 1024 * 1024 + 1)
+    large_image = io.BytesIO(large_content)
+    large_image.name = "big_logo.png"
+
     with logged_in_user():
-        response = client.post(
-            "/organisations",
-            json={"name": "test organisation"},
-            headers={"Authorization": "Fake token"}
-        )
-        assert response.status_code == 200
-        identifier = response.json()["identifier"]
-
-        large_content = b"x" * (1 * 1024 * 1024 + 1)
-        large_image = io.BytesIO(large_content)
-        large_image.name = "big_logo.png"
-
         response = client.post(
             f"/organisations/{identifier}/image",
             params={"name": "big_logo"},
@@ -144,18 +141,16 @@ def test_orgnisation_post_image_too_large(client: TestClient):
             headers={"Authorization": "Fake token"},
         )
 
-        assert response.status_code == 413
-        assert response.json()["detail"] == "File too large (max 1MB)."
+    assert response.status_code == 413
+    assert response.json()["detail"] == "File too large (max 1MB)."
 
-def test_orgnisation_post_image_incorrect_type(
-    client: TestClient,
-    organisation: Organisation):
+
+def test_organisation_post_image_incorrect_type(client: TestClient, organisation: Organisation):
+
+    identifier = register_asset(organisation)
+    pdf_data = io.BytesIO(b"%PDF-1.4 test-pdf content")
 
     with logged_in_user():
-        identifier = register_asset(organisation)
-
-        pdf_data = io.BytesIO(b"%PDF-1.4 test-pdf content")
-
         response = client.post(
             f"/organisations/{identifier}/image",
             params={"name": "wrong_logo_type"},
@@ -163,60 +158,77 @@ def test_orgnisation_post_image_incorrect_type(
             headers={"Authorization": "Fake token"},
         )
 
-        assert response.status_code == 415
-        assert response.json()["detail"] == f"Unsupported file type application/pdf. Allowed image types: {ALLOWED_IMAGE_TYPES}."
+    assert response.status_code == 415
+    assert response.json()["detail"] == f"Unsupported file type application/pdf. Allowed image types: {ALLOWED_IMAGE_TYPES}."
 
 
 def test_organisation_get_with_and_without_image(client: TestClient, organisation: Organisation):
 
+    identifier = register_asset(organisation)
+
+    fake_image = io.BytesIO(b"\x89PNG\r\n\x1a\n...")  # fake PNG bytes
+    fake_image.name = "logo.png"
+
     with logged_in_user():
-        identifier = register_asset(organisation)
-
-        fake_image = io.BytesIO(b"\x89PNG\r\n\x1a\n...")  # fake PNG bytes
-        fake_image.name = "logo.png"
-
         response = client.post(
             f"/organisations/{identifier}/image",
             params={"name": "logo"},
             files={"file": ("logo.png", fake_image, "image/png")},
             headers={"Authorization": "Fake token"},
         )
-        assert response.status_code == 200, response.json()
+
+    assert response.status_code == 200, response.json()
 
     response = client.get(f"/organisations/{identifier}?get_image=false")
     assert response.status_code == 200
-    data = response.json()
-    assert not data["media"][1].get("binary_blob")
-    assert data["media"][1]["name"] == "logo"
-    assert data["media"][1]["encoding_format"] == "image/png"
+    response = response.json()
+    assert not response["media"][1].get("binary_blob")
+    assert response["media"][1]["name"] == "logo"
+    assert response["media"][1]["encoding_format"] == "image/png"
 
     response = client.get(f"/organisations/{identifier}?get_image=true")
     assert response.status_code == 200
-    data = response.json()
-    assert "media" in data and isinstance(data["media"], list)
-    assert data["media"][1]["name"] == "logo"
-    assert data["media"][1]["encoding_format"] == "image/png"
-    assert data["media"][1]["binary_blob"]
+    assert response.json()["media"][1]["binary_blob"]
 
-def test_organisation_image_put(
-    client: TestClient
+
+def test_organisation_put_image(
+    client: TestClient,
+    organisation: Organisation,
     ):
+
+    identifier = register_asset(organisation)
+
+    fake_image = io.BytesIO(b"\x89PNG\r\n\x1a\n...")  # fake PNG bytes
+    fake_image.name = "logo.png"
+
     with logged_in_user():
-        response = client.post("/organisations", json={"name": "test organisation"}, headers={"Authorization": "Fake token"})
-
-        assert response.status_code == 200, response.json()
-        identifier = response.json()["identifier"]
-
-        fake_image = io.BytesIO(b"\x89PNG\r\n\x1a\n...")  # fake PNG bytes
-        fake_image.name = "logo.png"
-
         response = client.post(
             f"/organisations/{identifier}/image",
             params={"name": "logo"},
             files={"file": ("logo.png", fake_image, "image/png")},
             headers={"Authorization": "Fake token"},
         )
+
+        response = client.put(
+            f"/organisations/{identifier}/image",
+            params={"name": "logo"},
+            files={"file": ("logo.png", fake_image, "image/png")},
+            headers={"Authorization": "Fake token"},
+        )
+
         assert response.status_code == 200, response.json()
+
+def test_organisation_put_image_non_existent(
+    client: TestClient,
+    organisation: Organisation,
+    ):
+
+    identifier = register_asset(organisation)
+
+    fake_image = io.BytesIO(b"\x89PNG\r\n\x1a\n...")  # fake PNG bytes
+    fake_image.name = "logo.png"
+
+    with logged_in_user():
 
         response = client.put(
             f"/organisations/{identifier}/image",
@@ -228,31 +240,23 @@ def test_organisation_image_put(
         assert response.json()["detail"] == "No image with the name 'LOGO' found in the database."
 
 
-        response = client.put(
+def test_organisation_get_image(
+    client: TestClient,
+    organisation: Organisation
+    ):
+
+    identifier = register_asset(organisation)
+
+    fake_image = io.BytesIO(b"\x89PNG\r\n\x1a\n...")
+
+    with logged_in_user():
+        response = client.post(
             f"/organisations/{identifier}/image",
             params={"name": "logo"},
             files={"file": ("logo.png", fake_image, "image/png")},
             headers={"Authorization": "Fake token"},
         )
 
-        assert response.status_code == 200, response.json()
-
-
-def test_organisation_get_image(
-    client: TestClient,
-    organisation: Organisation
-    ):
-    with logged_in_user():
-        identifier = register_asset(organisation)
-
-        image_data = io.BytesIO(b"\x89PNG\r\n\x1a\nFAKEIMAGE")
-        response = client.post(
-            f"/organisations/{identifier}/image",
-            params={"name": "logo"},
-            files={"file": ("logo.png", image_data, "image/png")},
-            headers={"Authorization": "Fake token"},
-        )
-        assert response.status_code == 200, response.json()
 
     response = client.get(
         f"/organisations/{identifier}/image"
@@ -286,17 +290,17 @@ def test_organisation_delete_image(
     organisation: Organisation
     ):
 
-    with logged_in_user():
-        identifier = register_asset(organisation)
+    identifier = register_asset(organisation)
+    fake_image = io.BytesIO(b"\x89PNG\r\n\x1a\n...")
 
-        image_data = io.BytesIO(b"\x89PNG\r\n\x1a\nFAKEIMAGE")
+    with logged_in_user():
         response = client.post(
             f"/organisations/{identifier}/image",
             params={"name": "logo"},
-            files={"file": ("logo.png", image_data, "image/png")},
+            files={"file": ("logo.png", fake_image, "image/png")},
             headers={"Authorization": "Fake token"},
         )
-        assert response.status_code == 200, response.json()
+
 
         response = client.delete(
             f"/organisations/{identifier}/image",
@@ -304,6 +308,7 @@ def test_organisation_delete_image(
             headers={"Authorization": "Fake token"},
         )
         assert response.status_code == 200
+
 
         second_delete_response = client.delete(
             f"/organisations/{identifier}/image",
