@@ -12,7 +12,7 @@ from typing import Type, Union
 
 def create(url_prefix: str = "") -> APIRouter:
     router = APIRouter()
-  
+
     for path in [
         f"{url_prefix}/v2/assets",
         f"{url_prefix}/assets",
@@ -28,7 +28,6 @@ def create(url_prefix: str = "") -> APIRouter:
             session: Session = Depends(get_session),
             user: KeycloakUser = Depends(get_user_or_none),
         ):
-            
             asset_type_map = get_asset_type_by_abbreviation()
             prefix = identifier.split("_")[0]
             model_class = asset_type_map.get(prefix)
@@ -36,7 +35,7 @@ def create(url_prefix: str = "") -> APIRouter:
             if not model_class:
                 raise HTTPException(
                     status_code=HTTPStatus.NOT_FOUND,
-                    detail=f"Unknown asset type '{prefix}'"
+                    detail=f"Unknown asset type with identifier '{identifier}'",
                 )
 
             resource = session.exec(
@@ -46,7 +45,7 @@ def create(url_prefix: str = "") -> APIRouter:
             if not resource or getattr(resource, "date_deleted", None) is not None:
                 raise HTTPException(
                     status_code=HTTPStatus.NOT_FOUND,
-                    detail=f"No active asset found for identifier '{identifier}'"
+                    detail=f"No active asset found for identifier '{identifier}'",
                 )
 
             for router in router_list:
@@ -55,10 +54,7 @@ def create(url_prefix: str = "") -> APIRouter:
 
             raise HTTPException(
                 status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
-                detail=f"No router found to deserialize asset with prefix '{prefix}'"
+                detail=f"No router found to deserialize asset of type '{model_class.__name__}'",
             )
 
-    return router 
-
-            
-        
+    return router
