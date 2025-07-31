@@ -42,6 +42,7 @@ class ParentRouter(abc.ABC):
         router = APIRouter()
         default_kwargs = {
             "response_model_exclude_none": True,
+            "deprecated": True,
             "tags": ["parents"],
         }
         available_schemas: list[SQLModel] = list(non_abstract_subclasses(self.parent_class))
