@@ -30,11 +30,11 @@ def test_get_assets_by_identifier(
         session.commit()
 
     for asset in [organisation, person, dataset, publication]:
-        response = client.get(f"assets?identifier={asset.identifier}")
+        response = client.get(f"assets?identifier={asset.identifier}") #    type: ignore[attr-defined]
         assert response.status_code == 200, response.json()
         response_json = response.json()
-        assert response_json["identifier"] == asset.identifier
-        assert response_json["name"].startswith("Test") 
+        assert response_json["identifier"] == asset.identifier #    type: ignore[attr-defined]
+        assert response_json["name"].startswith("Test")
 
 
 @pytest.mark.skip()
