@@ -7,6 +7,7 @@ services:
     container_name: apiserver
     volumes:
       - ./src/config.override.toml:/app/config.override.toml:ro
+      - ./src/versions.toml:/app/versions.toml:ro
     environment:
       - KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET
       - REVIEWER_ROLE_NAME=$REVIEWER_ROLE_NAME

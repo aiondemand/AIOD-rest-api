@@ -114,129 +114,91 @@ class ResourceRouter(abc.ABC):
         response_model_plural = Union[  # type:ignore
             list[self.resource_class_read], *[list[s] for s in available_schemas]  # type:ignore
         ]
-        version = f"v{self.version}"
 
-        for path in [
-            f"{url_prefix}/v2/{self.resource_name_plural}",
-            f"{url_prefix}/{self.resource_name_plural}",
-        ]:
-            router.add_api_route(
-                path=path,
-                endpoint=self.get_resources_func(),
-                response_model=response_model_plural,  # type: ignore
-                name=f"List {self.resource_name_plural}",
-                description=f"Retrieve all meta-data of the {self.resource_name_plural}.",
-                **default_kwargs,
-            )
+        router.add_api_route(
+            path=f"/{self.resource_name_plural}",
+            endpoint=self.get_resources_func(),
+            response_model=response_model_plural,  # type: ignore
+            name=f"List {self.resource_name_plural}",
+            description=f"Retrieve all meta-data of the {self.resource_name_plural}.",
+            **default_kwargs,
+        )
 
-        for path in [
-            f"{url_prefix}/v2/counts/{self.resource_name_plural}",
-            f"{url_prefix}/counts/{self.resource_name_plural}",
-        ]:
-            router.add_api_route(
-                path=path,
-                endpoint=self.get_resource_count_func(),
-                response_model=int | dict[str, int],
-                name=f"Count of {self.resource_name_plural}",
-                description=f"Retrieve the number of {self.resource_name_plural}.",
-                **default_kwargs,
-            )
+        router.add_api_route(
+            path=f"/counts/{self.resource_name_plural}",
+            endpoint=self.get_resource_count_func(),
+            response_model=int | dict[str, int],
+            name=f"Count of {self.resource_name_plural}",
+            description=f"Retrieve the number of {self.resource_name_plural}.",
+            **default_kwargs,
+        )
 
-        for path in [
-            f"{url_prefix}/v2/{self.resource_name_plural}/submit/{{identifier}}",
-            f"{url_prefix}/{self.resource_name_plural}/submit/{{identifier}}",
-        ]:
-            router.add_api_route(
-                path=path,
-                methods={"POST"},
-                endpoint=self.get_submit_func(),
-                name=self.resource_name,
-                description=f"Submit a {self.resource_name} for review.",
-                **default_kwargs,
-            )
+        router.add_api_route(
+            path=f"/{self.resource_name_plural}/submit/{{identifier}}",
+            methods={"POST"},
+            endpoint=self.get_submit_func(),
+            name=self.resource_name,
+            description=f"Submit a {self.resource_name} for review.",
+            **default_kwargs,
+        )
 
-        for path in [
-            f"{url_prefix}/{self.resource_name_plural}/{version}",
-            f"{url_prefix}/v2/{self.resource_name_plural}",
-            f"{url_prefix}/{self.resource_name_plural}",
-        ]:
-            router.add_api_route(
-                path=path,
-                methods={"POST"},
-                endpoint=self.register_resource_func(),
-                name=self.resource_name,
-                description=f"Register a {self.resource_name} with AIoD.",
-                **default_kwargs,
-            )
+        router.add_api_route(
+            path=f"/{self.resource_name_plural}",
+            methods={"POST"},
+            endpoint=self.register_resource_func(),
+            name=self.resource_name,
+            description=f"Register a {self.resource_name} with AIoD.",
+            **default_kwargs,
+        )
 
-        for path in [
-            url_prefix + f"/v2/{self.resource_name_plural}/{{identifier}}",
-            url_prefix + f"/{self.resource_name_plural}/{{identifier}}",
-        ]:
-            router.add_api_route(
-                path=path,
-                endpoint=self.get_resource_func(),
-                response_model=response_model,  # type: ignore
-                name=self.resource_name,
-                description=f"Retrieve all meta-data for a {self.resource_name} identified by the AIoD "
-                "identifier.",
-                **default_kwargs,
-            )
+        router.add_api_route(
+            path=f"/{self.resource_name_plural}/{{identifier}}",
+            endpoint=self.get_resource_func(),
+            response_model=response_model,  # type: ignore
+            name=self.resource_name,
+            description=f"Retrieve all meta-data for a {self.resource_name} identified by the AIoD "
+            "identifier.",
+            **default_kwargs,
+        )
 
-        for path in [
-            f"{url_prefix}/v2/{self.resource_name_plural}/{{identifier}}",
-            f"{url_prefix}/{self.resource_name_plural}/{{identifier}}",
-        ]:
-            router.add_api_route(
-                path=path,
-                methods={"PUT"},
-                endpoint=self.put_resource_func(),
-                name=self.resource_name,
-                description=f"Update an existing {self.resource_name}.",
-                **default_kwargs,
-            )
+        router.add_api_route(
+            path=f"/{self.resource_name_plural}/{{identifier}}",
+            methods={"PUT"},
+            endpoint=self.put_resource_func(),
+            name=self.resource_name,
+            description=f"Update an existing {self.resource_name}.",
+            **default_kwargs,
+        )
 
-        for path in [
-            f"{url_prefix}/v2/{self.resource_name_plural}/{{identifier}}",
-            f"{url_prefix}/{self.resource_name_plural}/{{identifier}}",
-        ]:
-            router.add_api_route(
-                path=path,
-                methods={"DELETE"},
-                endpoint=self.delete_resource_func(),
-                name=self.resource_name,
-                description=f"Delete a {self.resource_name}.",
-                **default_kwargs,
-            )
+        router.add_api_route(
+            path=f"/{self.resource_name_plural}/{{identifier}}",
+            methods={"DELETE"},
+            endpoint=self.delete_resource_func(),
+            name=self.resource_name,
+            description=f"Delete a {self.resource_name}.",
+            **default_kwargs,
+        )
 
         if hasattr(self.resource_class, "platform"):
-            for path in [
-                f"{url_prefix}/v2/platforms/{{platform}}/{self.resource_name_plural}",
-                f"{url_prefix}/platforms/{{platform}}/{self.resource_name_plural}",
-            ]:
-                router.add_api_route(
-                    path=path,
-                    endpoint=self.get_platform_resources_func(),
-                    response_model=response_model_plural,  # type: ignore
-                    name=f"List {self.resource_name_plural}",
-                    description=f"Retrieve all meta-data of the {self.resource_name_plural} of given "
-                    f"platform.",
-                    **default_kwargs,
-                )
+            router.add_api_route(
+                path=f"/platforms/{{platform}}/{self.resource_name_plural}",
+                endpoint=self.get_platform_resources_func(),
+                response_model=response_model_plural,  # type: ignore
+                name=f"List {self.resource_name_plural}",
+                description=f"Retrieve all meta-data of the {self.resource_name_plural} of given "
+                f"platform.",
+                **default_kwargs,
+            )
 
-            for path in [
-                f"{url_prefix}/v2/platforms/{{platform}}/{self.resource_name_plural}/{{identifier}}",
-                f"{url_prefix}/platforms/{{platform}}/{self.resource_name_plural}/{{identifier}}",
-            ]:
-                router.add_api_route(
-                    path=path,
-                    endpoint=self.get_platform_resource_func(),
-                    response_model=response_model,  # type: ignore
-                    name=self.resource_name,
-                    description=f"Retrieve all meta-data for a {self.resource_name} identified by the "
-                    "platform-specific-identifier.",
-                    **default_kwargs,
-                )
+            router.add_api_route(
+                path=f"/platforms/{{platform}}/{self.resource_name_plural}/{{identifier}}",
+                endpoint=self.get_platform_resource_func(),
+                response_model=response_model,  # type: ignore
+                name=self.resource_name,
+                description=f"Retrieve all meta-data for a {self.resource_name} identified by the "
+                "platform-specific-identifier.",
+                **default_kwargs,
+            )
         return router
 
     def get_resources(

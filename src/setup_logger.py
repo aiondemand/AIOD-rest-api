@@ -2,7 +2,7 @@
 import logging
 from importlib.metadata import version
 
-from config import CONFIG
+from config import CONFIG, log_configuration
 
 format_string = (
     f"v{version('aiod_metadata_catalogue')}"
@@ -28,3 +28,6 @@ def setup_logger(config: dict | None = None):
         format=format_string,
         datefmt="%Y-%m-%d %H:%M:%S",
     )
+    # Because the configuration already had to be imported to configure logging,
+    # this is the first place we can 'echo' our loaded configuration.
+    log_configuration()

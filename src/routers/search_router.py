@@ -83,146 +83,140 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
         read_class = resource_read(self.resource_class)  # type: ignore
         indexed_fields: TypeAlias = Literal[tuple(self.indexed_fields)]  # type: ignore
 
-        for path in [
-            f"{url_prefix}/v2/search/{self.resource_name_plural}",
-            f"{url_prefix}/search/{self.resource_name_plural}",
-        ]:
+        @router.get(
+            f"/search/{self.resource_name_plural}",
+            tags=["search"],
+            description=f"""Search for {self.resource_name_plural}.""",
+        )
+        def search(
+            search_query: Annotated[
+                str,
+                Query(
+                    description="The text to find. It is used in an ElasticSearch match query.",
+                    examples=["Name of the resource"],
+                ),
+            ],
+            exact_match: Annotated[
+                bool,
+                Query(
+                    description="If true, it searches for an exact match.",
+                ),
+            ] = False,
+            search_fields: Annotated[
+                list[indexed_fields] | None,
+                Query(
+                    description="Search in these fields. If empty, the query will be matched "
+                    "against all fields. Do not use the '--' option in Swagger, it is a Swagger "
+                    "artifact.",
+                ),
+            ] = None,
+            platforms: Annotated[
+                list[str] | None,
+                Query(
+                    description="Search for resources of these platforms. If empty, results from "
+                    "all platforms will be returned.",
+                    examples=["huggingface", "openml"],
+                ),
+            ] = None,
+            date_modified_after: Annotated[
+                str | None,
+                Query(
+                    description="Search for resources modified after this date "
+                    "(yyyy-mm-dd, inclusive).",
+                    pattern="[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]",
+                    examples=["2023-01-01"],
+                ),
+            ] = None,
+            date_modified_before: Annotated[
+                str | None,
+                Query(
+                    description="Search for resources modified before this date "
+                    "(yyyy-mm-dd, not inclusive).",
+                    pattern="[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]",
+                    examples=["2023-01-01"],
+                ),
+            ] = None,
+            sort_by_id: Annotated[
+                bool,
+                Query(
+                    description="If true, the results are sorted by id."
+                    "By default they are sorted by best score.",
+                ),
+            ] = False,
+            limit: Annotated[int, Query(ge=1, le=LIMIT_MAX)] = 10,
+            offset: Annotated[int, Query(ge=0)] = 0,
+            get_all: Annotated[
+                bool,
+                Query(
+                    description="If true, a request to the database is made to retrieve all data. "
+                    "If false, only the indexed information is returned.",
+                ),
+            ] = False,
+        ):
+            try:
+                with DbSession() as session:
+                    query = select(Platform)
+                    database_platforms = session.scalars(query).all()
+                    platform_names = {p.name for p in database_platforms}
+            except Exception as e:
+                raise as_http_exception(e)
 
-            @router.get(
-                path,
-                tags=["search"],
-                description=f"""Search for {self.resource_name_plural}.""",
-                # response_model=SearchResult[read_class],  # This gives errors, so not used.
+            if platforms and not set(platforms).issubset(platform_names):
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"The available platforms are: {platform_names}",
+                )
+
+            fields = search_fields if search_fields else self.indexed_fields
+            query_matches: list[dict[str, dict[str, str | dict[str, str]]]] = []
+            if exact_match:
+                query_matches = [
+                    {"match": {f: {"query": search_query, "operator": "and"}}} for f in fields
+                ]
+            else:
+                query_matches = [{"match": {f: search_query}} for f in fields]
+            query = {"bool": {"should": query_matches, "minimum_should_match": 1}}
+            must_clause = []
+            if platforms:
+                platform_matches = [{"match": {"platform": p}} for p in platforms]
+                must_clause.append(
+                    {"bool": {"should": platform_matches, "minimum_should_match": 1}}
+                )
+            if date_modified_after or date_modified_before:
+                date_range = {}
+                if date_modified_after:
+                    date_range["gte"] = date_modified_after
+                if date_modified_before:
+                    date_range["lt"] = date_modified_before
+                must_clause.append({"range": {"date_modified": date_range}})
+            if must_clause:
+                query["bool"]["must"] = must_clause
+            sort: dict[str, str | dict[str, str]] = {}
+            if sort_by_id:
+                sort = {"identifier": "asc"}
+            else:
+                sort = {"_score": {"order": "desc"}}
+
+            result = ElasticsearchSingleton().client.search(
+                index=self.es_index, query=query, from_=offset, size=limit, sort=sort
             )
-            def search(
-                search_query: Annotated[
-                    str,
-                    Query(
-                        description="The text to find. It is used in an ElasticSearch match query.",
-                        examples=["Name of the resource"],
-                    ),
-                ],
-                exact_match: Annotated[
-                    bool,
-                    Query(
-                        description="If true, it searches for an exact match.",
-                    ),
-                ] = False,
-                search_fields: Annotated[
-                    list[indexed_fields] | None,
-                    Query(
-                        description="Search in these fields. If empty, the query will be matched "
-                        "against all fields. Do not use the '--' option in Swagger, it is a Swagger "
-                        "artifact.",
-                    ),
-                ] = None,
-                platforms: Annotated[
-                    list[str] | None,
-                    Query(
-                        description="Search for resources of these platforms. If empty, results from "
-                        "all platforms will be returned.",
-                        examples=["huggingface", "openml"],
-                    ),
-                ] = None,
-                date_modified_after: Annotated[
-                    str | None,
-                    Query(
-                        description="Search for resources modified after this date "
-                        "(yyyy-mm-dd, inclusive).",
-                        pattern="[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]",
-                        examples=["2023-01-01"],
-                    ),
-                ] = None,
-                date_modified_before: Annotated[
-                    str | None,
-                    Query(
-                        description="Search for resources modified before this date "
-                        "(yyyy-mm-dd, not inclusive).",
-                        pattern="[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]",
-                        examples=["2023-01-01"],
-                    ),
-                ] = None,
-                sort_by_id: Annotated[
-                    bool,
-                    Query(
-                        description="If true, the results are sorted by id."
-                        "By default they are sorted by best score.",
-                    ),
-                ] = False,
-                limit: Annotated[int, Query(ge=1, le=LIMIT_MAX)] = 10,
-                offset: Annotated[int, Query(ge=0)] = 0,
-                get_all: Annotated[
-                    bool,
-                    Query(
-                        description="If true, a request to the database is made to retrieve all data. "
-                        "If false, only the indexed information is returned.",
-                    ),
-                ] = False,
-            ):
-                try:
-                    with DbSession() as session:
-                        query = select(Platform)
-                        database_platforms = session.scalars(query).all()
-                        platform_names = {p.name for p in database_platforms}
-                except Exception as e:
-                    raise as_http_exception(e)
-
-                if platforms and not set(platforms).issubset(platform_names):
-                    raise HTTPException(
-                        status_code=status.HTTP_400_BAD_REQUEST,
-                        detail=f"The available platforms are: {platform_names}",
-                    )
-
-                fields = search_fields if search_fields else self.indexed_fields
-                query_matches: list[dict[str, dict[str, str | dict[str, str]]]] = []
-                if exact_match:
-                    query_matches = [
-                        {"match": {f: {"query": search_query, "operator": "and"}}} for f in fields
-                    ]
-                else:
-                    query_matches = [{"match": {f: search_query}} for f in fields]
-                query = {"bool": {"should": query_matches, "minimum_should_match": 1}}
-                must_clause = []
-                if platforms:
-                    platform_matches = [{"match": {"platform": p}} for p in platforms]
-                    must_clause.append(
-                        {"bool": {"should": platform_matches, "minimum_should_match": 1}}
-                    )
-                if date_modified_after or date_modified_before:
-                    date_range = {}
-                    if date_modified_after:
-                        date_range["gte"] = date_modified_after
-                    if date_modified_before:
-                        date_range["lt"] = date_modified_before
-                    must_clause.append({"range": {"date_modified": date_range}})
-                if must_clause:
-                    query["bool"]["must"] = must_clause
-                sort: dict[str, str | dict[str, str]] = {}
-                if sort_by_id:
-                    sort = {"identifier": "asc"}
-                else:
-                    sort = {"_score": {"order": "desc"}}
-
-                result = ElasticsearchSingleton().client.search(
-                    index=self.es_index, query=query, from_=offset, size=limit, sort=sort
+            total_hits = result["hits"]["total"]["value"]
+            if get_all:
+                identifiers = [hit["_source"]["identifier"] for hit in result["hits"]["hits"]]
+                resources: list[SQLModel] = self._db_query(
+                    read_class, self.resource_class, identifiers
                 )
-                total_hits = result["hits"]["total"]["value"]
-                if get_all:
-                    identifiers = [hit["_source"]["identifier"] for hit in result["hits"]["hits"]]
-                    resources: list[SQLModel] = self._db_query(
-                        read_class, self.resource_class, identifiers
-                    )
-                else:
-                    resources: list[Type[read_class]] = [  # type: ignore
-                        self._cast_resource(read_class, hit["_source"])
-                        for hit in result["hits"]["hits"]
-                    ]
-                return SearchResult[read_class](  # type: ignore
-                    total_hits=total_hits,
-                    resources=resources,
-                    limit=limit,
-                    offset=offset,
-                )
+            else:
+                resources: list[Type[read_class]] = [  # type: ignore
+                    self._cast_resource(read_class, hit["_source"])
+                    for hit in result["hits"]["hits"]
+                ]
+            return SearchResult[read_class](  # type: ignore
+                total_hits=total_hits,
+                resources=resources,
+                limit=limit,
+                offset=offset,
+            )
 
         return router
 
