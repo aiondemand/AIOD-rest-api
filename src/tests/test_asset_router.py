@@ -2,9 +2,9 @@ import datetime
 
 from starlette.testclient import TestClient
 from database.model.agent.organisation import Organisation
-from database.model.agent.person import Person
 from database.session import DbSession
 import pytest
+from http import HTTPStatus
 
 
 @pytest.mark.parametrize(
@@ -28,8 +28,8 @@ def test_get_assets(
         session.merge(asset_obj)
         session.commit()
 
-    response = client.get(f"assets?identifier={asset_obj.identifier}")  # type: ignore[attr-defined]
-    assert response.status_code == 200, response.json()
+    response = client.get(f"assets/{asset_obj.identifier}")  # type: ignore[attr-defined]
+    assert response.status_code == HTTPStatus.OK, response.json()
     response_json = response.json()
     assert response_json["identifier"] == asset_obj.identifier  # type: ignore[attr-defined]
 
@@ -37,19 +37,13 @@ def test_get_assets(
 def test_ignore_deleted(
     client: TestClient,
     organisation: Organisation,
-    person: Person,
 ):
 
-    organisation.name = "Organisation"
+    organisation.name = "organisation"
     organisation.date_deleted = datetime.datetime.now()
-    person.name = "Person"
     with DbSession() as session:
         session.add(organisation)
-        session.merge(person)
         session.commit()
 
-        response = client.get(f"/assets?identifier={organisation.identifier}")
-        assert response.status_code == 404, response.json()
-
-        response = client.get(f"/assets?identifier={person.identifier}")
-        assert response.status_code == 200, response.json()
+        response = client.get(f"/assets/{organisation.identifier}")
+        assert response.status_code == HTTPStatus.NOT_FOUND, response.json()

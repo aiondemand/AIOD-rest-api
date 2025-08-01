@@ -14,8 +14,8 @@ def create(url_prefix: str = "") -> APIRouter:
     router = APIRouter()
 
     for path in [
-        f"{url_prefix}/v2/assets",
-        f"{url_prefix}/assets",
+        f"{url_prefix}/v2/assets/{{identifier}}",
+        f"{url_prefix}/assets/{{identifier}}",
     ]:
 
         @router.get(
@@ -38,9 +38,7 @@ def create(url_prefix: str = "") -> APIRouter:
                     detail=f"Unknown asset type with identifier '{identifier}'",
                 )
 
-            resource = session.exec(
-                select(model_class).where(model_class.identifier == identifier)
-            ).first()
+            resource = session.get(model_class, identifier)
 
             if not resource or getattr(resource, "date_deleted", None) is not None:
                 raise HTTPException(
