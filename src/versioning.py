@@ -6,11 +6,15 @@ from pathlib import Path
 from typing import NamedTuple
 
 from fastapi import FastAPI
+from pydantic import create_model
+from pydantic.fields import FieldInfo
+from sqlmodel import SQLModel
 from starlette.requests import Request
 from fastapi.openapi.docs import get_swagger_ui_html, get_redoc_html
 from starlette.responses import HTMLResponse
 
 from config import CONFIG, default_config_path
+from database.model.resource_read_and_create import resource_create, resource_read
 
 logger = logging.getLogger(__file__)
 
@@ -195,3 +199,33 @@ def load_version_metadata(file_path: Path) -> dict[Version, VersionMetadata]:
 
 version_file = CONFIG.get("configuration", {}).get("versions")
 versions = load_version_metadata(default_config_path.parent / version_file)
+
+
+def schema_transform(
+    original: type[SQLModel],
+    new_name,
+    add_fields: dict[str, tuple[type, FieldInfo]] = None,
+    update_fields: dict[str, tuple[type, FieldInfo]] = None,
+    remove_fields: list[str] = None,
+) -> tuple[type[SQLModel], type[SQLModel]]:
+    add_fields = add_fields or {}
+    update_fields = update_fields or {}
+    remove_fields = remove_fields or []
+
+    create_fields = {
+        name: (model_field.annotation, model_field.field_info)
+        for name, model_field in resource_create(original).__fields__.items()
+    }
+    create_fields.update(add_fields | update_fields)
+    read_fields = {
+        name: (model_field.annotation, model_field.field_info)
+        for name, model_field in resource_read(original).__fields__.items()
+    }
+    read_fields.update(add_fields | update_fields)
+    for field in remove_fields:
+        del read_fields[field]
+        del create_fields[field]
+
+    read_schema = create_model(f"{new_name}Read", __base__=original.__base__, **read_fields)
+    create_schema = create_model(f"{new_name}Create", __base__=original.__base__, **create_fields)
+    return read_schema, create_schema
