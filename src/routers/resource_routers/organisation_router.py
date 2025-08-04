@@ -11,7 +11,7 @@ from authentication import KeycloakUser, get_user_or_none, get_user_or_raise
 
 
 ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/gif", "image/webp", "image/bmp"}
-MAX_FILE_SIZE = 1 * 1024 * 1024  # 1MB
+MAX_FILE_SIZE_BYTES = 1 * 1024 * 1024  # 1MB
 
 
 def validate_image_type(file: UploadFile):
@@ -40,7 +40,7 @@ class OrganisationRouter(ResourceRouter):
         return Organisation
 
     def add_custom_routes(self, router: APIRouter, path: str):
-        @router.post(path, tags=["organisations"])
+        @router.post(path, tags=[self.resource_name_plural])
         async def organisation_image(
             identifier: str,
             file: UploadFile = File(...),
@@ -72,7 +72,7 @@ class OrganisationRouter(ResourceRouter):
 
             blob = await file.read()
 
-            if len(blob) > MAX_FILE_SIZE:
+            if len(blob) > MAX_FILE_SIZE_BYTES:
                 raise HTTPException(
                     status_code=HTTPStatus.REQUEST_ENTITY_TOO_LARGE,
                     detail="File too large (max 1MB).",
@@ -88,7 +88,7 @@ class OrganisationRouter(ResourceRouter):
 
             return {"identifier": org.identifier}
 
-        @router.put(path, tags=["organisations"])  # type: ignore[no-redef]
+        @router.put(path, tags=[self.resource_name_plural])  # type: ignore[no-redef]
         async def organisation_image(
             identifier: str,
             file: UploadFile = File(...),
@@ -116,7 +116,7 @@ class OrganisationRouter(ResourceRouter):
                 )
 
             blob = await file.read()
-            if len(blob) > MAX_FILE_SIZE:
+            if len(blob) > MAX_FILE_SIZE_BYTES:
                 raise HTTPException(
                     status_code=HTTPStatus.REQUEST_ENTITY_TOO_LARGE,
                     detail="File too large (max 1MB).",
@@ -129,7 +129,7 @@ class OrganisationRouter(ResourceRouter):
 
             return None
 
-        @router.get(path, tags=["organisations"])  # type: ignore[no-redef]
+        @router.get(path, tags=[self.resource_name_plural])  # type: ignore[no-redef]
         async def organisation_image(
             identifier: str,
             session=Depends(get_session),
@@ -153,7 +153,7 @@ class OrganisationRouter(ResourceRouter):
             return org_image_media
 
         @router.delete(  # type: ignore[no-redef]
-            path, tags=["organisations"]
+            path, tags=[self.resource_name_plural]
         )
         async def organisation_image(
             identifier: str,

@@ -494,9 +494,6 @@ class ResourceRouter(abc.ABC):
 
         return get_resource
 
-    def generate_example(self, model_cls: Type[BaseModel]) -> dict:
-        return model_cls.schema()
-
     def register_resource_func(self):
         """
         Return a function that can be used to register a resource.
