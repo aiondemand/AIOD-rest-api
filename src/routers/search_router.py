@@ -13,6 +13,7 @@ from database.model.platform.platform import Platform
 from database.model.resource_read_and_create import resource_read
 from database.session import DbSession
 from error_handling import as_http_exception
+from versioning import Version
 from .search_routers.elasticsearch import ElasticsearchSingleton
 
 LIMIT_MAX = 1000
@@ -78,7 +79,7 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
         """The set of linked fields (those with aiod 'link' relations)"""
         return set()
 
-    def create(self, url_prefix: str) -> APIRouter:
+    def create(self, url_prefix: str, version: Version) -> APIRouter:
         router = APIRouter()
         read_class = resource_read(self.resource_class)  # type: ignore
         indexed_fields: TypeAlias = Literal[tuple(self.indexed_fields)]  # type: ignore

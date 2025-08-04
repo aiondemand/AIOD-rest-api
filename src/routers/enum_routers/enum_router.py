@@ -6,6 +6,7 @@ from sqlmodel import select, Session
 
 from database.model.named_relation import NamedRelation
 from database.session import DbSession
+from versioning import Version
 
 
 class EnumRouter(abc.ABC):
@@ -21,7 +22,7 @@ class EnumRouter(abc.ABC):
             self.resource_name + "s" if not self.resource_name.endswith("s") else self.resource_name
         )
 
-    def create(self, url_prefix: str) -> APIRouter:
+    def create(self, url_prefix: str, version: Version = Version.LATEST) -> APIRouter:
         router = APIRouter()
         default_kwargs = {
             "response_model_exclude_none": True,

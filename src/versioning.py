@@ -1,6 +1,7 @@
 import tomllib
 from datetime import datetime, timezone
 import logging
+from enum import StrEnum, auto
 from pathlib import Path
 from typing import NamedTuple
 
@@ -12,6 +13,13 @@ from starlette.responses import HTMLResponse
 from config import CONFIG, default_config_path
 
 logger = logging.getLogger(__file__)
+
+
+class Version(StrEnum):
+    LATEST = auto()
+    V1 = auto()
+    V2 = auto()
+    V3 = auto()
 
 
 def add_deprecation_header_middleware(app: FastAPI, date: datetime, link: str | None = None):
@@ -165,7 +173,7 @@ class VersionMetadata(NamedTuple):
     retired: bool
 
 
-def load_version_metadata(file_path: Path) -> dict[str, VersionMetadata]:
+def load_version_metadata(file_path: Path) -> dict[Version, VersionMetadata]:
     version_metadata = tomllib.loads(file_path.read_text())
 
     def _safe_date_parse(date: str | None) -> datetime | None:
@@ -174,7 +182,7 @@ def load_version_metadata(file_path: Path) -> dict[str, VersionMetadata]:
         return datetime.strptime(date, "%Y-%m-%d").astimezone(timezone.utc)
 
     return {
-        version: VersionMetadata(
+        Version(version): VersionMetadata(
             name=version,
             deprecated=_safe_date_parse(metadata.get("deprecated")),
             sunset=_safe_date_parse(metadata.get("sunset")),

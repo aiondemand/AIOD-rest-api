@@ -1,5 +1,6 @@
 from database.model.news.news import News
 from routers.resource_router import ResourceRouter
+from versioning import Version
 
 
 class NewsRouter(ResourceRouter):
@@ -18,3 +19,9 @@ class NewsRouter(ResourceRouter):
     @property
     def resource_class(self) -> type[News]:
         return News
+
+
+news_routers = {
+    Version.V2: NewsRouter(),
+    Version.LATEST: NewsRouter(),
+}

@@ -4,6 +4,7 @@ from database.model.agent.person import Person
 from database.model.platform.platform_names import PlatformName
 from routers.resource_router import ResourceRouter
 from authentication import KeycloakUser
+from versioning import Version
 
 
 class PersonRouter(ResourceRouter):
@@ -39,3 +40,9 @@ class PersonRouter(ResourceRouter):
                 person.given_name = "******"
                 person.surname = "******"
         return resources
+
+
+person_routers = {
+    Version.V2: PersonRouter(),
+    Version.LATEST: PersonRouter(),
+}

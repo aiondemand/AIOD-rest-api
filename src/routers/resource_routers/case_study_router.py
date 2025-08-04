@@ -1,5 +1,6 @@
 from database.model.case_study.case_study import CaseStudy
 from routers.resource_ai_asset_router import ResourceAIAssetRouter
+from versioning import Version
 
 
 class CaseStudyRouter(ResourceAIAssetRouter):
@@ -18,3 +19,9 @@ class CaseStudyRouter(ResourceAIAssetRouter):
     @property
     def resource_class(self) -> type[CaseStudy]:
         return CaseStudy
+
+
+case_study_routers = {
+    Version.V2: CaseStudyRouter(),
+    Version.LATEST: CaseStudyRouter(),
+}

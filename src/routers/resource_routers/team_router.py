@@ -1,5 +1,6 @@
 from database.model.agent.team import Team
 from routers.resource_router import ResourceRouter
+from versioning import Version
 
 
 class TeamRouter(ResourceRouter):
@@ -18,3 +19,9 @@ class TeamRouter(ResourceRouter):
     @property
     def resource_class(self) -> type[Team]:
         return Team
+
+
+team_routers = {
+    Version.V2: TeamRouter(),
+    Version.LATEST: TeamRouter(),
+}

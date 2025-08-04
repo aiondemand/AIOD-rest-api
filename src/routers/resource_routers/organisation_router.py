@@ -1,5 +1,6 @@
 from database.model.agent.organisation import Organisation
 from routers.resource_router import ResourceRouter
+from versioning import Version
 
 
 class OrganisationRouter(ResourceRouter):
@@ -18,3 +19,9 @@ class OrganisationRouter(ResourceRouter):
     @property
     def resource_class(self) -> type[Organisation]:
         return Organisation
+
+
+organisation_routers = {
+    Version.V2: OrganisationRouter(),
+    Version.LATEST: OrganisationRouter(),
+}

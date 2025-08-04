@@ -18,9 +18,10 @@ from database.review import (
     Decision,
 )
 from database.model.concept.aiod_entry import EntryStatus, AIoDEntryORM
+from versioning import Version
 
 
-def create(url_prefix: str) -> APIRouter:
+def create(url_prefix: str, version: Version) -> APIRouter:
     router = APIRouter()
 
     router.post(

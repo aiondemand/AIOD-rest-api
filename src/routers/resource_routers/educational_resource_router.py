@@ -1,6 +1,7 @@
 from database.model.educational_resource.educational_resource import EducationalResource
 
 from routers.resource_router import ResourceRouter
+from versioning import Version
 
 
 class EducationalResourceRouter(ResourceRouter):
@@ -19,3 +20,9 @@ class EducationalResourceRouter(ResourceRouter):
     @property
     def resource_class(self) -> type[EducationalResource]:
         return EducationalResource
+
+
+educational_resource_routers = {
+    Version.V2: EducationalResourceRouter(),
+    Version.LATEST: EducationalResourceRouter(),
+}

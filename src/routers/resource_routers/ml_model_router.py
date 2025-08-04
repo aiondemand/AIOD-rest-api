@@ -1,5 +1,6 @@
 from database.model.models_and_experiments.ml_model import MLModel
 from routers.resource_ai_asset_router import ResourceAIAssetRouter
+from versioning import Version
 
 
 class MLModelRouter(ResourceAIAssetRouter):
@@ -18,3 +19,9 @@ class MLModelRouter(ResourceAIAssetRouter):
     @property
     def resource_class(self) -> type[MLModel]:
         return MLModel
+
+
+ml_model_routers = {
+    Version.V2: MLModelRouter(),
+    Version.LATEST: MLModelRouter(),
+}

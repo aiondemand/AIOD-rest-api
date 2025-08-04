@@ -1,5 +1,6 @@
 from database.model.project.project import Project
 from routers.resource_router import ResourceRouter
+from versioning import Version
 
 
 class ProjectRouter(ResourceRouter):
@@ -18,3 +19,9 @@ class ProjectRouter(ResourceRouter):
     @property
     def resource_class(self) -> type[Project]:
         return Project
+
+
+project_routers = {
+    Version.V2: ProjectRouter(),
+    Version.LATEST: ProjectRouter(),
+}

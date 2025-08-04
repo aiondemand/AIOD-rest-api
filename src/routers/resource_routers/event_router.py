@@ -1,5 +1,6 @@
 from database.model.event.event import Event
 from routers.resource_router import ResourceRouter
+from versioning import Version
 
 
 class EventRouter(ResourceRouter):
@@ -18,3 +19,9 @@ class EventRouter(ResourceRouter):
     @property
     def resource_class(self) -> type[Event]:
         return Event
+
+
+event_routers = {
+    Version.V2: EventRouter(),
+    Version.LATEST: EventRouter(),
+}

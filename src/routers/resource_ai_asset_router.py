@@ -5,11 +5,12 @@ from fastapi.responses import RedirectResponse
 
 from authentication import get_user_or_none, KeycloakUser
 from database.model.ai_asset.ai_asset import AIAsset
+from versioning import Version
 from .resource_router import ResourceRouter
 
 
 class ResourceAIAssetRouter(ResourceRouter):
-    def create(self, url_prefix: str) -> APIRouter:
+    def create(self, url_prefix: str, version: Version) -> APIRouter:
         default_kwargs = {
             "response_model_exclude_none": True,
             "deprecated": False,

@@ -9,6 +9,8 @@ from routers.resource_router import ResourceRouter
 
 from sqlmodel import Session
 
+from versioning import Version
+
 
 class ContactRouter(ResourceRouter):
     def __init__(self):
@@ -53,3 +55,9 @@ class ContactRouter(ResourceRouter):
             ):
                 contact.email = [Email(name="******")]
         return resources
+
+
+contact_routers = {
+    Version.V2: ContactRouter(),
+    Version.LATEST: ContactRouter(),
+}

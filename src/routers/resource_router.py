@@ -38,6 +38,7 @@ from database.session import DbSession
 from dependencies.filtering import ResourceFilters, ResourceFiltersParams
 from dependencies.pagination import Pagination, PaginationParams
 from error_handling import as_http_exception
+from versioning import Version
 
 RESOURCE = TypeVar("RESOURCE", bound=AIResource)
 RESOURCE_CREATE = TypeVar("RESOURCE_CREATE", bound=SQLModel)
@@ -125,7 +126,7 @@ class ResourceRouter(abc.ABC):
         """
         return {}
 
-    def create(self, url_prefix: str) -> APIRouter:
+    def create(self, url_prefix: str, version: Version = Version.LATEST) -> APIRouter:
         router = APIRouter()
         default_kwargs = {
             "response_model_exclude_none": True,

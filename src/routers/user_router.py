@@ -13,9 +13,10 @@ from database.model.concept.aiod_entry import AIoDEntryORM
 from database.model.concept.concept import AIoDConcept
 from database.model.helper_functions import non_abstract_subclasses
 from routers.helper_functions import get_all_read_classes
+from versioning import Version
 
 
-def create(url_prefix: str) -> APIRouter:
+def create(url_prefix: str, version: Version) -> APIRouter:
     router = APIRouter()
 
     # We define a custom response class here to ensure all the asset
