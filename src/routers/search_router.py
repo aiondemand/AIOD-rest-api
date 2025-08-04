@@ -1,5 +1,5 @@
 import abc
-from typing import TypeVar, Generic, Any, Type, Literal, Annotated, TypeAlias
+from typing import TypeVar, Generic, Any, Type, Literal, Annotated, TypeAlias, Callable
 
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
@@ -205,7 +205,7 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
             if get_all:
                 identifiers = [hit["_source"]["identifier"] for hit in result["hits"]["hits"]]
                 resources: list[SQLModel] = self._db_query(
-                    read_class, self.resource_class, identifiers
+                    read_class.model_validate, self.resource_class, identifiers
                 )
             else:
                 resources: list[Type[read_class]] = [  # type: ignore
@@ -223,7 +223,7 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
 
     def _db_query(
         self,
-        read_class: Type[SQLModel],
+        orm_to_read: Callable[[Type[AIoDConcept]], Type[SQLModel]],
         resource_class: RESOURCE,
         identifiers: list[str],
     ) -> list[SQLModel]:
@@ -241,7 +241,7 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
                         f"{', '.join(map(str, identifiers_missing))}, could not be found in "
                         "the database.",
                     )
-                return [read_class.from_orm(resource) for resource in resources]
+                return [orm_to_read(resource) for resource in resources]
         except Exception as e:
             raise as_http_exception(e)
 
