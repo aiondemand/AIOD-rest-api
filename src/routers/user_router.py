@@ -1,11 +1,11 @@
-from http import HTTPStatus
 from typing import List
 
 from fastapi import APIRouter, Depends
-from pydantic import BaseModel, create_model, Field
+from pydantic import create_model, Field
 from sqlalchemy import select
 from sqlmodel import Session
 
+import routers
 from authentication import KeycloakUser, get_user_or_raise
 from database.authorization import Permission, PermissionType
 from database.session import get_session
@@ -23,27 +23,36 @@ def create(url_prefix: str, version: Version) -> APIRouter:
     # types are included, and the (schema) documentation is generated.
     # It also makes sure assets are deserialized the same way as
     # direct access would have.
+    suffix = "" if version == Version.LATEST else version.capitalize()
     Catalogue = create_model(
-        "Catalogue",
+        f"Catalogue{suffix}",
         **{
             asset_type: (List[asset_read_class], Field())  # type: ignore[valid-type]
-            for asset_type, asset_read_class in get_all_read_classes().items()
+            for asset_type, asset_read_class in get_all_read_classes(version).items()
         },
     )
-    router.get(
+
+    @router.get(
         f"/user/resources",
         tags=["User"],
         description="Return all assets for which you have administrator rights",
         response_model=Catalogue,
-    )(get_resources_for_logged_in_user)
+    )
+    def get_versioned_resources_for_user(
+        user: KeycloakUser = Depends(get_user_or_raise),
+        session: Session = Depends(get_session),
+    ) -> dict[str, list[AIoDConcept]]:
+        resources = _get_resources_for_user(user, session)
+        orm_to_read = {
+            r.resource_class.__tablename__: r.orm_to_read
+            for r in routers.resource_routers.versioned_routers.get(version)
+        }
+        return {
+            asset_name: [orm_to_read[asset_name](asset) for asset in assets]
+            for asset_name, assets in resources.items()
+        }
+
     return router
-
-
-def get_resources_for_logged_in_user(
-    user: KeycloakUser = Depends(get_user_or_raise),
-    session: Session = Depends(get_session),
-) -> dict[str, list[AIoDConcept]]:
-    return _get_resources_for_user(user, session)
 
 
 def _get_resources_for_user(user: KeycloakUser, session: Session) -> dict[str, list[AIoDConcept]]:
