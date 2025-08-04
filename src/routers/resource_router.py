@@ -38,7 +38,7 @@ from database.session import DbSession
 from dependencies.filtering import ResourceFilters, ResourceFiltersParams
 from dependencies.pagination import Pagination, PaginationParams
 from error_handling import as_http_exception
-from versioning import Version
+from versioning import Version, VersionedResource
 
 RESOURCE = TypeVar("RESOURCE", bound=AIResource)
 RESOURCE_CREATE = TypeVar("RESOURCE_CREATE", bound=SQLModel)
@@ -61,31 +61,12 @@ class ResourceRouter(abc.ABC):
     - DELETE /[resource]s/{identifier}
     """
 
-    def __init__(
-        self,
-        resource_class_create: type[SQLModel] | None = None,
-        resource_class_read: type[SQLModel] | None = None,
-        create_to_orm: Callable[[SQLModel], SQLModel] | None = None,
-        orm_to_read: Callable[[SQLModel], SQLModel] | None = None,
-    ):
-        """
-
-        Args:
-            resource_class_create: type[SQLModel], optional
-                The definition of the 'Create' interface used for `POST` and `PUT` requests.
-            resource_class_read: type[SQLModel], optional
-                The definition of the 'Read' interface used for all `GET` requests.
-            create_to_orm: Callable[[SQLModel], SQLModel], optional
-                A function which takes a `resource_class_create` (e.g., CaseStudyCreate),
-                and produces an ORM object corresponding to the type (e.g., CaseStudy).
-            orm_to_read: Callable[[SQLModel], SQLModel], optional
-                A function which takes an ORM object of the router's type (e.g., CaseStudy),
-                and produces an `resource_class_read` corresponding object (e.g., CaseStudyRead).
-        """
-        self.resource_class_create = resource_class_create or resource_create(self.resource_class)
-        self.resource_class_read = resource_class_read or resource_read(self.resource_class)
-        self.create_to_orm = create_to_orm or self.resource_class.model_validate
-        self.orm_to_read = orm_to_read or self.resource_class_read.model_validate
+    def __init__(self, resource: VersionedResource | None = None):
+        resource = resource or VersionedResource(self.resource_class)
+        self.resource_class_create = resource.resource_class_create
+        self.resource_class_read = resource.resource_class_read
+        self.create_to_orm = resource.create_to_orm
+        self.orm_to_read = resource.orm_to_read
 
     @property
     @abc.abstractmethod

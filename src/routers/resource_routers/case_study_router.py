@@ -1,6 +1,6 @@
-from database.model.case_study.case_study import CaseStudy
+from database.model.case_study.case_study import CaseStudy, case_study_versions
 from routers.resource_ai_asset_router import ResourceAIAssetRouter
-from versioning import Version
+from versioning import Version, VersionedResource
 
 
 class CaseStudyRouter(ResourceAIAssetRouter):
@@ -22,6 +22,6 @@ class CaseStudyRouter(ResourceAIAssetRouter):
 
 
 case_study_routers = {
-    Version.V2: CaseStudyRouter(),
-    Version.LATEST: CaseStudyRouter(),
+    version: CaseStudyRouter(VersionedResource(CaseStudy))
+    for version, versioned_resource in case_study_versions.items()
 }

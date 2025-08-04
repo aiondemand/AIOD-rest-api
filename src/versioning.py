@@ -1,9 +1,10 @@
+import dataclasses
 import tomllib
 from datetime import datetime, timezone
 import logging
 from enum import StrEnum, auto
 from pathlib import Path
-from typing import NamedTuple
+from typing import NamedTuple, Callable
 
 from fastapi import FastAPI
 from pydantic import create_model
@@ -175,6 +176,42 @@ class VersionMetadata(NamedTuple):
     sunset: datetime | None
     link: str | None
     retired: bool
+
+
+@dataclasses.dataclass
+class VersionedResource:
+    """
+    orm_class: type[SQLModel]
+        The ORM class for the resource, e.g., CaseStudy
+    resource_class_create: type[SQLModel], optional
+        The definition of the 'Create' interface used for `POST` and `PUT` requests.
+        If not supplied, tries to create it automatically.
+    resource_class_read: type[SQLModel], optional
+        The definition of the 'Read' interface used for all `GET` requests.
+        If not supplied, tries to create it automatically.
+    create_to_orm: Callable[[SQLModel], SQLModel], optional
+        A function which takes a `resource_class_create` (e.g., CaseStudyCreate),
+        and produces an ORM object corresponding to the type (e.g., CaseStudy).
+        If not supplied, uses the `model_validate` function from `orm_class`.
+        This breaks if there is a mismatch between fields of the create class and the orm class.
+    orm_to_read: Callable[[SQLModel], SQLModel], optional
+        A function which takes an ORM object of the router's type (e.g., CaseStudy),
+        and produces an `resource_class_read` corresponding object (e.g., CaseStudyRead).
+        If not supplied, uses the `model_validate` function from `resource_read_class`.
+        This breaks if there is a mismatch between fields of the read class and the orm class.
+    """
+
+    orm_class: type[SQLModel]
+    resource_class_create: type[SQLModel] | None = None
+    resource_class_read: type[SQLModel] | None = None
+    create_to_orm: Callable[[SQLModel], SQLModel] | None = None
+    orm_to_read: Callable[[SQLModel], SQLModel] | None = None
+
+    def __post_init__(self):
+        self.resource_class_create = self.resource_class_create or resource_create(self.orm_class)
+        self.resource_class_read = self.resource_class_read or resource_read(self.orm_class)
+        self.create_to_orm = self.create_to_orm or self.orm_class.model_validate
+        self.orm_to_read = self.orm_to_read or self.resource_class_read.model_validate
 
 
 def load_version_metadata(file_path: Path) -> dict[Version, VersionMetadata]:
