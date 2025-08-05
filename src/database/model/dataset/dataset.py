@@ -15,6 +15,7 @@ from database.model.serializers import (
     CastDeserializer,
     FindByIdentifierDeserializerList,
 )
+from versioning import Version, VersionedResource
 
 
 class DatasetBase(AIAssetBase):
@@ -88,3 +89,9 @@ class Dataset(DatasetBase, AIAsset, table=True):  # type: ignore [call-arg]
             deserializer=CastDeserializer(LocationORM),
             on_delete_trigger_deletion_by="spatial_coverage_identifier",
         )
+
+
+dataset_versions = {
+    Version.V2: VersionedResource(Dataset),
+    Version.LATEST: VersionedResource(Dataset),
+}

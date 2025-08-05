@@ -1,6 +1,5 @@
-from database.model.resource_bundle.resource_bundle import ResourceBundle
+from database.model.resource_bundle.resource_bundle import ResourceBundle, resource_bundle_versions
 from routers.resource_router import ResourceRouter
-from versioning import Version
 
 
 class ResourceBundleRouter(ResourceRouter):
@@ -22,6 +21,6 @@ class ResourceBundleRouter(ResourceRouter):
 
 
 resource_bundle_routers = {
-    Version.V2: ResourceBundleRouter(),
-    Version.LATEST: ResourceBundleRouter(),
+    version: ResourceBundleRouter(versioned_resource)
+    for version, versioned_resource in resource_bundle_versions.items()
 }

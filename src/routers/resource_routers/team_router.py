@@ -1,6 +1,5 @@
-from database.model.agent.team import Team
+from database.model.agent.team import Team, team_versions
 from routers.resource_router import ResourceRouter
-from versioning import Version
 
 
 class TeamRouter(ResourceRouter):
@@ -22,6 +21,5 @@ class TeamRouter(ResourceRouter):
 
 
 team_routers = {
-    Version.V2: TeamRouter(),
-    Version.LATEST: TeamRouter(),
+    version: TeamRouter(versioned_resource) for version, versioned_resource in team_versions.items()
 }

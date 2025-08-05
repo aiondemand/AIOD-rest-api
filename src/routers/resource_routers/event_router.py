@@ -1,6 +1,5 @@
-from database.model.event.event import Event
+from database.model.event.event import Event, event_versions
 from routers.resource_router import ResourceRouter
-from versioning import Version
 
 
 class EventRouter(ResourceRouter):
@@ -22,6 +21,6 @@ class EventRouter(ResourceRouter):
 
 
 event_routers = {
-    Version.V2: EventRouter(),
-    Version.LATEST: EventRouter(),
+    version: EventRouter(versioned_resource)
+    for version, versioned_resource in event_versions.items()
 }

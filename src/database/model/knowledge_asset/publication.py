@@ -14,6 +14,7 @@ from database.model.serializers import (
     CastDeserializer,
     FindByIdentifierDeserializerList,
 )
+from versioning import VersionedResource, Version
 
 
 class PublicationBase(KnowledgeAssetBase):
@@ -73,3 +74,8 @@ class Publication(PublicationBase, KnowledgeAsset, table=True):  # type: ignore 
 
 deserializer = FindByIdentifierDeserializerList(Publication)
 AIAsset.RelationshipConfig.citation.deserializer = deserializer  # type: ignore
+
+publication_versions = {
+    Version.V2: VersionedResource(Publication),
+    Version.LATEST: VersionedResource(Publication),
+}

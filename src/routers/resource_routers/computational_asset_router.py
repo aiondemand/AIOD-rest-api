@@ -1,7 +1,9 @@
-from database.model.computational_asset.computational_asset import ComputationalAsset
+from database.model.computational_asset.computational_asset import (
+    ComputationalAsset,
+    computational_asset_versions,
+)
 
 from routers.resource_router import ResourceRouter
-from versioning import Version
 
 
 class ComputationalAssetRouter(ResourceRouter):
@@ -23,6 +25,6 @@ class ComputationalAssetRouter(ResourceRouter):
 
 
 computational_asset_routers = {
-    Version.V2: ComputationalAssetRouter(),
-    Version.LATEST: ComputationalAssetRouter(),
+    version: ComputationalAssetRouter(versioned_resource)
+    for version, versioned_resource in computational_asset_versions.items()
 }

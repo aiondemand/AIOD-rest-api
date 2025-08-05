@@ -1,6 +1,5 @@
-from database.model.models_and_experiments.experiment import Experiment
+from database.model.models_and_experiments.experiment import Experiment, experiment_versions
 from routers.resource_ai_asset_router import ResourceAIAssetRouter
-from versioning import Version
 
 
 class ExperimentRouter(ResourceAIAssetRouter):
@@ -22,6 +21,6 @@ class ExperimentRouter(ResourceAIAssetRouter):
 
 
 experiment_routers = {
-    Version.V2: ExperimentRouter(),
-    Version.LATEST: ExperimentRouter(),
+    version: ExperimentRouter(versioned_resource)
+    for version, versioned_resource in experiment_versions.items()
 }

@@ -19,6 +19,7 @@ from database.model.serializers import (
     FindByIdentifierDeserializerList,
     FindByNameDeserializerList,
 )
+from versioning import Version, VersionedResource
 
 
 class PersonBase(AgentBase):
@@ -103,3 +104,8 @@ deserializer_list = FindByIdentifierDeserializerList(Person)
 AIoDEntryORM.RelationshipConfig.editor.deserializer = deserializer_list  # type: ignore
 deserializer_single = FindByIdentifierDeserializer(Person)
 Contact.RelationshipConfig.person.deserializer = deserializer_single  # type: ignore
+
+person_versions = {
+    Version.V2: VersionedResource(Person),
+    Version.LATEST: VersionedResource(Person),
+}

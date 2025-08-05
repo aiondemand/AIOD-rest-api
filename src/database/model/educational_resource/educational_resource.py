@@ -21,6 +21,7 @@ from database.model.serializers import (
     CastDeserializerList,
     FindByNameDeserializerList,
 )
+from versioning import VersionedResource, Version
 
 
 class EducationalResourceBase(AIResourceBase):
@@ -165,3 +166,9 @@ class EducationalResource(EducationalResourceBase, AIResource, table=True):  # t
             ],
             default_factory_pydantic=list,
         )
+
+
+educational_resource_versions = {
+    Version.V2: VersionedResource(EducationalResource),
+    Version.LATEST: VersionedResource(EducationalResource),
+}

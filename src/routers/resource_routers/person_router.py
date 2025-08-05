@@ -1,10 +1,9 @@
 from typing import Sequence
 from sqlmodel import Session
-from database.model.agent.person import Person
+from database.model.agent.person import Person, person_versions
 from database.model.platform.platform_names import PlatformName
 from routers.resource_router import ResourceRouter
 from authentication import KeycloakUser
-from versioning import Version
 
 
 class PersonRouter(ResourceRouter):
@@ -43,6 +42,6 @@ class PersonRouter(ResourceRouter):
 
 
 person_routers = {
-    Version.V2: PersonRouter(),
-    Version.LATEST: PersonRouter(),
+    version: PersonRouter(versioned_resource)
+    for version, versioned_resource in person_versions.items()
 }

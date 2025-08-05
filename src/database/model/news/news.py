@@ -13,6 +13,7 @@ from database.model.serializers import (
     CastDeserializer,
     FindByNameDeserializerList,
 )
+from versioning import Version, VersionedResource
 
 
 class NewsBase(AIResourceBase):
@@ -66,3 +67,9 @@ class News(NewsBase, AIResource, table=True):  # type: ignore [call-arg]
             deserializer=CastDeserializer(TextORM),
             on_delete_trigger_deletion_by="content_identifier",
         )
+
+
+news_versions = {
+    Version.V2: VersionedResource(News),
+    Version.LATEST: VersionedResource(News),
+}

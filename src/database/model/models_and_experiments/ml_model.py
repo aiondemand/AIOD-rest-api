@@ -14,6 +14,7 @@ from database.model.serializers import (
     FindByNameDeserializer,
     FindByIdentifierDeserializerList,
 )
+from versioning import VersionedResource, Version
 
 
 class MLModelBase(AIAssetBase):
@@ -54,3 +55,9 @@ class MLModel(MLModelBase, AIAsset, table=True):  # type: ignore [call-arg]
             default_factory_pydantic=list,
             example=[],
         )
+
+
+mlmodel_versions = {
+    Version.V2: VersionedResource(MLModel),
+    Version.LATEST: VersionedResource(MLModel),
+}

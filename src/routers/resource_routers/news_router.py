@@ -1,6 +1,5 @@
-from database.model.news.news import News
+from database.model.news.news import News, news_versions
 from routers.resource_router import ResourceRouter
-from versioning import Version
 
 
 class NewsRouter(ResourceRouter):
@@ -22,6 +21,5 @@ class NewsRouter(ResourceRouter):
 
 
 news_routers = {
-    Version.V2: NewsRouter(),
-    Version.LATEST: NewsRouter(),
+    version: NewsRouter(versioned_resource) for version, versioned_resource in news_versions.items()
 }

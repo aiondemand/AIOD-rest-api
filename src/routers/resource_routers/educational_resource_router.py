@@ -1,7 +1,9 @@
-from database.model.educational_resource.educational_resource import EducationalResource
+from database.model.educational_resource.educational_resource import (
+    EducationalResource,
+    educational_resource_versions,
+)
 
 from routers.resource_router import ResourceRouter
-from versioning import Version
 
 
 class EducationalResourceRouter(ResourceRouter):
@@ -23,6 +25,6 @@ class EducationalResourceRouter(ResourceRouter):
 
 
 educational_resource_routers = {
-    Version.V2: EducationalResourceRouter(),
-    Version.LATEST: EducationalResourceRouter(),
+    version: EducationalResourceRouter(versioned_resource)
+    for version, versioned_resource in educational_resource_versions.items()
 }

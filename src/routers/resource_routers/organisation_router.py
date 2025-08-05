@@ -1,6 +1,5 @@
-from database.model.agent.organisation import Organisation
+from database.model.agent.organisation import Organisation, organisation_versions
 from routers.resource_router import ResourceRouter
-from versioning import Version
 
 
 class OrganisationRouter(ResourceRouter):
@@ -22,6 +21,6 @@ class OrganisationRouter(ResourceRouter):
 
 
 organisation_routers = {
-    Version.V2: OrganisationRouter(),
-    Version.LATEST: OrganisationRouter(),
+    version: OrganisationRouter(versioned_resource)
+    for version, versioned_resource in organisation_versions.items()
 }

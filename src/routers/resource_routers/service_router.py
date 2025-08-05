@@ -1,6 +1,5 @@
-from database.model.service.service import Service
+from database.model.service.service import Service, service_versions
 from routers.resource_router import ResourceRouter
-from versioning import Version
 
 
 class ServiceRouter(ResourceRouter):
@@ -22,6 +21,6 @@ class ServiceRouter(ResourceRouter):
 
 
 service_routers = {
-    Version.V2: ServiceRouter(),
-    Version.LATEST: ServiceRouter(),
+    version: ServiceRouter(versioned_resource)
+    for version, versioned_resource in service_versions.items()
 }

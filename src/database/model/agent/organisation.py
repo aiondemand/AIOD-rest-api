@@ -16,6 +16,7 @@ from database.model.serializers import (
     FindByIdentifierDeserializer,
     FindByIdentifierDeserializerList,
 )
+from versioning import Version, VersionedResource
 
 
 class OrganisationBase(AgentBase):
@@ -79,3 +80,8 @@ class Organisation(OrganisationBase, Agent, table=True):  # type: ignore [call-a
 
 deserializer = FindByIdentifierDeserializer(Organisation)
 Contact.RelationshipConfig.organisation.deserializer = deserializer  # type: ignore
+
+organisation_versions = {
+    Version.V2: VersionedResource(Organisation),
+    Version.LATEST: VersionedResource(Organisation),
+}
