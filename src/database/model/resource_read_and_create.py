@@ -1,6 +1,6 @@
 """
 Functionality to generate a separate read resource and create resource. For example,
-the date_modified should be in the read resource, but not in the the create resource. You should
+the date_modified should be in the read resource, but not in the create resource. You should
 not be able to modify this date yourself in a POST request, but you should retrieve it in a GET
 request.
 """

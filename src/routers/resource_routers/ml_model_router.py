@@ -1,4 +1,4 @@
-from database.model.models_and_experiments.ml_model import MLModel, mlmodel_versions
+from database.model.models_and_experiments.ml_model import MLModel, ml_model_versions
 from routers.resource_ai_asset_router import ResourceAIAssetRouter
 
 
@@ -22,5 +22,5 @@ class MLModelRouter(ResourceAIAssetRouter):
 
 ml_model_routers = {
     version: MLModelRouter(versioned_resource)
-    for version, versioned_resource in mlmodel_versions.items()
+    for version, versioned_resource in ml_model_versions.items()
 }

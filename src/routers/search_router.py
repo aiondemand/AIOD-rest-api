@@ -13,6 +13,7 @@ from database.model.platform.platform import Platform
 from database.model.resource_read_and_create import resource_read
 from database.session import DbSession
 from error_handling import as_http_exception
+from database.model.help_versions import get_versioned_resource
 from versioning import Version
 from .search_routers.elasticsearch import ElasticsearchSingleton
 
@@ -81,7 +82,8 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
 
     def create(self, url_prefix: str, version: Version) -> APIRouter:
         router = APIRouter()
-        read_class = resource_read(self.resource_class)  # type: ignore
+        versioned_resource = get_versioned_resource(self.resource_class, version)
+        read_class = versioned_resource.resource_class_read  # type: ignore
         indexed_fields: TypeAlias = Literal[tuple(self.indexed_fields)]  # type: ignore
 
         @router.get(
@@ -205,10 +207,10 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
             if get_all:
                 identifiers = [hit["_source"]["identifier"] for hit in result["hits"]["hits"]]
                 resources: list[SQLModel] = self._db_query(
-                    read_class.model_validate, self.resource_class, identifiers
+                    versioned_resource.orm_to_read, self.resource_class, identifiers
                 )
             else:
-                resources: list[Type[read_class]] = [  # type: ignore
+                resources: list[read_class] = [  # type: ignore
                     self._cast_resource(read_class, hit["_source"])
                     for hit in result["hits"]["hits"]
                 ]

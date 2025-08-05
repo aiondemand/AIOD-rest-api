@@ -57,7 +57,7 @@ class MLModel(MLModelBase, AIAsset, table=True):  # type: ignore [call-arg]
         )
 
 
-mlmodel_versions = {
+ml_model_versions = {
     Version.V2: VersionedResource(MLModel),
     Version.LATEST: VersionedResource(MLModel),
 }

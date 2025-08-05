@@ -17,7 +17,7 @@ class ResourceAIAssetRouter(ResourceRouter):
             "tags": [self.resource_name_plural],
         }
 
-        router = super().create(url_prefix)
+        router = super().create(url_prefix, version)
 
         router.add_api_route(
             path=f"/{self.resource_name_plural}/{{identifier}}/content",

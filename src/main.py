@@ -83,6 +83,9 @@ def add_routes(app: FastAPI, version: Version, url_prefix=""):
             and (count := router.get_resource_count_func()(detailed=True))
         }
 
+    for router in versioned_routers.get(version, []):
+        app.include_router(router.create(url_prefix, version))
+
     for router in (
         parent_routers.router_list
         + enum_routers.router_list
@@ -90,8 +93,6 @@ def add_routes(app: FastAPI, version: Version, url_prefix=""):
         + [review_router, user_router, bookmark_router]
         + resource_routers.router_list
     ):
-        app.include_router(router.create(url_prefix, version))
-    for router in versioned_routers.get(version, []):
         app.include_router(router.create(url_prefix, version))
 
 
