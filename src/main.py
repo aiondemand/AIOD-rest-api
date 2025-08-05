@@ -78,7 +78,7 @@ def add_routes(app: FastAPI, version: Version, url_prefix=""):
     def counts() -> dict:
         return {
             router.resource_name_plural: count
-            for router in resource_routers.versioned_routers.get(version)
+            for router in resource_routers.versioned_routers.get(version, [])
             if issubclass(router.resource_class, AIoDConcept)
             and (count := router.get_resource_count_func()(detailed=True))
         }

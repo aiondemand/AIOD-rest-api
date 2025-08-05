@@ -1,4 +1,3 @@
-import routers
 from database.model.concept.concept import AIoDConcept
 from database.model.helper_functions import non_abstract_subclasses
 from functools import cache
@@ -7,11 +6,11 @@ from versioning import Version
 
 def get_all_read_classes(version: Version = Version.LATEST) -> dict[str, AIoDConcept]:
     """Returns a list of all schema types and a reference to their definition."""
+    from routers.resource_routers import versioned_routers  # avoid cyclical import
+
     available_schemas: list[AIoDConcept] = list(non_abstract_subclasses(AIoDConcept))
     classes_dict = {clz.__tablename__: clz for clz in available_schemas if clz.__tablename__}
-    resrouters = {
-        route.resource_name: route for route in routers.resource_routers.versioned_routers[version]
-    }
+    resrouters = {route.resource_name: route for route in versioned_routers[version]}
     return {
         name: resrouters[name].resource_class_read
         for name in classes_dict

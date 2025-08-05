@@ -3,7 +3,7 @@ import datetime
 import traceback
 from functools import partial
 from http import HTTPStatus
-from typing import Annotated, Any, Literal, Sequence, Type, TypeVar, Union, Callable
+from typing import Annotated, Any, Literal, Sequence, Type, TypeVar, Union, Callable, cast
 from wsgiref.handlers import format_date_time
 
 from fastapi import APIRouter, Depends, HTTPException, status, Query, Path
@@ -217,10 +217,12 @@ class ResourceRouter(abc.ABC):
         _raise_error_on_invalid_schema(self._possible_schemas, schema)
         with DbSession(autoflush=False) as session:
             try:
+                # mypy does a weird thing here where each individual branch type checks fine,
+                # but together it fails to type check. Likely to do with partial being an object.
                 convert_schema = (
-                    partial(self.schema_converters[schema].convert, session)
+                    cast(Callable, partial(self.schema_converters[schema].convert, session))
                     if schema != "aiod"
-                    else self.orm_to_read
+                    else cast(Callable, self.orm_to_read)
                 )
                 resources: Any = self._retrieve_resources_and_post_process(
                     session, pagination, resource_filters, user, platform

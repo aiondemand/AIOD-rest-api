@@ -10,7 +10,7 @@ from .resource_router import ResourceRouter
 
 
 class ResourceAIAssetRouter(ResourceRouter):
-    def create(self, url_prefix: str, version: Version) -> APIRouter:
+    def create(self, url_prefix: str, version: Version = Version.LATEST) -> APIRouter:
         default_kwargs = {
             "response_model_exclude_none": True,
             "deprecated": False,

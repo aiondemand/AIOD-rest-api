@@ -49,7 +49,6 @@ class PlatformRouter:
 
     def create(self, url_prefix: str, version: Version) -> APIRouter:
         router = APIRouter()
-        version = f"v{self.version}"
         default_kwargs = {
             "response_model_exclude_none": True,
             "deprecated": False,

@@ -5,7 +5,7 @@ from pydantic import create_model, Field
 from sqlalchemy import select
 from sqlmodel import Session
 
-import routers
+from routers.resource_routers import versioned_routers
 from authentication import KeycloakUser, get_user_or_raise
 from database.authorization import Permission, PermissionType
 from database.session import get_session
@@ -45,7 +45,7 @@ def create(url_prefix: str, version: Version) -> APIRouter:
         resources = _get_resources_for_user(user, session)
         orm_to_read = {
             r.resource_class.__tablename__: r.orm_to_read
-            for r in routers.resource_routers.versioned_routers.get(version)
+            for r in versioned_routers.get(version, [])
         }
         return {
             asset_name: [orm_to_read[asset_name](asset) for asset in assets]

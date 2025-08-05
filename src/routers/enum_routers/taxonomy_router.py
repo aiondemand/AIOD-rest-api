@@ -25,7 +25,7 @@ class TaxonomyRouter(EnumRouter):
     def __init__(self, resource_class: Type[Taxonomy]):
         super().__init__(resource_class)
 
-    def create(self, url_prefix: str, version: Version) -> APIRouter:
+    def create(self, url_prefix: str, version: Version = Version.LATEST) -> APIRouter:
         router = APIRouter()
         default_kwargs = {
             "response_model_exclude_none": True,

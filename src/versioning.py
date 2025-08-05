@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 import logging
 from enum import StrEnum, auto
 from pathlib import Path
-from typing import NamedTuple, Callable
+from typing import NamedTuple, Callable, cast, Type
 
 from fastapi import FastAPI
 from pydantic import create_model
@@ -201,11 +201,12 @@ class VersionedResource:
         This breaks if there is a mismatch between fields of the read class and the orm class.
     """
 
-    orm_class: type[SQLModel]
-    resource_class_create: type[SQLModel] | None = None
-    resource_class_read: type[SQLModel] | None = None
-    create_to_orm: Callable[[SQLModel], SQLModel] | None = None
-    orm_to_read: Callable[[SQLModel], SQLModel] | None = None
+    orm_class: type  #: type[AIoDConcept]
+    # Allow sensible defaults through None, but post_init ensures it's always set.
+    resource_class_create: type[SQLModel] = None  # type: ignore[assignment]
+    resource_class_read: type[SQLModel] = None  # type: ignore[assignment]
+    create_to_orm: Callable[[SQLModel], SQLModel] = None  # type: ignore[assignment]
+    orm_to_read: Callable[[SQLModel], SQLModel] = None  # type: ignore[assignment]
 
     def __post_init__(self):
         self.resource_class_create = self.resource_class_create or resource_create(self.orm_class)
@@ -239,30 +240,56 @@ versions = load_version_metadata(default_config_path.parent / version_file)
 
 
 def schema_transform(
-    original: type[SQLModel],
-    new_name,
-    add_fields: dict[str, tuple[type, FieldInfo]] = None,
-    update_fields: dict[str, tuple[type, FieldInfo]] = None,
-    remove_fields: list[str] = None,
+    original,  # : type[AIoDConcept],
+    prefix: str,
+    add_fields: dict[str, tuple[type, FieldInfo]] | None = None,
+    update_fields: dict[str, tuple[type, FieldInfo]] | None = None,
+    remove_fields: list[str] | None = None,
 ) -> tuple[type[SQLModel], type[SQLModel]]:
+    """Helper function for generating a read and create class from `original`.
+
+    Args:
+        original:
+          The original orm class from which the create and read classes are to be derived.
+        prefix:
+          The prefix used when generating the new class names, will be prefix + read/create.
+        add_fields:
+          Dict that maps new attribute names to type annotations, e.g., {'foo': (str, Field())}
+        update_fields:
+          Dict that maps existing attribute names to new type annotations.
+        remove_fields:
+          List of fields to remove from the new classes.
+
+    Example:
+        CaseStudyV3Read, CaseStudyV3Create = schema_transform(
+            CaseStudy,
+            prefix="CaseStudyV3",
+            add_fields={"foo": (str, Field(max_length=42))},
+            update_fields={"bar": (int | None, Field())},
+            remove_fields=["name"]
+        )
+
+    Returns:
+        A tuple with the generated Read and Create classes, respectively.
+    """
     add_fields = add_fields or {}
     update_fields = update_fields or {}
     remove_fields = remove_fields or []
 
     create_fields = {
         name: (model_field.annotation, model_field.field_info)
-        for name, model_field in resource_create(original).__fields__.items()
+        for name, model_field in resource_create(cast(type, original)).__fields__.items()
     }
     create_fields.update(add_fields | update_fields)
     read_fields = {
         name: (model_field.annotation, model_field.field_info)
-        for name, model_field in resource_read(original).__fields__.items()
+        for name, model_field in resource_read(cast(type, original)).__fields__.items()
     }
     read_fields.update(add_fields | update_fields)
     for field in remove_fields:
         del read_fields[field]
         del create_fields[field]
 
-    read_schema = create_model(f"{new_name}Read", __base__=original.__base__, **read_fields)
-    create_schema = create_model(f"{new_name}Create", __base__=original.__base__, **create_fields)
+    read_schema = create_model(f"{prefix}Read", __base__=original.__base__, **read_fields)
+    create_schema = create_model(f"{prefix}Create", __base__=original.__base__, **create_fields)
     return read_schema, create_schema

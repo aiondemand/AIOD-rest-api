@@ -18,8 +18,8 @@ class ContactRouter(ResourceRouter):
         # Ugly hack to avoid "field "organisation" not yet prepared so type is still a ForwardRef"
         # error. This is caused by the circular relationship between (contact, organisation),
         # and also between (contact, person). See https://github.com/tiangolo/fastapi/issues/5607.
-        Person.__init_subclass__ = lambda: None
-        Organisation.__init_subclass__ = lambda: None
+        Person.__init_subclass__ = lambda: None  # type: ignore[assignment]
+        Organisation.__init_subclass__ = lambda: None  # type: ignore[assignment]
         for model in (self.resource_class_create, self.resource_class_read):
             model.update_forward_refs(Person=Person, Organisation=Organisation)
 
