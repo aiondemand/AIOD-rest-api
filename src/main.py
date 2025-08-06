@@ -33,6 +33,9 @@ from routers import (
     review_router,
 )
 from setup_logger import setup_logger
+from prometheus_fastapi_instrumentator import Instrumentator
+from middleware.access_log import AccessLogMiddleware
+
 
 
 def _parse_args() -> argparse.Namespace:
@@ -146,8 +149,15 @@ def build_app(url_prefix: str = "", version: str = "dev"):
             "scopes": KEYCLOAK_CONFIG.get("scopes"),
         },
     )
+    
+    Instrumentator()\
+        .instrument(app)\
+        .expose(app, endpoint="/metrics", include_in_schema=False)
+    
+    app.add_middleware(AccessLogMiddleware)
     add_routes(app, url_prefix=url_prefix)
     app.add_exception_handler(HTTPException, http_exception_handler)
+    
     return app
 
 
