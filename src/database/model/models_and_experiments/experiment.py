@@ -7,7 +7,7 @@ from database.model.models_and_experiments.badge import Badge
 from database.model.models_and_experiments.runnable_distribution import RunnableDistribution
 from database.model.relationships import ManyToMany, OneToMany
 from database.model.serializers import AttributeSerializer, FindByNameDeserializerList
-from versioning import Version, VersionedResource
+from versioning import Version, VersionedResource, VersionedResourceCollection
 
 
 class ExperimentBase(AIAssetBase):
@@ -62,7 +62,9 @@ class Experiment(ExperimentBase, AIAsset, table=True):  # type: ignore [call-arg
         distribution: list[RunnableDistribution] = OneToMany(default_factory_pydantic=list)
 
 
-experiment_versions = {
-    Version.V2: VersionedResource(Experiment),
-    Version.LATEST: VersionedResource(Experiment),
-}
+experiment_versions = VersionedResourceCollection(
+    {
+        Version.V2: VersionedResource(Experiment),
+        Version.LATEST: VersionedResource(Experiment),
+    }
+)

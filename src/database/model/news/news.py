@@ -13,7 +13,7 @@ from database.model.serializers import (
     CastDeserializer,
     FindByNameDeserializerList,
 )
-from versioning import Version, VersionedResource
+from versioning import Version, VersionedResource, VersionedResourceCollection
 
 
 class NewsBase(AIResourceBase):
@@ -69,7 +69,9 @@ class News(NewsBase, AIResource, table=True):  # type: ignore [call-arg]
         )
 
 
-news_versions = {
-    Version.V2: VersionedResource(News),
-    Version.LATEST: VersionedResource(News),
-}
+news_versions = VersionedResourceCollection(
+    {
+        Version.V2: VersionedResource(News),
+        Version.LATEST: VersionedResource(News),
+    }
+)

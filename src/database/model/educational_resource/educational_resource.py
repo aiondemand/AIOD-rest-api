@@ -21,7 +21,7 @@ from database.model.serializers import (
     CastDeserializerList,
     FindByNameDeserializerList,
 )
-from versioning import VersionedResource, Version
+from versioning import VersionedResource, Version, VersionedResourceCollection
 
 
 class EducationalResourceBase(AIResourceBase):
@@ -168,7 +168,9 @@ class EducationalResource(EducationalResourceBase, AIResource, table=True):  # t
         )
 
 
-educational_resource_versions = {
-    Version.V2: VersionedResource(EducationalResource),
-    Version.LATEST: VersionedResource(EducationalResource),
-}
+educational_resource_versions = VersionedResourceCollection(
+    {
+        Version.V2: VersionedResource(EducationalResource),
+        Version.LATEST: VersionedResource(EducationalResource),
+    }
+)

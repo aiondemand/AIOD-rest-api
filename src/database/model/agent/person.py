@@ -1,7 +1,6 @@
 from typing import Optional
 
 from pydantic import condecimal
-from sqlalchemy import Column, Integer, ForeignKey
 from sqlmodel import Relationship, Field
 
 from database.model.agent.agent import AgentBase, Agent
@@ -19,7 +18,7 @@ from database.model.serializers import (
     FindByIdentifierDeserializerList,
     FindByNameDeserializerList,
 )
-from versioning import Version, VersionedResource
+from versioning import Version, VersionedResource, VersionedResourceCollection
 
 
 class PersonBase(AgentBase):
@@ -105,7 +104,9 @@ AIoDEntryORM.RelationshipConfig.editor.deserializer = deserializer_list  # type:
 deserializer_single = FindByIdentifierDeserializer(Person)
 Contact.RelationshipConfig.person.deserializer = deserializer_single  # type: ignore
 
-person_versions = {
-    Version.V2: VersionedResource(Person),
-    Version.LATEST: VersionedResource(Person),
-}
+person_versions = VersionedResourceCollection(
+    {
+        Version.V2: VersionedResource(Person),
+        Version.LATEST: VersionedResource(Person),
+    }
+)

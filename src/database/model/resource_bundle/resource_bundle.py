@@ -12,7 +12,7 @@ from database.model.serializers import (
     FindByIdentifierDeserializerList,
     FindByNameDeserializerList,
 )
-from versioning import Version, VersionedResource
+from versioning import Version, VersionedResource, VersionedResourceCollection
 
 
 class ResourceBundleBase(AIResourceBase):
@@ -60,7 +60,9 @@ class ResourceBundle(ResourceBundleBase, AIResource, table=True):  # type: ignor
         )
 
 
-resource_bundle_versions = {
-    Version.V2: VersionedResource(ResourceBundle),
-    Version.LATEST: VersionedResource(ResourceBundle),
-}
+resource_bundle_versions = VersionedResourceCollection(
+    {
+        Version.V2: VersionedResource(ResourceBundle),
+        Version.LATEST: VersionedResource(ResourceBundle),
+    }
+)

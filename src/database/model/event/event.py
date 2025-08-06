@@ -19,7 +19,7 @@ from database.model.serializers import (
     CastDeserializerList,
     FindByIdentifierDeserializerList,
 )
-from versioning import VersionedResource, Version
+from versioning import VersionedResource, Version, VersionedResourceCollection
 
 
 class EventBase(AIResourceBase):
@@ -120,7 +120,9 @@ class Event(EventBase, AIResource, table=True):  # type: ignore [call-arg]
         )
 
 
-event_versions = {
-    Version.V2: VersionedResource(Event),
-    Version.LATEST: VersionedResource(Event),
-}
+event_versions = VersionedResourceCollection(
+    {
+        Version.V2: VersionedResource(Event),
+        Version.LATEST: VersionedResource(Event),
+    }
+)

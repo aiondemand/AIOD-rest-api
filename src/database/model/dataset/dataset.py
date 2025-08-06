@@ -15,7 +15,7 @@ from database.model.serializers import (
     CastDeserializer,
     FindByIdentifierDeserializerList,
 )
-from versioning import Version, VersionedResource
+from versioning import Version, VersionedResource, VersionedResourceCollection
 
 
 class DatasetBase(AIAssetBase):
@@ -91,7 +91,9 @@ class Dataset(DatasetBase, AIAsset, table=True):  # type: ignore [call-arg]
         )
 
 
-dataset_versions = {
-    Version.V2: VersionedResource(Dataset),
-    Version.LATEST: VersionedResource(Dataset),
-}
+dataset_versions = VersionedResourceCollection(
+    {
+        Version.V2: VersionedResource(Dataset),
+        Version.LATEST: VersionedResource(Dataset),
+    }
+)

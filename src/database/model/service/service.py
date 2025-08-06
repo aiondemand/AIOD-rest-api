@@ -2,7 +2,7 @@ from sqlmodel import Field
 
 from database.model.ai_resource.resource import AIResourceBase, AIResource
 from database.model.field_length import NORMAL, LONG
-from versioning import Version, VersionedResource
+from versioning import Version, VersionedResource, VersionedResourceCollection
 
 
 class ServiceBase(AIResourceBase):
@@ -30,7 +30,9 @@ class Service(ServiceBase, AIResource, table=True):  # type: ignore [call-arg]
         pass
 
 
-service_versions = {
-    Version.V2: VersionedResource(Service),
-    Version.LATEST: VersionedResource(Service),
-}
+service_versions = VersionedResourceCollection(
+    {
+        Version.V2: VersionedResource(Service),
+        Version.LATEST: VersionedResource(Service),
+    }
+)

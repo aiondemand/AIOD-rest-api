@@ -1,6 +1,6 @@
 import dataclasses
 from enum import StrEnum, auto
-from typing import Callable, cast
+from typing import Callable, cast, TypeVar, Generic
 
 from pydantic import create_model
 from pydantic.fields import FieldInfo
@@ -23,10 +23,10 @@ logger = logging.getLogger(__file__)
 
 
 class Version(StrEnum):
-    LATEST = auto()
     V1 = auto()
     V2 = auto()
     V3 = auto()
+    LATEST = auto()
 
 
 def add_deprecation_header_middleware(app: FastAPI, date: datetime, link: str | None = None):
@@ -180,8 +180,11 @@ class VersionMetadata(NamedTuple):
     retired: bool
 
 
+T = TypeVar("T")
+
+
 @dataclasses.dataclass
-class VersionedResource:
+class VersionedResource(Generic[T]):
     """
     orm_class: type[SQLModel]
         The ORM class for the resource, e.g., CaseStudy
@@ -203,12 +206,12 @@ class VersionedResource:
         This breaks if there is a mismatch between fields of the read class and the orm class.
     """
 
-    orm_class: type  #: type[AIoDConcept]
+    orm_class: type[T]  #: type[AIoDConcept]
     # Allow sensible defaults through None, but post_init ensures it's always set.
     resource_class_create: type[SQLModel] = None  # type: ignore[assignment]
     resource_class_read: type[SQLModel] = None  # type: ignore[assignment]
-    create_to_orm: Callable[[SQLModel], SQLModel] = None  # type: ignore[assignment]
-    orm_to_read: Callable[[SQLModel], SQLModel] = None  # type: ignore[assignment]
+    create_to_orm: Callable[[SQLModel], T] = None  # type: ignore[assignment]
+    orm_to_read: Callable[[T], SQLModel] = None  # type: ignore[assignment]
 
     def __post_init__(self):
         self.resource_class_create = self.resource_class_create or resource_create(self.orm_class)
@@ -243,18 +246,18 @@ versions = load_version_metadata(default_config_path.parent / version_file)
 
 def schema_transform(
     original,  # : type[AIoDConcept],
-    prefix: str,
+    name: str,
     add_fields: dict[str, tuple[type, FieldInfo]] | None = None,
     update_fields: dict[str, tuple[type, FieldInfo]] | None = None,
     remove_fields: list[str] | None = None,
-) -> tuple[type[SQLModel], type[SQLModel]]:
-    """Helper function for generating a read and create class from `original`.
+) -> type[SQLModel]:
+    """Helper function for generating a modified schema based on `original`.
 
     Args:
         original:
           The original orm class from which the create and read classes are to be derived.
-        prefix:
-          The prefix used when generating the new class names, will be prefix + read/create.
+        name:
+          The name used when generating the new class
         add_fields:
           Dict that maps new attribute names to type annotations, e.g., {'foo': (str, Field())}
         update_fields:
@@ -278,20 +281,30 @@ def schema_transform(
     update_fields = update_fields or {}
     remove_fields = remove_fields or []
 
-    create_fields = {
+    fields = {
         name: (model_field.annotation, model_field.field_info)
-        for name, model_field in resource_create(cast(type, original)).__fields__.items()
+        for name, model_field in original.__fields__.items()
     }
-    create_fields.update(add_fields | update_fields)
-    read_fields = {
-        name: (model_field.annotation, model_field.field_info)
-        for name, model_field in resource_read(cast(type, original)).__fields__.items()
-    }
-    read_fields.update(add_fields | update_fields)
+    fields.update(add_fields | update_fields)
+    new_model = create_model(name, __base__=original.__base__, **fields)
+    # We need to remove the fields from the class directly, since otherwise
+    # it may be inherited from the original class.
     for field in remove_fields:
-        del read_fields[field]
-        del create_fields[field]
+        del new_model.__fields__[field]
+    return new_model
 
-    read_schema = create_model(f"{prefix}Read", __base__=original.__base__, **read_fields)
-    create_schema = create_model(f"{prefix}Create", __base__=original.__base__, **create_fields)
-    return read_schema, create_schema
+
+class VersionedResourceCollection(dict):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # If a version is not defined, we assume no changes happened.
+        # We still want this version to be accessible for general use,
+        # so we map it to the next available version.
+        versions = list(Version)
+        latest_version = self[Version.LATEST]
+        for version in reversed(versions):
+            if version in self:
+                latest_version = self[version]
+            else:
+                self[version] = latest_version

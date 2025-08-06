@@ -14,7 +14,7 @@ from database.model.serializers import (
     FindByIdentifierDeserializerList,
 )
 from database.model.field_length import IDENTIFIER_LENGTH
-from versioning import Version, VersionedResource
+from versioning import Version, VersionedResource, VersionedResourceCollection
 
 
 class ProjectBase(AIResourceBase):
@@ -117,7 +117,9 @@ class Project(ProjectBase, AIResource, table=True):  # type: ignore [call-arg]
         )
 
 
-project_versions = {
-    Version.V2: VersionedResource(Project),
-    Version.LATEST: VersionedResource(Project),
-}
+project_versions = VersionedResourceCollection(
+    {
+        Version.V2: VersionedResource(Project),
+        Version.LATEST: VersionedResource(Project),
+    }
+)

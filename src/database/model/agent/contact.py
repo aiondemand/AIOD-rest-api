@@ -15,7 +15,7 @@ from database.model.serializers import (
     CastDeserializerList,
     FindByNameDeserializerList,
 )
-from versioning import Version, VersionedResource
+from versioning import Version, VersionedResource, VersionedResourceCollection
 
 if TYPE_CHECKING:
     from database.model.agent.person import Person
@@ -100,7 +100,9 @@ class Contact(ContactBase, AIoDConcept, table=True):  # type: ignore [call-arg]
         return self.name
 
 
-contact_versions = {
-    Version.V2: VersionedResource(Contact),
-    Version.LATEST: VersionedResource(Contact),
-}
+contact_versions = VersionedResourceCollection(
+    {
+        Version.V2: VersionedResource(Contact),
+        Version.LATEST: VersionedResource(Contact),
+    }
+)
