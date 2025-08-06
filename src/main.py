@@ -28,6 +28,7 @@ from database.model.platform.platform_names import PlatformName
 from database.session import EngineSingleton, DbSession
 from database.setup import create_database, database_exists
 from routers.resource_routers import versioned_routers
+
 from setup_logger import setup_logger
 from taxonomies.synchronize_taxonomy import synchronize_taxonomy_from_file
 from triggers import disable_review_process, enable_review_process

@@ -1,15 +1,17 @@
 import dataclasses
-import tomllib
-from datetime import datetime, timezone
-import logging
 from enum import StrEnum, auto
-from pathlib import Path
-from typing import NamedTuple, Callable, cast, Type
+from typing import Callable, cast
 
-from fastapi import FastAPI
 from pydantic import create_model
 from pydantic.fields import FieldInfo
 from sqlmodel import SQLModel
+import tomllib
+from datetime import datetime, timezone
+import logging
+from pathlib import Path
+from typing import NamedTuple
+
+from fastapi import FastAPI
 from starlette.requests import Request
 from fastapi.openapi.docs import get_swagger_ui_html, get_redoc_html
 from starlette.responses import HTMLResponse

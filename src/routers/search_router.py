@@ -10,7 +10,6 @@ from starlette import status
 from database.model.concept.aiod_entry import AIoDEntryRead, EntryStatus
 from database.model.concept.concept import AIoDConcept
 from database.model.platform.platform import Platform
-from database.model.resource_read_and_create import resource_read
 from database.session import DbSession
 from error_handling import as_http_exception
 from database.model.help_versions import get_versioned_resource
@@ -204,17 +203,18 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
                 index=self.es_index, query=query, from_=offset, size=limit, sort=sort
             )
             total_hits = result["hits"]["total"]["value"]
+            resources: list[read_class] = []  # type: ignore[valid-type]
             if get_all:
                 identifiers = [hit["_source"]["identifier"] for hit in result["hits"]["hits"]]
-                resources: list[SQLModel] = self._db_query(
+                resources = self._db_query(
                     versioned_resource.orm_to_read, self.resource_class, identifiers
                 )
             else:
-                resources: list[read_class] = [  # type: ignore
+                resources = [
                     self._cast_resource(read_class, hit["_source"])
                     for hit in result["hits"]["hits"]
                 ]
-            return SearchResult[read_class](  # type: ignore
+            return SearchResult[read_class](  # type: ignore[valid-type]
                 total_hits=total_hits,
                 resources=resources,
                 limit=limit,
