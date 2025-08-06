@@ -238,16 +238,18 @@ services:
         condition: service_completed_successfully
   
   prometheus:
+    profiles: ["monitoring"]
     image: prom/prometheus:latest
     container_name: prometheus
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus_data:/prometheus
     ports:
-    - "9090:9090"
+    - "${AIOD_PROMETHEUS_PORT}:9090"
     restart: unless-stopped
 
   grafana:
+    profiles: ["monitoring"]
     image: grafana/grafana:latest
     container_name: grafana
     environment:
@@ -258,7 +260,7 @@ services:
       - prometheus
     # expose later if you need external access
     ports:
-    - "3000:3000"
+    - "${AIOD_GRAFANA_PORT}:3000"
     restart: unless-stopped
 
 volumes:

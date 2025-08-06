@@ -3,9 +3,9 @@ from starlette.requests import Request
 from starlette.responses import Response
 from sqlmodel import Session
 
-from database.session import EngineSingleton
+from database.session import DbSession
 from database.model.access.access_log import AssetAccessLog
-from authentication import get_user_or_raise
+from authentication import get_user_or_none
 
 from middleware.resource_types import all_resource_types
 VALID_TYPES = all_resource_types()   # calculated once at import time
@@ -14,7 +14,7 @@ VALID_TYPES = all_resource_types()   # calculated once at import time
 async def _get_optional_user(request: Request):
     """Return Keycloak user or None (don’t raise if unauthenticated)."""
     try:
-        return await get_user_or_raise(request)
+        return await get_user_or_none(request)
     except Exception:  # unauthenticated / no token
         return None
 
@@ -35,9 +35,8 @@ class AccessLogMiddleware(BaseHTTPMiddleware):
                 asset_id=asset_id,
                 resource_type=resource_type,
                 status=response.status_code,
-                user_id=user.sub if user else None,
             )
-            with Session(EngineSingleton().engine) as sess:
+            with DbSession() as sess:
                 sess.add(entry)
                 sess.commit()
 
