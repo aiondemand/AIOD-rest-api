@@ -59,7 +59,7 @@ On a high level, changes to the metadata schema implementation consist of three 
  * updating or adding tests which test those changes, and
  * adding a [database migration script](migration.md) which updates the database accordingly.
 
-This last step isn't needed during development, where you may recreate a database anytime to model changes.
+This last step isn't needed during development, where you may recreate a database anytime to update model changes.
 However, to deploy the changed schema in production we need to be able to change the database,
 both its schema and its content, to match the schema defined by the Python classes.
 For this reason, a migration script is also _required_ when making changes to the metadata schema implementation.

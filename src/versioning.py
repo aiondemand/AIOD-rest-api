@@ -255,27 +255,27 @@ def schema_transform(
 
     Args:
         original:
-          The original orm class from which the create and read classes are to be derived.
+          The original orm class from which the new class is to be derived.
         name:
-          The name used when generating the new class
+          The name used for the new class
         add_fields:
           Dict that maps new attribute names to type annotations, e.g., {'foo': (str, Field())}
         update_fields:
           Dict that maps existing attribute names to new type annotations.
         remove_fields:
-          List of fields to remove from the new classes.
+          List of fields present on `original` to remove from the new class.
 
     Example:
-        CaseStudyV3Read, CaseStudyV3Create = schema_transform(
-            CaseStudy,
-            prefix="CaseStudyV3",
+        CaseStudyV3Read = schema_transform(
+            resource_read(CaseStudy),
+            name="CaseStudyV3Read",
             add_fields={"foo": (str, Field(max_length=42))},
             update_fields={"bar": (int | None, Field())},
             remove_fields=["name"]
         )
 
     Returns:
-        A tuple with the generated Read and Create classes, respectively.
+        The generated class
     """
     add_fields = add_fields or {}
     update_fields = update_fields or {}
