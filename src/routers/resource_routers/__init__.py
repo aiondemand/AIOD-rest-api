@@ -27,3 +27,5 @@ router_list: list[ResourceRouter | PlatformRouter] = [
 versioned_routers = {
     version: [routers.get(version) for routers in all_routers] for version in Version
 }
+
+print(versioned_routers)

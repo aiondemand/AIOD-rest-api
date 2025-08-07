@@ -14,7 +14,8 @@ from database.model.serializers import (
     FindByIdentifierDeserializerList,
 )
 from database.model.field_length import IDENTIFIER_LENGTH
-from versioning import Version, VersionedResource, VersionedResourceCollection
+from database.model.resource_read_and_create import resource_read, resource_create
+from versioning import Version, VersionedResource, schema_transform, VersionedResourceCollection
 
 
 class ProjectBase(AIResourceBase):
@@ -28,7 +29,7 @@ class ProjectBase(AIResourceBase):
         default=None,
         schema_extra={"example": "2022-01-01T15:15:00"},
     )
-    total_cost_euro: condecimal(max_digits=12, decimal_places=2) | None = Field(  # type: ignore
+    total_cost_euros: condecimal(max_digits=12, decimal_places=2) | None = Field(  # type: ignore
         description="The total budget of the project in euros.",
         schema_extra={"example": 1000000},
         default=None,
@@ -117,9 +118,49 @@ class Project(ProjectBase, AIResource, table=True):  # type: ignore [call-arg]
         )
 
 
+old_parameter = dict(
+    total_cost_euro=(
+        condecimal(max_digits=12, decimal_places=2) | None,
+        Field(
+            description="The total budget of the project in euros.",
+            schema_extra={"example": 1000000},
+            default=None,
+        ),
+    )
+)
+ProjectV2Read = schema_transform(
+    resource_read(Project), name="ProjectV2Read", add_fields=old_parameter
+)
+ProjectV2Create = schema_transform(
+    resource_create(Project),
+    name="ProjectV2Create",
+    add_fields=old_parameter,
+    remove_fields=["total_cost_euros"],
+)
+
+
+def rename_total_cost_euro(create: ProjectV2Create) -> Project:  # type: ignore[valid-type]
+    fields = create.model_dump()  # type: ignore[attr-defined]
+    fields["total_cost_euros"] = fields.get("total_cost_euro")
+    return Project.model_validate(fields)
+
+
+def add_total_cost_euro(project: Project) -> ProjectV2Read:  # type: ignore[valid-type]
+    fields = project.model_dump()
+    fields["total_cost_euro"] = project.total_cost_euros
+    return ProjectV2Read.model_validate(fields)
+
+
 project_versions = VersionedResourceCollection(
     {
-        Version.V2: VersionedResource(Project),
+        Version.V3: VersionedResource(Project),
+        Version.V2: VersionedResource[Project](
+            Project,
+            ProjectV2Create,
+            ProjectV2Read,
+            create_to_orm=rename_total_cost_euro,
+            orm_to_read=add_total_cost_euro,
+        ),
         Version.LATEST: VersionedResource(Project),
     }
 )
