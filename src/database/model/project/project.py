@@ -135,18 +135,23 @@ ProjectV2Create = schema_transform(
     resource_create(Project),
     name="ProjectV2Create",
     add_fields=old_parameter,
-    remove_fields=["total_cost_euros"],
 )
 
 
 def rename_total_cost_euro(create: ProjectV2Create) -> Project:  # type: ignore[valid-type]
     fields = create.model_dump()  # type: ignore[attr-defined]
-    fields["total_cost_euros"] = fields.get("total_cost_euro")
+    old_value = fields.get("total_cost_euro")
+    new_value = fields.get("total_cost_euros")
+    if (old_value and new_value) and (old_value != new_value):
+        raise ValueError(
+            "Both `total_cost_euro` and `total_cost_euros` are defined with different values."
+        )
+    fields["total_cost_euros"] = old_value or new_value
     return Project.model_validate(fields)
 
 
 def add_total_cost_euro(project: Project) -> ProjectV2Read:  # type: ignore[valid-type]
-    fields = project.model_dump()
+    fields = resource_read(Project).model_validate(project).model_dump()
     fields["total_cost_euro"] = project.total_cost_euros
     return ProjectV2Read.model_validate(fields)
 
