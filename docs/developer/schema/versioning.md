@@ -13,7 +13,7 @@ from versioning import VersionedResourceCollection
 
 While there is only ever one internal representation of any resource in the database, sometimes we need to allow different versions of that resource to be presented to the user. The most common example of this is for different versions of the REST API, where from version to version a resource may have different fields or change their types. So, we have the true resource representation (matching the class definition with `table=True`) and various views of the resource (generally defined as {AssetType}{VersionPrefix}{Create|Read}, e.g., `CaseStudyV3Read` or `ProjectCreate`).
 
-To avoid manually defining each variation, often only differing by one or a few attributes, the `src/versioning` model adds some functionality to more easily make different versions of the schema.
+To avoid manually defining each variation, often only differing by one or a few attributes, the `src/versioning` module adds some functionality to more easily make different versions of the schema.
 
 ## Versioning Metadata Objects
 The `versioning.Version` enum defines all legal version values in the REST API. If it's not defined there, then it is not valid, not even if it is defined in the `versioning.toml` file.
@@ -32,6 +32,7 @@ The `versioning` module also defines a `VersionedResourceCollection`, which is j
 The `schema_transform` function of the `versioning` allows you to transform one schema to another by directly modifying the SQLModel representation to add, update, or remove fields.
 Say you want to change the `given_name` field from the `Person` resource and rename it to `first_name`.
 We can do this by creating two changes:
+
   - Add the `first_name` to the current schema,
   - Remove `given_name` from the current schema.
 
@@ -108,14 +109,15 @@ In short, as far as model updates go, it is a breaking change if:
 
  - a field is removed
  - the type of a field changes
- - adding a new required field
- - making an optional field required
- - removing enum values
+ - a new required field is added
+ - an optional field is made required
+ - enum values are removed
 
 Notes:
+
  - a renamed field is essentially two changes; adding a new field and removing an old one.
 It is possible to break these steps up in separate versions to allow a longer period of compatibility.
- - enum values are also typically instead defined in a taxonomy in this project. Taxonomy changes may happen at any time without warning, we have yet to determine transition behavior for that, though we can generally assume a taxonomy only expands in non-breaking fashion.
+ - in this project, many times you expect an enum value we instead use a taxonomy. Taxonomy changes may happen at any time without warning, we have yet to determine transition behavior for that, though we can generally assume a taxonomy only expands in non-breaking fashion.
 
 ## Work In Progress
 This document and the versioning module are work in progress.
