@@ -2,7 +2,7 @@ from database.model.agent.organisation import Organisation
 from routers.resource_router import ResourceRouter
 from fastapi import UploadFile, File, HTTPException, Query, status, APIRouter, Depends
 from http import HTTPStatus
-from sqlmodel import select
+from sqlmodel import select, Session
 from database.model.agent.organisation import Organisation
 from database.session import get_session
 import base64
@@ -22,14 +22,6 @@ ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/gif", "image/webp", "im
 MAX_FILE_SIZE_BYTES = 1 * 1024 * 1024  # 1MB
 
 
-def validate_image_type(file: UploadFile):
-    if file.content_type not in ALLOWED_IMAGE_TYPES:
-        raise HTTPException(
-            status_code=HTTPStatus.UNSUPPORTED_MEDIA_TYPE,
-            detail=f"Unsupported file type {file.content_type}. Allowed image types: {ALLOWED_IMAGE_TYPES}.",
-        )
-
-
 class OrganisationRouter(ResourceRouter):
     @property
     def version(self) -> int:
@@ -47,6 +39,40 @@ class OrganisationRouter(ResourceRouter):
     def resource_class(self) -> type[Organisation]:
         return Organisation
 
+    def validate_image_type(self, file: UploadFile):
+        if file.content_type not in ALLOWED_IMAGE_TYPES:
+            raise HTTPException(
+                status_code=HTTPStatus.UNSUPPORTED_MEDIA_TYPE,
+                detail=f"Unsupported file type {file.content_type}. Allowed image types: {ALLOWED_IMAGE_TYPES}.",
+            )
+
+    def _get_resource(self, session: Session, identifier: str) -> Organisation:
+        resource = session.exec(
+            select(Organisation).where(Organisation.identifier == identifier)
+        ).one_or_none()
+        if not resource:
+            raise HTTPException(
+                status_code=HTTPStatus.NOT_FOUND,
+                detail=f"Organisation {identifier} not found in the database.",
+            )
+        return resource
+
+    def _check_user_can_edit(self, user: KeycloakUser, resource: Organisation, resource_name: str):
+        if not (
+            user_can_write(user, resource.aiod_entry)
+            or user.has_role(f"update_{self.resource_name_plural}")
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"You do not have permission to edit {self.resource_name_plural}.",
+            )
+
+        if resource.aiod_entry.status == EntryStatus.SUBMITTED:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You cannot edit an asset under submission.",
+            )
+
     def add_custom_routes(self, router: APIRouter, path: str):
         @router.post(path, tags=[self.resource_name_plural])
         async def organisation_image(
@@ -56,33 +82,12 @@ class OrganisationRouter(ResourceRouter):
             session=Depends(get_session),
             user: KeycloakUser | None = Depends(get_user_or_raise),
         ):
-            validate_image_type(file)
+            self.validate_image_type(file)
 
             try:
-                resource = session.exec(
-                    select(Organisation).where(Organisation.identifier == identifier)
-                ).one_or_none()
+                resource = self._get_resource(session, identifier)
 
-                if not resource:
-                    raise HTTPException(
-                        status_code=HTTPStatus.NOT_FOUND,
-                        detail=f"Organisation {identifier} not found in the database.",
-                    )
-
-                if not (
-                    user_can_write(user, resource.aiod_entry)
-                    or user.has_role(f"update_{self.resource_name_plural}")
-                ):
-                    raise HTTPException(
-                        status_code=status.HTTP_403_FORBIDDEN,
-                        detail=f"You do not have permission to edit {self.resource_name_plural}.",
-                    )
-
-                if resource.aiod_entry.status == EntryStatus.SUBMITTED:
-                    raise HTTPException(
-                        status_code=status.HTTP_403_FORBIDDEN,
-                        detail="You cannot edit an asset under submission.",
-                    )
+                self._check_user_can_edit(user, resource, self.resource_name_plural)
 
                 # Donot allow image upload with same name.
                 # We do not check for identical image content (only name).
@@ -126,33 +131,12 @@ class OrganisationRouter(ResourceRouter):
             session=Depends(get_session),
             user: KeycloakUser | None = Depends(get_user_or_raise),
         ):
-            validate_image_type(file)
+            self.validate_image_type(file)
 
             try:
-                resource = session.exec(
-                    select(Organisation).where(Organisation.identifier == identifier)
-                ).one_or_none()
+                resource = self._get_resource(session, identifier)
 
-                if not resource:
-                    raise HTTPException(
-                        status_code=HTTPStatus.NOT_FOUND,
-                        detail=f"Organisation {identifier} not found in the database.",
-                    )
-
-                if not (
-                    user_can_write(user, resource.aiod_entry)
-                    or user.has_role(f"update_{self.resource_name_plural}")
-                ):
-                    raise HTTPException(
-                        status_code=status.HTTP_403_FORBIDDEN,
-                        detail=f"You do not have permission to edit {self.resource_name_plural}.",
-                    )
-
-                if resource.aiod_entry.status == EntryStatus.SUBMITTED:
-                    raise HTTPException(
-                        status_code=status.HTTP_403_FORBIDDEN,
-                        detail="You cannot edit an asset under submission.",
-                    )
+                self._check_user_can_edit(user, resource, self.resource_name_plural)
 
                 existing_media = next((m for m in resource.media if m.name == name), None)
 
