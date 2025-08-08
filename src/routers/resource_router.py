@@ -239,13 +239,6 @@ class ResourceRouter(abc.ABC):
                     **default_kwargs,
                 )
 
-        for path in [
-            f"{url_prefix}/v2/{self.resource_name_plural}/{{identifier}}/image",
-            f"{url_prefix}/{self.resource_name_plural}/{{identifier}}/image",
-        ]:
-            if hasattr(self, "add_custom_routes"):
-                self.add_custom_routes(router, path)
-
         return router
 
     def get_resources(
@@ -338,7 +331,6 @@ class ResourceRouter(abc.ABC):
             pagination: PaginationParams,
             resource_filters: ResourceFiltersParams,
             schema: self._possible_schemas_type = "aiod",  # type:ignore
-            get_image: bool = Query(False, description="Include image bytes in response?"),
             user: KeycloakUser | None = Depends(get_user_or_none),
         ):
             resources = self.get_resources(
@@ -347,7 +339,6 @@ class ResourceRouter(abc.ABC):
                 resource_filters=resource_filters,
                 user=user,
                 platform=None,
-                get_image=False,
             )
             return resources
 
@@ -453,11 +444,10 @@ class ResourceRouter(abc.ABC):
         def get_resource(
             identifier: str,
             schema: self._possible_schemas_type = "aiod",  # type: ignore
-            get_image: bool = Query(False, description="Include image bytes in response?"),
             user: KeycloakUser | None = Depends(get_user_or_none),
         ):
             resource = self.get_resource(
-                identifier=identifier, schema=schema, user=user, platform=None, get_image=get_image
+                identifier=identifier, schema=schema, user=user, platform=None
             )
 
             return resource

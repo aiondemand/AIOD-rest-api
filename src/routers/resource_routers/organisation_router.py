@@ -8,7 +8,10 @@ from database.model.agent.organisation import Organisation
 from database.session import get_session
 import base64
 from authentication import KeycloakUser, get_user_or_none, get_user_or_raise
-
+from dependencies.filtering import ResourceFilters, ResourceFiltersParams
+from dependencies.pagination import Pagination, PaginationParams
+from routers.resource_router import _raise_error_on_invalid_schema
+from database.session import DbSession
 
 ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/gif", "image/webp", "image/bmp"}
 MAX_FILE_SIZE_BYTES = 1 * 1024 * 1024  # 1MB
@@ -184,3 +187,53 @@ class OrganisationRouter(ResourceRouter):
             session.commit()
 
             return None
+
+    def create(self, url_prefix: str) -> APIRouter:
+        router = super().create(url_prefix)
+
+        for path in [
+            f"{url_prefix}/v2/{self.resource_name_plural}/{{identifier}}/image",
+            f"{url_prefix}/{self.resource_name_plural}/{{identifier}}/image",
+        ]:
+            self.add_custom_routes(router, path)
+
+        return router
+
+    def get_resources_func(self):
+        def get_resources(
+            pagination: PaginationParams,
+            resource_filters: ResourceFiltersParams,
+            schema: self._possible_schemas_type = "aiod",  # type:ignore
+            get_image: bool = Query(False, description="Include image bytes in response?"),
+            user: KeycloakUser | None = Depends(get_user_or_none),
+        ):
+            return self.get_resources(
+                schema=schema,
+                pagination=pagination,
+                resource_filters=resource_filters,
+                user=user,
+                get_image=get_image,
+            )
+
+        return get_resources
+
+    def get_resource_func(self):
+        """
+        Return a function that can be used to retrieve a single resource.
+        This function returns a function (instead of being that function directly) because the
+        docstring and the variables are dynamic, and used in Swagger.
+        """
+
+        def get_resource(
+            identifier: str,
+            schema: self._possible_schemas_type = "aiod",  # type: ignore
+            get_image: bool = Query(False, description="Include image bytes in response?"),
+            user: KeycloakUser | None = Depends(get_user_or_none),
+        ):
+            resource = self.get_resource(
+                identifier=identifier, schema=schema, user=user, platform=None, get_image=get_image
+            )
+
+            return resource
+
+        return get_resource
