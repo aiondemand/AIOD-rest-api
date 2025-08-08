@@ -93,6 +93,7 @@ def add_routes(app: FastAPI, version: Version, url_prefix=""):
         + enum_routers.router_list
         + search_routers.router_list
         + [review_router, user_router, bookmark_router, asset_router]
+        + resource_routers.router_list
     ):
         app.include_router(router.create(url_prefix, version))
 

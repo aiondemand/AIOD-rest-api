@@ -1,16 +1,17 @@
 from http import HTTPStatus
 from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import Session, select
+from sqlmodel import Session
 
 from authentication import KeycloakUser, get_user_or_none
 from database.session import get_session
 from routers.helper_functions import get_asset_type_by_abbreviation
-from routers.resource_routers import router_list
+from routers.resource_routers import versioned_routers
 from database.model.concept.aiod_entry import EntryStatus
 from database.authorization import user_can_read
+from versioning import Version
 
 
-def create(url_prefix: str = "") -> APIRouter:
+def create(url_prefix: str = "", version: Version = Version.LATEST) -> APIRouter:
     router = APIRouter()
 
     @router.get(
@@ -56,9 +57,9 @@ def create(url_prefix: str = "") -> APIRouter:
                     detail="You are not allowed to view this resource.",
                 )
 
-        for router in router_list:
+        for router in versioned_routers.get(version, []):
             if router.resource_class == model_class:
-                return router.resource_class_read.from_orm(resource)
+                return router.orm_to_read(resource)
 
         raise HTTPException(
             status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
