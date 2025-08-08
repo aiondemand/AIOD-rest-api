@@ -40,6 +40,12 @@ class PublicationBase(KnowledgeAssetBase):
         default=None,
         schema_extra={"example": "20493630"},
     )
+    pid: str | None = Field(
+        description="A persistent identifier assigned to the dataset or the publication.",
+        max_length=NORMAL,
+        schema_extra={"example": "10.5061/dryad.4h16331"},
+        default=None,
+    )
 
 
 class Publication(PublicationBase, KnowledgeAsset, table=True):  # type: ignore [call-arg]

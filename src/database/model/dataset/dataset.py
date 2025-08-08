@@ -44,6 +44,12 @@ class DatasetBase(AIAssetBase):
         schema_extra={"example": "2011/2012"},
         default=None,
     )
+    pid: str | None = Field(
+        description="A persistent identifier assigned to the dataset or the publication.",
+        max_length=NORMAL,
+        schema_extra={"example": "10.5061/dryad.4h16331"},
+        default=None,
+    )
 
 
 class Dataset(DatasetBase, AIAsset, table=True):  # type: ignore [call-arg]
