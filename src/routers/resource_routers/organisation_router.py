@@ -8,10 +8,21 @@ from database.model.agent.organisation import Organisation
 from database.session import get_session
 import base64
 from authentication import KeycloakUser, get_user_or_none, get_user_or_raise
-from dependencies.filtering import ResourceFilters, ResourceFiltersParams
-from dependencies.pagination import Pagination, PaginationParams
+from dependencies.filtering import ResourceFiltersParams
+from dependencies.pagination import PaginationParams
 from routers.resource_router import _raise_error_on_invalid_schema
 from database.session import DbSession
+from fastapi import APIRouter, Depends, HTTPException, status, Query, Path
+from database.model.concept.aiod_entry import AIoDEntryORM, EntryStatus
+from database.authorization import (
+    user_can_administer,
+    set_permission,
+    register_user,
+    PermissionType,
+    user_can_write,
+    user_can_read,
+)
+import datetime
 
 ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/gif", "image/webp", "image/bmp"}
 MAX_FILE_SIZE_BYTES = 1 * 1024 * 1024  # 1MB
@@ -101,36 +112,61 @@ class OrganisationRouter(ResourceRouter):
         ):
             validate_image_type(file)
 
-            org = session.exec(
-                select(Organisation).where(Organisation.identifier == identifier)
-            ).one_or_none()
+            try:
+                resource = session.exec(
+                    select(Organisation).where(Organisation.identifier == identifier)
+                ).one_or_none()
 
-            if not org:
-                raise HTTPException(
-                    status_code=HTTPStatus.NOT_FOUND,
-                    detail=f"Organisation {identifier} not found in the database.",
-                )
+                if not resource:
+                    raise HTTPException(
+                        status_code=HTTPStatus.NOT_FOUND,
+                        detail=f"Organisation {identifier} not found in the database.",
+                    )
 
-            existing_media = next((m for m in org.media if m.name == name), None)
-            if not existing_media:
-                raise HTTPException(
-                    status_code=HTTPStatus.NOT_FOUND,
-                    detail=f"No image with the name '{name}' found in the database.",
-                )
+                if not (
+                    user_can_write(user, resource.aiod_entry)
+                    or user.has_role(f"update_{self.resource_name_plural}")
+                ):
+                    raise HTTPException(
+                        status_code=status.HTTP_403_FORBIDDEN,
+                        detail=f"You do not have permission to edit {self.resource_name_plural}.",
+                    )
 
-            blob = await file.read()
-            if len(blob) > MAX_FILE_SIZE_BYTES:
-                raise HTTPException(
-                    status_code=HTTPStatus.REQUEST_ENTITY_TOO_LARGE,
-                    detail="File too large (max 1MB).",
-                )
+                if resource.aiod_entry.status == EntryStatus.SUBMITTED:
+                    raise HTTPException(
+                        status_code=status.HTTP_403_FORBIDDEN,
+                        detail="You cannot edit an asset under submission.",
+                    )
 
-            existing_media.binary_blob = blob
-            existing_media.encoding_format = file.content_type
-            session.add(existing_media)
-            session.commit()
+                existing_media = next((m for m in resource.media if m.name == name), None)
+                if not existing_media:
+                    raise HTTPException(
+                        status_code=HTTPStatus.NOT_FOUND,
+                        detail=f"No image with the name '{name}' found in the database.",
+                    )
 
-            return None
+                blob = await file.read()
+                if len(blob) > MAX_FILE_SIZE_BYTES:
+                    raise HTTPException(
+                        status_code=HTTPStatus.REQUEST_ENTITY_TOO_LARGE,
+                        detail="File too large (max 1MB).",
+                    )
+
+                existing_media.binary_blob = blob
+                existing_media.encoding_format = file.content_type
+                try:
+                    if hasattr(resource, "aiod_entry"):
+                        resource.aiod_entry.date_modified = datetime.datetime.utcnow()
+                        session.merge(resource.aiod_entry)
+
+                    session.merge(existing_media)
+                    session.commit()
+                except Exception as e:
+                    self._raise_clean_http_exception(e, session, resource)
+                return None
+
+            except Exception as e:
+                raise self._raise_clean_http_exception(e, session, resource)
 
         @router.get(path, tags=[self.resource_name_plural])  # type: ignore[no-redef]
         async def organisation_image(
