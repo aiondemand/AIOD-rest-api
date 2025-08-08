@@ -1,0 +1,8 @@
+[v2]
+retired = false
+
+[v1]
+deprecated = "2025-05-30"
+sunset = "2025-06-11"  # sunset on -or after- this date by setting `retired` to true
+link = "https://aiondemand.github.io/AIOD-rest-api/using/migration-v1-v2"  # Link to more information about the deprecation and/or sunset
+retired = true  # means API endpoints for this version are no longer present

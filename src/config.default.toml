@@ -3,6 +3,10 @@
 
 domain = "https://api.aiod.eu/"
 
+[configuration]
+# paths to other configuration files, relative to this file
+versions = "versions.toml"
+
 # Information on which database to connect to
 [database]
 host = "sqlserver"

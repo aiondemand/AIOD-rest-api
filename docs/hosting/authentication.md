@@ -26,8 +26,8 @@ There are two ways to integrate external identity providers (e.g. Google, [EGI C
 Create both a private and a public client in the external provider (this step is required for both options below).
 
 ### Option 1: Update the configuration files
-   - Replace `KEYCLOAK_CLIENT_SECRET` in `.env.override` with the value provided by the external IdP.
-   - Update `server_url`, `client_idr`, `client_id_swagger` `openid_connect_url` and `scopes` in `./src/config.override.toml`.
+   - Replace `KEYCLOAK_CLIENT_SECRET` in `override.env` with the value provided by the external IdP.
+   - Update `server_url`, `client_id`, `client_id_swagger` `openid_connect_url` and `scopes` in `./src/config.override.toml`.
    - In this setup, the Keycloak container is not required and can be shut down.
 ### Option 2: use keycloak as an identity broker
    - Details can be found in the Keycloak documentation: [Integrating identity providers](https://www.keycloak.org/docs/latest/server_admin/index.html#_identity_broker).
@@ -47,6 +47,7 @@ These are the roles the metadata catalogue uses (`*` in a role indicates its def
  * `update_*`: allows the user update permission for all assets on the platform, regardless of the asset-specific permissions.
  * `delete_*`: allows the user delete permission for all assets on the platform, regardless of the asset-specific permissions.
  * `create_platforms`: allows the user to define new platforms.
+ * `platform_NAME`: identifies the 'user' as being allowed to register assets of platform 'NAME', used for connectors.
 
 Note that roles may be used for services other than the metadata catalogue.
 New roles can be created from the admin console, see ["Creating a realm role"](https://www.keycloak.org/docs/latest/server_admin/index.html#proc-creating-realm-roles_server_administration_guide).

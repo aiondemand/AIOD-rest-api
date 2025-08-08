@@ -42,6 +42,7 @@ class ParentRouter(abc.ABC):
         router = APIRouter()
         default_kwargs = {
             "response_model_exclude_none": True,
+            "deprecated": True,
             "tags": ["parents"],
         }
         available_schemas: list[SQLModel] = list(non_abstract_subclasses(self.parent_class))
@@ -82,17 +83,13 @@ class ParentRouter(abc.ABC):
             }
         }
 
-        for path in [
-            url_prefix + f"/v2/{self.resource_name_plural}/{{identifier}}",
-            url_prefix + f"/{self.resource_name_plural}/{{identifier}}",
-        ]:
-            router.add_api_route(
-                path=path,
-                endpoint=get_resource,
-                openapi_extra=openapi_extra,
-                name=self.resource_name,
-                **default_kwargs,
-            )
+        router.add_api_route(
+            path=f"/{self.resource_name_plural}/{{identifier}}",
+            endpoint=get_resource,
+            openapi_extra=openapi_extra,
+            name=self.resource_name,
+            **default_kwargs,
+        )
         return router
 
     def get_resource_func(self, classes_dict: dict, read_classes_dict: dict):

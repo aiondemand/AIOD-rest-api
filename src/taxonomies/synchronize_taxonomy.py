@@ -15,6 +15,7 @@ from database.model.ai_asset.license import License
 from database.model.ai_resource.industrial_sector import IndustrialSector
 from database.model.ai_resource.scientific_domain import ScientificDomain
 from database.model.news.news_category import NewsCategory
+from database.model.agent.organisation import NumberOfEmployees, Turnover
 
 
 def parse_args():
@@ -40,6 +41,8 @@ type_by_name: dict[str, type] = {
     "Licence": License,
     "News Category": NewsCategory,
     "Scientific Domain": ScientificDomain,
+    "Number of Employees": NumberOfEmployees,
+    "Turnover": Turnover,
 }
 
 
@@ -98,7 +101,7 @@ def synchronize(
         synchronized_children = [synchronize_term(child) for child in term.children]
 
         if term_object := db_definitions.get(term.name.casefold()):
-            logging.info(f"Updating term {term.name!r}")
+            logging.debug(f"Updating term {term.name!r}")
             term_object.name = term.name  # The name might change in capitalization
             term_object.definition = term.definition
             term_object.official = True
@@ -106,7 +109,7 @@ def synchronize(
             return term_object
 
         if term.name not in added_terms:
-            logging.info(f"Adding new term {term.name!r}")
+            logging.debug(f"Adding new term {term.name!r}")
             if term.parent is not None and (
                 parent := db_definitions.get(term.parent.name.casefold())
             ):

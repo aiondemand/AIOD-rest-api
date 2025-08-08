@@ -20,7 +20,6 @@ from database.model.platform.platform import Platform
 from database.model.platform.platform_names import PlatformName
 from database.session import EngineSingleton
 from main import build_app
-from database.model.ai_resource.application_area import ApplicationArea
 from database.model.ai_resource.industrial_sector import IndustrialSector
 from database.model.ai_resource.research_area import ResearchArea
 from database.model.ai_resource.scientific_domain import ScientificDomain
