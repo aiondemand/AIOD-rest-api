@@ -1,8 +1,7 @@
 from database.model.agent.organisation import Organisation
 from routers.resource_router import ResourceRouter
-from fastapi import UploadFile, File, HTTPException, Query
+from fastapi import UploadFile, File, HTTPException, Query, status, APIRouter, Depends
 from http import HTTPStatus
-from fastapi import APIRouter, Depends
 from sqlmodel import select
 from database.model.agent.organisation import Organisation
 from database.session import get_session
@@ -10,20 +9,14 @@ import base64
 from authentication import KeycloakUser, get_user_or_none, get_user_or_raise
 from dependencies.filtering import ResourceFiltersParams
 from dependencies.pagination import PaginationParams
-from routers.resource_router import _raise_error_on_invalid_schema
-from database.session import DbSession
-from fastapi import APIRouter, Depends, HTTPException, status, Query, Path
-from database.model.concept.aiod_entry import AIoDEntryORM, EntryStatus
+from database.model.concept.aiod_entry import EntryStatus
 from database.authorization import (
     user_can_administer,
-    set_permission,
-    register_user,
-    PermissionType,
     user_can_write,
-    user_can_read,
 )
 import datetime
 from error_handling import as_http_exception
+
 
 ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/gif", "image/webp", "image/bmp"}
 MAX_FILE_SIZE_BYTES = 1 * 1024 * 1024  # 1MB

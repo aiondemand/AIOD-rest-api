@@ -10,6 +10,8 @@ from database.session import DbSession
 from tests.testutils.users import register_asset, logged_in_user
 import io
 from routers.resource_routers.organisation_router import ALLOWED_IMAGE_TYPES
+from http import HTTPStatus
+import pytest
 
 def test_happy_path(
     client: TestClient,
@@ -120,7 +122,7 @@ def test_organisation_post_image(
             files={"file": ("logo.png", fake_image, "image/png")},
             headers={"Authorization": "Fake token"},
         )
-    assert response.status_code == 200, response.json()
+    assert response.status_code == HTTPStatus.OK, response.json()
 
 def test_organisation_post_image_too_large(
     client: TestClient,
@@ -141,7 +143,7 @@ def test_organisation_post_image_too_large(
             headers={"Authorization": "Fake token"},
         )
 
-    assert response.status_code == 413
+    assert response.status_code == HTTPStatus.REQUEST_ENTITY_TOO_LARGE
     assert response.json()["detail"] == "File too large (max 1MB)."
 
 
@@ -158,7 +160,7 @@ def test_organisation_post_image_incorrect_type(client: TestClient, organisation
             headers={"Authorization": "Fake token"},
         )
 
-    assert response.status_code == 415
+    assert response.status_code == HTTPStatus.UNSUPPORTED_MEDIA_TYPE
     assert response.json()["detail"] == f"Unsupported file type application/pdf. Allowed image types: {ALLOWED_IMAGE_TYPES}."
 
 
@@ -187,7 +189,7 @@ def test_organisation_put_image(
             headers={"Authorization": "Fake token"},
         )
 
-        assert response.status_code == 200, response.json()
+        assert response.status_code == HTTPStatus.OK, response.json()
 
 def test_organisation_put_image_non_existent(
     client: TestClient,
@@ -207,11 +209,12 @@ def test_organisation_put_image_non_existent(
             files={"file": ("logo.png", fake_image, "image/png")},
             headers={"Authorization": "Fake token"},
         )
-        assert response.status_code == 404
+        assert response.status_code == HTTPStatus.NOT_FOUND
         assert response.json()["detail"] == "No image with the name 'LOGO' found in the database."
 
 
-def test_organisation_get_with_and_without_image(client: TestClient, organisation: Organisation):
+@pytest.mark.parametrize("get_image", [False, True])
+def test_organisation_get_with_and_without_image(client: TestClient, organisation: Organisation, get_image: bool):
 
     identifier = register_asset(organisation)
 
@@ -226,18 +229,21 @@ def test_organisation_get_with_and_without_image(client: TestClient, organisatio
             headers={"Authorization": "Fake token"},
         )
 
-    assert response.status_code == 200, response.json()
+    assert response.status_code == HTTPStatus.OK, response.json()
 
-    response = client.get(f"/organisations/{identifier}?get_image=false")
-    assert response.status_code == 200
+    response = client.get(f"/organisations/{identifier}?get_image={str(get_image).lower()}")
+    assert response.status_code == HTTPStatus.OK
+
     response = response.json()
-    assert not response["media"][1].get("binary_blob")
+
+    if get_image:
+        assert response["media"][1]["binary_blob"]
+    else:
+        assert not response["media"][1].get("binary_blob")
+
     assert response["media"][1]["name"] == "logo"
     assert response["media"][1]["encoding_format"] == "image/png"
 
-    response = client.get(f"/organisations/{identifier}?get_image=true")
-    assert response.status_code == 200
-    assert response.json()["media"][1]["binary_blob"]
 
 def test_organisation_get_image(
     client: TestClient,
@@ -260,7 +266,7 @@ def test_organisation_get_image(
     response = client.get(
         f"/organisations/{identifier}/image"
     )
-    assert response.status_code == 200
+    assert response.status_code == HTTPStatus.OK
     response = response.json()
     assert response[0]["binary_blob"]
     assert response[0]["name"] == "logo"
@@ -276,7 +282,7 @@ def test_organisation_get_image_non_existent(
     response = client.get(
         f"/organisations/{identifier}/image"
     )
-    assert response.status_code == 200
+    assert response.status_code == HTTPStatus.OK
     assert response.json() == []
 
 
@@ -301,12 +307,12 @@ def test_organisation_delete_image(
             params={"name": "logo"},
             headers={"Authorization": "Fake token"},
         )
-        assert response.status_code == 200
+        assert response.status_code == HTTPStatus.OK
 
         second_delete_response = client.delete(
             f"/organisations/{identifier}/image",
             params={"name": "logo"},
             headers={"Authorization": "Fake token"},
         )
-        assert second_delete_response.status_code == 404
+        assert second_delete_response.status_code == HTTPStatus.NOT_FOUND
         assert "No image with the name" in second_delete_response.json()["detail"]
