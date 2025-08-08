@@ -40,7 +40,7 @@ def test_happy_path(
     assert response.status_code == 200, response.json()
     identifier = response.json()['identifier']
 
-    response = client.get(f"/organisations/{identifier}?get_image=false")
+    response = client.get(f"/organisations/{identifier}")
     assert response.status_code == 200, response.json()
 
     response_json = response.json()
