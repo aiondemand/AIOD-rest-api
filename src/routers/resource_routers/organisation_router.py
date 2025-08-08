@@ -95,8 +95,7 @@ class OrganisationRouter(ResourceRouter):
                 # We do not check for identical image content (only name).
                 # Consider adding a limit on the number of uploaded images in the future.
 
-                existing_media = next((m for m in resource.media if m.name == name), None)
-                if existing_media:
+                if any(media.name == name for media in resource.media):
                     raise HTTPException(
                         status_code=HTTPStatus.CONFLICT,
                         detail=f"An image with the name '{name}' already exists for this organisation.",
@@ -163,6 +162,7 @@ class OrganisationRouter(ResourceRouter):
                     )
 
                 existing_media = next((m for m in resource.media if m.name == name), None)
+
                 if not existing_media:
                     raise HTTPException(
                         status_code=HTTPStatus.NOT_FOUND,
