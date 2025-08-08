@@ -296,14 +296,12 @@ def test_organisation_delete_image(
             headers={"Authorization": "Fake token"},
         )
 
-
         response = client.delete(
             f"/organisations/{identifier}/image",
             params={"name": "logo"},
             headers={"Authorization": "Fake token"},
         )
         assert response.status_code == 200
-
 
         second_delete_response = client.delete(
             f"/organisations/{identifier}/image",

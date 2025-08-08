@@ -23,6 +23,7 @@ from database.authorization import (
     user_can_read,
 )
 import datetime
+from error_handling import as_http_exception
 
 ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/gif", "image/webp", "image/bmp"}
 MAX_FILE_SIZE_BYTES = 1 * 1024 * 1024  # 1MB
@@ -64,43 +65,66 @@ class OrganisationRouter(ResourceRouter):
         ):
             validate_image_type(file)
 
-            org = session.exec(
-                select(Organisation).where(Organisation.identifier == identifier)
-            ).one_or_none()
+            try:
+                resource = session.exec(
+                    select(Organisation).where(Organisation.identifier == identifier)
+                ).one_or_none()
 
-            if not org:
-                raise HTTPException(
-                    status_code=HTTPStatus.NOT_FOUND,
-                    detail=f"Organisation {identifier} not found in the database.",
-                )
-            # Donot allow image upload with same name.
-            # We do not check for identical image content (only name).
-            # Consider adding a limit on the number of uploaded images in the future.
+                if not resource:
+                    raise HTTPException(
+                        status_code=HTTPStatus.NOT_FOUND,
+                        detail=f"Organisation {identifier} not found in the database.",
+                    )
 
-            existing_media = next((m for m in org.media if m.name == name), None)
-            if existing_media:
-                raise HTTPException(
-                    status_code=HTTPStatus.CONFLICT,
-                    detail=f"An image with the name '{name}' already exists for this organisation.",
-                )
+                if not (
+                    user_can_write(user, resource.aiod_entry)
+                    or user.has_role(f"update_{self.resource_name_plural}")
+                ):
+                    raise HTTPException(
+                        status_code=status.HTTP_403_FORBIDDEN,
+                        detail=f"You do not have permission to edit {self.resource_name_plural}.",
+                    )
 
-            blob = await file.read()
+                if resource.aiod_entry.status == EntryStatus.SUBMITTED:
+                    raise HTTPException(
+                        status_code=status.HTTP_403_FORBIDDEN,
+                        detail="You cannot edit an asset under submission.",
+                    )
 
-            if len(blob) > MAX_FILE_SIZE_BYTES:
-                raise HTTPException(
-                    status_code=HTTPStatus.REQUEST_ENTITY_TOO_LARGE,
-                    detail="File too large (max 1MB).",
-                )
+                # Donot allow image upload with same name.
+                # We do not check for identical image content (only name).
+                # Consider adding a limit on the number of uploaded images in the future.
 
-            media_cls = org.__class__.media.property.mapper.class_
+                existing_media = next((m for m in resource.media if m.name == name), None)
+                if existing_media:
+                    raise HTTPException(
+                        status_code=HTTPStatus.CONFLICT,
+                        detail=f"An image with the name '{name}' already exists for this organisation.",
+                    )
 
-            media = media_cls(binary_blob=blob, name=name, encoding_format=file.content_type)
-            org.media.append(media)
-            session.add(media)
-            session.add(org)
-            session.commit()
+                blob = await file.read()
 
-            return {"identifier": org.identifier}
+                if len(blob) > MAX_FILE_SIZE_BYTES:
+                    raise HTTPException(
+                        status_code=HTTPStatus.REQUEST_ENTITY_TOO_LARGE,
+                        detail="File too large (max 1MB).",
+                    )
+
+                media_cls = resource.__class__.media.property.mapper.class_
+
+                media = media_cls(binary_blob=blob, name=name, encoding_format=file.content_type)
+                resource.media.append(media)
+
+                try:
+                    session.add(media)
+                    session.add(resource)
+                    session.commit()
+                except Exception as e:
+                    self._raise_clean_http_exception(e, session, resource)
+                return {"identifier": resource.identifier}
+
+            except Exception as e:
+                raise self._raise_clean_http_exception(e, session, resource)
 
         @router.put(path, tags=[self.resource_name_plural])  # type: ignore[no-redef]
         async def organisation_image(
@@ -200,29 +224,40 @@ class OrganisationRouter(ResourceRouter):
             session=Depends(get_session),
             user: KeycloakUser | None = Depends(get_user_or_raise),
         ):
-            org = session.exec(
-                select(Organisation).where(Organisation.identifier == identifier)
-            ).one_or_none()
+            try:
+                resource = session.exec(
+                    select(Organisation).where(Organisation.identifier == identifier)
+                ).one_or_none()
 
-            if not org:
-                raise HTTPException(
-                    status_code=HTTPStatus.NOT_FOUND,
-                    detail=f"Organisation {identifier} not found in the database.",
-                )
+                if not resource:
+                    raise HTTPException(
+                        status_code=HTTPStatus.NOT_FOUND,
+                        detail=f"Organisation {identifier} not found in the database.",
+                    )
 
-            existing_media = next((m for m in org.media if m.name == name), None)
-            if not existing_media:
-                raise HTTPException(
-                    status_code=HTTPStatus.NOT_FOUND,
-                    detail=f"No image with the name '{name}' found for this organisation.",
-                )
+                if not (
+                    user_can_administer(user, resource.aiod_entry)
+                    or user.has_role(f"delete_{self.resource_name_plural}")
+                ):
+                    raise HTTPException(
+                        status_code=status.HTTP_403_FORBIDDEN,
+                        detail=f"You do not have permission to delete {self.resource_name_plural}.",
+                    )
 
-            org.media.remove(existing_media)
-            session.delete(existing_media)
-            session.add(org)
-            session.commit()
+                existing_media = next((m for m in resource.media if m.name == name), None)
+                if not existing_media:
+                    raise HTTPException(
+                        status_code=HTTPStatus.NOT_FOUND,
+                        detail=f"No image with the name '{name}' found for this organisation.",
+                    )
 
-            return None
+                resource.media.remove(existing_media)
+                session.delete(existing_media)
+                session.add(resource)
+                session.commit()
+                return None
+            except Exception as e:
+                raise as_http_exception(e)
 
     def create(self, url_prefix: str) -> APIRouter:
         router = super().create(url_prefix)
