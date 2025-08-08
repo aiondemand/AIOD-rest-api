@@ -73,7 +73,24 @@ class OrganisationRouter(ResourceRouter):
                 detail="You cannot edit an asset under submission.",
             )
 
+    async def read_image_file(self, file: UploadFile) -> bytes:
+        blob = await file.read()
+        if len(blob) > MAX_FILE_SIZE_BYTES:
+            raise HTTPException(
+                status_code=HTTPStatus.REQUEST_ENTITY_TOO_LARGE,
+                detail="File too large (max 1MB).",
+            )
+        return blob
+
     def add_custom_routes(self, router: APIRouter, path: str):
+        """ "
+        Organisation image endpoints.
+
+        Currently supports POST, PUT, GET, DELETE (image blob, ex. logo) for an Organisation.
+        This is the only resource with image support at the moment,
+        but the logic can be extended to other resource types in the future if needed.
+        """
+
         @router.post(path, tags=[self.resource_name_plural])
         async def organisation_image(
             identifier: str,
@@ -99,13 +116,7 @@ class OrganisationRouter(ResourceRouter):
                         detail=f"An image with the name '{name}' already exists for this organisation.",
                     )
 
-                blob = await file.read()
-
-                if len(blob) > MAX_FILE_SIZE_BYTES:
-                    raise HTTPException(
-                        status_code=HTTPStatus.REQUEST_ENTITY_TOO_LARGE,
-                        detail="File too large (max 1MB).",
-                    )
+                blob = await self.read_image_file(file)
 
                 media_cls = resource.__class__.media.property.mapper.class_
 
@@ -146,12 +157,7 @@ class OrganisationRouter(ResourceRouter):
                         detail=f"No image with the name '{name}' found in the database.",
                     )
 
-                blob = await file.read()
-                if len(blob) > MAX_FILE_SIZE_BYTES:
-                    raise HTTPException(
-                        status_code=HTTPStatus.REQUEST_ENTITY_TOO_LARGE,
-                        detail="File too large (max 1MB).",
-                    )
+                blob = await self.read_image_file(file)
 
                 existing_media.binary_blob = blob
                 existing_media.encoding_format = file.content_type
