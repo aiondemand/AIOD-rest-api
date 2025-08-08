@@ -6,7 +6,7 @@ request.
 """
 
 import functools
-from typing import Type, Tuple, TYPE_CHECKING
+from typing import Type, Tuple, TYPE_CHECKING, Optional
 
 from pydantic import create_model
 from sqlmodel import SQLModel, Field

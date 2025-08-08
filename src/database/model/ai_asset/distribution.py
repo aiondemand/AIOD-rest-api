@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Type
 
 from pydantic import create_model
-from sqlalchemy import Column, Integer, ForeignKey, String
+from sqlalchemy import Column, Integer, ForeignKey, String, LargeBinary
 from sqlmodel import Field
 
 from database.model.concept.concept import AIoDConceptBase
@@ -25,7 +25,7 @@ class DistributionBase(AIoDConceptBase):
         max_length=NORMAL,
         schema_extra={"example": "2010-2020 Example Company. All rights reserved."},
     )
-    content_url: str = Field(
+    content_url: str | None = Field(
         max_length=LONG,
         schema_extra={"example": "https://www.example.com/dataset/file.csv"},
     )
@@ -50,6 +50,12 @@ class DistributionBase(AIoDConceptBase):
         "lowest and stands for 'Basic principles observed', TRL 9 is the highest and "
         "stands for 'actual system proven in operational environment'.",
         schema_extra={"example": 1},
+    )
+    # Currently, only organisation accepts this field, potentially to store images (ex. organisation logo).
+    binary_blob: bytes | None = Field(
+        default=None,
+        description="Binary blob for storing image (or other type of media) data.",
+        sa_column=Column(LargeBinary),
     )
 
 

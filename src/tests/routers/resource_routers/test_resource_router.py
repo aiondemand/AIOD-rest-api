@@ -4,8 +4,6 @@ from unittest.mock import Mock
 import pytest
 from starlette.testclient import TestClient
 
-
-
 @pytest.mark.parametrize(
     "resource_type",
     [

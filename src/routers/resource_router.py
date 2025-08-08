@@ -5,13 +5,10 @@ from functools import partial
 from http import HTTPStatus
 from typing import Annotated, Any, Literal, Sequence, Type, TypeVar, Union, Callable, cast
 from wsgiref.handlers import format_date_time
-
 from fastapi import APIRouter, Depends, HTTPException, status, Query, Path
-from fastapi.encoders import jsonable_encoder
 from sqlalchemy import and_, func
 from sqlalchemy.sql.operators import is_
 from sqlmodel import SQLModel, Session, select
-from starlette.responses import JSONResponse
 
 from authentication import KeycloakUser, get_user_or_none, get_user_or_raise
 from converters.schema_converters.schema_converter import SchemaConverter
@@ -39,6 +36,10 @@ from dependencies.filtering import ResourceFilters, ResourceFiltersParams
 from dependencies.pagination import Pagination, PaginationParams
 from error_handling import as_http_exception
 from versioning import Version, VersionedResource
+
+from http import HTTPStatus
+from pydantic import BaseModel
+import base64
 
 RESOURCE = TypeVar("RESOURCE", bound=AIResource)
 RESOURCE_CREATE = TypeVar("RESOURCE_CREATE", bound=SQLModel)
@@ -212,6 +213,7 @@ class ResourceRouter(abc.ABC):
         resource_filters: ResourceFilters,
         user: KeycloakUser | None = None,
         platform: str | None = None,
+        get_image: bool = False,
     ):
         """Fetch all published resources of this platform in given schema, using pagination"""
         _raise_error_on_invalid_schema(self._possible_schemas, schema)
@@ -227,6 +229,15 @@ class ResourceRouter(abc.ABC):
                 resources: Any = self._retrieve_resources_and_post_process(
                     session, pagination, resource_filters, user, platform
                 )
+                for resource in resources:
+                    if not get_image and hasattr(resource, "media") and resource.media:
+                        for media_obj in resource.media:
+                            media_obj.binary_blob = None
+
+                    # Add image blobs if requested
+                    if get_image:
+                        self._add_binary_bytes_to_resource(session, resource)
+
                 return [convert_schema(resource) for resource in resources]
             except Exception as e:
                 raise as_http_exception(e)
@@ -237,6 +248,7 @@ class ResourceRouter(abc.ABC):
         schema: str,
         user: KeycloakUser | None = None,
         platform: str | None = None,
+        get_image: bool = False,
     ):
         """
         Get the resource identified by AIoD identifier (if platform is None) or by platform AND
@@ -248,6 +260,15 @@ class ResourceRouter(abc.ABC):
                 resource: Any = self._retrieve_resource_and_post_process(
                     session, identifier, user, platform=platform
                 )
+
+                # Remove images if not requested
+                if not get_image and hasattr(resource, "media") and resource.media:
+                    for media_obj in resource.media:
+                        media_obj.binary_blob = None
+
+                if get_image:
+                    resource = self._add_binary_bytes_to_resource(session, resource)
+
                 if resource.aiod_entry.status != EntryStatus.PUBLISHED:
                     if user is None:
                         raise HTTPException(
@@ -259,6 +280,7 @@ class ResourceRouter(abc.ABC):
                             status_code=HTTPStatus.FORBIDDEN,
                             detail="You are not allowed to view this resource.",
                         )
+
                 if schema != "aiod":
                     return self.schema_converters[schema].convert(session, resource)
                 return self.orm_to_read(resource)
@@ -367,6 +389,18 @@ class ResourceRouter(abc.ABC):
 
         return get_resources
 
+    def _add_binary_bytes_to_resource(self, session: Session, resource: AIoDConcept):
+        """
+        Attach binary_blob bytes as base64 encoded image from the resource's media.
+        """
+        if hasattr(resource, "media") and resource.media:
+            for media_obj in resource.media:
+                if media_obj.binary_blob:
+                    media_obj.binary_blob = base64.b64encode(media_obj.binary_blob).decode("utf-8")
+                else:
+                    media_obj.binary_blob = None
+        return resource
+
     def get_resource_func(self):
         """
         Return a function that can be used to retrieve a single resource.
@@ -382,6 +416,7 @@ class ResourceRouter(abc.ABC):
             resource = self.get_resource(
                 identifier=identifier, schema=schema, user=user, platform=None
             )
+
             return resource
 
         return get_resource
@@ -445,7 +480,7 @@ class ResourceRouter(abc.ABC):
                         detail=f"Platform resource identifier may not be none.",
                     )
 
-            # 2. Normal user: must NOT provide platform/platform_resource_identifier
+            # Normal user: must NOT provide platform/platform_resource_identifier
             else:
                 if platform is not None or platform_resource_identifier is not None:
                     raise HTTPException(
