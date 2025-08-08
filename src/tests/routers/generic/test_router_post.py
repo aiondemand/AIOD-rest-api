@@ -2,7 +2,8 @@ from http import HTTPStatus
 import pytest
 from starlette.testclient import TestClient
 
-from tests.testutils.users import logged_in_user, kc_connector_with_roles, kc_user_with_roles
+from tests.testutils.users import logged_in_user, kc_connector_with_roles
+from tests.routers.resource_routers.test_router_organisation import with_organisation_taxonomies
 from database.model.platform.platform_names import PlatformName
 from database.model.resource_read_and_create import resource_create
 from routers import resource_routers
@@ -237,7 +238,7 @@ def test_taxonomy_is_not_enforced_for_connector(
     tested_routers := [r for r in resource_routers.router_list if r.resource_name != 'platform'],
     ids=map(lambda r: r.resource_name, tested_routers),
 )
-def test_example_is_valid(router, client: TestClient):
+def test_example_is_valid(router, client: TestClient, with_organisation_taxonomies):
     example_values = {}
     res_create = resource_create(router.resource_class)
     for attribute, model_field in res_create.__fields__.items():

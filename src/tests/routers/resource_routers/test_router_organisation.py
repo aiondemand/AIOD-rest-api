@@ -4,8 +4,36 @@ from unittest.mock import Mock
 from starlette.testclient import TestClient
 
 from database.model.agent.contact import Contact
-from database.model.agent.organisation import Organisation
+from database.model.agent.organisation import Organisation, Turnover,NumberOfEmployees
 from database.session import DbSession
+
+import pytest
+
+from taxonomies.synchronize_taxonomy import synchronize
+
+STANDARD_TURNOVER_VALUES = ["<1 million euros", ">1 million euros", ">3 million euros", ">5 million euros", ">50 million euros", ">1.5 billion euros"]
+
+@pytest.fixture
+def with_organisation_taxonomies():
+    with DbSession() as session:
+        synchronize(
+            NumberOfEmployees,
+            [
+                NumberOfEmployees(name=value,definition="", official=True, children=[])
+                for value in ["<10", "<50", "<250", ">=250"]
+            ],
+            session
+        )
+        synchronize(
+            Turnover,
+            [
+                Turnover(name=value,definition="", official=True, children=[])
+                for value in STANDARD_TURNOVER_VALUES
+            ],
+            session
+        )
+        session.commit()
+    yield
 
 
 def test_happy_path(
@@ -15,12 +43,14 @@ def test_happy_path(
     contact: Contact,
     body_agent: dict,
     auto_publish: None,
+    with_organisation_taxonomies,
 ):
     body = copy.copy(body_agent)
     body["date_founded"] = "2023-01-01"
     body["legal_name"] = "A name for the organisation"
     body["ai_relevance"] = "Part of CLAIRE"
     body["type"] = "Research Institute"
+    body["turnover"] = "<1 million euros"
     with DbSession() as session:
         session.add(organisation)  # The new organisation will be a member of this organisation
         session.add(contact)
@@ -46,6 +76,7 @@ def test_happy_path(
     assert response_json["legal_name"] == "A name for the organisation"
     assert response_json["ai_relevance"] == "Part of CLAIRE"
     assert response_json["type"] == "research institute"
+    assert response_json["turnover"] == "<1 million euros"
     assert response_json["member"] == body["member"]
     assert response_json["contact_details"] == body["contact_details"]
     assert response_json["contacts"][0]["name"] == "Aaron Bar"
@@ -70,6 +101,12 @@ def test_happy_path(
     assert response.status_code == 200, response.json()
     response = client.get(f"organisations/{identifier}")
     assert response.json()["type"] == "association"
+
+    body["number_of_employees"] = "<50"
+    response = client.put(f"organisations/{identifier}", json=body, headers={"Authorization": "Fake token"})
+    assert response.status_code == 200, response.json()
+    response = client.get(f"organisations/{identifier}")
+    assert response.json()["number_of_employees"] == "<50"
 
     response = client.delete(f"/organisations/{identifier}", headers={"Authorization": "Fake token"})
     assert response.status_code == 200, response.json()
