@@ -191,22 +191,6 @@ class ResourceRouter(abc.ABC):
                 **default_kwargs,
             )
 
-<<<<<<< HEAD
-            for path in [
-                f"{url_prefix}/v2/platforms/{{platform}}/{self.resource_name_plural}/{{identifier}}",
-                f"{url_prefix}/platforms/{{platform}}/{self.resource_name_plural}/{{identifier}}",
-            ]:
-                router.add_api_route(
-                    path=path,
-                    endpoint=self.get_platform_resource_func(),
-                    response_model=response_model,  # type: ignore
-                    name=self.resource_name,
-                    description=f"Retrieve all meta-data for a {self.resource_name} identified by the "
-                    "platform-specific-identifier.",
-                    **default_kwargs,
-                )
-
-=======
             router.add_api_route(
                 path=f"/platforms/{{platform}}/{self.resource_name_plural}/{{identifier}}",
                 endpoint=self.get_platform_resource_func(),
@@ -216,7 +200,6 @@ class ResourceRouter(abc.ABC):
                 "platform-specific-identifier.",
                 **default_kwargs,
             )
->>>>>>> develop
         return router
 
     def get_resources(

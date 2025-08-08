@@ -255,11 +255,8 @@ class OrganisationRouter(ResourceRouter):
     def create(self, url_prefix: str) -> APIRouter:
         router = super().create(url_prefix)
 
-        for path in [
-            f"{url_prefix}/v2/{self.resource_name_plural}/{{identifier}}/image",
-            f"{url_prefix}/{self.resource_name_plural}/{{identifier}}/image",
-        ]:
-            self.add_custom_routes(router, path)
+        path = f"/{self.resource_name_plural}/{{identifier}}/image"
+        self.add_custom_routes(router, path)
 
         return router
 
