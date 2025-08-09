@@ -9,7 +9,7 @@ from database.model.ai_resource.resource import AIResourceBase, AIResource
 from database.model.ai_resource.text import TextORM, Text
 from database.model.event.event_mode import EventMode
 from database.model.event.event_status import EventStatus
-from database.model.field_length import NORMAL, LONG
+from database.model.field_length import NORMAL, LONG, IDENTIFIER_LENGTH
 from database.model.helper_functions import many_to_many_link_factory
 from database.model.relationships import ManyToMany, ManyToOne, OneToMany, OneToOne
 from database.model.serializers import (
@@ -51,6 +51,7 @@ class EventBase(AIResourceBase):
 
 class Event(EventBase, AIResource, table=True):  # type: ignore [call-arg]
     __tablename__ = "event"
+    __abbreviation__ = "evnt"
 
     content_identifier: int | None = Field(
         index=True,
@@ -64,10 +65,16 @@ class Event(EventBase, AIResource, table=True):  # type: ignore [call-arg]
     location: list[LocationORM] = Relationship(sa_relationship_kwargs={"cascade": "all, delete"})
     performer: list["AgentTable"] = Relationship(
         link_model=many_to_many_link_factory(
-            "event", AgentTable.__tablename__, table_prefix="performer"
+            "event",
+            AgentTable.__tablename__,
+            table_prefix="performer",
+            from_identifier_type=str,
+            to_identifier_type=str,
         ),
     )
-    organiser_identifier: int | None = Field(foreign_key=AgentTable.__tablename__ + ".identifier")
+    organiser_identifier: str | None = Field(
+        max_length=IDENTIFIER_LENGTH, foreign_key=AgentTable.__tablename__ + ".identifier"
+    )
     organiser: Optional[AgentTable] = Relationship()
     status_identifier: int | None = Field(foreign_key=EventStatus.__tablename__ + ".identifier")
     status: Optional[EventStatus] = Relationship()
@@ -83,7 +90,7 @@ class Event(EventBase, AIResource, table=True):  # type: ignore [call-arg]
             deserializer=CastDeserializerList(LocationORM),
             default_factory_pydantic=list,
         )
-        performer: list[int] = ManyToMany(
+        performer: list[str] = ManyToMany(
             description="Links to identifiers of the agents (person or organization) that is "
             "contributing to this event ",
             _serializer=AttributeSerializer("identifier"),
@@ -91,7 +98,7 @@ class Event(EventBase, AIResource, table=True):  # type: ignore [call-arg]
             default_factory_pydantic=list,
             example=[],
         )
-        organiser: Optional[int] = ManyToOne(
+        organiser: Optional[str] = ManyToOne(
             identifier_name="organiser_identifier",
             description="The person or organisation responsible for organising the event.",
             _serializer=AttributeSerializer("identifier"),

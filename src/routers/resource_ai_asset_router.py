@@ -1,15 +1,15 @@
 from typing import Annotated
 
-from fastapi import APIRouter, HTTPException, status, Path
+from fastapi import APIRouter, HTTPException, status, Path, Depends
 from fastapi.responses import RedirectResponse
 
+from authentication import get_user_or_none, KeycloakUser
 from database.model.ai_asset.ai_asset import AIAsset
 from .resource_router import ResourceRouter
 
 
 class ResourceAIAssetRouter(ResourceRouter):
     def create(self, url_prefix: str) -> APIRouter:
-        version = "v1"
         default_kwargs = {
             "response_model_exclude_none": True,
             "deprecated": False,
@@ -19,7 +19,7 @@ class ResourceAIAssetRouter(ResourceRouter):
         router = super().create(url_prefix)
 
         router.add_api_route(
-            path=f"{url_prefix}/{self.resource_name_plural}/{version}/{{identifier}}/content",
+            path=f"/{self.resource_name_plural}/{{identifier}}/content",
             endpoint=self.get_resource_content_func(default=True),
             name=self.resource_name,
             description="Retrieve the actual content of the first distribution (index 0 as "
@@ -29,8 +29,7 @@ class ResourceAIAssetRouter(ResourceRouter):
         )
 
         router.add_api_route(
-            path=f"{url_prefix}/{self.resource_name_plural}/{version}/{{identifier}}/content/"
-            f"{{distribution_idx}}",
+            path=f"/{self.resource_name_plural}/{{identifier}}/content/{{distribution_idx}}",
             endpoint=self.get_resource_content_func(default=False),
             name=self.resource_name,
             description=f"Retrieve the actual content of a distribution for a {self.resource_name} "
@@ -56,9 +55,13 @@ class ResourceAIAssetRouter(ResourceRouter):
                 int,
                 Path(description=f"The index of the distribution within the {self.resource_name}"),
             ],
+            user: KeycloakUser | None = Depends(get_user_or_none),
         ):
             metadata: AIAsset = self.get_resource(
-                identifier=identifier, schema="aiod", platform=None
+                identifier=identifier,
+                schema="aiod",
+                platform=None,
+                user=user,
             )  # type: ignore
 
             distributions = metadata.distribution
@@ -88,8 +91,9 @@ class ResourceAIAssetRouter(ResourceRouter):
             identifier: Annotated[
                 str, Path(description=f"The identifier of the {self.resource_name}")
             ],
+            user: KeycloakUser | None = Depends(get_user_or_none),
         ):
-            return get_resource_content(identifier=identifier, distribution_idx=0)
+            return get_resource_content(identifier=identifier, distribution_idx=0, user=user)
 
         if default:
             return get_resource_content_default

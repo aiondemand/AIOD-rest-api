@@ -28,9 +28,12 @@ class MLModelBase(AIAssetBase):
 
 class MLModel(MLModelBase, AIAsset, table=True):  # type: ignore [call-arg]
     __tablename__ = "ml_model"
+    __abbreviation__ = "mdl"
 
     related_experiment: list["Experiment"] = Relationship(
-        link_model=many_to_many_link_factory("ml_model", Experiment.__tablename__),
+        link_model=many_to_many_link_factory(
+            "ml_model", Experiment.__tablename__, from_identifier_type=str, to_identifier_type=str
+        ),
     )
     type_identifier: int | None = Field(foreign_key=MLModelType.__tablename__ + ".identifier")
     type: Optional[MLModelType] = Relationship()
@@ -44,7 +47,7 @@ class MLModel(MLModelBase, AIAsset, table=True):  # type: ignore [call-arg]
             deserializer=FindByNameDeserializer(MLModelType),
             example="Large Language Model",
         )
-        related_experiment: list[int] = ManyToMany(
+        related_experiment: list[str] = ManyToMany(
             description="Related experiments.",
             _serializer=AttributeSerializer("identifier"),
             deserializer=FindByIdentifierDeserializerList(Experiment),

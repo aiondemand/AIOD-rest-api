@@ -1,6 +1,12 @@
 # Configures the REST API
 # TODO: refactor configuration (https://github.com/aiondemand/AIOD-rest-api/issues/82)
 
+domain = "https://api.aiod.eu/"
+
+[configuration]
+# paths to other configuration files, relative to this file
+versions = "versions.toml"
+
 # Information on which database to connect to
 [database]
 host = "sqlserver"
@@ -9,11 +15,27 @@ database = "aiod"
 username = "root"
 password = "ok"
 
+# One of: 'never', 'if-absent', or 'drop-then-build'
+# Determines if the database is created:
+#    - never:
+#        *never* creates the database, not even if there does not exist one yet.
+#        Use this only if you expect the database to be created through other means, such
+#        as MySQL group replication.
+#    - if-absent:
+#        Creates a database only if none exists.
+#    - drop-then-build:
+#        Drops the database on startup to recreate it from scratch.
+#        THIS REMOVES ALL DATA PERMANENTLY. NO RECOVERY POSSIBLE.
+build_database = "if-absent"
+
 # Additional options for development
 [dev]
-reload = true
+reload = false
 request_timeout = 10  # seconds
 log_level = "INFO"  # Python log levels: https://docs.python.org/3/library/logging.html#logging-levels
+disable_reviews = false  # set to true to automatically publish submissions
+url_prefix = ""
+taxonomy = ""  # Set to a JSON file containing a taxonomy to put into the database on startup
 
 # Authentication and authorization
 [keycloak]

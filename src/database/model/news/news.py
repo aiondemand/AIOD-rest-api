@@ -37,9 +37,12 @@ class NewsBase(AIResourceBase):
 
 class News(NewsBase, AIResource, table=True):  # type: ignore [call-arg]
     __tablename__ = "news"
+    __abbreviation__ = "news"
 
-    category: list[NewsCategory] = Relationship(
-        link_model=many_to_many_link_factory("news", NewsCategory.__tablename__)
+    category: list[NewsCategory] = Relationship(  # type: ignore[valid-type]
+        link_model=many_to_many_link_factory(
+            "news", NewsCategory.__tablename__, from_identifier_type=str
+        )
     )
     content_identifier: int | None = Field(
         index=True,
@@ -56,7 +59,7 @@ class News(NewsBase, AIResource, table=True):  # type: ignore [call-arg]
             description="News categories related to this item.",
             _serializer=AttributeSerializer("name"),
             deserializer=FindByNameDeserializerList(NewsCategory),
-            example=["research: education", "research: awards", "business: robotics"],
+            example=["Education"],
             default_factory_pydantic=list,
         )
         content: Optional[Text] = OneToOne(

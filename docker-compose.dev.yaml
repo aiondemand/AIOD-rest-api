@@ -3,10 +3,8 @@ services:
     stdin_open: true
     volumes:
       - ./src:/app:ro
-    command: >
-      python main.py
-      --build-db if-absent
-      --reload
+      - ${DATA_PATH}/taxonomies:/data/taxonomies
+    command: python main.py
 
   fill-db-with-examples:
     volumes:
@@ -26,6 +24,8 @@ services:
     environment:
       - KEYCLOAK_ADMIN=${KEYCLOAK_ADMIN}
       - KEYCLOAK_ADMIN_PASSWORD=${KEYCLOAK_ADMIN_PASSWORD}
+    volumes:
+      - ./authentication/import:/opt/keycloak/data/import
     command: >
       start
       --hostname-url http://${HOSTNAME}/aiod-auth
@@ -39,12 +39,22 @@ services:
     volumes:
       - ./src:/app:ro
       - ./connectors/openml/:/opt/connectors/script:ro
+    command: >
+      /bin/bash -c "mkdir -p /opt/connectors/data/openml/dataset && /opt/connectors/script/datasets.sh"
+      # /bin/bash -c "mkdir -p /opt/connectors/data/openml/dataset && /opt/connectors/script/datasets.sh"
 
   zenodo-dataset-connector:
     volumes:
       - ./src:/app:ro
       - ./connectors/zenodo/:/opt/connectors/script:ro
+    command: >
+      /bin/bash -c "mkdir -p /opt/connectors/data/zenodo/dataset && /opt/connectors/script/datasets.sh"
 
   es_logstash_setup:
     volumes:
       - ./src:/app:ro
+
+  taxonomy:
+    stdin_open: true
+    volumes:
+       - ./src:/app:ro

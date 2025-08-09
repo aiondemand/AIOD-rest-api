@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List
 from sqlmodel import Relationship
 
 from database.model.ai_resource.resource import AIResource, AIResourceBase
@@ -24,15 +24,23 @@ class ResourceBundleBase(AIResourceBase):
 
 class ResourceBundle(ResourceBundleBase, AIResource, table=True):  # type: ignore [call-arg]
     __tablename__ = "resource_bundle"
+    __abbreviation__ = "res"
 
     # Many-to-Many relationship linking ResourceBundle to external resources (URLs)
     includes_external_reference: List[ExternalResource] = Relationship(
-        link_model=many_to_many_link_factory("resource_bundle", ExternalResource.__tablename__)
+        link_model=many_to_many_link_factory(
+            "resource_bundle", ExternalResource.__tablename__, from_identifier_type=str
+        )
     )
 
     # A list of AIResources that form part of this bundle
     includes_resource: List[AIResourceORM] = Relationship(
-        link_model=many_to_many_link_factory("resource_bundle", AIResourceORM.__tablename__)
+        link_model=many_to_many_link_factory(
+            "resource_bundle",
+            AIResourceORM.__tablename__,
+            from_identifier_type=str,
+            to_identifier_type=str,
+        )
     )
 
     class RelationshipConfig(AIResource.RelationshipConfig):
@@ -43,7 +51,7 @@ class ResourceBundle(ResourceBundleBase, AIResource, table=True):  # type: ignor
             default_factory_pydantic=list,
         )
 
-        includes_resource: List[int] = ManyToMany(
+        includes_resource: List[str] = ManyToMany(
             description="AIResources included in this bundle.",
             _serializer=AttributeSerializer("identifier"),
             deserializer=FindByIdentifierDeserializerList(AIResourceORM),

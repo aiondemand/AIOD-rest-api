@@ -9,18 +9,18 @@ from database.model.platform.platform_names import PlatformName
 @pytest.mark.parametrize(
     "mocked_token", [["create_platforms"]], indirect=True
 )
-def test_happy_path(mocked_token: Mock, client: TestClient):
+def test_happy_path(mocked_token: Mock, client: TestClient, auto_publish: None):
     body = {"name": "my_favourite_platform"}
-    response = client.post("/platforms/v1", json=body, headers={"Authorization": "Fake token"})
+    response = client.post("/platforms", json=body, headers={"Authorization": "Fake token"})
     assert response.status_code == 200, response.json()
-    response = client.get("/platforms/v1")
+    response = client.get("/platforms")
     assert response.status_code == 200, response.json()
     platforms = {p["name"] for p in response.json()}
     assert platforms == {p.name for p in PlatformName}.union(["my_favourite_platform"])
 
 
 @pytest.mark.parametrize(
-    "url", ["/platforms/example/platforms/v1", "/platforms/example/platforms/v1/1"]
+    "url", ["/platforms/example/platforms", "/platforms/example/platforms/1"]
 )
 def test_get_platform_of_platform(client: TestClient, url: str):
     response = client.get(url)
@@ -33,12 +33,12 @@ def test_get_platform_of_platform(client: TestClient, url: str):
 )
 def test_delete_platform(client: TestClient, mocked_token: Mock):
     body = {"name": "my_favourite_platform"}
-    response = client.post("/platforms/v1", json=body, headers={"Authorization": "Fake token"})
+    response = client.post("/platforms", json=body, headers={"Authorization": "Fake token"})
     assert response.status_code == 200, response.json()
     id_ = response.json()["identifier"]
-    response = client.delete(f"/platforms/v1/{id_}", headers={"Authorization": "Fake token"})
+    response = client.delete(f"/platforms/{id_}", headers={"Authorization": "Fake token"})
     assert response.status_code == 200, response.json()
-    response = client.post("/platforms/v1", json=body, headers={"Authorization": "Fake token"})
+    response = client.post("/platforms", json=body, headers={"Authorization": "Fake token"})
     assert response.status_code == 200, response.json()
 
 
@@ -47,8 +47,8 @@ def test_delete_platform(client: TestClient, mocked_token: Mock):
 )
 def test_platform_same_name(client: TestClient, mocked_token: Mock):
     body = {"name": "my_favourite_platform"}
-    response = client.post("/platforms/v1", json=body, headers={"Authorization": "Fake token"})
+    response = client.post("/platforms", json=body, headers={"Authorization": "Fake token"})
     assert response.status_code == 200, response.json()
-    response = client.post("/platforms/v1", json=body, headers={"Authorization": "Fake token"})
+    response = client.post("/platforms", json=body, headers={"Authorization": "Fake token"})
     assert response.status_code == 409, response.json()
     assert response.json()["detail"] == "There already exists a platform with the same name."

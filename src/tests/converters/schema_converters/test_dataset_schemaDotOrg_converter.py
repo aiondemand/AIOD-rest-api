@@ -14,14 +14,14 @@ from tests.testutils.paths import path_test_resources
 
 
 def test_aiod_to_schema_dot_org_happy_path(dataset: Dataset):
-    dataset.identifier = 1
+    dataset.identifier = "data_identifier"
     dataset.license = License(name="a license")
     dataset.alternate_name = [AlternateName(name="alias1"), AlternateName(name="alias2")]
     dataset.size = DatasetSizeORM(value=1, unit="Rows")
     dataset.keyword = [AlternateName(name="keyword1"), AlternateName(name="keyword2")]
     creator = Contact(name="person name")
     funder = Person(name="Firstname Surname", surname="Surname", firstname="Firstname")
-    funder.agent_identifier = AgentTable(identifier="1", type="person")
+    funder.agent_identifier = AgentTable(identifier=funder.identifier, type="person")
     dataset.creator = [creator]
     dataset.funder = [funder.agent_identifier]
     dataset.citation = [Publication(name="A Cited Resource", creator=[creator])]

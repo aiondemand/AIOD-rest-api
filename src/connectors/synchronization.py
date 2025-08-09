@@ -89,6 +89,7 @@ def save_to_database(
     connector: ResourceConnector,
     router: ResourceRouter,
     item: RESOURCE | ResourceWithRelations[RESOURCE] | RecordError,
+    user,
 ) -> Optional[RecordError]:
     if isinstance(item, RecordError):
         return item
@@ -103,7 +104,7 @@ def save_to_database(
         )
         # TODO: if not None, update (https://github.com/aiondemand/AIOD-rest-api/issues/131)
         if existing is None:
-            resource = router.create_resource(session, resource_create_instance)
+            resource = router.create_resource(session, resource_create_instance, user)
             publish_resource(session, resource)
 
     except Exception as e:
@@ -217,9 +218,18 @@ def main():
         if router.resource_class == connector.resource_class
     ]
 
+    class ConnectorUser:
+        def is_connector(self) -> bool:
+            return True
+
+        def is_connector_for_platform(self, platform: str) -> bool:
+            return platform == connector.platform_name
+
     with DbSession() as session:
         for i, item in enumerate(items):
-            error = save_to_database(router=router, connector=connector, session=session, item=item)
+            error = save_to_database(
+                router=router, connector=connector, session=session, item=item, user=ConnectorUser()
+            )
             if error:
                 if not error.ignore:
                     if isinstance(error.error, str):

@@ -47,10 +47,15 @@ class DatasetBase(AIAssetBase):
 
 class Dataset(DatasetBase, AIAsset, table=True):  # type: ignore [call-arg]
     __tablename__ = "dataset"
+    __abbreviation__ = "data"
 
     funder: list["AgentTable"] = Relationship(
         link_model=many_to_many_link_factory(
-            "dataset", AgentTable.__tablename__, table_prefix="funder"
+            "dataset",
+            AgentTable.__tablename__,
+            table_prefix="funder",
+            from_identifier_type=str,
+            to_identifier_type=str,
         ),
     )
     size_identifier: int | None = Field(
@@ -63,7 +68,7 @@ class Dataset(DatasetBase, AIAsset, table=True):  # type: ignore [call-arg]
     spatial_coverage: Optional[LocationORM] = Relationship()
 
     class RelationshipConfig(AIAsset.RelationshipConfig):
-        funder: list[int] = ManyToMany(
+        funder: list[str] = ManyToMany(
             description="Links to identifiers of the agents (person or organization) that supports "
             "this dataset through some kind of financial contribution. ",
             _serializer=AttributeSerializer("identifier"),

@@ -1,12 +1,14 @@
 from typing import Optional
 
 from pydantic import condecimal
+from sqlalchemy import Column, Integer, ForeignKey
 from sqlmodel import Relationship, Field
 
 from database.model.agent.agent import AgentBase, Agent
 from database.model.agent.contact import Contact
 from database.model.agent.expertise import Expertise
 from database.model.agent.language import Language
+from database.model.agent.organisation import Organisation
 from database.model.concept.aiod_entry import AIoDEntryORM
 from database.model.field_length import NORMAL
 from database.model.helper_functions import many_to_many_link_factory
@@ -46,18 +48,28 @@ class PersonBase(AgentBase):
 
 class Person(PersonBase, Agent, table=True):  # type: ignore [call-arg]
     __tablename__ = "person"
+    __abbreviation__ = "prsn"
 
     expertise: list[Expertise] = Relationship(
-        link_model=many_to_many_link_factory("person", Expertise.__tablename__)
+        link_model=many_to_many_link_factory(
+            "person", Expertise.__tablename__, from_identifier_type=str
+        )
     )
-    language: list[Language] = Relationship(
-        link_model=many_to_many_link_factory("person", Language.__tablename__)
+    languages: list[Language] = Relationship(
+        link_model=many_to_many_link_factory(
+            "person", Language.__tablename__, from_identifier_type=str
+        )
     )
     contact_details: Optional[Contact] = Relationship(sa_relationship_kwargs={"uselist": False})
-    # TODO(jos): memberOf? This should probably be on Agent
+
+    member_of: list[Organisation] = Relationship(
+        link_model=many_to_many_link_factory(
+            "person", Organisation.__tablename__, from_identifier_type=str, to_identifier_type=str
+        )
+    )
 
     class RelationshipConfig(Agent.RelationshipConfig):
-        contact_details: int | None = OneToOne(
+        contact_details: str | None = OneToOne(
             description="The identifier of the contact details by which this person can be reached",
             deserializer=FindByIdentifierDeserializer(Contact),
             _serializer=AttributeSerializer("identifier"),
@@ -70,11 +82,19 @@ class Person(PersonBase, Agent, table=True):  # type: ignore [call-arg]
             default_factory_pydantic=list,
             on_delete_trigger_orphan_deletion=list,
         )
-        language: list[str] = ManyToMany(
+        languages: list[str] = ManyToMany(
             description="A language this person masters, in ISO639-3",
             _serializer=AttributeSerializer("name"),
             deserializer=FindByNameDeserializerList(Language),
             example=["eng", "fra", "spa"],
+            default_factory_pydantic=list,
+        )
+
+        member_of: list[str] = ManyToMany(
+            description="The list of Organisations that a Person affiliates with.",
+            _serializer=AttributeSerializer("identifier"),
+            deserializer=FindByIdentifierDeserializerList(Organisation),
+            example=[],
             default_factory_pydantic=list,
         )
 

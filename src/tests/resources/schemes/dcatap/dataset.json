@@ -6,7 +6,7 @@
     },
     "@graph": [
         {
-            "@id": "1",
+            "@id": "data_",
             "@type": "dcat:Dataset",
             "dct:description": "A description.",
             "dct:title": "The name",

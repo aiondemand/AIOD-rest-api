@@ -1,13 +1,13 @@
 from typing import Optional, TYPE_CHECKING
 
-from sqlalchemy import Column, Integer, ForeignKey, CheckConstraint
+from sqlalchemy import Column, Integer, ForeignKey, String
 from sqlmodel import Field, Relationship
 
 from database.model.agent.email import Email
 from database.model.agent.location import LocationORM, Location
 from database.model.agent.telephone import Telephone
 from database.model.concept.concept import AIoDConceptBase, AIoDConcept
-from database.model.field_length import NORMAL
+from database.model.field_length import NORMAL, IDENTIFIER_LENGTH
 from database.model.helper_functions import many_to_many_link_factory
 from database.model.relationships import ManyToMany, OneToMany, OneToOne
 from database.model.serializers import (
@@ -24,36 +24,39 @@ if TYPE_CHECKING:
 class ContactBase(AIoDConceptBase):
     name: str | None = Field(
         max_length=NORMAL,
-        schema_extra={
-            "example": "The name of this contact, especially useful if "
-            "it is not known whether this contact is a person "
-            "or organisation. For persons, it is preferred to "
-            "store this information as contact.person.surname "
-            "and contact.person.firstname. For organisations, "
-            "store it as contact.organisation.legal_name."
-        },
+        description="The name of this contact, especially useful if "
+        "it is not known whether this contact is a person "
+        "or organisation. For persons, it is preferred to "
+        "store this information as contact.person.surname "
+        "and contact.person.firstname. For organisations, "
+        "store it as contact.organisation.legal_name.",
+        schema_extra={"example": "Ada Lovelace"},
     )
 
 
 class Contact(ContactBase, AIoDConcept, table=True):  # type: ignore [call-arg]
     __tablename__ = "contact"
-    identifier: int = Field(default=None, primary_key=True)
+    __abbreviation__ = "con"
 
     email: list[Email] = Relationship(
-        link_model=many_to_many_link_factory(table_from="contact", table_to=Email.__tablename__)
+        link_model=many_to_many_link_factory(
+            table_from="contact", from_identifier_type=str, table_to=Email.__tablename__
+        )
     )
     location: list[LocationORM] = Relationship(sa_relationship_kwargs={"cascade": "all, delete"})
     telephone: list[Telephone] = Relationship(
-        link_model=many_to_many_link_factory(table_from="contact", table_to=Telephone.__tablename__)
+        link_model=many_to_many_link_factory(
+            table_from="contact", from_identifier_type=str, table_to=Telephone.__tablename__
+        )
     )
-    organisation_identifier: int | None = Field(
-        sa_column=Column(Integer, ForeignKey("organisation.identifier"))
+    organisation_identifier: str | None = Field(
+        sa_column=Column(String(IDENTIFIER_LENGTH), ForeignKey("organisation.identifier"))
     )
     organisation: Optional["Organisation"] = Relationship(
         back_populates="contact_details", sa_relationship_kwargs={"uselist": False}
     )
-    person_identifier: int | None = Field(
-        sa_column=Column(Integer, ForeignKey("person.identifier"))
+    person_identifier: str | None = Field(
+        sa_column=Column(String(IDENTIFIER_LENGTH), ForeignKey("person.identifier"))
     )
     person: Optional["Person"] = Relationship(
         back_populates="contact_details", sa_relationship_kwargs={"uselist": False}
@@ -78,10 +81,10 @@ class Contact(ContactBase, AIoDConcept, table=True):  # type: ignore [call-arg]
             on_delete_trigger_orphan_deletion=lambda: ["contact_telephone_link"],
             default_factory_pydantic=list,
         )
-        organisation: Optional[int] = OneToOne(
+        organisation: Optional[str] = OneToOne(
             _serializer=AttributeSerializer("identifier"),
         )
-        person: Optional[int] = OneToOne(
+        person: Optional[str] = OneToOne(
             _serializer=AttributeSerializer("identifier"),
         )
 
@@ -94,12 +97,3 @@ class Contact(ContactBase, AIoDConcept, table=True):  # type: ignore [call-arg]
                 [name for name in (self.person.surname, self.person.given_name) if name]
             )
         return self.name
-
-    @classmethod
-    def table_arguments(cls) -> list:
-        return super().table_arguments() + [
-            CheckConstraint(
-                "NOT(person_identifier IS NOT NULL AND organisation_identifier IS NOT NULL)",
-                name="contact_person_and_organisation_not_both_filled",
-            )
-        ]

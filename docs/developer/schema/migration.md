@@ -54,7 +54,7 @@ For example, to find out what revision `develop` is on:
 Build the docker image above, and start a container of it with shell as entry:
 
 ```bash
-docker run -v $(pwd)/alembic:/alembic  -v $(pwd)/src:/app -it --network aiod_default --entrypoint=/bin/bash  aiod-migration
+docker run -v $(pwd)/alembic:/alembic  -v $(pwd)/src:/app -it --network aiod-rest-api_default --entrypoint=/bin/bash  aiod-migration
 ```
 
 Then follow regular `alembic` steps:

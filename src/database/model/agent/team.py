@@ -9,6 +9,7 @@ from database.model.ai_resource.resource import AIResourceBase, AIResource
 from database.model.helper_functions import many_to_many_link_factory
 from database.model.relationships import ManyToOne, ManyToMany
 from database.model.serializers import AttributeSerializer, FindByIdentifierDeserializerList
+from database.model.field_length import IDENTIFIER_LENGTH
 
 
 class TeamBase(AIResourceBase):
@@ -26,22 +27,25 @@ class TeamBase(AIResourceBase):
 
 class Team(TeamBase, AIResource, table=True):  # type: ignore [call-arg]
     __tablename__ = "team"
+    __abbreviation__ = "team"
 
-    organisation_identifier: int | None = Field(
-        foreign_key=Organisation.__tablename__ + ".identifier"
+    organisation_identifier: str | None = Field(
+        max_length=IDENTIFIER_LENGTH, foreign_key=Organisation.__tablename__ + ".identifier"
     )
     organisation: Optional[Organisation] = Relationship()
     member: list[Person] = Relationship(
-        link_model=many_to_many_link_factory("team", Person.__tablename__, "member"),
+        link_model=many_to_many_link_factory(
+            "team", Person.__tablename__, "member", from_identifier_type=str, to_identifier_type=str
+        ),
     )
 
     class RelationshipConfig(AIResource.RelationshipConfig):
-        organisation: int | None = ManyToOne(
+        organisation: str | None = ManyToOne(
             description="The organisation of which this team is a part.",
             identifier_name="organisation_identifier",
             _serializer=AttributeSerializer("identifier"),
         )
-        member: list[int] = ManyToMany(
+        member: list[str] = ManyToMany(
             description="The persons that are a member of this team. The leader should "
             "also be added as contact.",
             _serializer=AttributeSerializer("identifier"),

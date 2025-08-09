@@ -19,7 +19,7 @@
         "_id" : "case_study_1",
         "_score" : null,
         "_source" : {
-          "identifier" : 1,
+          "identifier" : "case_VzOUHjo8ExjULfbvIxsSZB7M",
           "date_modified" : "2023-09-01T00:00:00.000Z",
           "name" : "A name.",
           "platform" : "A platform.",

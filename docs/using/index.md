@@ -4,11 +4,17 @@ The REST API allows you to retrieve, update, or remove asset metadata in the met
 The assets are indexed from many different platforms, such as educational resources from [AIDA](https://www.i-aida.org),
 datasets from [HuggingFace](https://huggingface.co), models from [OpenML](https://openml.org), and many more.
 
-The REST API is available at [`https://api.aiod.eu`](https://api.aiod.eu) and documentation on endpoints
+The REST API is available at [https://api.aiod.eu](https://api.aiod.eu) and documentation on endpoints
 is available on complementary [Swagger](https://api.aiod.eu/docs) and [ReDoc](https://api.aiod.eu/redoc) pages.
 
 To use the REST API, simply make HTTP requests to the different endpoints.
-Generally, these are `GET` requests when retrieving data, `PUT` requests when modifying data, `POST` requests when adding data, and `DEL` requests when deleting data.
+Generally, these are `GET` requests when retrieving data, `PUT` requests when modifying data, `POST` requests when adding data, and `DEL` requests when deleting data. The video and text below show examples on how to use the REST API.
+
+## Introduction Video
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/2nDj1_VjcWM?si=ncD7xaifSmbU5uzZ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
+## A Quick Example
 Here are some examples on how to list datasets in different environments:
 
 === "Python (requests)"
@@ -49,7 +55,7 @@ For example, if we navigate to the [`GET /datasets/v1`](https://api.aiod.eu/docs
 endpoint and expand the documentation by clicking on the down chevron (`v`), we can see the different query parameters
 and can execute a call directly on the API:
 
-![The Swagger documentation allows you to directly query the REST API from your browser.](media/swagger.webp)
+![The Swagger documentation allows you to directly query the REST API from your browser.](../media/swagger.webp)
 
 Click the `Try it out` button to be able to modify the parameter values and then click the `execute` button to make the request directly from the documentation page.
 Under `response` you will also see an example on how to make the request through the command line using `curl`, e.g.:
@@ -64,7 +70,7 @@ Below the example, you will find a section `Server Response` which displays the 
 Normally, this should look similar to the image below; a [HTTP Status Code](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status),
 and data (in JSON).
 
-![After executing a query, Swagger shows the JSON response.](media/response.webp)
+![After executing a query, Swagger shows the JSON response.](../media/response.webp)
 
 Below the actual server response is a `response` section which lists information about the possible responses, including
 for example different error codes.
@@ -89,7 +95,7 @@ The documentation page will prepopulate example data to help you know what infor
 the `Example Value` tab of the `Request Body` section. To know what values are accepted, you can click the
 `Schema` tab instead.
 
-![The "schema" tab in Swagger shows allowed types](media/post.webp)
+![The "schema" tab in Swagger shows allowed types](../media/post.webp)
 
 
 ### Alternative Documentation (ReDoc)

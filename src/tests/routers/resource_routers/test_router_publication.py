@@ -11,6 +11,7 @@ def test_happy_path(
     mocked_privileged_token: Mock,
     body_asset: dict,
     dataset: Dataset,
+    auto_publish: None,
 ):
     body = copy.copy(body_asset)
     body["permanent_identifier"] = "http://dx.doi.org/10.1093/ajae/aaq063"
@@ -19,10 +20,11 @@ def test_happy_path(
     body["type"] = "journal"
     body["content"] = {"plain": "plain content"}
 
-    response = client.post("/publications/v1", json=body, headers={"Authorization": "Fake token"})
+    response = client.post("/publications", json=body, headers={"Authorization": "Fake token"})
     assert response.status_code == 200, response.json()
+    identifier = response.json()['identifier']
 
-    response = client.get("/publications/v1/1")
+    response = client.get(f"/publications/{identifier}")
     assert response.status_code == 200, response.json()
     response_json = response.json()
 

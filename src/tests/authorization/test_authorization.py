@@ -1,5 +1,6 @@
 import json
 from http import HTTPStatus
+from typing import Callable
 from unittest.mock import Mock
 
 import pytest
@@ -7,9 +8,9 @@ from starlette.testclient import TestClient
 
 from authentication import KeycloakUser
 from database.authorization import (
-    PermissionType, user_can_read, user_can_write, user_can_administer,
+    PermissionType, user_can_read, user_can_write, user_can_administer, set_permission,
 )
-from database.model.concept.aiod_entry import EntryStatus
+from database.model.concept.aiod_entry import EntryStatus, AIoDEntryORM
 from database.review import Decision, ReviewCreate
 from database.session import DbSession
 from database.model.knowledge_asset.publication import Publication
@@ -19,12 +20,12 @@ from tests.testutils.users import ALICE, BOB, REVIEWER, _register_user_in_db, \
 
 
 def test_user_must_be_logged_in_to_publish(client, publication):
-    response = client.post("/publications/v1", content=publication.json(), headers=None)
+    response = client.post("/publications", content=publication.json(), headers=None)
     assert response.status_code == HTTPStatus.UNAUTHORIZED
 
     with logged_in_user(ALICE):
         response = client.post(
-            "/publications/v1", content=publication.json(), headers={"Authorization": "Fake token"}
+            "/publications", content=publication.json(), headers={"Authorization": "Fake token"}
         )
         assert response.status_code == HTTPStatus.OK, response.json()
 
@@ -32,11 +33,14 @@ def test_user_must_be_logged_in_to_publish(client, publication):
 def test_new_asset_is_draft(client, publication, mocked_privileged_token: Mock):
     with logged_in_user(ALICE):
         response = client.post(
-            "/publications/v1", content=publication.json(), headers={"Authorization": "Fake token"}
+            "/publications", content=publication.json(), headers={"Authorization": "Fake token"}
         )
         assert response.status_code == HTTPStatus.OK, response.json()
 
-        server_data = client.get(f"/publications/v1/{response.json()['identifier']}").json()
+        server_data = client.get(
+            f"/publications/{response.json()['identifier']}",
+            headers={"Authorization": "Fake token"},
+        ).json()
         assert server_data["aiod_entry"]["status"] == EntryStatus.DRAFT
 
 
@@ -47,11 +51,11 @@ def test_drafts_are_private(
 ):
     with logged_in_user(ALICE):
         response = client.post(
-            "/publications/v1", content=publication.json(), headers={"Authorization": "Fake token"}
+            "/publications", content=publication.json(), headers={"Authorization": "Fake token"}
         )
         assert response.status_code == HTTPStatus.OK, response.json()
 
-    response = client.get(f"/publications/v1/{response.json()['identifier']}")
+    response = client.get(f"/publications/{response.json()['identifier']}")
     pytest.skip("Privacy rules not yet implemented.")
     # assert response.status_code == HTTPStatus.FORBIDDEN
     # through list
@@ -68,7 +72,7 @@ def test_user_can_submit_draft_for_review(comment, client, publication):
 
     with logged_in_user(ALICE):
         submission = client.post(
-            f"/publications/submit/v1/{identifier}",
+            f"/publications/submit/{identifier}",
             headers={"Authorization": "Fake token"},
             content=content,
         )
@@ -76,7 +80,7 @@ def test_user_can_submit_draft_for_review(comment, client, publication):
         assert "submission_identifier" in submission.json()
 
     with logged_in_user(REVIEWER):
-        queue = client.get("/submissions/v1", headers={"Authorization": "Fake token"})
+        queue = client.get("/submissions", headers={"Authorization": "Fake token"})
         assert queue.status_code == HTTPStatus.OK, queue.json()
         assert len(queue.json()) == 1, "A successful request should result in a submission."
         [sub] = queue.json()
@@ -89,13 +93,13 @@ def test_user_can_not_submit_other_for_review(client, publication):
 
     with logged_in_user(BOB):
         submission = client.post(
-            f"/publications/submit/v1/{identifier}",
+            f"/publications/submit/{identifier}",
             headers={"Authorization": "Fake token"},
         )
         assert submission.status_code == HTTPStatus.FORBIDDEN, submission.json()
 
     with logged_in_user(REVIEWER):
-        queue = client.get("/submissions/v1", headers={"Authorization": "Fake token"})
+        queue = client.get("/submissions", headers={"Authorization": "Fake token"})
         assert queue.status_code == HTTPStatus.OK, queue.json()
         assert len(queue.json()) == 0, "A rejected request should not result in a submission."
 
@@ -104,7 +108,7 @@ def test_a_draft_is_not_pending_for_review(client, publication):
     register_asset(publication, owner=ALICE, status=EntryStatus.DRAFT)
 
     with logged_in_user(REVIEWER):
-        queue = client.get("/submissions/v1", headers={"Authorization": "Fake token"})
+        queue = client.get("/submissions", headers={"Authorization": "Fake token"})
         assert queue.status_code == HTTPStatus.OK, queue.json()
         assert len(queue.json()) == 0, "An asset is only pending for review after submission."
 
@@ -113,7 +117,7 @@ def test_a_submitted_asset_is_pending_for_review(client, publication):
     register_asset(publication, owner=ALICE, status=EntryStatus.SUBMITTED)
 
     with logged_in_user(REVIEWER):
-        queue = client.get("/submissions/v1", headers={"Authorization": "Fake token"})
+        queue = client.get("/submissions", headers={"Authorization": "Fake token"})
         assert queue.status_code == HTTPStatus.OK, queue.json()
         assert len(queue.json()) == 1, "A submitted asset should be pending until a review is done."
 
@@ -121,7 +125,7 @@ def test_get_submission_by_id(client, publication):
     register_asset(publication, owner=ALICE, status=EntryStatus.PUBLISHED)
 
     with logged_in_user(REVIEWER):
-        submission = client.get("/submissions/v1/1", headers={"Authorization": "Fake token"})
+        submission = client.get("/submissions/1", headers={"Authorization": "Fake token"})
         assert submission.status_code == HTTPStatus.OK, submission.json()
 
         submission_dict = submission.json()
@@ -155,18 +159,18 @@ def test_get_submission_by_id_must_be_reviewer_or_owner(client, publication):
 
     for allowed_user in [REVIEWER, ALICE]:
         with logged_in_user(allowed_user):
-            submission = client.get("/submissions/v1/1", headers={"Authorization": "Fake token"})
+            submission = client.get("/submissions/1", headers={"Authorization": "Fake token"})
             assert submission.status_code == HTTPStatus.OK, submission.json()
 
     with logged_in_user(BOB):
-        submission = client.get("/submissions/v1/1", headers={"Authorization": "Fake token"})
+        submission = client.get("/submissions/1", headers={"Authorization": "Fake token"})
         # Probably should be changed to Administrators of the asset instead of just submitter.
         assert submission.status_code == HTTPStatus.FORBIDDEN, "Only reviewer and submitter should be able to see the review."
 
 
 def test_unknown_submission_raises_404(client):
     with logged_in_user(REVIEWER):
-        queue = client.get("/submissions/v1/1", headers={"Authorization": "Fake token"})
+        queue = client.get("/submissions/1", headers={"Authorization": "Fake token"})
         assert queue.status_code == HTTPStatus.NOT_FOUND
 
 
@@ -190,7 +194,7 @@ def test_submission_by_state_respects_privacy(user: KeycloakUser, mode: ListMode
     register_asset(publication, owner=BOB, status=EntryStatus.SUBMITTED)
 
     with logged_in_user(user):
-        queue = client.get(f"/submissions/v1?mode={mode}", headers={"Authorization": "Fake token"})
+        queue = client.get(f"/submissions?mode={mode}", headers={"Authorization": "Fake token"})
         assert queue.status_code == HTTPStatus.OK, queue.json()
         returned_submissions = [submission["identifier"] for submission in queue.json()]
         assert returned_submissions == assets, f"{reason} Response: {queue.json()}"
@@ -200,7 +204,7 @@ def test_an_published_asset_is_not_pending_for_review(client, publication):
 
     with logged_in_user(REVIEWER):
         queue = client.get(
-            f"/submissions/v1?mode={ListMode.PENDING}", headers={"Authorization": "Fake token"}
+            f"/submissions?mode={ListMode.PENDING}", headers={"Authorization": "Fake token"}
         )
         assert queue.status_code == HTTPStatus.OK, queue.json()
         assert (
@@ -208,7 +212,7 @@ def test_an_published_asset_is_not_pending_for_review(client, publication):
         ), "After publication, the submission is no longer pending a review."
 
         queue = client.get(
-            f"/submissions/v1?mode={ListMode.COMPLETED}", headers={"Authorization": "Fake token"}
+            f"/submissions?mode={ListMode.COMPLETED}", headers={"Authorization": "Fake token"}
         )
         assert queue.status_code == HTTPStatus.OK, queue.json()
         assert len(queue.json()) == 1, "After publication, the review request is completed."
@@ -228,16 +232,14 @@ def test_an_published_asset_is_not_pending_for_review(client, publication):
 def test_retrieving_single_submission_works(user: KeycloakUser, mode: ListMode, asset: int, reason: str, client: TestClient, publication_factory):
     publication = publication_factory()
     oldest = publication_factory()
-    oldest.platform_resource_identifier = "OLDEST"
     newest = publication_factory()
-    newest.platform_resource_identifier = "NEWEST"
 
     register_asset(publication, owner=ALICE, status=EntryStatus.PUBLISHED)
     register_asset(oldest, owner=ALICE, status=EntryStatus.SUBMITTED)
     register_asset(newest, owner=BOB, status=EntryStatus.SUBMITTED)
 
     with logged_in_user(user):
-        queue = client.get(f"/submissions/v1?mode={mode}", headers={"Authorization": "Fake token"})
+        queue = client.get(f"/submissions?mode={mode}", headers={"Authorization": "Fake token"})
         assert queue.status_code == HTTPStatus.OK, queue.json()
         assert queue.json()[0]["aiod_entry_identifier"] == asset, reason
 
@@ -246,14 +248,14 @@ def test_user_can_retract_assets(client, publication):
     register_asset(publication, owner=ALICE, status=EntryStatus.SUBMITTED)
     with logged_in_user(ALICE):
         response = client.post(
-            f"/submissions/retract/v1/1", headers={"Authorization": "Fake token"}
+            f"/submissions/retract/1", headers={"Authorization": "Fake token"}
         )
         assert "review_identifier" in response.json()
         assert Decision.RETRACTED == response.json()["decision"]
 
     with logged_in_user(REVIEWER):
         queue = client.get(
-            f"/submissions/v1?mode={ListMode.PENDING}", headers={"Authorization": "Fake token"}
+            f"/submissions?mode={ListMode.PENDING}", headers={"Authorization": "Fake token"}
         )
         assert queue.status_code == HTTPStatus.OK, queue.json()
         assert len(queue.json()) == 0, "A retracted request should not remain pending."
@@ -264,7 +266,7 @@ def test_other_user_can_not_retract_assets(client, publication):
 
     with logged_in_user(BOB):
         response = client.post(
-            f"/submissions/retract/v1/{identifier}", headers={"Authorization": "Fake token"}
+            f"/submissions/retract/1", headers={"Authorization": "Fake token"}
         )
         assert response.status_code == HTTPStatus.FORBIDDEN, response.json()
 
@@ -275,7 +277,7 @@ def test_user_can_always_delete_asset(status: EntryStatus, publication, client):
 
     with logged_in_user(ALICE):
         response = client.delete(
-            f"/publications/v1/{identifier}",
+            f"/publications/{identifier}",
             headers={"Authorization": "Fake token"},
         )
         assert response.status_code == HTTPStatus.OK, response.json()
@@ -286,12 +288,15 @@ def test_user_can_edit_asset_in_draft(publication, client):
 
     with logged_in_user(ALICE):
         response = client.put(
-            f"/publications/v1/{identifier}",
+            f"/publications/{identifier}",
             content=f'{{"name": "{new_name}"}}',
             headers={"Authorization": "Fake token"},
         )
         assert response.status_code == HTTPStatus.OK, response.json()
-        updated_publication = client.get(f"/publications/v1/{identifier}").json()
+        updated_publication = client.get(
+            f"/publications/{identifier}",
+            headers={"Authorization": "Fake token"},
+        ).json()
         assert updated_publication["name"] == new_name
 
 
@@ -301,7 +306,7 @@ def test_user_cannot_edit_asset_in_submission(publication, client):
 
     with logged_in_user(ALICE):
         response = client.put(
-            f"/publications/v1/{identifier}",
+            f"/publications/{identifier}",
             content=f'{{"name": "{new_name}"}}',
             headers={"Authorization": "Fake token"},
         )
@@ -314,7 +319,7 @@ def test_only_reviewer_can_approve_submission(publication, client):
 
     with logged_in_user(ALICE):
         response = client.post(
-            "/reviews/v1",
+            "/reviews",
             content=str(
                 ReviewCreate(decision=Decision.ACCEPTED, submission_identifier=1, comment="").json()
             ),
@@ -324,7 +329,7 @@ def test_only_reviewer_can_approve_submission(publication, client):
 
     with logged_in_user(REVIEWER):
         response = client.post(
-            "/reviews/v1",
+            "/reviews",
             content=str(
                 ReviewCreate(decision=Decision.ACCEPTED, submission_identifier=1, comment="").json()
             ),
@@ -332,7 +337,7 @@ def test_only_reviewer_can_approve_submission(publication, client):
         )
         assert response.status_code == HTTPStatus.OK, response.json()
 
-    response = client.get(f"/publications/v1/{identifier}")
+    response = client.get(f"/publications/{identifier}")
     assert response.status_code == HTTPStatus.OK, response.json()
     assert response.json()["aiod_entry"]["status"] == EntryStatus.PUBLISHED
 
@@ -343,7 +348,7 @@ def test_reviewer_can_reject_submission(publication, client):
 
     with logged_in_user(REVIEWER):
         response = client.post(
-            "/reviews/v1",
+            "/reviews",
             content=str(
                 ReviewCreate(decision=Decision.REJECTED, submission_identifier=1, comment="").json()
             ),
@@ -351,18 +356,39 @@ def test_reviewer_can_reject_submission(publication, client):
         )
         assert response.status_code == HTTPStatus.OK, response.json()
 
-    response = client.get(f"/publications/v1/{identifier}")
+    # Because the rejected asset is back in draft status, it requires authentication to access.
+    with logged_in_user(ALICE):
+        response = client.get(
+            f"/publications/{identifier}",
+            headers={"Authorization": "Fake token"},
+        )
     assert response.status_code == HTTPStatus.OK, response.json()
     assert response.json()["aiod_entry"]["status"] == EntryStatus.DRAFT
 
 
-def test_reviewer_cannot_approve_own_submission(publication, client):
-    register_asset(publication, owner=REVIEWER, status=EntryStatus.SUBMITTED)
+@pytest.mark.parametrize(
+    "permission", [PermissionType.WRITE, PermissionType.ADMIN]
+)
+def test_reviewer_cannot_approve_own_submission(
+        permission: PermissionType,
+        publication_factory: Callable[[], Publication],
+        client: TestClient
+):
+    # Create an asset and add REVIEWER as a collaborator (write/admin)
     _register_user_in_db(REVIEWER)
 
+    publication = publication_factory()
+    register_asset(publication, owner=ALICE, status=EntryStatus.SUBMITTED)
+
+    with DbSession() as session:
+        session.add(publication)
+        set_permission(REVIEWER, publication.aiod_entry, session, type_=permission)
+        session.commit()
+
+    # See if the review endpoint correctly rejects collaborators from reviewing the asset
     with logged_in_user(REVIEWER):
         response = client.post(
-            "/reviews/v1",
+            "/reviews",
             content=str(
                 ReviewCreate(decision=Decision.ACCEPTED, submission_identifier=1, comment="").json()
             ),

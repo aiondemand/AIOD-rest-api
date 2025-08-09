@@ -4,7 +4,6 @@ from unittest.mock import Mock
 import pytest
 from starlette.testclient import TestClient
 
-
 @pytest.mark.parametrize(
     "resource_type",
     [
@@ -55,13 +54,14 @@ def test_happy_path_with_filters(
     resource_type,
     resource_filters: dict,
     expected_count: int,
+    auto_publish: None,
 ):
     response = client.post(
-        f"/{resource_type}/v1", json=body_asset, headers={"Authorization": "Fake token"}
+        f"/{resource_type}", json=body_asset, headers={"Authorization": "Fake token"}
     )
     assert response.status_code == 200, response.json()
 
-    response = client.get(f"/{resource_type}/v1", params=resource_filters)
+    response = client.get(f"/{resource_type}", params=resource_filters)
     assert response.status_code == 200, response.json()
 
     response_json = response.json()

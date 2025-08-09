@@ -4,18 +4,10 @@ from starlette.responses import Response
 
 from database.session import DbSession
 from database.model.access.access_log import AssetAccessLog
-from authentication import get_user_or_none
 
 from middleware.resource_types import all_resource_types
-VALID_TYPES = all_resource_types()   
 
-
-async def _get_optional_user(request: Request):
-    """Return Keycloak user or None (don’t raise if unauthenticated)."""
-    try:
-        return await get_user_or_none(request)
-    except Exception: 
-        return None
+VALID_TYPES = all_resource_types()
 
 
 class AccessLogMiddleware(BaseHTTPMiddleware):
@@ -26,9 +18,8 @@ class AccessLogMiddleware(BaseHTTPMiddleware):
 
         segments = request.url.path.strip("/").split("/")
         if len(segments) >= 2 and segments[0] in VALID_TYPES:
-            resource_type = segments[0]                
-            asset_id     = "/".join(segments[1:])       
-            user = await _get_optional_user(request)
+            resource_type = segments[0]
+            asset_id = "/".join(segments[1:])
 
             entry = AssetAccessLog(
                 asset_id=asset_id,

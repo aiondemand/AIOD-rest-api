@@ -81,7 +81,7 @@ class DatasetConverterDcatAP(SchemaConverter[Dataset, DcatApWrapper]):
                 download_url=aiod_distribution.content_url,
                 description=aiod_distribution.description,
                 format=aiod_distribution.encoding_format,
-                license=aiod.license.name if aiod.license is not None else None,
+                license=aiod.license.name if aiod.license else None,  # type: ignore[attr-defined]
             )
             dataset.distribution.append(DcatAPIdentifier(id_=aiod_distribution.content_url))
             graph.append(distribution)

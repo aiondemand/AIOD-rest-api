@@ -23,13 +23,13 @@ class EnumRouter(abc.ABC):
 
     def create(self, url_prefix: str) -> APIRouter:
         router = APIRouter()
-        version = "v1"
         default_kwargs = {
             "response_model_exclude_none": True,
             "tags": ["enums"],
         }
+
         router.add_api_route(
-            path=url_prefix + f"/{self.resource_name_plural}/{version}",
+            path=f"/{self.resource_name_plural}",
             endpoint=self.get_resources_func(),
             response_model=list[str],
             name=self.resource_name,

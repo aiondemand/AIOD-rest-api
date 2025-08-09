@@ -8,6 +8,7 @@ def test_happy_path(
     client: TestClient,
     mocked_privileged_token: Mock,
     body_asset: dict,
+    auto_publish: None,
 ):
     body = copy.copy(body_asset)
     body["pid"] = "https://doi.org/10.1000/182"
@@ -38,10 +39,11 @@ def test_happy_path(
     }
     body["distribution"] = [distribution]
 
-    response = client.post("/experiments/v1", json=body, headers={"Authorization": "Fake token"})
+    response = client.post("/experiments", json=body, headers={"Authorization": "Fake token"})
     assert response.status_code == 200, response.json()
+    identifier = response.json()['identifier']
 
-    response = client.get("/experiments/v1/1")
+    response = client.get(f"/experiments/{identifier}")
     assert response.status_code == 200, response.json()
 
     response_json = response.json()

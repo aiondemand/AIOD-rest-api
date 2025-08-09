@@ -2,24 +2,50 @@
 The AIResource table, which is linked to every child of the AbstractAIResource (e.g. Dataset).
 """
 
+from sqlalchemy import ForeignKey
 from sqlmodel import SQLModel, Field, Relationship
+
+from database.model.field_length import IDENTIFIER_LENGTH
+from database.identifiers import create_id_generator
 
 
 class AIResourcePartLink(SQLModel, table=True):  # type: ignore [call-arg]
     __tablename__ = "ai_resource_part_link"
-    parent_identifier: int = Field(foreign_key="ai_resource.identifier", primary_key=True)
-    child_identifier: int = Field(foreign_key="ai_resource.identifier", primary_key=True)
+    parent_identifier: str = Field(
+        max_length=IDENTIFIER_LENGTH,
+        sa_column_args=[ForeignKey("ai_resource.identifier", onupdate="CASCADE")],
+        sa_column_kwargs=dict(nullable=True, index=True),
+        primary_key=True,
+    )
+    child_identifier: str = Field(
+        max_length=IDENTIFIER_LENGTH,
+        sa_column_args=[ForeignKey("ai_resource.identifier", onupdate="CASCADE")],
+        sa_column_kwargs=dict(nullable=True, index=True),
+        primary_key=True,
+    )
 
 
 class AIResourceRelevantLink(SQLModel, table=True):  # type: ignore [call-arg]
     __tablename__ = "ai_resource_relevant_link"
-    parent_identifier: int = Field(foreign_key="ai_resource.identifier", primary_key=True)
-    relevant_identifier: int = Field(foreign_key="ai_resource.identifier", primary_key=True)
+    parent_identifier: str = Field(
+        max_length=IDENTIFIER_LENGTH,
+        sa_column_args=[ForeignKey("ai_resource.identifier", onupdate="CASCADE")],
+        sa_column_kwargs=dict(nullable=True, index=True),
+        primary_key=True,
+    )
+    relevant_identifier: str = Field(
+        max_length=IDENTIFIER_LENGTH,
+        sa_column_args=[ForeignKey("ai_resource.identifier", onupdate="CASCADE")],
+        sa_column_kwargs=dict(nullable=True, index=True),
+        primary_key=True,
+    )
 
 
 class AIResourceORM(SQLModel, table=True):  # type: ignore [call-arg]
     __tablename__ = "ai_resource"
-    identifier: int = Field(default=None, primary_key=True)
+    identifier: str = Field(
+        default_factory=create_id_generator(), max_length=IDENTIFIER_LENGTH, primary_key=True
+    )
     type: str = Field(default="will be overwritten by resource_router")
 
     is_part_of: list["AIResourceORM"] = Relationship(

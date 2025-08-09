@@ -3,13 +3,14 @@ import copy
 from typing import Optional, Any
 from typing import TYPE_CHECKING
 
+from sqlalchemy import ForeignKey
 from sqlmodel import Field, Relationship
 
 from database.model.ai_asset.ai_asset_table import AIAssetTable
 from database.model.ai_asset.distribution import Distribution, distribution_factory
 from database.model.ai_asset.license import License
 from database.model.ai_resource.resource import AIResourceBase, AIResource
-from database.model.field_length import NORMAL
+from database.model.field_length import NORMAL, IDENTIFIER_LENGTH
 from database.model.helper_functions import many_to_many_link_factory
 from database.model.models_and_experiments.runnable_distribution import (
     runnable_distribution_factory,
@@ -38,15 +39,18 @@ class AIAssetBase(AIResourceBase, metaclass=abc.ABCMeta):
 
 
 class AIAsset(AIAssetBase, AIResource, metaclass=abc.ABCMeta):
-    ai_asset_id: int | None = Field(
-        foreign_key=AIAssetTable.__tablename__ + ".identifier", unique=True, index=True
+    ai_asset_id: str | None = Field(
+        max_length=IDENTIFIER_LENGTH,
+        # Initializing `sa_column` instead doesn't work. Perhaps because it'd be used twice?
+        sa_column_args=[ForeignKey("ai_asset.identifier", onupdate="CASCADE")],
+        sa_column_kwargs=dict(nullable=True, index=True, unique=True),
     )
     ai_asset_identifier: AIAssetTable | None = Relationship()
 
     citation: list["Publication"] = Relationship()
     distribution: list = Relationship(sa_relationship_kwargs={"cascade": "all, delete"})
     license_identifier: int | None = Field(foreign_key=License.__tablename__ + ".identifier")
-    license: Optional[License] = Relationship()
+    license: Optional[License] = Relationship()  # type: ignore[valid-type]
 
     def __init_subclass__(cls):
         """
@@ -62,7 +66,7 @@ class AIAsset(AIAssetBase, AIResource, metaclass=abc.ABCMeta):
         cls.__sqlmodel_relationships__.update(relationships)
 
     class RelationshipConfig(AIResource.RelationshipConfig):
-        ai_asset_identifier: int | None = OneToOne(
+        ai_asset_identifier: str | None = OneToOne(
             identifier_name="ai_asset_id",
             _serializer=AttributeSerializer("identifier"),
             include_in_create=False,
@@ -74,10 +78,10 @@ class AIAsset(AIAssetBase, AIResource, metaclass=abc.ABCMeta):
             identifier_name="license_identifier",
             _serializer=AttributeSerializer("name"),
             deserializer=FindByNameDeserializer(License),
-            example="https://creativecommons.org/share-your-work/public-domain/cc0/",
+            example="CC-BY-4.0",
         )
-        citation: list[int] = ManyToMany(
-            description="A bibliographic reference.",
+        citation: list[str] = ManyToMany(
+            description="Publication identifiers that are a bibliographic reference.",
             _serializer=AttributeSerializer("identifier"),
             default_factory_pydantic=list,
             example=[],
@@ -102,6 +106,8 @@ class AIAsset(AIAssetBase, AIResource, metaclass=abc.ABCMeta):
             table_from=cls.__tablename__,
             table_to="publication",
             table_prefix="citation",
+            from_identifier_type=str,
+            to_identifier_type=str,
         )
         if cls.__tablename__ == "publication":
 

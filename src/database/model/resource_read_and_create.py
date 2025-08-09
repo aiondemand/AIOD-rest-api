@@ -5,7 +5,8 @@ not be able to modify this date yourself in a POST request, but you should retri
 request.
 """
 
-from typing import Type, Tuple, TYPE_CHECKING
+import functools
+from typing import Type, Tuple, TYPE_CHECKING, Optional
 
 from pydantic import create_model
 from sqlmodel import SQLModel, Field
@@ -14,6 +15,7 @@ from sqlmodel.main import FieldInfo
 from database.model.annotations import all_annotations
 from database.model.helper_functions import get_relationships
 from database.model.serializers import create_getter_dict
+from database.model.field_length import IDENTIFIER_LENGTH
 
 if TYPE_CHECKING:
     from database.model.concept.concept import AIoDConcept
@@ -56,6 +58,7 @@ def _get_field_definitions_create(
     }
 
 
+@functools.cache  # For Pydantic 'bug', see note at `resource_read`
 def resource_create(resource_class: Type["AIoDConcept"] | Type["Platform"]) -> Type[SQLModel]:
     """
     Create a SQLModel for a Create class of a resource. This Create class is a Pydantic class
@@ -76,6 +79,11 @@ def resource_create(resource_class: Type["AIoDConcept"] | Type["Platform"]) -> T
     return model
 
 
+# We cache this not for performance reason, but because if the model would be created multiple times,
+# this leads to a conflicting state in the Pydantic model map, erasing the older model.
+# Related to https://github.com/fastapi/fastapi/issues/4191 and might be fixed by upgrading to the
+# latest Pydantic version
+@functools.cache
 def resource_read(resource_class: Type["AIoDConcept"] | Type["Platform"]) -> Type[SQLModel]:
     """
     Create a SQLModel for a Read class of a resource. This Read class is a Pydantic class
@@ -90,7 +98,7 @@ def resource_read(resource_class: Type["AIoDConcept"] | Type["Platform"]) -> Typ
     """
     relationships = get_relationships(resource_class)
     field_definitions = _get_field_definitions_read(resource_class, relationships)
-    field_definitions.update({"identifier": (int, Field())})
+    field_definitions.update({"identifier": (str, Field(max_length=IDENTIFIER_LENGTH))})
     model = create_model(
         resource_class.__name__ + "Read", __base__=resource_class.__base__, **field_definitions
     )

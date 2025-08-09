@@ -2,11 +2,12 @@ from datetime import datetime
 from typing import Type
 
 from pydantic import create_model
-from sqlalchemy import Column, Integer, ForeignKey
+from sqlalchemy import Column, Integer, ForeignKey, String, LargeBinary
 from sqlmodel import Field
 
 from database.model.concept.concept import AIoDConceptBase
 from database.model.field_length import LONG, NORMAL, SHORT
+from database.model.field_length import IDENTIFIER_LENGTH
 
 
 class DistributionBase(AIoDConceptBase):
@@ -24,7 +25,7 @@ class DistributionBase(AIoDConceptBase):
         max_length=NORMAL,
         schema_extra={"example": "2010-2020 Example Company. All rights reserved."},
     )
-    content_url: str = Field(
+    content_url: str | None = Field(
         max_length=LONG,
         schema_extra={"example": "https://www.example.com/dataset/file.csv"},
     )
@@ -50,6 +51,12 @@ class DistributionBase(AIoDConceptBase):
         "stands for 'actual system proven in operational environment'.",
         schema_extra={"example": 1},
     )
+    # Currently, only organisation accepts this field, potentially to store images (ex. organisation logo).
+    binary_blob: bytes | None = Field(
+        default=None,
+        description="Binary blob for storing image (or other type of media) data.",
+        sa_column=Column(LargeBinary),
+    )
 
 
 def distribution_factory(table_from: str, distribution_name="distribution") -> Type:
@@ -60,10 +67,11 @@ def distribution_factory(table_from: str, distribution_name="distribution") -> T
         __cls_kwargs__=dict(table=True),
         identifier=(int | None, Field(primary_key=True)),
         asset_identifier=(
-            int | None,
+            str | None,
             Field(
                 sa_column=Column(
-                    Integer, ForeignKey(table_from + ".identifier", ondelete="CASCADE")
+                    String(IDENTIFIER_LENGTH),
+                    ForeignKey(table_from + ".identifier", ondelete="CASCADE"),
                 )
             ),
         ),

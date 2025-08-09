@@ -7,6 +7,7 @@ services:
     container_name: apiserver
     volumes:
       - ./src/config.override.toml:/app/config.override.toml:ro
+      - ./src/versions.toml:/app/versions.toml:ro
     environment:
       - KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET
       - REVIEWER_ROLE_NAME=$REVIEWER_ROLE_NAME
@@ -14,9 +15,7 @@ services:
       - ES_PASSWORD=$ES_PASSWORD
     ports:
       - ${AIOD_REST_PORT}:8000
-    command: >
-      python main.py
-      --build-db if-absent
+    command: python main.py
     healthcheck:
       test: ["CMD", "python", "-c",  "import requests; requests.get('http://localhost:8000')"]
       start_interval: 1s
@@ -155,7 +154,7 @@ services:
       - ${AIOD_KEYCLOAK_PORT}:8080
     volumes:
      - ${DATA_PATH}/keycloak/data:/opt/keycloak/data
-     - ${DATA_PATH}/keycloak/themes:/opt/keycloak/themes
+     - ./authentication/themes:/opt/keycloak/themes
     command: >
       start
       --proxy edge
@@ -164,6 +163,7 @@ services:
       --import-realm
 
   nginx:
+    profiles: ["nginx"]
     image: nginx:1.25.5
     container_name: nginx
     restart: unless-stopped
@@ -236,7 +236,7 @@ services:
     depends_on:
       es_logstash_setup:
         condition: service_completed_successfully
-  
+
   prometheus:
     profiles: ["monitoring"]
     image: prom/prometheus:latest
@@ -262,6 +262,17 @@ services:
     ports:
     - "${AIOD_GRAFANA_PORT}:3000"
     restart: unless-stopped
+
+  taxonomy:
+    profiles: ["taxonomy"]
+    container_name: taxonomy
+    image: aiod_metadata_catalogue
+    volumes:
+      - ${DATA_PATH}/taxonomies/taxonomies.json:/data/taxonomies.json
+    command: python taxonomies/synchronize_taxonomy.py
+    depends_on:
+      sqlserver:
+        condition: service_healthy
 
 volumes:
   prometheus_data:

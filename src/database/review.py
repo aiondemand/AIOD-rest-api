@@ -6,10 +6,10 @@ import sqlalchemy
 from sqlalchemy import Column, select
 from sqlmodel import SQLModel, Field, Relationship, Session
 
-import routers
 from database.model.field_length import NORMAL, LONG
 from database.model.concept.concept import AIoDConcept
 from database.model.helper_functions import non_abstract_subclasses
+from routers.helper_functions import get_all_asset_schemas
 
 REQUIRED_NUMBER_OF_REVIEWS = 1
 
@@ -121,25 +121,9 @@ class SubmissionView(SubmissionBase):
         # ResourceRead classes are only defined at runtime (generated dynamically).
         @staticmethod
         def schema_extra(schema: dict[str, Any], _: type["SubmissionView"]) -> None:
-            available_schemas: list[AIoDConcept] = list(non_abstract_subclasses(AIoDConcept))
-            classes_dict = {
-                clz.__tablename__: clz for clz in available_schemas if clz.__tablename__
-            }
-            resrouters = {
-                route.resource_name: route
-                for route in routers.resource_routers.router_list  # type: ignore
-            }
-            read_classes_dict = {
-                name: resrouters[name].resource_class_read for name in classes_dict
-            }
-
-            responses = [
-                {"$ref": f"#/components/schemas/{clz.__name__}"}
-                for clz in read_classes_dict.values()
-            ]
             schema["properties"]["asset"] = {
                 "title": "Asset under review",
                 "description": "The type of the object can be found in SubmissionView.asset_type.",
                 "type": "object",
-                "anyOf": responses,
+                "anyOf": get_all_asset_schemas(),
             }

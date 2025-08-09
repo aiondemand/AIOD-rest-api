@@ -3,6 +3,7 @@ Default maximum lengths for string fields. Please use these, except if you have 
 length need (such as, for instance, for an ISSN for which you know the precise length).
 """
 
+IDENTIFIER_LENGTH = 30  # 4 characters + underscore + 24 character random string + 1 unused byte
 SHORT = 64
 NORMAL = 256
 LONG = 1800  # an A4s full of text

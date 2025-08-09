@@ -43,6 +43,7 @@ class PublicationBase(KnowledgeAssetBase):
 
 class Publication(PublicationBase, KnowledgeAsset, table=True):  # type: ignore [call-arg]
     __tablename__ = "publication"
+    __abbreviation__ = "pub"
 
     content_identifier: int | None = Field(
         index=True,
@@ -54,7 +55,7 @@ class Publication(PublicationBase, KnowledgeAsset, table=True):  # type: ignore 
         sa_relationship_kwargs=dict(foreign_keys="[Publication.content_identifier]")
     )
     type_identifier: int | None = Field(foreign_key=PublicationType.__tablename__ + ".identifier")
-    type: Optional[PublicationType] = Relationship()
+    type: Optional[PublicationType] = Relationship()  # type: ignore[valid-type]
 
     class RelationshipConfig(KnowledgeAsset.RelationshipConfig):
         content: Optional[Text] = OneToOne(
@@ -66,7 +67,7 @@ class Publication(PublicationBase, KnowledgeAsset, table=True):  # type: ignore 
             identifier_name="type_identifier",
             _serializer=AttributeSerializer("name"),
             deserializer=FindByNameDeserializer(PublicationType),
-            example="journal",
+            example="Article",
         )
 
 

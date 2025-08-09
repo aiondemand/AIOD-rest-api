@@ -68,7 +68,7 @@ class DatasetConverterSchemaDotOrg(SchemaConverter[Dataset, SchemaDotOrgDataset]
                 ]
             ),
             issn=aiod.issn,
-            license=aiod.license.name if aiod.license is not None else None,
+            license=aiod.license.name if aiod.license is not None else None,  # type: ignore[attr-defined]
             measurementTechnique=aiod.measurement_technique,
             size=f"unit={aiod.size.unit} value={aiod.size.value}"
             if aiod.size is not None

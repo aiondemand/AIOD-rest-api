@@ -14,26 +14,29 @@ def test_happy_path(
     body_resource: dict,
     person: Person,
     organisation: Organisation,
+    auto_publish: None,
 ):
     with DbSession() as session:
         session.add(person)
         session.merge(organisation)
         session.commit()
+        session.refresh(person)
 
     body = copy.deepcopy(body_resource)
     body["price_per_hour_euro"] = 70.75
     body["size"] = 5
-    body["organisation"] = 1
-    body["member"] = [1]
+    body["organisation"] = organisation.identifier
+    body["member"] = [person.identifier]
 
-    response = client.post("/teams/v1", json=body, headers={"Authorization": "Fake token"})
+    response = client.post("/teams", json=body, headers={"Authorization": "Fake token"})
     assert response.status_code == 200, response.json()
+    identifier = response.json()['identifier']
 
-    response = client.get("/teams/v1/1")
+    response = client.get(f"/teams/{identifier}")
     assert response.status_code == 200, response.json()
 
     response_json = response.json()
     assert response_json["price_per_hour_euro"] == 70.75
     assert response_json["size"] == 5
-    assert response_json["organisation"] == 1
-    assert response_json["member"] == [1]
+    assert response_json["organisation"] == organisation.identifier
+    assert response_json["member"] == [person.identifier]

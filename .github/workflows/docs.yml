@@ -11,6 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # fetch full git history for mkdocs-git-revision-date-localized-plugin.
       - name: Configure Git Credentials
         run: |
           git config user.name github-actions[bot]

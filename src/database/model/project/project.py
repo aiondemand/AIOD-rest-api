@@ -13,6 +13,7 @@ from database.model.serializers import (
     AttributeSerializer,
     FindByIdentifierDeserializerList,
 )
+from database.model.field_length import IDENTIFIER_LENGTH
 
 
 class ProjectBase(AIResourceBase):
@@ -35,34 +36,51 @@ class ProjectBase(AIResourceBase):
 
 class Project(ProjectBase, AIResource, table=True):  # type: ignore [call-arg]
     __tablename__ = "project"
+    __abbreviation__ = "proj"
 
     funder: list[Organisation] = Relationship(
         link_model=many_to_many_link_factory(
-            "project", Organisation.__tablename__, table_prefix="funder"
+            "project",
+            Organisation.__tablename__,
+            table_prefix="funder",
+            from_identifier_type=str,
+            to_identifier_type=str,
         ),
     )
     participant: list[Organisation] = Relationship(
         link_model=many_to_many_link_factory(
-            "project", Organisation.__tablename__, table_prefix="participant"
+            "project",
+            Organisation.__tablename__,
+            table_prefix="participant",
+            from_identifier_type=str,
+            to_identifier_type=str,
         ),
     )
-    coordinator_identifier: int | None = Field(
-        foreign_key=Organisation.__tablename__ + ".identifier"
+    coordinator_identifier: str | None = Field(
+        max_length=IDENTIFIER_LENGTH, foreign_key=Organisation.__tablename__ + ".identifier"
     )
     coordinator: Optional[Organisation] = Relationship()
     produced: list[AIAssetTable] = Relationship(
         link_model=many_to_many_link_factory(
-            "project", AIAssetTable.__tablename__, table_prefix="produced"
+            "project",
+            AIAssetTable.__tablename__,
+            table_prefix="produced",
+            from_identifier_type=str,
+            to_identifier_type=str,
         ),
     )
     used: list[AIAssetTable] = Relationship(
         link_model=many_to_many_link_factory(
-            "project", AIAssetTable.__tablename__, table_prefix="used"
+            "project",
+            AIAssetTable.__tablename__,
+            table_prefix="used",
+            from_identifier_type=str,
+            to_identifier_type=str,
         ),
     )
 
     class RelationshipConfig(AIResource.RelationshipConfig):
-        funder: list[int] = ManyToMany(
+        funder: list[str] = ManyToMany(
             description="Identifiers of organizations that support this project through some kind "
             "of financial contribution. ",
             _serializer=AttributeSerializer("identifier"),
@@ -70,26 +88,26 @@ class Project(ProjectBase, AIResource, table=True):  # type: ignore [call-arg]
             default_factory_pydantic=list,
             example=[],
         )
-        participant: list[int] = ManyToMany(
+        participant: list[str] = ManyToMany(
             description="Identifiers of members of this project. ",
             _serializer=AttributeSerializer("identifier"),
             deserializer=FindByIdentifierDeserializerList(Organisation),
             default_factory_pydantic=list,
             example=[],
         )
-        coordinator: Optional[int] = ManyToOne(
+        coordinator: Optional[str] = ManyToOne(
             identifier_name="coordinator_identifier",
             description="The coordinating organisation of this project.",
             _serializer=AttributeSerializer("identifier"),
         )
-        produced: list[int] = ManyToMany(
+        produced: list[str] = ManyToMany(
             description="Identifiers of AIAssets that are created in this project.",
             _serializer=AttributeSerializer("identifier"),
             deserializer=FindByIdentifierDeserializerList(AIAssetTable),
             default_factory_pydantic=list,
             example=[],
         )
-        used: list[int] = ManyToMany(
+        used: list[str] = ManyToMany(
             description="Identifiers of AIAssets that are used (but not created) in this project.",
             _serializer=AttributeSerializer("identifier"),
             deserializer=FindByIdentifierDeserializerList(AIAssetTable),

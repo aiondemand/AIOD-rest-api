@@ -8,6 +8,7 @@ def test_happy_path(
     client: TestClient,
     mocked_privileged_token: Mock,
     body_asset: dict,
+    auto_publish: None,
 ):
     body = copy.deepcopy(body_asset)
     body["time_required"] = "3 weeks"
@@ -33,11 +34,12 @@ def test_happy_path(
     body["content"] = {"plain": "plain content"}
 
     response = client.post(
-        "/educational_resources/v1", json=body, headers={"Authorization": "Fake token"}
+        "/educational_resources", json=body, headers={"Authorization": "Fake token"}
     )
     assert response.status_code == 200, response.json()
+    identifier = response.json()['identifier']
 
-    response = client.get("/educational_resources/v1/1")
+    response = client.get(f"/educational_resources/{identifier}")
     assert response.status_code == 200, response.json()
 
     response_json = response.json()

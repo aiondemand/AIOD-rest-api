@@ -7,7 +7,7 @@ from sqlmodel import select, Session
 from starlette import status
 
 from authentication import KeycloakUser, get_user_or_raise
-from database.authorization import register_user, user_can_administer
+from database.authorization import register_user, user_can_administer, user_can_write
 from database.session import DbSession, get_session
 from database.review import (
     Submission,
@@ -22,36 +22,33 @@ from database.model.concept.aiod_entry import EntryStatus, AIoDEntryORM
 
 def create(url_prefix: str) -> APIRouter:
     router = APIRouter()
-    version = "v1"
 
     router.post(
-        f"{url_prefix}/submissions/retract/{version}/{{submission_identifier}}",
+        "/submissions/retract/{submission_identifier}",
         tags=["Reviewing"],
         description="Retract an asset under review, setting its status to 'draft'.",
     )(retract_submission)
 
     router.get(
-        f"{url_prefix}/submissions/{version}/",
-        tags=["Reviewing"],
-        description="List all assets submitted for review.",
-        response_model=Sequence[SubmissionBase],
-    )(list_submissions)
-
-    router.get(
-        f"{url_prefix}/submissions/{version}/{{identifier}}",
+        "/submissions/{identifier}",
         tags=["Reviewing"],
         description="Retrieve a specific submission.",
         response_model=SubmissionView,
     )(get_submission)
 
+    router.get(
+        "/submissions",
+        tags=["Reviewing"],
+        description="List all assets submitted for review.",
+        response_model=Sequence[SubmissionBase],
+    )(list_submissions)
+
     router.post(
-        f"{url_prefix}/reviews/{version}",
+        "/reviews",
         tags=["Reviewing"],
         description="Review an asset.",
         response_model=Review,
     )(_review_resource)
-
-    # Add MiddleWare which requires authentication as reviewer role
     return router
 
 
@@ -153,7 +150,7 @@ def _review_resource(
     register_user(user, session)
 
     aiod_entry = cast(AIoDEntryORM, session.get(AIoDEntryORM, submission.aiod_entry_identifier))
-    if user_can_administer(user, aiod_entry):
+    if user_can_write(user, aiod_entry):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You do not have permission to review your own assets.",

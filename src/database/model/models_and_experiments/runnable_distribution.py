@@ -1,11 +1,11 @@
 from typing import Type
 
 from pydantic import create_model
-from sqlalchemy import Column, Integer, ForeignKey
+from sqlalchemy import Column, Integer, ForeignKey, String
 from sqlmodel import Field
 
 from database.model.ai_asset.distribution import DistributionBase
-from database.model.field_length import NORMAL, LONG
+from database.model.field_length import NORMAL, LONG, IDENTIFIER_LENGTH
 
 
 class RunnableDistributionBase(DistributionBase):
@@ -82,10 +82,11 @@ def runnable_distribution_factory(table_from: str, distribution_name="distributi
         __cls_kwargs__=dict(table=True),
         identifier=(int | None, Field(primary_key=True)),
         asset_identifier=(
-            int | None,
+            str | None,
             Field(
                 sa_column=Column(
-                    Integer, ForeignKey(table_from + ".identifier", ondelete="CASCADE")
+                    String(IDENTIFIER_LENGTH),
+                    ForeignKey(table_from + ".identifier", ondelete="CASCADE"),
                 )
             ),
         ),

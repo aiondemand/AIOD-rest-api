@@ -6,6 +6,7 @@ This way you have easy access to, for instance, an AIoDDataset filled with defau
 
 import copy
 import json
+import uuid
 from functools import partial
 from typing import Callable
 
@@ -75,7 +76,7 @@ def body_agent(body_resource: dict, load_body_agent: dict) -> dict:
     return copy.deepcopy(body)
 
 
-def make_publication(body_asset: dict) -> Publication:
+def make_publication(body_asset: dict, with_random_platform_identifier: bool = False) -> Publication:
     body = copy.deepcopy(body_asset)
     body["permanent_identifier"] = "http://dx.doi.org/10.1093/ajae/aaq063"
     body["isbn"] = "9783161484100"
@@ -91,13 +92,14 @@ def publication(body_asset: dict) -> Publication:
 
 @pytest.fixture
 def publication_factory(body_asset: dict) -> Callable[[], Publication]:
-    return partial(make_publication, body_asset)
+    return partial(make_publication, body_asset, with_random_platform_identifier=True)
 
 
 @pytest.fixture
 def contact(body_concept, engine: Engine) -> Contact:
     body = copy.deepcopy(body_concept)
     body["email"] = ["a@b.com"]
+    body["name"] = "Aaron Bar"
     body["telephone"] = ["0032 XXXX XXXX"]
     body["location"] = [
         {
@@ -150,7 +152,7 @@ def _create_class_with_body(clz, body: dict):
     res_create = pydantic_class(**body)
     res = clz.from_orm(res_create)
     with DbSession() as session:
-        deserialize_resource_relationships(session, clz, res, res_create)
+        deserialize_resource_relationships(session, clz, res, res_create, user=None)
         session.commit()
     if hasattr(res, "ai_resource"):
         res.ai_resource.type = clz.__tablename__

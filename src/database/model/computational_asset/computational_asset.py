@@ -28,6 +28,7 @@ class ComputationalAsset(ComputationalAssetBase, AIAsset, table=True):  # type: 
     """
 
     __tablename__ = "computational_asset"
+    __abbreviation__ = "comp"
 
     type_identifier: int | None = Field(
         foreign_key=ComputationalAssetType.__tablename__ + ".identifier"

@@ -4,10 +4,12 @@ Test resource with router and mocked converter
 
 from typing import Type
 
+from sqlalchemy import String
 from sqlmodel import Field
 
 from database.model.concept.aiod_entry import AIoDEntryORM, EntryStatus
 from database.model.concept.concept import AIoDConcept, AIoDConceptBase
+from database.model.field_length import IDENTIFIER_LENGTH
 from routers.resource_router import ResourceRouter
 
 
@@ -16,10 +18,12 @@ class TestResourceBase(AIoDConceptBase):
 
 
 class TestResource(TestResourceBase, AIoDConcept, table=True):  # type: ignore [call-arg]
-    identifier: int = Field(default=None, primary_key=True)
+    __abbreviation__ = "test"
+    identifier: str = Field(max_length=IDENTIFIER_LENGTH, default=None, primary_key=True)
 
 
-def factory(
+# Note that the alternative name `test_resource_factory` would make pytest pick this up as a unit test
+def factory_test_resource(
     title="default_title", status=EntryStatus.DRAFT, platform="example", platform_resource_identifier="1", date_deleted=None
 ):
     return TestResource(

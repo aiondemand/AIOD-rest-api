@@ -5,7 +5,7 @@
     "@type": "Dataset",
     "name": "The name",
     "description": "A description.",
-    "identifier": "1",
+    "identifier": "data_identifier",
     "alternateName": [
         "alias1",
         "alias2"
@@ -24,7 +24,7 @@
     ],
     "sameAs": "https://www.example.com/resource",
     "version": "1.a",
-    "url": "https://aiod.eu/api/datasets/1",
+    "url": "https://aiod.eu/api/datasets/data_identifier",
     "distribution": {
         "@type": "DataDownload",
         "name": "resource.pdf",

@@ -7,6 +7,7 @@ Note: order matters for overloaded paths
 
 import argparse
 import logging
+from pathlib import Path
 
 import pkg_resources
 import uvicorn
@@ -15,59 +16,41 @@ from fastapi.responses import HTMLResponse
 from sqlmodel import select, SQLModel
 
 from authentication import get_user_or_raise, KeycloakUser, assert_required_settings_configured
-from config import KEYCLOAK_CONFIG
-from database.deletion.triggers import create_delete_triggers
+from config import KEYCLOAK_CONFIG, DB_CONFIG, DEV_CONFIG
+from database.deletion.triggers import (
+    create_delete_triggers,
+    create_identifier_synchronization_triggers,
+)
 import database.authorization  # noqa  # Trigger registration of User, Permission -> likely obsolete when couple with aiod_entry is done
 from database.model.concept.concept import AIoDConcept
 from database.model.platform.platform import Platform
 from database.model.platform.platform_names import PlatformName
 from database.session import EngineSingleton, DbSession
 from database.setup import create_database, database_exists
+from setup_logger import setup_logger
+from taxonomies.synchronize_taxonomy import synchronize_taxonomy_from_file
+from triggers import disable_review_process, enable_review_process
 from error_handling import http_exception_handler
 from routers import (
     resource_routers,
     parent_routers,
     enum_routers,
-    uploader_routers,
     search_routers,
     review_router,
+    user_router,
+    bookmark_router,
+    asset_router,
 )
 from setup_logger import setup_logger
 from prometheus_fastapi_instrumentator import Instrumentator
 from middleware.access_log import AccessLogMiddleware
-
-
-
-def _parse_args() -> argparse.Namespace:
-    # TODO: refactor configuration (https://github.com/aiondemand/AIOD-rest-api/issues/82)
-    parser = argparse.ArgumentParser(description="Please refer to the README.")
-    parser.add_argument("--url-prefix", default="", help="Prefix for the api url.")
-    parser.add_argument(
-        "--build-db",
-        default="if-absent",
-        choices=["never", "if-absent", "drop-then-build"],
-        help="""
-        Determines if the database is created:\n
-            - never: *never* creates the database, not even if there does not exist one yet.
-                Use this only if you expect the database to be created through other means, such
-                as MySQL group replication.\n
-            - if-absent: Creates a database only if none exists.\n
-            - drop-then-build: Drops the database on startup to recreate it from scratch.
-                THIS REMOVES ALL DATA PERMANENTLY. NO RECOVERY POSSIBLE.
-        """,
-    )
-    parser.add_argument(
-        "--reload",
-        action=argparse.BooleanOptionalAction,
-        help="Use `--reload` for FastAPI.",
-    )
-    return parser.parse_args()
+from versioning import versions, add_version_to_openapi, add_deprecation_and_sunset_middleware
 
 
 def add_routes(app: FastAPI, url_prefix=""):
     """Add routes to the FastAPI application"""
 
-    @app.get(url_prefix + "/", response_class=HTMLResponse)
+    @app.get(url_prefix + "/", include_in_schema=False, response_class=HTMLResponse)
     def home() -> str:
         """Provides a redirect page to the docs."""
         return """
@@ -82,14 +65,14 @@ def add_routes(app: FastAPI, url_prefix=""):
         </html>
         """
 
-    @app.get(url_prefix + "/authorization_test")
+    @app.get("/authorization_test")
     def test_authorization(user: KeycloakUser = Depends(get_user_or_raise)) -> KeycloakUser:
         """
         Returns the user, if authenticated correctly.
         """
         return user
 
-    @app.get(url_prefix + "/counts/v1")
+    @app.get("/counts")
     def counts() -> dict:
         return {
             router.resource_name_plural: count
@@ -103,8 +86,7 @@ def add_routes(app: FastAPI, url_prefix=""):
         + parent_routers.router_list
         + enum_routers.router_list
         + search_routers.router_list
-        + uploader_routers.router_list
-        + [review_router]
+        + [review_router, user_router, bookmark_router, asset_router]
     ):
         app.include_router(router.create(url_prefix))
 
@@ -112,9 +94,9 @@ def add_routes(app: FastAPI, url_prefix=""):
 def create_app() -> FastAPI:
     """Create the FastAPI application, complete with routes."""
     setup_logger()
-    args = _parse_args()
     assert_required_settings_configured()
-    if args.build_db == "never":
+    build_database_setting = DB_CONFIG.get("build_database", "never")
+    if build_database_setting == "never":
         if not database_exists():
             logging.warning(
                 "AI-on-Demand database does not exist on the MySQL server, "
@@ -123,24 +105,29 @@ def create_app() -> FastAPI:
                 "this likely means that you will get errors or undefined behavior."
             )
     else:
-        build_database(args)
+        drop_database = build_database_setting == "drop-then-build"
+        build_database(drop_database=drop_database)
+
+    if taxonomy_path := DEV_CONFIG.get("taxonomy"):
+        if not (taxonomy_file := Path(taxonomy_path)).is_file():
+            raise ValueError(f"dev.taxonomy must be a path to a file, but is {taxonomy_path!r}.")
+        synchronize_taxonomy_from_file(taxonomy_file)
 
     pyproject_toml = pkg_resources.get_distribution("aiod_metadata_catalogue")
-    app = build_app(args.url_prefix, pyproject_toml.version)
+    app = build_app(url_prefix=DEV_CONFIG.get("url_prefix", ""), version=pyproject_toml.version)
     return app
 
 
-def build_app(url_prefix: str = "", version: str = "dev"):
-    app = FastAPI(
-        openapi_url=f"{url_prefix}/openapi.json",
-        docs_url=f"{url_prefix}/docs",
-        title="AIoD Metadata Catalogue",
-        description="This is the Swagger documentation of the AIoD Metadata Catalogue. For the "
-        "Changelog, refer to "
-        '<a href="https://github.com/aiondemand/AIOD-rest-api/releases">https'
-        "://github.com/aiondemand/AIOD-rest-api/releases</a>.",
-        version=version,
-        swagger_ui_oauth2_redirect_url=f"{url_prefix}/docs/oauth2-redirect",
+def build_app(*, url_prefix: str = "", version: str = "dev"):
+    kwargs = dict(
+        docs_url=None,  # We override the default pages with custom html
+        redoc_url=None,
+        description="This is the REST API documentation of the AIoD Metadata Catalogue. "
+        "See also our general "
+        '<a href="https://aiondemand.github.io/AIOD-rest-api/">metadata catalogue documentation</a>, '
+        "and our "
+        '<a href="https://github.com/aiondemand/AIOD-rest-api/releases">changelog</a>.',
+        swagger_ui_oauth2_redirect_url=f"/docs/oauth2-redirect",
         swagger_ui_init_oauth={
             "clientId": KEYCLOAK_CONFIG.get("client_id_swagger"),
             "realm": KEYCLOAK_CONFIG.get("realm"),
@@ -149,26 +136,49 @@ def build_app(url_prefix: str = "", version: str = "dev"):
             "scopes": KEYCLOAK_CONFIG.get("scopes"),
         },
     )
-    
-    Instrumentator()\
-        .instrument(app)\
-        .expose(app, endpoint="/metrics", include_in_schema=False)
-    
-    app.add_middleware(AccessLogMiddleware)
-    add_routes(app, url_prefix=url_prefix)
-    app.add_exception_handler(HTTPException, http_exception_handler)
-    
-    return app
+    main_app = FastAPI(
+        root_path=url_prefix,
+        title="AI-on-Demand Metadata Catalogue REST API",
+        version="latest",
+        **kwargs,
+    )
+    versioned_apps = [
+        FastAPI(
+            title=f"AIoD Metadata Catalogue {version}",
+            version=f"{version}",
+            **kwargs,
+        )
+        for version, info in versions.items()
+        if not info.retired
+    ]
+    for app in [main_app] + versioned_apps:
+        add_routes(app)
+        app.add_exception_handler(HTTPException, http_exception_handler)
+        add_deprecation_and_sunset_middleware(app)
+        add_version_to_openapi(app, root_path=url_prefix)
+        Instrumentator().instrument(app).expose(app, endpoint="/metrics", include_in_schema=False)
+        app.add_middleware(AccessLogMiddleware)
+
+    for app in versioned_apps:
+        main_app.mount(f"/{app.version}", app)
+
+    return main_app
 
 
-def build_database(args):
-    drop_database = args.build_db == "drop-then-build"
+def build_database(drop_database: bool = False):
     create_database(delete_first=drop_database)
     SQLModel.metadata.create_all(EngineSingleton().engine, checkfirst=True)
     with DbSession() as session:
         triggers = create_delete_triggers(AIoDConcept)
-        for trigger in triggers:
+        sync_triggers = create_identifier_synchronization_triggers()
+        for trigger in triggers + sync_triggers:
             session.execute(trigger)
+
+        if DEV_CONFIG.get("disable_reviews", False):
+            disable_review_process(session)
+        else:
+            enable_review_process(session)
+
         existing_platforms = session.scalars(select(Platform)).all()
         missing_platforms = set(PlatformName) - {p.name for p in existing_platforms}
         if any(missing_platforms):
@@ -178,11 +188,19 @@ def build_database(args):
 
 def main():
     """Run the application. Placed in a separate function, to avoid having global variables"""
-    args = _parse_args()
+
+    # TODO: unify configuration and environment file?  GH#82
+    # This parsing allows users to see the message on `--help` or incorrect (old) invocations.
+    msg = (
+        "Configuration options can be set in the configuration file. "
+        "Please refer to the documentation pages."
+    )
+    argparse.ArgumentParser(description=msg).parse_args()
+
     uvicorn.run(
         "main:create_app",
         host="0.0.0.0",  # noqa: S104  # required to make the interface available outside of docker
-        reload=args.reload,
+        reload=DEV_CONFIG.get("reload", False),
         factory=True,
     )
 

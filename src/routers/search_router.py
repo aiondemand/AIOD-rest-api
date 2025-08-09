@@ -84,10 +84,9 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
         indexed_fields: TypeAlias = Literal[tuple(self.indexed_fields)]  # type: ignore
 
         @router.get(
-            f"{url_prefix}/search/{self.resource_name_plural}/v1",
+            f"/search/{self.resource_name_plural}",
             tags=["search"],
             description=f"""Search for {self.resource_name_plural}.""",
-            # response_model=SearchResult[read_class],  # This gives errors, so not used.
         )
         def search(
             search_query: Annotated[
@@ -225,7 +224,7 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
         self,
         read_class: Type[SQLModel],
         resource_class: RESOURCE,
-        identifiers: list[int],
+        identifiers: list[str],
     ) -> list[SQLModel]:
         try:
             with DbSession() as session:

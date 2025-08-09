@@ -41,7 +41,9 @@ class AIoDEntryORM(AIoDEntryBase, table=True):  # type: ignore [call-arg]
 
     identifier: int = Field(default=None, primary_key=True)
     editor: list["Person"] = Relationship(
-        link_model=many_to_many_link_factory("aiod_entry", "person", table_prefix="editor"),
+        link_model=many_to_many_link_factory(
+            "aiod_entry", "person", table_prefix="editor", to_identifier_type=str
+        ),
     )
     status: EntryStatus = Field(
         sa_column=Column(sqlalchemy.Enum(EntryStatus)), default=EntryStatus.DRAFT
@@ -56,11 +58,11 @@ class AIoDEntryORM(AIoDEntryBase, table=True):  # type: ignore [call-arg]
     )
 
     class RelationshipConfig:
-        editor: list[int] = ManyToMany()  # No deletion triggers: "orphan" Persons should be kept
+        editor: list[str] = ManyToMany()  # No deletion triggers: "orphan" Persons should be kept
 
 
 class AIoDEntryCreate(AIoDEntryBase):
-    editor: list[int] = Field(
+    editor: list[str] = Field(
         description="Links to identifiers of persons responsible for maintaining the entry.",
         default_factory=list,
         schema_extra={"example": []},
@@ -68,7 +70,7 @@ class AIoDEntryCreate(AIoDEntryBase):
 
 
 class AIoDEntryRead(AIoDEntryBase):
-    editor: list[int] = Field(
+    editor: list[str] = Field(
         description="Links to identifiers of persons responsible for maintaining the entry.",
         default_factory=list,
         schema_extra={"example": []},

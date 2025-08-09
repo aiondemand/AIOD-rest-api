@@ -8,6 +8,7 @@ def test_happy_path(
     client: TestClient,
     mocked_privileged_token: Mock,
     body_resource: dict,
+    auto_publish: None,
 ):
     body = copy.deepcopy(body_resource)
     body["headline"] = "A headline to show on top of the page."
@@ -16,10 +17,11 @@ def test_happy_path(
     body["content"] = {"plain": "plain content"}
     body["source"] = "https://tailor-network.eu/shaping-the-future-of-ai-within-the-eu/"
 
-    response = client.post("/news/v1", json=body, headers={"Authorization": "Fake token"})
+    response = client.post("/news", json=body, headers={"Authorization": "Fake token"})
     assert response.status_code == 200, response.json()
+    identifier = response.json()['identifier']
 
-    response = client.get("/news/v1/1")
+    response = client.get(f"/news/{identifier}")
     assert response.status_code == 200, response.json()
 
     response_json = response.json()

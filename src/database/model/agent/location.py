@@ -1,9 +1,9 @@
 from typing import Optional
 
-from sqlalchemy import Column, Integer, ForeignKey
+from sqlalchemy import Column, Integer, ForeignKey, String
 from sqlmodel import SQLModel, Field, Relationship
 
-from database.model.field_length import NORMAL, SHORT
+from database.model.field_length import NORMAL, SHORT, IDENTIFIER_LENGTH
 from database.model.relationships import OneToOne
 from database.model.serializers import CastDeserializer
 
@@ -112,11 +112,15 @@ class LocationORM(LocationBase, table=True):  # type: ignore [call-arg]
     geo: Optional["GeoORM"] = Relationship(
         back_populates="location", sa_relationship_kwargs={"uselist": False}
     )
-    contact_identifier: int | None = Field(
-        sa_column=Column(Integer, ForeignKey("contact.identifier", ondelete="CASCADE"))
+    contact_identifier: str | None = Field(
+        sa_column=Column(
+            String(IDENTIFIER_LENGTH), ForeignKey("contact.identifier", ondelete="CASCADE")
+        )
     )
-    event_identifier: int | None = Field(
-        sa_column=Column(Integer, ForeignKey("event.identifier", ondelete="CASCADE"))
+    event_identifier: str | None = Field(
+        sa_column=Column(
+            String(IDENTIFIER_LENGTH), ForeignKey("event.identifier", ondelete="CASCADE")
+        )
     )
 
     class RelationshipConfig:

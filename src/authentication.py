@@ -34,7 +34,6 @@ load_dotenv()
 
 oidc = OpenIdConnect(openIdConnectUrl=KEYCLOAK_CONFIG.get("openid_connect_url"), auto_error=False)
 
-
 REVIEWER_ROLE = os.getenv("REVIEWER_ROLE_NAME")
 client_secret = os.getenv("KEYCLOAK_CLIENT_SECRET")
 
@@ -66,9 +65,22 @@ class KeycloakUser:
     def has_any_role(self, *roles: str) -> bool:
         return bool(set(roles) & self.roles)
 
+    def is_connector_for_platform(self, platform_name: str) -> bool:
+        """
+        Check if the user is a connector for a specific platform.
+        """
+        return f"platform_{platform_name}" in self.roles
+
     @property
     def is_reviewer(self):
         return REVIEWER_ROLE in self.roles
+
+    @property
+    def is_connector(self) -> bool:
+        """
+        Check if the user is a connector.
+        """
+        return any(role.startswith("platform_") for role in self.roles)
 
 
 async def _get_user(token) -> KeycloakUser:

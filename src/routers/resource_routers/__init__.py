@@ -17,6 +17,7 @@ from .team_router import TeamRouter
 from .resource_bundle_router import ResourceBundleRouter
 from .. import ResourceRouter
 
+
 router_list: list[ResourceRouter | PlatformRouter] = [
     PlatformRouter(),
     CaseStudyRouter(),

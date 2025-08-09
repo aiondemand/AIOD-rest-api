@@ -1,5 +1,4 @@
 from typing import Optional, List, Type
-from unittest.mock import Mock
 
 import pytest
 from fastapi import FastAPI
@@ -81,8 +80,8 @@ class TestObjectBase(AIoDConceptBase):
 
 class TestObject(TestObjectBase, AIoDConcept, table=True):  # type: ignore [call-arg]
     __tablename__ = "test_object"
+    __abbreviation__ = "test"
 
-    identifier: int = Field(default=None, primary_key=True)
     named_string_identifier: Optional[int] = Field(default=None, foreign_key="test_enum.identifier")
     named_string: Optional[TestEnum] = Relationship(back_populates="objects")
     named_string_list: List[TestEnum2] = Relationship(
@@ -131,48 +130,50 @@ class RouterTestObject(ResourceRouter):
 
 
 @pytest.fixture
-def client_with_testobject() -> TestClient:
+def test_objects() -> list[TestObject]:
+    named1, named2 = TestEnum(name="named_string1"), TestEnum(name="named_string2")
+    enum1, enum2, enum3 = TestEnum2(name="1"), TestEnum2(name="2"), TestEnum2(name="3")
+    objects = [
+        TestObject(
+            aiod_entry=AIoDEntryORM(status=EntryStatus.PUBLISHED),
+            title="object 1",
+            named_string=named1,
+            named_string_list=[enum1, enum2],
+        ),
+        TestObject(
+            aiod_entry=AIoDEntryORM(status=EntryStatus.PUBLISHED),
+            title="object 2",
+            named_string=named1,
+        ),
+        TestObject(
+            aiod_entry=AIoDEntryORM(status=EntryStatus.PUBLISHED),
+            title="object 3",
+            named_string=named2,
+            named_string_list=[enum2, enum3],
+        ),
+        TestObject(aiod_entry=AIoDEntryORM(status=EntryStatus.PUBLISHED),
+                   title="object 4"),
+    ]
+    return objects
+
+
+@pytest.fixture
+def client_with_testobject(test_objects: list[TestObject]) -> TestClient:
     with DbSession() as session:
-        named1, named2 = TestEnum(name="named_string1"), TestEnum(name="named_string2")
-        enum1, enum2, enum3 = TestEnum2(name="1"), TestEnum2(name="2"), TestEnum2(name="3")
-        draft = EntryStatus.DRAFT
-        session.add_all(
-            [
-                TestObject(
-                    aiod_entry=AIoDEntryORM(status=draft),
-                    identifier=1,
-                    title="object 1",
-                    named_string=named1,
-                    named_string_list=[enum1, enum2],
-                ),
-                TestObject(
-                    aiod_entry=AIoDEntryORM(status=draft),
-                    identifier=2,
-                    title="object 2",
-                    named_string=named1,
-                ),
-                TestObject(
-                    aiod_entry=AIoDEntryORM(status=draft),
-                    identifier=3,
-                    title="object 3",
-                    named_string=named2,
-                    named_string_list=[enum2, enum3],
-                ),
-                TestObject(aiod_entry=AIoDEntryORM(status=draft), identifier=4, title="object 4"),
-            ]
-        )
+        session.add_all(test_objects)
         session.commit()
-    app = FastAPI()
-    app.include_router(RouterTestObject().create(""))
-    return TestClient(app)
+        app = FastAPI()
+        app.include_router(RouterTestObject().create(""))
+        yield TestClient(app)
 
 
-def test_get_happy_path(client_with_testobject: TestClient):
-    response = client_with_testobject.get("/test_resources/v0/1")
+def test_get_happy_path(test_objects: list[TestObject], client_with_testobject: TestClient):
+    identifier = test_objects[0].identifier
+    response = client_with_testobject.get(f"/test_resources/{identifier}")
     assert response.status_code == 200, response.json()
     response_json = response.json()
 
-    assert response_json["identifier"] == 1
+    assert response_json["identifier"] == identifier
     assert response_json["title"] == "object 1"
     assert response_json["named_string"] == "named_string1"
     assert response_json["named_string_list"] == ["1", "2"]
@@ -180,7 +181,7 @@ def test_get_happy_path(client_with_testobject: TestClient):
 
 
 def test_get_all_happy_path(client_with_testobject: TestClient):
-    response = client_with_testobject.get("/test_resources/v0")
+    response = client_with_testobject.get("/test_resources")
     assert response.status_code == 200, response.json()
     response_json = response.json()
     assert "deprecated" not in response.headers
@@ -196,24 +197,24 @@ def test_get_all_happy_path(client_with_testobject: TestClient):
     assert "named_string" not in r4
 
 
-def test_post_happy_path(client_with_testobject: TestClient, mocked_privileged_token: Mock):
-    response = client_with_testobject.post(
-        "/test_resources/v0",
-        json={
-            "title": "title",
-            "named_string": "named_string1",
-            "named_string_list": ["1", "4"],
-            "related_objects": [
-                {"field1": "val1.1", "field2": "val1.2"},
-                {"field1": "val2.1", "field2": "val2.2"},
-            ],
-        },
-        headers={"Authorization": "Fake token"},
-    )
+def test_post_happy_path(client_with_testobject: TestClient, auto_publish: None):
+    with logged_in_user():
+        response = client_with_testobject.post(
+            "/test_resources",
+            json={
+                "title": "title",
+                "named_string": "named_string1",
+                "named_string_list": ["1", "4"],
+                "related_objects": [
+                    {"field1": "val1.1", "field2": "val1.2"},
+                    {"field1": "val2.1", "field2": "val2.2"},
+                ],
+            },
+            headers={"Authorization": "Fake token"},
+        )
     assert response.status_code == 200, response.json()
-    objects = client_with_testobject.get("/test_resources/v0").json()
+    objects = client_with_testobject.get("/test_resources").json()
     obj = objects[-1]
-    assert obj["identifier"] == 5
     assert obj["title"] == "title"
     assert obj["named_string"] == "named_string1"
     assert sorted(obj["named_string_list"]) == ["1", "4"]
@@ -226,10 +227,11 @@ def test_post_happy_path(client_with_testobject: TestClient, mocked_privileged_t
     assert related_objects[1]["field2"] == "val2.2"
 
 
-def test_put_happy_path(client_with_testobject: TestClient):
+def test_put_happy_path(test_objects: list[TestObject], client_with_testobject: TestClient, auto_publish: None):
+    identifier = test_objects[3].identifier
     with logged_in_user(kc_user_with_roles("update_test_resources")):
         response = client_with_testobject.put(
-            "/test_resources/v0/4",
+            f"/test_resources/{identifier}",
             json={
                 "title": "new title",
                 "named_string": "new_string",
@@ -242,7 +244,7 @@ def test_put_happy_path(client_with_testobject: TestClient):
             headers={"Authorization": "Fake token"},
         )
     assert response.status_code == 200, response.json()
-    changed_resource = client_with_testobject.get("/test_resources/v0/4").json()
+    changed_resource = client_with_testobject.get(f"/test_resources/{identifier}").json()
     assert changed_resource["title"] == "new title"
     assert changed_resource["named_string"] == "new_string"
     assert sorted(changed_resource["named_string_list"]) == ["1", "4", "9"]

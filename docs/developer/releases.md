@@ -45,19 +45,22 @@ This information can also be extracted using the Github REST API.
 
 
 ## Creating a release
-To create a new release,
+To create a new release:
+
 1. Make sure all requested functionality is merged with the `develop` branch.
-2. From develop: `git checkout -b release/[VERSION]`. Example of version: `1.1.20231129`
-3. Update the version in `pyproject.toml`.
+2. Create a release branch from develop: `git checkout -b release/[VERSION]`. Example of version: `1.1.20231129`
+3. Update the version in `pyproject.toml` on the release branch.
 4. Test all (most of) the functionality. Checkout the project in a new directory and remove all
    your local images, and make sure it works out-of-the box.
 5. Go to https://github.com/aiondemand/AIOD-rest-api/releases and draft a new release from the
-   release branch. Look at all closed PRs and create a changelog
-6. Create a PR from release branch to master
-7. After that's merged, create a PR from master to develop
-8. Deploy on the server(s):
+   release branch. Look at all closed PRs and create a changelog.
+6. Create a PR from release branch to develop. Make sure that when it is merged, the release branch is preserved.
+7. Deploy on the server(s):
     - Check which services currently work (before the update). It's a sanity check for if a service _doesn't_ work later.
-    - Update the code on the server by checking out the release
-    - Merge configurations as necessary
+    - Bring the services down.
+    - Update the code on the server by checking out the release.
+    - If the release contains new configuration options or configuration defaults, make sure that the override files are updated as needed.
+    - Start the services without connectors.
     - Make sure the latest database migrations are applied: see ["Schema Migrations"](schema/migration.md#update-the-database)
+    - Restart the services with connectors.
 9. Notify everyone (e.g., in the API channel in Slack).

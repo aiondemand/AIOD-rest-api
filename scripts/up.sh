@@ -15,6 +15,7 @@ source override.env
 
 if [[ "${USE_LOCAL_DEV}" == "true" ]]; then
   compose_with_dev="-f docker-compose.dev.yaml"
+  profiles+="--profile nginx"
   echo -e "Launching ${CYAN}with${NC} local changes."
 else
   compose_with_dev=""

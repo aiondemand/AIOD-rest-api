@@ -34,6 +34,7 @@ class EducationalResourceBase(AIResourceBase):
 
 class EducationalResource(EducationalResourceBase, AIResource, table=True):  # type: ignore [call-arg]
     __tablename__ = "educational_resource"
+    __abbreviation__ = "edu"
 
     type_identifier: int | None = Field(
         foreign_key=EducationalResourceType.__tablename__ + ".identifier"
@@ -43,7 +44,9 @@ class EducationalResource(EducationalResourceBase, AIResource, table=True):  # t
     pace: Optional[Pace] = Relationship()
     access_mode: list[AccessMode] = Relationship(
         link_model=many_to_many_link_factory(
-            table_from="educational_resource", table_to=AccessMode.__tablename__
+            table_from="educational_resource",
+            table_to=AccessMode.__tablename__,
+            from_identifier_type=str,
         )
     )
 
@@ -58,23 +61,33 @@ class EducationalResource(EducationalResourceBase, AIResource, table=True):  # t
     )
     educational_level: list[EducationalLevel] = Relationship(
         link_model=many_to_many_link_factory(
-            table_from="educational_resource", table_to=EducationalLevel.__tablename__
+            table_from="educational_resource",
+            table_to=EducationalLevel.__tablename__,
+            from_identifier_type=str,
         )
     )
     in_language: list[Language] = Relationship(
         link_model=many_to_many_link_factory(
-            table_from="educational_resource", table_to=Language.__tablename__
+            table_from="educational_resource",
+            table_to=Language.__tablename__,
+            from_identifier_type=str,
         )
     )
     location: list[LocationORM] = Relationship(
-        link_model=many_to_many_link_factory("educational_resource", LocationORM.__tablename__)
+        link_model=many_to_many_link_factory(
+            "educational_resource", LocationORM.__tablename__, from_identifier_type=str
+        )
     )
     prerequisite: list[Prerequisite] = Relationship(
-        link_model=many_to_many_link_factory("educational_resource", Prerequisite.__tablename__)
+        link_model=many_to_many_link_factory(
+            "educational_resource", Prerequisite.__tablename__, from_identifier_type=str
+        )
     )
     target_audience: list[TargetAudience] = Relationship(
         link_model=many_to_many_link_factory(
-            table_from="educational_resource", table_to=TargetAudience.__tablename__
+            table_from="educational_resource",
+            table_to=TargetAudience.__tablename__,
+            from_identifier_type=str,
         )
     )
 

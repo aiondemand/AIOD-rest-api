@@ -4,18 +4,43 @@ repo_url: https://github.com/aiondemand/AIOD-rest-api
 edit_uri: edit/develop/docs/
 theme:
   name: material
+  logo: media/secondary-neg-white-25p.webp
   features:
     - content.code.copy
     - navigation.footer
     - content.action.view
     - content.action.edit
+    - content.footer.last-updated
   icon:
     edit: material/pencil
     view: material/eye
+  font:
+    text: 'Montserrat'
+  palette:
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+extra_css:
+  - stylesheets/extra.css
+
 
 nav:
   - Home: README.md
-  - Using the API: Using.md
+  - Using the API:
+      - using/index.md
+      - 'Uploading Metadata': using/upload.md
+      - 'Migration v1 to v2': using/migration-v1-v2.md
   - Hosting the API:
       - hosting/index.md
       - 'Authentication': hosting/authentication.md
@@ -31,6 +56,7 @@ nav:
           - 'Relationships': developer/schema/relationships.md
           - 'Objects': developer/schema/objects.md
           - 'Schema Migration': developer/schema/migration.md
+          - 'Taxonomies': developer/schema/taxonomies.md
       - 'Elastic Search': developer/elastic_search.md
       - 'Scripts': developer/scripts.md
       - 'Release Workflow': developer/releases.md
@@ -49,3 +75,9 @@ markdown_extensions:
 plugins:
   - section-index
   - search
+  - git-revision-date-localized:
+      type: datetime
+      fallback_to_build_date: true
+      locale: en
+      timezone: UTC
+      enable_creation_date: false

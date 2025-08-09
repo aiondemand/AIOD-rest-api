@@ -1,5 +1,7 @@
-from database.model.named_relation import NamedRelation
+from typing import Type
 
+from database.model.named_relation import create_taxonomy, Taxonomy
 
-class PublicationType(NamedRelation, table=True):  # type: ignore [call-arg]
-    __tablename__ = "publication_type"
+PublicationType: Type[Taxonomy] = create_taxonomy(
+    class_name="PublicationType", table_name="publication_type"
+)
