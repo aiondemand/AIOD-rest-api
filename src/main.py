@@ -45,6 +45,7 @@ from setup_logger import setup_logger
 from prometheus_fastapi_instrumentator import Instrumentator
 from middleware.access_log import AccessLogMiddleware
 from versioning import versions, add_version_to_openapi, add_deprecation_and_sunset_middleware
+from routers.access_stats_router import create as create_access_stats_router
 
 
 def add_routes(app: FastAPI, url_prefix=""):
@@ -90,6 +91,7 @@ def add_routes(app: FastAPI, url_prefix=""):
     ):
         app.include_router(router.create(url_prefix))
 
+    app.include_router(create_access_stats_router(url_prefix))
 
 def create_app() -> FastAPI:
     """Create the FastAPI application, complete with routes."""
