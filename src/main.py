@@ -41,7 +41,6 @@ from routers import (
     bookmark_router,
     asset_router,
 )
-from setup_logger import setup_logger
 from prometheus_fastapi_instrumentator import Instrumentator
 from middleware.access_log import AccessLogMiddleware
 from versioning import versions, add_version_to_openapi, add_deprecation_and_sunset_middleware
@@ -92,6 +91,7 @@ def add_routes(app: FastAPI, url_prefix=""):
         app.include_router(router.create(url_prefix))
 
     app.include_router(create_access_stats_router(url_prefix))
+
 
 def create_app() -> FastAPI:
     """Create the FastAPI application, complete with routes."""
@@ -158,7 +158,11 @@ def build_app(*, url_prefix: str = "", version: str = "dev"):
         app.add_exception_handler(HTTPException, http_exception_handler)
         add_deprecation_and_sunset_middleware(app)
         add_version_to_openapi(app, root_path=url_prefix)
-        Instrumentator().instrument(app).expose(app, endpoint="/metrics", include_in_schema=False)
+
+    Instrumentator().instrument(main_app).expose(main_app, endpoint="/metrics", include_in_schema=False)
+    main_app.add_middleware(AccessLogMiddleware)
+
+    for app in versioned_apps:
         app.add_middleware(AccessLogMiddleware)
 
     for app in versioned_apps:
