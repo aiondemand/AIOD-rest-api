@@ -253,8 +253,22 @@ services:
     image: grafana/grafana:latest
     container_name: grafana
     environment:
+      # Hook up datasources via env
+      - GRAFANA_PROMETHEUS_URL=${GRAFANA_PROMETHEUS_URL-http://prometheus:9090}
+      - GRAFANA_MYSQL_HOST=${GRAFANA_MYSQL_HOST-sqlserver}
+      - GRAFANA_MYSQL_PORT=${GRAFANA_MYSQL_PORT-3306}
+      - GRAFANA_MYSQL_DB=${GRAFANA_MYSQL_DB-aiod}
+      - GRAFANA_MYSQL_USER=${GRAFANA_MYSQL_USER-root}
+      - GRAFANA_MYSQL_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      # Optional: anonymous view (handy for demos). Remove if you don't want it.
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer
+      # Admin user
       - GF_SECURITY_ADMIN_PASSWORD=admin
     volumes:
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./grafana/dashboards:/etc/grafana/dashboards:ro
       - grafana_data:/var/lib/grafana
     depends_on:
       - prometheus

@@ -14,7 +14,7 @@ class TopAsset(SQLModel):
 
 
 def create(url_prefix: str = "") -> APIRouter:
-    router = APIRouter(prefix=f"{url_prefix}/stats/v1", tags=["stats"])
+    router = APIRouter(prefix=f"{url_prefix}/stats", tags=["stats"])
 
     @router.get("/top/{resource_type}", response_model=List[TopAsset])
     def top_assets(resource_type: str, limit: int = 10) -> List[TopAsset]:

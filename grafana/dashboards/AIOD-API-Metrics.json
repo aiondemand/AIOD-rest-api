@@ -1,0 +1,35 @@
+{
+  "title": "AIoD API Metrics",
+  "uid": "aiod-api-metrics",
+  "timezone": "browser",
+  "schemaVersion": 38,
+  "version": 1,
+  "refresh": "5s",
+  "panels": [
+    {
+      "type": "timeseries",
+      "title": "Requests per endpoint",
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [
+        {
+          "expr": "sum by (handler) (rate(http_requests_total[1m]))",
+          "legendFormat": "{{handler}}"
+        }
+      ],
+      "gridPos": {"x": 0, "y": 0, "w": 24, "h": 9}
+    },
+    {
+      "type": "table",
+      "title": "Top assets",
+      "datasource": {"type": "mysql", "uid": "mysql"},
+      "targets": [
+        {
+          "format": "table",
+          "rawSql": "WITH ranked AS (SELECT resource_type, asset_id, COUNT(*) AS hits, ROW_NUMBER() OVER (PARTITION BY resource_type ORDER BY COUNT(*) DESC) AS r FROM assetaccesslog WHERE status = 200 GROUP BY resource_type, asset_id) SELECT resource_type AS type, asset_id AS asset, hits FROM ranked WHERE  r <= 20;"
+        }
+      ],
+      "gridPos": {"x": 0, "y": 9, "w": 24, "h": 9},
+      "options": {"showHeader": true}
+    }
+  ]
+}
