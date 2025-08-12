@@ -5,7 +5,7 @@ from versioning import VersionedResourceCollection
 ???- tip "`Resource` and `Resource Object` definitions"
 
     On this page, the use of `resource` means the type of the asset, e.g., the `Dataset` type or the `Project` type.
-    The term `(resource) object` may be used to defined to an instantiated object of some type.
+    The term `(resource) object` may be used to define an instantiated object of some type.
 
 !!! tip "Work in Progress"
 
