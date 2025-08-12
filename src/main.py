@@ -9,7 +9,7 @@ import argparse
 import logging
 from pathlib import Path
 
-import pkg_resources
+from importlib.metadata import version as pkg_version, PackageNotFoundError
 import uvicorn
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.responses import HTMLResponse
@@ -115,8 +115,11 @@ def create_app() -> FastAPI:
             raise ValueError(f"dev.taxonomy must be a path to a file, but is {taxonomy_path!r}.")
         synchronize_taxonomy_from_file(taxonomy_file)
 
-    pyproject_toml = pkg_resources.get_distribution("aiod_metadata_catalogue")
-    app = build_app(url_prefix=DEV_CONFIG.get("url_prefix", ""), version=pyproject_toml.version)
+    try:
+        dist_version = pkg_version("aiod_metadata_catalogue")
+    except PackageNotFoundError:
+        dist_version = "dev"
+    app = build_app(url_prefix=DEV_CONFIG.get("url_prefix", ""), version=dist_version)
     return app
 
 
@@ -159,7 +162,9 @@ def build_app(*, url_prefix: str = "", version: str = "dev"):
         add_deprecation_and_sunset_middleware(app)
         add_version_to_openapi(app, root_path=url_prefix)
 
-    Instrumentator().instrument(main_app).expose(main_app, endpoint="/metrics", include_in_schema=False)
+    Instrumentator().instrument(main_app).expose(
+        main_app, endpoint="/metrics", include_in_schema=False
+    )
     main_app.add_middleware(AccessLogMiddleware)
 
     for app in versioned_apps:

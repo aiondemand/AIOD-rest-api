@@ -30,7 +30,7 @@ def test_middleware_logs_asset_hit(monkeypatch):
     assert len(written) == 1
     entry = written[0]
     assert entry.resource_type == "datasets"
-    assert entry.asset_id == "datasets/123"   
+    assert entry.asset_id == "datasets/123"
     assert entry.status == 200
 
 def test_middleware_logs_404_asset(monkeypatch):
@@ -48,7 +48,7 @@ def test_middleware_logs_404_asset(monkeypatch):
     assert len(written) == 1
     entry = written[0]
     assert entry.resource_type == "models"
-    assert entry.asset_id == "v2/models/bert"  
+    assert entry.asset_id == "v2/models/bert"
     assert entry.status == 404
 
 def test_middleware_ignores_non_asset(monkeypatch):

@@ -24,7 +24,7 @@ def create(url_prefix: str = "") -> APIRouter:
             select(AssetAccessLog.asset_id, hits_count)
             .where(
                 AssetAccessLog.resource_type == resource_type,
-                AssetAccessLog.status == 200,  
+                AssetAccessLog.status == 200,
             )
             .group_by(AssetAccessLog.asset_id)
             .order_by(hits_count.desc())
@@ -32,7 +32,7 @@ def create(url_prefix: str = "") -> APIRouter:
         )
 
         with DbSession() as s:
-            rows = s.exec(stmt).all()  
+            rows = s.exec(stmt).all()
         return [TopAsset(asset_id=a, hits=int(h)) for a, h in rows]
 
     return router

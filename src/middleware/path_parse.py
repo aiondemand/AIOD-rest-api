@@ -1,9 +1,16 @@
 import re
 
 EXCLUDE = {
-    "docs", "metrics", "openapi.json", "authorization_test",
-    "counts", "favicon.ico", "health", "redoc",
+    "docs",
+    "metrics",
+    "openapi.json",
+    "authorization_test",
+    "counts",
+    "favicon.ico",
+    "health",
+    "redoc",
 }
+
 
 def parse_asset_from_path(
     path: str,
