@@ -178,10 +178,11 @@ def build_app(*, url_prefix: str = "", version: str = "dev"):
     Instrumentator().instrument(main_app).expose(
         main_app, endpoint="/metrics", include_in_schema=False
     )
+    # Since all traffic goes through the main app, this middleware only
+    # needs to be registered with the main app and not the mounted apps.
     main_app.add_middleware(AccessLogMiddleware)
 
     for app, _ in versioned_apps:
-        app.add_middleware(AccessLogMiddleware)
         main_app.mount(f"/{app.version}", app)
 
     return main_app
