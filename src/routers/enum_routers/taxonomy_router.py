@@ -7,6 +7,7 @@ from sqlalchemy import select
 from database.model.named_relation import Taxonomy
 from routers.enum_routers.enum_router import EnumRouter
 from database.session import DbSession
+from versioning import Version
 
 
 class TaxonomyRead(BaseModel):
@@ -24,7 +25,7 @@ class TaxonomyRouter(EnumRouter):
     def __init__(self, resource_class: Type[Taxonomy]):
         super().__init__(resource_class)
 
-    def create(self, url_prefix: str) -> APIRouter:
+    def create(self, url_prefix: str, version: Version = Version.LATEST) -> APIRouter:
         router = APIRouter()
         default_kwargs = {
             "response_model_exclude_none": True,

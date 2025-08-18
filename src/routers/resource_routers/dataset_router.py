@@ -5,7 +5,7 @@ from converters.schema_converters import (
     dataset_converter_dcatap_instance,
 )
 from converters.schema_converters.schema_converter import SchemaConverter
-from database.model.dataset.dataset import Dataset
+from database.model.dataset.dataset import Dataset, dataset_versions
 from routers.resource_ai_asset_router import ResourceAIAssetRouter
 
 
@@ -34,3 +34,9 @@ class DatasetRouter(ResourceAIAssetRouter):
             "schema.org": dataset_converter_schema_dot_org_instance,
             "dcat-ap": dataset_converter_dcatap_instance,
         }
+
+
+dataset_routers = {
+    version: DatasetRouter(versioned_resource)
+    for version, versioned_resource in dataset_versions.items()
+}

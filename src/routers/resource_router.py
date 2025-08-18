@@ -3,8 +3,8 @@ import datetime
 import traceback
 from functools import partial
 from http import HTTPStatus
-from typing import Annotated, Any, Literal, Sequence, Type, TypeVar, Union
-
+from typing import Annotated, Any, Literal, Sequence, Type, TypeVar, Union, Callable, cast
+from wsgiref.handlers import format_date_time
 from fastapi import APIRouter, Depends, HTTPException, status, Query, Path
 from sqlalchemy import and_, func
 from sqlalchemy.sql.operators import is_
@@ -35,6 +35,7 @@ from database.session import DbSession
 from dependencies.filtering import ResourceFilters, ResourceFiltersParams
 from dependencies.pagination import Pagination, PaginationParams
 from error_handling import as_http_exception
+from versioning import Version, VersionedResource
 
 from http import HTTPStatus
 from pydantic import BaseModel
@@ -61,9 +62,12 @@ class ResourceRouter(abc.ABC):
     - DELETE /[resource]s/{identifier}
     """
 
-    def __init__(self):
-        self.resource_class_create = resource_create(self.resource_class)
-        self.resource_class_read = resource_read(self.resource_class)
+    def __init__(self, resource: VersionedResource | None = None):
+        resource = resource or VersionedResource(self.resource_class)
+        self.resource_class_create = resource.resource_class_create
+        self.resource_class_read = resource.resource_class_read
+        self.create_to_orm = resource.create_to_orm
+        self.orm_to_read = resource.orm_to_read
 
     @property
     @abc.abstractmethod
@@ -104,7 +108,7 @@ class ResourceRouter(abc.ABC):
         """
         return {}
 
-    def create(self, url_prefix: str) -> APIRouter:
+    def create(self, url_prefix: str, version: Version = Version.LATEST) -> APIRouter:
         router = APIRouter()
         default_kwargs = {
             "response_model_exclude_none": True,
@@ -215,10 +219,12 @@ class ResourceRouter(abc.ABC):
         _raise_error_on_invalid_schema(self._possible_schemas, schema)
         with DbSession(autoflush=False) as session:
             try:
+                # mypy does a weird thing here where each individual branch type checks fine,
+                # but together it fails to type check. Likely to do with partial being an object.
                 convert_schema = (
-                    partial(self.schema_converters[schema].convert, session)
+                    cast(Callable, partial(self.schema_converters[schema].convert, session))
                     if schema != "aiod"
-                    else self.resource_class_read.from_orm
+                    else cast(Callable, self.orm_to_read)
                 )
                 resources: Any = self._retrieve_resources_and_post_process(
                     session, pagination, resource_filters, user, platform
@@ -277,7 +283,7 @@ class ResourceRouter(abc.ABC):
 
                 if schema != "aiod":
                     return self.schema_converters[schema].convert(session, resource)
-                return self.resource_class_read.from_orm(resource)
+                return self.orm_to_read(resource)
         except Exception as e:
             raise as_http_exception(e)
 
@@ -507,7 +513,7 @@ class ResourceRouter(abc.ABC):
         user: KeycloakUser | None = None,
     ):
         """Store a resource in the database"""
-        resource = self.resource_class.from_orm(resource_create_instance)
+        resource = self.create_to_orm(resource_create_instance)
         deserialize_resource_relationships(
             session, self.resource_class, resource, resource_create_instance, user
         )
@@ -552,6 +558,8 @@ class ResourceRouter(abc.ABC):
                             status_code=status.HTTP_403_FORBIDDEN,
                             detail="You cannot edit an asset under submission.",
                         )
+                    # TODO: Versioning, probably need to change the Create instance into
+                    # ORM object and then do the updates so they are of the same schema.
                     for attribute_name in resource.schema()["properties"]:
                         if hasattr(resource_create_instance, attribute_name):
                             new_value = getattr(resource_create_instance, attribute_name)

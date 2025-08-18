@@ -1,5 +1,5 @@
 import abc
-from typing import TypeVar, Generic, Any, Type, Literal, Annotated, TypeAlias
+from typing import TypeVar, Generic, Any, Type, Literal, Annotated, TypeAlias, Callable
 
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
@@ -10,9 +10,10 @@ from starlette import status
 from database.model.concept.aiod_entry import AIoDEntryRead, EntryStatus
 from database.model.concept.concept import AIoDConcept
 from database.model.platform.platform import Platform
-from database.model.resource_read_and_create import resource_read
 from database.session import DbSession
 from error_handling import as_http_exception
+from database.model.help_versions import get_versioned_resource
+from versioning import Version
 from .search_routers.elasticsearch import ElasticsearchSingleton
 
 LIMIT_MAX = 1000
@@ -78,9 +79,10 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
         """The set of linked fields (those with aiod 'link' relations)"""
         return set()
 
-    def create(self, url_prefix: str) -> APIRouter:
+    def create(self, url_prefix: str, version: Version) -> APIRouter:
         router = APIRouter()
-        read_class = resource_read(self.resource_class)  # type: ignore
+        versioned_resource = get_versioned_resource(self.resource_class, version)
+        read_class = versioned_resource.resource_class_read  # type: ignore
         indexed_fields: TypeAlias = Literal[tuple(self.indexed_fields)]  # type: ignore
 
         @router.get(
@@ -201,17 +203,18 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
                 index=self.es_index, query=query, from_=offset, size=limit, sort=sort
             )
             total_hits = result["hits"]["total"]["value"]
+            resources: list[read_class] = []  # type: ignore[valid-type]
             if get_all:
                 identifiers = [hit["_source"]["identifier"] for hit in result["hits"]["hits"]]
-                resources: list[SQLModel] = self._db_query(
-                    read_class, self.resource_class, identifiers
+                resources = self._db_query(
+                    versioned_resource.orm_to_read, self.resource_class, identifiers
                 )
             else:
-                resources: list[Type[read_class]] = [  # type: ignore
+                resources = [
                     self._cast_resource(read_class, hit["_source"])
                     for hit in result["hits"]["hits"]
                 ]
-            return SearchResult[read_class](  # type: ignore
+            return SearchResult[read_class](  # type: ignore[valid-type]
                 total_hits=total_hits,
                 resources=resources,
                 limit=limit,
@@ -222,7 +225,7 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
 
     def _db_query(
         self,
-        read_class: Type[SQLModel],
+        orm_to_read: Callable[[Type[AIoDConcept]], Type[SQLModel]],
         resource_class: RESOURCE,
         identifiers: list[str],
     ) -> list[SQLModel]:
@@ -240,7 +243,7 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
                         f"{', '.join(map(str, identifiers_missing))}, could not be found in "
                         "the database.",
                     )
-                return [read_class.from_orm(resource) for resource in resources]
+                return [orm_to_read(resource) for resource in resources]
         except Exception as e:
             raise as_http_exception(e)
 

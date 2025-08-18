@@ -11,6 +11,7 @@ from database.model.serializers import deserialize_resource_relationships
 from database.session import DbSession
 from dependencies.pagination import Pagination, PaginationParams
 from error_handling import as_http_exception
+from versioning import Version
 
 
 class PlatformRouter:
@@ -46,9 +47,8 @@ class PlatformRouter:
     def resource_class(self) -> type[Platform]:
         return Platform
 
-    def create(self, url_prefix: str) -> APIRouter:
+    def create(self, url_prefix: str, version: Version) -> APIRouter:
         router = APIRouter()
-        version = f"v{self.version}"
         default_kwargs = {
             "response_model_exclude_none": True,
             "deprecated": False,

@@ -1,4 +1,4 @@
-from database.model.knowledge_asset.publication import Publication
+from database.model.knowledge_asset.publication import Publication, publication_versions
 from routers.resource_ai_asset_router import ResourceAIAssetRouter
 
 
@@ -18,3 +18,9 @@ class PublicationRouter(ResourceAIAssetRouter):
     @property
     def resource_class(self) -> type[Publication]:
         return Publication
+
+
+publication_routers = {
+    version: PublicationRouter(versioned_resource)
+    for version, versioned_resource in publication_versions.items()
+}

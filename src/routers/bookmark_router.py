@@ -9,6 +9,7 @@ from database.model.bookmark.bookmark import Bookmark
 from http import HTTPStatus
 from datetime import datetime
 from routers.helper_functions import get_asset_type_by_abbreviation
+from versioning import Version
 
 
 class BookmarkRead(SQLModel):
@@ -21,7 +22,7 @@ class BookmarkRead(SQLModel):
         json_encoders = {datetime: lambda dt: dt.isoformat()}
 
 
-def create(url_prefix: str = "") -> APIRouter:
+def create(url_prefix: str = "", version: Version = Version.LATEST) -> APIRouter:
     router = APIRouter()
     path = "/bookmarks"
 

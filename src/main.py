@@ -27,6 +27,8 @@ from database.model.platform.platform import Platform
 from database.model.platform.platform_names import PlatformName
 from database.session import EngineSingleton, DbSession
 from database.setup import create_database, database_exists
+from routers.resource_routers import versioned_routers
+
 from setup_logger import setup_logger
 from taxonomies.synchronize_taxonomy import synchronize_taxonomy_from_file
 from triggers import disable_review_process, enable_review_process
@@ -43,11 +45,16 @@ from routers import (
 )
 from prometheus_fastapi_instrumentator import Instrumentator
 from middleware.access_log import AccessLogMiddleware
-from versioning import versions, add_version_to_openapi, add_deprecation_and_sunset_middleware
 from routers.access_stats_router import create as create_access_stats_router
+from versioning import (
+    versions,
+    add_version_to_openapi,
+    add_deprecation_and_sunset_middleware,
+    Version,
+)
 
 
-def add_routes(app: FastAPI, url_prefix=""):
+def add_routes(app: FastAPI, version: Version, url_prefix=""):
     """Add routes to the FastAPI application"""
 
     @app.get(url_prefix + "/", include_in_schema=False, response_class=HTMLResponse)
@@ -76,19 +83,22 @@ def add_routes(app: FastAPI, url_prefix=""):
     def counts() -> dict:
         return {
             router.resource_name_plural: count
-            for router in resource_routers.router_list
+            for router in resource_routers.versioned_routers.get(version, [])
             if issubclass(router.resource_class, AIoDConcept)
             and (count := router.get_resource_count_func()(detailed=True))
         }
 
+    for router in versioned_routers.get(version, []):
+        app.include_router(router.create(url_prefix, version))
+
     for router in (
-        resource_routers.router_list
-        + parent_routers.router_list
+        parent_routers.router_list
         + enum_routers.router_list
         + search_routers.router_list
         + [review_router, user_router, bookmark_router, asset_router]
+        + resource_routers.router_list
     ):
-        app.include_router(router.create(url_prefix))
+        app.include_router(router.create(url_prefix, version))
 
     app.include_router(create_access_stats_router(url_prefix))
 
@@ -148,16 +158,19 @@ def build_app(*, url_prefix: str = "", version: str = "dev"):
         **kwargs,
     )
     versioned_apps = [
-        FastAPI(
+        (
+          FastAPI(
             title=f"AIoD Metadata Catalogue {version}",
             version=f"{version}",
             **kwargs,
+          ),
+          version
         )
         for version, info in versions.items()
         if not info.retired
     ]
-    for app in [main_app] + versioned_apps:
-        add_routes(app)
+    for app, version in [(main_app, Version.LATEST)] + versioned_apps:
+        add_routes(app, version=version)
         app.add_exception_handler(HTTPException, http_exception_handler)
         add_deprecation_and_sunset_middleware(app)
         add_version_to_openapi(app, root_path=url_prefix)
@@ -167,10 +180,8 @@ def build_app(*, url_prefix: str = "", version: str = "dev"):
     )
     main_app.add_middleware(AccessLogMiddleware)
 
-    for app in versioned_apps:
+    for app, _ in versioned_apps:
         app.add_middleware(AccessLogMiddleware)
-
-    for app in versioned_apps:
         main_app.mount(f"/{app.version}", app)
 
     return main_app

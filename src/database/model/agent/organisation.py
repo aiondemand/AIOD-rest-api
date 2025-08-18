@@ -17,6 +17,7 @@ from database.model.serializers import (
     FindByIdentifierDeserializer,
     FindByIdentifierDeserializerList,
 )
+from versioning import Version, VersionedResource, VersionedResourceCollection
 
 
 Turnover: type[Taxonomy] = create_taxonomy(class_name="Turnover", table_name="turnover")
@@ -119,3 +120,10 @@ class Organisation(OrganisationBase, Agent, table=True):  # type: ignore [call-a
 
 deserializer = FindByIdentifierDeserializer(Organisation)
 Contact.RelationshipConfig.organisation.deserializer = deserializer  # type: ignore
+
+organisation_versions = VersionedResourceCollection(
+    {
+        Version.V2: VersionedResource(Organisation),
+        Version.LATEST: VersionedResource(Organisation),
+    }
+)

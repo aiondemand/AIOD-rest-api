@@ -1,4 +1,4 @@
-from database.model.agent.organisation import Organisation
+from database.model.agent.organisation import Organisation, organisation_versions
 from routers.resource_router import ResourceRouter
 from fastapi import UploadFile, File, HTTPException, Query, status, APIRouter, Depends
 from http import HTTPStatus
@@ -16,7 +16,7 @@ from database.authorization import (
 )
 import datetime
 from error_handling import as_http_exception
-
+from versioning import Version
 
 ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/gif", "image/webp", "image/bmp"}
 MAX_FILE_SIZE_BYTES = 1 * 1024 * 1024  # 1MB
@@ -242,7 +242,7 @@ class OrganisationRouter(ResourceRouter):
             except Exception as e:
                 raise as_http_exception(e)
 
-    def create(self, url_prefix: str) -> APIRouter:
+    def create(self, url_prefix: str, version: Version = Version.LATEST) -> APIRouter:
         router = super().create(url_prefix)
 
         path = f"/{self.resource_name_plural}/{{identifier}}/image"
@@ -288,3 +288,9 @@ class OrganisationRouter(ResourceRouter):
             return resource
 
         return get_resource
+
+
+organisation_routers = {
+    version: OrganisationRouter(versioned_resource)
+    for version, versioned_resource in organisation_versions.items()
+}

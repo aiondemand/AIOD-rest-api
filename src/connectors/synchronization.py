@@ -19,6 +19,7 @@ from database.session import DbSession
 from database.setup import _get_existing_resource
 from routers import ResourceRouter, resource_routers, enum_routers
 from setup_logger import setup_logger
+from versioning import Version
 
 RELATIVE_PATH_STATE_JSON = pathlib.Path("state.json")
 RELATIVE_PATH_ERROR_CSV = pathlib.Path("errors.csv")
@@ -214,7 +215,8 @@ def main():
 
     (router,) = [
         router
-        for router in resource_routers.router_list + enum_routers.router_list
+        for router in resource_routers.versioned_routers.get(Version.LATEST)
+        + enum_routers.router_list
         if router.resource_class == connector.resource_class
     ]
 

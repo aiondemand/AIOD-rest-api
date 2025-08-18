@@ -12,6 +12,7 @@ from database.model.serializers import (
     FindByIdentifierDeserializerList,
     FindByNameDeserializerList,
 )
+from versioning import Version, VersionedResource, VersionedResourceCollection
 
 
 class ResourceBundleBase(AIResourceBase):
@@ -57,3 +58,11 @@ class ResourceBundle(ResourceBundleBase, AIResource, table=True):  # type: ignor
             deserializer=FindByIdentifierDeserializerList(AIResourceORM),
             default_factory_pydantic=list,
         )
+
+
+resource_bundle_versions = VersionedResourceCollection(
+    {
+        Version.V2: VersionedResource(ResourceBundle),
+        Version.LATEST: VersionedResource(ResourceBundle),
+    }
+)

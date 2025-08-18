@@ -7,6 +7,7 @@ from database.model.computational_asset.computational_asset_type import Computat
 from database.model.field_length import NORMAL
 from database.model.relationships import ManyToOne
 from database.model.serializers import AttributeSerializer, FindByNameDeserializer
+from versioning import VersionedResource, Version, VersionedResourceCollection
 
 
 class ComputationalAssetBase(AIAssetBase):
@@ -43,3 +44,11 @@ class ComputationalAsset(ComputationalAssetBase, AIAsset, table=True):  # type: 
             deserializer=FindByNameDeserializer(ComputationalAssetType),
             example="storage",
         )
+
+
+computational_asset_versions = VersionedResourceCollection(
+    {
+        Version.V2: VersionedResource(ComputationalAsset),
+        Version.LATEST: VersionedResource(ComputationalAsset),
+    }
+)

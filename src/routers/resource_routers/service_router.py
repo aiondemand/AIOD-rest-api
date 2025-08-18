@@ -1,4 +1,4 @@
-from database.model.service.service import Service
+from database.model.service.service import Service, service_versions
 from routers.resource_router import ResourceRouter
 
 
@@ -18,3 +18,9 @@ class ServiceRouter(ResourceRouter):
     @property
     def resource_class(self) -> type[Service]:
         return Service
+
+
+service_routers = {
+    version: ServiceRouter(versioned_resource)
+    for version, versioned_resource in service_versions.items()
+}

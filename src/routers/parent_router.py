@@ -9,6 +9,7 @@ from database.model.concept.concept import AIoDConcept
 from database.model.helper_functions import non_abstract_subclasses
 from database.session import DbSession
 from routers import resource_routers
+from versioning import Version
 
 
 class ParentRouter(abc.ABC):
@@ -38,7 +39,7 @@ class ParentRouter(abc.ABC):
     def parent_class_table(self):
         """The table class of the resource. E.g. AgentTable"""
 
-    def create(self, url_prefix: str) -> APIRouter:
+    def create(self, url_prefix: str, version: Version) -> APIRouter:
         router = APIRouter()
         default_kwargs = {
             "response_model_exclude_none": True,
@@ -47,7 +48,10 @@ class ParentRouter(abc.ABC):
         }
         available_schemas: list[SQLModel] = list(non_abstract_subclasses(self.parent_class))
         classes_dict = {clz.__tablename__: clz for clz in available_schemas if clz.__tablename__}
-        routers = {router.resource_name: router for router in resource_routers.router_list}
+        routers = {
+            router.resource_name: router
+            for router in resource_routers.versioned_routers[Version.LATEST]
+        }
         read_classes_dict = {name: routers[name].resource_class_read for name in classes_dict}
 
         get_resource = self.get_resource_func(classes_dict, read_classes_dict)
