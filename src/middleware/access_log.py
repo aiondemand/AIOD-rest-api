@@ -13,7 +13,11 @@ class AccessLogMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         response: Response = await call_next(request)
 
-        parsed = parse_asset_from_path(request.url.path)
+        parsed = parse_asset_from_path(
+            request.url.path,
+            include_api_version=False,
+            include_resource_type_in_asset=False,
+        )
         if parsed:
             resource_type, asset_id = parsed
             entry = AssetAccessLog(
