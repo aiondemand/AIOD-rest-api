@@ -29,6 +29,7 @@ from database.model.news.news_category import NewsCategory
 from tests.testutils.test_resource import RouterTestResource, factory_test_resource
 from tests.testutils.users import bypass_reviewer_publish_everything
 from taxonomies.synchronize_taxonomy import Term
+from versioning import Version
 
 DEFAULT_TEST_RESOURCE_IDENTIFIER = "test_KwfnsoJOAejyRdv2PaXUPAbW"
 DEFAULT_INDUSTRIAL_SECTORS = [
@@ -149,7 +150,8 @@ def client(request, engine: Engine) -> TestClient:
     Create a TestClient that can be used to mock sending requests to our application
     """
     app = build_app(version="unittest")
-    yield TestClient(app, base_url=f"http://localhost/{request.param}")
+    path_prefix = str(request.param) if request.param != Version.LATEST else ""
+    yield TestClient(app, base_url=f"http://localhost/{path_prefix}")
 
 
 # *NEVER* broaden the scope of this fixture, bypassing reviews should be on a test-by-test basis

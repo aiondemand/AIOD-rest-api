@@ -1,8 +1,8 @@
 from datetime import datetime
-from typing import Optional
+from typing import Optional, cast
 
-from pydantic import condecimal
-from sqlmodel import Field, Relationship
+from pydantic import condecimal, BaseModel
+from sqlmodel import Field, Relationship, SQLModel
 
 from database.model.agent.organisation import Organisation
 from database.model.ai_asset.ai_asset_table import AIAssetTable
@@ -14,7 +14,8 @@ from database.model.serializers import (
     FindByIdentifierDeserializerList,
 )
 from database.model.field_length import IDENTIFIER_LENGTH
-from versioning import Version, VersionedResource, VersionedResourceCollection
+from database.model.resource_read_and_create import resource_read, resource_create
+from versioning import Version, VersionedResource, VersionedResourceCollection, schema_transform
 
 
 class ProjectBase(AIResourceBase):
@@ -28,7 +29,7 @@ class ProjectBase(AIResourceBase):
         default=None,
         schema_extra={"example": "2022-01-01T15:15:00"},
     )
-    total_cost_euro: condecimal(max_digits=12, decimal_places=2) | None = Field(  # type: ignore
+    total_cost_euros: condecimal(max_digits=12, decimal_places=2) | None = Field(  # type: ignore
         description="The total budget of the project in euros.",
         schema_extra={"example": 1000000},
         default=None,
@@ -117,9 +118,58 @@ class Project(ProjectBase, AIResource, table=True):  # type: ignore [call-arg]
         )
 
 
+def project_v3_to_v2() -> VersionedResource:
+    """
+    Name changes:
+        * total_cost_euro -> total_cost_euros
+        * funder -> project_funder
+    """
+    old_parameter = dict(
+        total_cost_euros=(
+            condecimal(max_digits=12, decimal_places=2) | None,
+            Field(  # type: ignore
+                description="The total budget of the project in euros.",
+                schema_extra={"example": 1000000},
+                default=None,
+            ),
+        )
+    )
+    ProjectV2Read = schema_transform(
+        resource_read(Project),
+        "ProjectV2Read",
+        add_fields=old_parameter,
+    )
+    ProjectV2Create = schema_transform(
+        resource_create(Project),
+        "ProjectV2Create",
+        add_fields=old_parameter,
+    )
+
+    def orm_to_read(project: Project) -> ProjectV2Read:  # type: ignore[valid-type]
+        read = resource_read(Project).model_validate(project).model_dump()
+        read["total_cost_euro"] = project.total_cost_euros
+        return ProjectV2Read.model_validate(read)
+
+    def create_to_orm(project: ProjectV2Create) -> Project:  # type: ignore[valid-type]
+        fields = cast(SQLModel, project).model_dump()
+        old = fields.get("total_cost_euro")
+        new = fields.get("total_cost_euros")
+
+        if (old and new) and old != new:
+            raise ValueError(
+                "'total_cost_euro' and 'total_cost_euros' are both specified, but with different values. Please only use one or the other."
+            )
+
+        fields["total_cost_euros"] = new or old
+        return Project.model_validate(fields)
+
+    return VersionedResource(Project, ProjectV2Create, ProjectV2Read, create_to_orm, orm_to_read)
+
+
 project_versions = VersionedResourceCollection(
     {
-        Version.V2: VersionedResource(Project),
+        Version.V3: VersionedResource(Project),
+        Version.V2: project_v3_to_v2(),
         Version.LATEST: VersionedResource(Project),
     }
 )
