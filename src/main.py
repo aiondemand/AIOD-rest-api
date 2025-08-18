@@ -159,12 +159,12 @@ def build_app(*, url_prefix: str = "", version: str = "dev"):
     )
     versioned_apps = [
         (
-          FastAPI(
-            title=f"AIoD Metadata Catalogue {version}",
-            version=f"{version}",
-            **kwargs,
-          ),
-          version
+            FastAPI(
+                title=f"AIoD Metadata Catalogue {version}",
+                version=f"{version}",
+                **kwargs,
+            ),
+            version,
         )
         for version, info in versions.items()
         if not info.retired
