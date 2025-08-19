@@ -119,11 +119,7 @@ class Project(ProjectBase, AIResource, table=True):  # type: ignore [call-arg]
 
 
 def project_v3_to_v2() -> VersionedResource:
-    """
-    Name changes:
-        * total_cost_euro -> total_cost_euros
-        * funder -> project_funder
-    """
+    """Name change: total_cost_euro -> total_cost_euros"""
     old_parameter = dict(
         total_cost_euro=(
             condecimal(max_digits=12, decimal_places=2) | None,
