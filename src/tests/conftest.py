@@ -10,7 +10,7 @@ def pytest_generate_tests(metafunc):
     # and allow version-specific tests to be written using a
     # @pytest.mark.versions("vX") marker
     if "client" in metafunc.fixturenames:
-        default_versions = (Version.LATEST, Version.V2)
+        default_versions = (Version.LATEST, Version.V3)
         version_marker = next((m for m in metafunc.definition.own_markers if m.name == "versions"), None)
         selected_versions = version_marker.args if version_marker else default_versions
 

@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional, cast
 
-from pydantic import condecimal, BaseModel
+from pydantic import condecimal
 from sqlmodel import Field, Relationship, SQLModel
 
 from database.model.agent.organisation import Organisation
@@ -125,14 +125,14 @@ def project_v3_to_v2() -> VersionedResource:
         * funder -> project_funder
     """
     old_parameter = dict(
-        total_cost_euros=(
+        total_cost_euro=(
             condecimal(max_digits=12, decimal_places=2) | None,
             Field(  # type: ignore
                 description="The total budget of the project in euros.",
                 schema_extra={"example": 1000000},
                 default=None,
             ),
-        )
+        ),
     )
     ProjectV2Read = schema_transform(
         resource_read(Project),

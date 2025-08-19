@@ -1,6 +1,7 @@
 import copy
 from unittest.mock import Mock
 
+import pytest
 from starlette.testclient import TestClient
 
 from database.model.agent.organisation import Organisation
@@ -8,6 +9,8 @@ from database.model.agent.person import Person
 from database.model.dataset.dataset import Dataset
 from database.model.knowledge_asset.publication import Publication
 from database.session import DbSession
+from tests.testutils.users import logged_in_user
+from versioning import Version
 
 
 def test_happy_path(
@@ -63,3 +66,29 @@ def test_happy_path(
     body["used"] = []
     response = client.put(f"/projects/{identifier}", json=body, headers={"Authorization": "Fake token"})
     assert response.status_code == 200, response.json()
+
+
+@pytest.mark.versions(Version.V2)
+@pytest.mark.parametrize(
+    "field_alias", ["total_cost_euro", "total_cost_euros"]
+)
+def test_happy_path_v2_total_cost_euros(
+        client: TestClient,
+        field_alias: str,
+        body_resource: dict,
+        auto_publish: None,
+):
+    body = copy.deepcopy(body_resource)
+    body[field_alias] = 10000000.53
+
+    with logged_in_user():
+        response = client.post("/projects", json=body, headers={"Authorization": "Fake token"})
+    assert response.status_code == 200, response.json()
+    identifier = response.json()['identifier']
+
+    response = client.get(f"/projects/{identifier}")
+    assert response.status_code == 200, response.json()
+
+    response_json = response.json()
+    assert response_json["total_cost_euros"] == 10000000.53
+    assert response_json["total_cost_euro"] == 10000000.53
