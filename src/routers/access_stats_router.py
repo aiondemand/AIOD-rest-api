@@ -1,38 +1,59 @@
-from typing import List
-
-from fastapi import APIRouter
+from fastapi import APIRouter, Query
 from sqlalchemy import func
-from sqlmodel import SQLModel, Field, select
+from sqlmodel import select
 
 from database.session import DbSession
 from database.model.access.access_log import AssetAccessLog
 
 
-class TopAsset(SQLModel):
-    asset_id: str = Field()
-    hits: int = Field()
-
-
 def create(url_prefix: str = "") -> APIRouter:
     router = APIRouter(prefix=f"{url_prefix}/stats", tags=["stats"])
 
-    @router.get("/top/{resource_type}", response_model=List[TopAsset])
-    def top_assets(resource_type: str, limit: int = 10) -> List[TopAsset]:
-        hits_count = func.count(AssetAccessLog.id).label("hits")
-
+    @router.get("/top/{resource_type}")
+    def top_assets(resource_type: str, limit: int = Query(10, ge=1, le=1000)):
         stmt = (
-            select(AssetAccessLog.asset_id, hits_count)
+            select(
+                AssetAccessLog.asset_id,
+                func.count().label("hits"),
+            )
             .where(
                 AssetAccessLog.resource_type == resource_type,
                 AssetAccessLog.status == 200,
             )
             .group_by(AssetAccessLog.asset_id)
-            .order_by(hits_count.desc())
+            .order_by(func.count().desc())
             .limit(limit)
+        )
+        with DbSession() as s:
+            rows = s.exec(stmt).all()
+
+        return [{"asset_id": r[0], "hits": int(r[1])} for r in rows]
+
+    @router.get("/top/all")
+    def top_all(limit_per_type: int = Query(20, ge=1, le=1000)):
+        ranked = (
+            select(
+                AssetAccessLog.resource_type,
+                AssetAccessLog.asset_id,
+                func.count().label("hits"),
+                func.row_number()
+                .over(
+                    partition_by=AssetAccessLog.resource_type,
+                    order_by=func.count().desc(),
+                )
+                .label("rnk"),
+            )
+            .where(AssetAccessLog.status == 200)
+            .group_by(AssetAccessLog.resource_type, AssetAccessLog.asset_id)
+        ).subquery("ranked")
+
+        stmt = select(ranked.c.resource_type, ranked.c.asset_id, ranked.c.hits).where(
+            ranked.c.rnk <= limit_per_type
         )
 
         with DbSession() as s:
             rows = s.exec(stmt).all()
-        return [TopAsset(asset_id=a, hits=int(h)) for a, h in rows]
+
+        return [{"type": r[0], "asset": r[1], "hits": int(r[2])} for r in rows]
 
     return router

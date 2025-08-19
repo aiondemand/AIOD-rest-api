@@ -3,33 +3,46 @@
   "uid": "aiod-api-metrics",
   "timezone": "browser",
   "schemaVersion": 38,
-  "version": 1,
+  "version": 2,
   "refresh": "5s",
   "panels": [
     {
       "type": "timeseries",
       "title": "Requests per endpoint",
-      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
       "targets": [
         {
           "expr": "sum by (handler) (rate(http_requests_total[1m]))",
           "legendFormat": "{{handler}}"
         }
       ],
-      "gridPos": {"x": 0, "y": 0, "w": 24, "h": 9}
+      "gridPos": { "x": 0, "y": 0, "w": 24, "h": 9 }
     },
     {
       "type": "table",
-      "title": "Top assets",
-      "datasource": {"type": "mysql", "uid": "mysql"},
+      "title": "Top assets per type (top 20 each)",
+      "datasource": { "type": "mysql", "uid": "mysql" },
       "targets": [
         {
           "format": "table",
-          "rawSql": "WITH ranked AS (SELECT resource_type, asset_id, COUNT(*) AS hits, ROW_NUMBER() OVER (PARTITION BY resource_type ORDER BY COUNT(*) DESC) AS r FROM assetaccesslog WHERE status = 200 GROUP BY resource_type, asset_id) SELECT resource_type AS type, asset_id AS asset, hits FROM ranked WHERE  r <= 20;"
+          "rawSql": "WITH ranked AS (\n  SELECT\n    resource_type,\n    asset_id,\n    COUNT(*) AS hits,\n    ROW_NUMBER() OVER (\n      PARTITION BY resource_type\n      ORDER BY COUNT(*) DESC\n    ) AS r\n  FROM assetaccesslog\n  WHERE status = 200\n  GROUP BY resource_type, asset_id\n)\nSELECT\n  resource_type AS type,\n  asset_id AS asset,\n  hits\nFROM ranked\nWHERE r <= 20\nORDER BY type, hits DESC;"
         }
       ],
-      "gridPos": {"x": 0, "y": 9, "w": 24, "h": 9},
-      "options": {"showHeader": true}
+      "gridPos": { "x": 0, "y": 9, "w": 24, "h": 9 },
+      "options": { "showHeader": true }
+    },
+    {
+      "type": "table",
+      "title": "Top assets overall (top 20)",
+      "datasource": { "type": "mysql", "uid": "mysql" },
+      "targets": [
+        {
+          "format": "table",
+          "rawSql": "SELECT\n  CONCAT(resource_type, '/', asset_id) AS identifier,\n  COUNT(*) AS hits\nFROM assetaccesslog\nWHERE status = 200\nGROUP BY resource_type, asset_id\nORDER BY hits DESC\nLIMIT 20;"
+        }
+      ],
+      "gridPos": { "x": 0, "y": 18, "w": 24, "h": 8 },
+      "options": { "showHeader": true }
     }
   ]
 }
