@@ -1,8 +1,9 @@
 apiVersion: 1
 datasources:
-  - name: Prometheus
+  - uid: prometheus
+    name: Prometheus
     type: prometheus
     access: proxy
-    url: ${GRAFANA_PROMETHEUS_URL:http://prometheus:9090}
+    url: ${GRAFANA_PROMETHEUS_URL}
     isDefault: true
     editable: false

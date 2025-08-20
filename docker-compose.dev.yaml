@@ -58,3 +58,25 @@ services:
     stdin_open: true
     volumes:
        - ./src:/app:ro
+
+  prometheus:
+    volumes:
+      - ${PROMETHEUS_DATA_PATH:-./data/prometheus}:/prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=${PROMETHEUS_RETENTION:-7d}
+
+  grafana:
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=${GF_AUTH_ANONYMOUS_ENABLED:-false}
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=${GF_AUTH_ANONYMOUS_ORG_ROLE:-Viewer}
+      - GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD:-admin}
+      - GRAFANA_PROMETHEUS_URL=${GRAFANA_PROMETHEUS_URL:-http://prometheus:9090}
+      - GRAFANA_MYSQL_HOST=${GRAFANA_MYSQL_HOST:-sqlserver}
+      - GRAFANA_MYSQL_PORT=${GRAFANA_MYSQL_PORT:-3306}
+      - GRAFANA_MYSQL_DB=${GRAFANA_MYSQL_DB:-aiod}
+      - GRAFANA_MYSQL_USER=${GRAFANA_MYSQL_USER:-root}
+      - GRAFANA_MYSQL_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - ${GRAFANA_DATA_PATH:-./data/grafana}:/var/lib/grafana

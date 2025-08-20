@@ -240,41 +240,23 @@ services:
   prometheus:
     profiles: ["monitoring"]
     image: prom/prometheus:latest
-    container_name: prometheus
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
-      - prometheus_data:/prometheus
     ports:
-    - "${AIOD_PROMETHEUS_PORT}:9090"
+      - "${AIOD_PROMETHEUS_PORT:-9090}:9090"
     restart: unless-stopped
 
   grafana:
     profiles: ["monitoring"]
     image: grafana/grafana:latest
-    container_name: grafana
-    environment:
-      # Hook up datasources via env
-      - GRAFANA_PROMETHEUS_URL=${GRAFANA_PROMETHEUS_URL-http://prometheus:9090}
-      - GRAFANA_MYSQL_HOST=${GRAFANA_MYSQL_HOST-sqlserver}
-      - GRAFANA_MYSQL_PORT=${GRAFANA_MYSQL_PORT-3306}
-      - GRAFANA_MYSQL_DB=${GRAFANA_MYSQL_DB-aiod}
-      - GRAFANA_MYSQL_USER=${GRAFANA_MYSQL_USER-root}
-      - GRAFANA_MYSQL_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      # Optional: anonymous view (handy for demos). Remove if you don't want it.
-      - GF_AUTH_ANONYMOUS_ENABLED=true
-      - GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer
-      # Admin user
-      - GF_SECURITY_ADMIN_PASSWORD=admin
+    depends_on:
+      - prometheus
     volumes:
       - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
       - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
       - ./grafana/dashboards:/etc/grafana/dashboards:ro
-      - grafana_data:/var/lib/grafana
-    depends_on:
-      - prometheus
-    # expose later if you need external access
     ports:
-    - "${AIOD_GRAFANA_PORT}:3000"
+      - "${AIOD_GRAFANA_PORT:-3000}:3000"
     restart: unless-stopped
 
   taxonomy:
@@ -287,7 +269,3 @@ services:
     depends_on:
       sqlserver:
         condition: service_healthy
-
-volumes:
-  prometheus_data:
-  grafana_data:
