@@ -7,8 +7,6 @@ from middleware.path_parse import parse_asset_from_path
     ("/datasets/v1/1",                    ("datasets", "v1/1")),
     ("/datasets/abc/",                    ("datasets", "abc")),
     ("/v2/datasets/abc",                  ("datasets", "abc")),
-    ("/aiod-api/v10/models/bert",         ("models", "bert")),
-    ("/aiod-api/models/bert",             ("models", "bert")),
 
     # generic asset routes
     ("/assets/datasets/123",              ("datasets", "123")),
@@ -22,4 +20,14 @@ from middleware.path_parse import parse_asset_from_path
     ("/",                                 None),
 ])
 def test_parse_asset_from_path(path, expected):
+    assert parse_asset_from_path(path) == expected
+
+
+@pytest.mark.parametrize("path,expected", [
+    ("/aiod-api/v10/models/bert",         ("models", "bert")),
+    ("/aiod-api/models/bert",             ("models", "bert")),
+])
+def test_parse_asset_from_path_with_prefix(path, expected):
+    from config import DEV_CONFIG
+    DEV_CONFIG['url_prefix'] = 'aiod-api'
     assert parse_asset_from_path(path) == expected

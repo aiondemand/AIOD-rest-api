@@ -1,6 +1,8 @@
 import re
 from typing import Optional, Tuple
 
+from config import DEV_CONFIG
+
 EXCLUDE = {
     "docs",
     "metrics",
@@ -18,8 +20,10 @@ def _strip_deployment_and_api_version(segs: list[str]) -> tuple[Optional[str], l
     Removes optional deployment prefix ('aiod-api' or 'aiod') and a leading API version 'v<digits>'.
     Returns (api_version_if_any, remaining_segments).
     """
-    if segs and segs[0] in {"aiod-api", "aiod"}:
+    url_prefix = DEV_CONFIG.get("url_prefix", "")
+    if segs and segs[0] == url_prefix:
         segs = segs[1:]
+
     api_ver = None
     if segs and re.fullmatch(r"v\d+", segs[0]):
         api_ver = segs[0]
@@ -46,7 +50,6 @@ def _split_identifier_prefix(identifier: str) -> Tuple[str, str]:
 def parse_asset_from_path(
     path: str,
     *,
-    include_api_version: bool = False,
     include_resource_type_in_asset: bool = False,
 ) -> Optional[tuple[str, str]]:
     """

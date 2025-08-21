@@ -15,7 +15,6 @@ class AccessLogMiddleware(BaseHTTPMiddleware):
 
         parsed = parse_asset_from_path(
             request.url.path,
-            include_api_version=False,
             include_resource_type_in_asset=False,
         )
         if parsed:
