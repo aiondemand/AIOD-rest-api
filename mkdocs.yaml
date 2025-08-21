@@ -46,6 +46,7 @@ nav:
       - 'Authentication': hosting/authentication.md
       - 'Connectors': hosting/connectors.md
       - 'Synchronization': hosting/synchronization.md
+      - 'Monitoring': hosting/metrics.md
   - 'Developer Resources':
       - developer/index.md
       - 'Authentication': developer/authentication.md

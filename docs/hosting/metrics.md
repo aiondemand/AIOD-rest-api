@@ -33,42 +33,27 @@ Low-coupling design: a small middleware observes the path and logs access; route
 
   ```json
   [
-    { "asset_id": "v2/datasets/123", "hits": 42 },
-    { "asset_id": "datasets/v1/1",   "hits": 17 }
+    { "asset_id": "data_p7v02a70CbBGKk29T8przBjf", "hits": 42 },
+    { "asset_id": "data_g8912mLHg8i2hsJblKu6G78i",   "hits": 17 }
   ]
   ```
 
-  * Counts only **`status=200`** rows.
+  * Reports only successful requests (status code 200).
   * `resource_type` is something like `datasets`, `models`, etc.
 
 ---
 
 ## What gets logged (middleware)
 
-“Asset-shaped” paths are logged after the response completes:
-
-* **Logged (examples)**
-
-  * `/datasets/abc`
-  * `/datasets/v1/1`
-  * `/v2/models/bert`
-  * Optional deployment prefix is ignored: `/aiod-api/v10/datasets/xyz` → logs as `v10/datasets/xyz`
-
-* **Excluded**
-
-  * `/metrics`, `/docs`, `/openapi.json`, `/redoc`, `/favicon.ico`, `/counts`, `/health`, etc.
-
-* **Privacy**
-
-  * No user identifiers stored.
+“Asset-shaped” paths are logged after the response completes, i.e., any endpoint starting with e.g., `/datasets`, `/models`, including `/assets`. Access to other endpoints, such as `/metrics` or `/docs` do not get logged by the middleware. This also works if the API is deployed with a path prefix, and access is captured regardless of which version of the API is used (e.g., `/v2` or latest). The middleware does *not* log *who* accessed the log in any way (though the webserver itself does log incoming requests, these are not stored to the database).
 
 ---
 
 ## Table schema: `assetaccesslog`
 
 * `id` (PK)
-* `asset_id` (string) — full tail of the asset path, with optional API version & resource type, e.g. `v2/datasets/123` or `datasets/v1/1`
-* `resource_type` (string) — e.g. `datasets`, `models`, …
+* `asset_id` (string) — the identifier of the asset, e.g., `data_f8aa9...`.
+* `resource_type` (string) — e.g. `datasets`, `models`, etc.
 * `status` (int) — HTTP status code from the response
 * `accessed_at` (UTC timestamp, indexed)
 
