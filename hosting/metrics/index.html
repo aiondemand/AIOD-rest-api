@@ -8,13 +8,13 @@
       
       
       
-        <link rel="canonical" href="https://api.aiod.eu/docs/hosting/authentication/">
+        <link rel="canonical" href="https://api.aiod.eu/docs/hosting/metrics/">
       
       
-        <link rel="prev" href="../">
+        <link rel="prev" href="../synchronization/">
       
       
-        <link rel="next" href="../connectors/">
+        <link rel="next" href="../../developer/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -22,7 +22,7 @@
     
     
       
-        <title>Authentication - AI-on-Demand REST API</title>
+        <title>Monitoring - AI-on-Demand REST API</title>
       
     
     
@@ -76,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#keycloak-service" class="md-skip">
+        <a href="#metrics-monitoring" class="md-skip">
           Skip to content
         </a>
       
@@ -111,7 +111,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Authentication
+              Monitoring
             
           </span>
         </div>
@@ -420,32 +420,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    Authentication
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../authentication/" class="md-nav__link">
         
   
   
@@ -456,95 +434,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#configuring-keycloak" class="md-nav__link">
-    <span class="md-ellipsis">
-      Configuring Keycloak
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#using-external-identity-providers" class="md-nav__link">
-    <span class="md-ellipsis">
-      Using External Identity Providers
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Using External Identity Providers">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#option-1-update-the-configuration-files" class="md-nav__link">
-    <span class="md-ellipsis">
-      Option 1: Update the configuration files
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#option-2-use-keycloak-as-an-identity-broker" class="md-nav__link">
-    <span class="md-ellipsis">
-      Option 2: use keycloak as an identity broker
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#roles" class="md-nav__link">
-    <span class="md-ellipsis">
-      Roles
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#verifying-keycloak-is-working" class="md-nav__link">
-    <span class="md-ellipsis">
-      Verifying Keycloak is Working
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#importing-and-exporting-realm-and-user-files" class="md-nav__link">
-    <span class="md-ellipsis">
-      Importing and Exporting Realm and User Files
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -600,10 +489,32 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../metrics/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Monitoring
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -614,6 +525,116 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#components" class="md-nav__link">
+    <span class="md-ellipsis">
+      Components
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#endpoints-apiserver" class="md-nav__link">
+    <span class="md-ellipsis">
+      Endpoints (apiserver)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-gets-logged-middleware" class="md-nav__link">
+    <span class="md-ellipsis">
+      What gets logged (middleware)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#table-schema-asset_access_log" class="md-nav__link">
+    <span class="md-ellipsis">
+      Table schema: asset_access_log
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#where-the-code-lives" class="md-nav__link">
+    <span class="md-ellipsis">
+      Where the code lives
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#run-it" class="md-nav__link">
+    <span class="md-ellipsis">
+      Run it
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#grafana-quick-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      Grafana: quick setup
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tests
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#which-service-exposes-stats" class="md-nav__link">
+    <span class="md-ellipsis">
+      Which service exposes /stats?
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1056,69 +1077,90 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#configuring-keycloak" class="md-nav__link">
+  <a href="#overview" class="md-nav__link">
     <span class="md-ellipsis">
-      Configuring Keycloak
+      Overview
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#using-external-identity-providers" class="md-nav__link">
+  <a href="#components" class="md-nav__link">
     <span class="md-ellipsis">
-      Using External Identity Providers
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Using External Identity Providers">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#option-1-update-the-configuration-files" class="md-nav__link">
-    <span class="md-ellipsis">
-      Option 1: Update the configuration files
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#option-2-use-keycloak-as-an-identity-broker" class="md-nav__link">
-    <span class="md-ellipsis">
-      Option 2: use keycloak as an identity broker
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#roles" class="md-nav__link">
-    <span class="md-ellipsis">
-      Roles
+      Components
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#verifying-keycloak-is-working" class="md-nav__link">
+  <a href="#endpoints-apiserver" class="md-nav__link">
     <span class="md-ellipsis">
-      Verifying Keycloak is Working
+      Endpoints (apiserver)
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#importing-and-exporting-realm-and-user-files" class="md-nav__link">
+  <a href="#what-gets-logged-middleware" class="md-nav__link">
     <span class="md-ellipsis">
-      Importing and Exporting Realm and User Files
+      What gets logged (middleware)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#table-schema-asset_access_log" class="md-nav__link">
+    <span class="md-ellipsis">
+      Table schema: asset_access_log
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#where-the-code-lives" class="md-nav__link">
+    <span class="md-ellipsis">
+      Where the code lives
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#run-it" class="md-nav__link">
+    <span class="md-ellipsis">
+      Run it
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#grafana-quick-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      Grafana: quick setup
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tests
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#which-service-exposes-stats" class="md-nav__link">
+    <span class="md-ellipsis">
+      Which service exposes /stats?
     </span>
   </a>
   
@@ -1140,7 +1182,7 @@
 
 
   
-    <a href="https://github.com/aiondemand/AIOD-rest-api/edit/develop/docs/hosting/authentication.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+    <a href="https://github.com/aiondemand/AIOD-rest-api/edit/develop/docs/hosting/metrics.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75z"/></svg>
     </a>
@@ -1149,88 +1191,181 @@
     
       
     
-    <a href="https://github.com/aiondemand/AIOD-rest-api/raw/develop/docs/hosting/authentication.md" title="View source of this page" class="md-content__button md-icon">
+    <a href="https://github.com/aiondemand/AIOD-rest-api/raw/develop/docs/hosting/metrics.md" title="View source of this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0 8a5 5 0 0 1-5-5 5 5 0 0 1 5-5 5 5 0 0 1 5 5 5 5 0 0 1-5 5m0-12.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5"/></svg>
     </a>
   
 
 
-<h1 id="keycloak-service">Keycloak Service</h1>
-<p>When running the metadata catalogue in production, you want to ensure that users can authenticate
-so that proper authorization over the endpoints can take place.
-Keycloak is typically configured to allow users to sign on with credentials from other services,
-such as a Google account or an institutional one.</p>
-<h2 id="configuring-keycloak">Configuring Keycloak</h2>
-<p>To configure Keycloak, set the following environment variables (preferably through the <code>override.env</code> file):</p>
+<h1 id="metrics-monitoring">Metrics &amp; Monitoring</h1>
+<h2 id="overview">Overview</h2>
+<p>This adds two kinds of observability to the REST API:</p>
 <ul>
-<li><code>HOSTNAME</code>: URL for issued tokens (<a href="https://www.keycloak.org/server/hostname">documentation</a>). For example: <code>auth.aiod.eu</code>.</li>
-<li><code>AIOD_KEYCLOAK_PORT</code>: The port at which the Keycloak server should be available in the host machine, e.g., <code>8081</code>.</li>
-<li><code>REDIRECT_URIS</code>: URI a successful login action should redirect back to. E.g., <code>https://${HOSTNAME}/docs/oauth2-redirect</code>.</li>
-<li><code>POST_LOGOUT_REDIRECT_URIS</code>: URI a successful logout action should redirect back to. E.g., <code>https://${HOSTNAME}/aiod-auth/realms/aiod/protocol/openid-connect/logout</code>.</li>
+<li><strong>Operational metrics (Prometheus):</strong> requests/second, latencies, error rates, exposed at <strong><code>/metrics</code></strong> and scraped by Prometheus; visualized in Grafana.</li>
+<li><strong>Product usage (MySQL):</strong> the middleware writes one row per “asset-shaped” request to <strong><code>asset_access_log</code></strong> so we can query <strong>top assets</strong> (popularity) and build dashboards. Returned via <strong><code>/stats/top/{resource_type}</code></strong>.</li>
 </ul>
-<p>As well as the <code>openid_connect_url</code> in <code>./src/config.override.toml</code> (for authentication on the Swagger page):
-<div class="highlight"><pre><span></span><code><span class="k">[keycloak]</span>
-<span class="n">openid_connect_url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;https://auth.aiod.eu/aiod-auth/realms/aiod/.well-known/openid-configuration&quot;</span>
-</code></pre></div></p>
-<h2 id="using-external-identity-providers">Using External Identity Providers</h2>
-<p>There are two ways to integrate external identity providers (e.g. Google, <a href="https://docs.egi.eu/users/aai/check-in/">EGI Check-in</a>).</p>
-<p>Create both a private and a public client in the external provider (this step is required for both options below).</p>
-<h3 id="option-1-update-the-configuration-files">Option 1: Update the configuration files</h3>
+<p>Low-coupling design: a small middleware observes the path and logs access; routers are unchanged. Path parsing is centralized to handle version prefixes.</p>
+<hr />
+<h2 id="components">Components</h2>
 <ul>
-<li>Replace <code>KEYCLOAK_CLIENT_SECRET</code> in <code>override.env</code> with the value provided by the external IdP.</li>
-<li>Update <code>server_url</code>, <code>client_id</code>, <code>client_id_swagger</code> <code>openid_connect_url</code> and <code>scopes</code> in <code>./src/config.override.toml</code>.</li>
-<li>In this setup, the Keycloak container is not required and can be shut down.</li>
+<li>
+<p><strong>apiserver</strong> — FastAPI app exposing:</p>
+</li>
+<li>
+<p><strong><code>/metrics</code></strong> (Prometheus exposition via <code>prometheus_fastapi_instrumentator</code>)</p>
+</li>
+<li><strong><code>/stats/top/{resource_type}</code></strong> (JSON; success hits only)</li>
+<li><strong>MySQL</strong> — table <code>asset_access_log</code> stores per-request asset hits</li>
+<li><strong>Prometheus</strong> — scrapes apiserver’s <code>/metrics</code></li>
+<li><strong>Grafana</strong> — visualizes Prometheus (traffic) + MySQL (popularity)</li>
 </ul>
-<h3 id="option-2-use-keycloak-as-an-identity-broker">Option 2: use keycloak as an identity broker</h3>
+<hr />
+<h2 id="endpoints-apiserver">Endpoints (apiserver)</h2>
 <ul>
-<li>Details can be found in the Keycloak documentation: <a href="https://www.keycloak.org/docs/latest/server_admin/index.html#_identity_broker">Integrating identity providers</a>.</li>
-<li>This method allows to configure multiple IdPs.</li>
+<li>
+<p><strong>GET <code>/metrics</code></strong>
+  Exposes Prometheus metrics. Example series: <code>http_requests_total</code>, <code>http_request_duration_seconds</code>, process/python metrics, etc.</p>
+</li>
+<li>
+<p><strong>GET <code>/stats/top/{resource_type}?limit=10</code></strong>
+  Returns an array of objects:</p>
+</li>
 </ul>
-<h2 id="roles">Roles</h2>
-<p>Roles identify a type or category of user and determine their access and permissions within applications.
-Roles are generally only necessary for special cases.
-The normal flow for granting individual users permissions for individual assets is detailed in the <a href="../../developer/users/">"user model"</a> documentation.
-These are the roles the metadata catalogue uses (<code>*</code> in a role indicates its defined for each asset type individually):</p>
+<div class="highlight"><pre><span></span><code><span class="p">[</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;asset_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;data_p7v02a70CbBGKk29T8przBjf&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;hits&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">42</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;asset_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;data_g8912mLHg8i2hsJblKu6G78i&quot;</span><span class="p">,</span><span class="w">   </span><span class="nt">&quot;hits&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">17</span><span class="w"> </span><span class="p">}</span>
+<span class="p">]</span>
+</code></pre></div>
 <ul>
-<li><code>review_aiod_resources</code>: identifies the user as having permission to view asset submissions and review them.</li>
-<li><code>read_*</code>: allows the user read access to all assets on the platform, regardless of the asset-specific permissions.</li>
-<li><code>update_*</code>: allows the user update permission for all assets on the platform, regardless of the asset-specific permissions.</li>
-<li><code>delete_*</code>: allows the user delete permission for all assets on the platform, regardless of the asset-specific permissions.</li>
-<li><code>create_platforms</code>: allows the user to define new platforms.</li>
-<li><code>platform_NAME</code>: identifies the 'user' as being allowed to register assets of platform 'NAME', used for connectors.</li>
+<li>Reports only successful requests (status code 200).</li>
+<li><code>resource_type</code> is something like <code>datasets</code>, <code>models</code>, etc.</li>
 </ul>
-<p>Note that roles may be used for services other than the metadata catalogue.
-New roles can be created from the admin console, see <a href="https://www.keycloak.org/docs/latest/server_admin/index.html#proc-creating-realm-roles_server_administration_guide">"Creating a realm role"</a>.</p>
-<h2 id="verifying-keycloak-is-working">Verifying Keycloak is Working</h2>
-<p>To verify the Keycloak service is configured correctly using the Swagger interface, follows these steps:</p>
+<hr />
+<h2 id="what-gets-logged-middleware">What gets logged (middleware)</h2>
+<p>“Asset-shaped” paths are logged after the response completes, i.e., any endpoint starting with e.g., <code>/datasets</code>, <code>/models</code>, including <code>/assets</code>. Access to other endpoints, such as <code>/metrics</code> or <code>/docs</code> do not get logged by the middleware. This also works if the API is deployed with a path prefix, and access is captured regardless of which version of the API is used (e.g., <code>/v2</code> or latest). The middleware does <em>not</em> log <em>who</em> accessed the log in any way (though the webserver itself does log incoming requests, these are not stored to the database).</p>
+<hr />
+<h2 id="table-schema-asset_access_log">Table schema: <code>asset_access_log</code></h2>
+<ul>
+<li><code>id</code> (PK)</li>
+<li><code>asset_id</code> (string) — the identifier of the asset, e.g., <code>data_f8aa9...</code>.</li>
+<li><code>resource_type</code> (string) — e.g. <code>datasets</code>, <code>models</code>, etc.</li>
+<li><code>status</code> (int) — HTTP status code from the response</li>
+<li><code>accessed_at</code> (UTC timestamp, indexed)</li>
+</ul>
+<hr />
+<h2 id="where-the-code-lives">Where the code lives</h2>
+<ul>
+<li>Middleware: <strong><code>src/middleware/access_log.py</code></strong></li>
+<li>Path parsing (version/deployment prefixes): <strong><code>src/middleware/path_parse.py</code></strong></li>
+<li>Top-assets router: <strong><code>src/routers/access_stats_router.py</code></strong></li>
+<li>Wiring (include router, add middleware, expose /metrics): <strong><code>src/main.py</code></strong></li>
+</ul>
+<hr />
+<h2 id="run-it">Run it</h2>
+<p>Start the API + monitoring stack (Prometheus, Grafana):</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># helper</span>
+scripts/up.sh<span class="w"> </span>monitoring
+
+<span class="c1"># or directly</span>
+docker<span class="w"> </span>compose<span class="w"> </span>--env-file<span class="o">=</span>.env<span class="w"> </span>--env-file<span class="o">=</span>override.env<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-f<span class="w"> </span>docker-compose.yaml<span class="w"> </span>-f<span class="w"> </span>docker-compose.dev.yaml<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--profile<span class="w"> </span>monitoring<span class="w"> </span>up<span class="w"> </span>-d
+</code></pre></div>
+<p>Open:</p>
+<ul>
+<li>API Docs: <code>http://localhost:8000/docs</code></li>
+<li>Metrics: <code>http://localhost:8000/metrics</code></li>
+<li>Prometheus: <code>http://localhost:${PROMETHEUS_HOST_PORT:-9090}</code></li>
+<li>Grafana: <code>http://localhost:${GRAFANA_HOST_PORT:-3000}</code></li>
+</ul>
+<p>Generate some traffic:</p>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-s<span class="w"> </span>http://localhost:8000/datasets/abc<span class="w">        </span>&gt;/dev/null
+curl<span class="w"> </span>-s<span class="w"> </span>http://localhost:8000/datasets/v1/1<span class="w">       </span>&gt;/dev/null
+curl<span class="w"> </span>-s<span class="w"> </span>http://localhost:8000/v2/models/bert<span class="w">      </span>&gt;/dev/null
+</code></pre></div>
+<p>Check top assets (datasets):</p>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-s<span class="w"> </span><span class="s2">&quot;http://localhost:8000/stats/top/datasets?limit=5&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>.
+</code></pre></div>
+<hr />
+<h2 id="grafana-quick-setup">Grafana: quick setup</h2>
+<p>Configure two data sources:</p>
 <ol>
-<li>Open your browser and go to <code>http://$HOSTNAME</code></li>
-<li>Go to <code>/authorization_test</code>, click on <code>try it out</code> and <code>execute</code>.<ul>
-<li>You should get an <code>Error: Unauthorized</code></li>
-</ul>
+<li>
+<p><strong>Prometheus</strong></p>
 </li>
-<li>Log in:<ul>
-<li>Click the <code>Authorize</code> button in the top-right corner.</li>
-<li>Select <code>OpenIdConnect (OAuth2, authorization_code with PKCE)</code>.</li>
-<li>Click <code>Authorize</code> and log in using any available identity provider.</li>
-</ul>
+<li>
+<p>URL: <code>http://prometheus:9090</code></p>
 </li>
-<li>Return to <code>/authorization_test</code>, click <code>try it out</code> and then <code>execute</code> again.</li>
+<li>
+<p><strong>MySQL</strong> (popularity)</p>
+</li>
+<li>
+<p>Host: <code>sqlserver</code></p>
+</li>
+<li>Port: <code>3306</code></li>
+<li>Database: <code>aiod</code></li>
+<li>User/password: from <code>.env</code></li>
 </ol>
-<p>If authentication is successful, the request should now be authtorised.</p>
-<h2 id="importing-and-exporting-realm-and-user-files">Importing and Exporting Realm and User Files</h2>
-<p>See also <a href="https://www.keycloak.org/server/importExport">"Importing and Exporting Realms"</a> in the Keycloak documentation.</p>
-<p>Keycloak has "realm" configurations (e.g., roles that exist for AIoD),
-as well as "user" configurations (e.g., user Alice with password X is a Reviewer).
-We advise to export these separately, so you can share the non-sensitive realm configuration
-without sharing sensitive user information.</p>
-<p>To <strong>export</strong> run the following command while the keycloak container is running:
-<div class="highlight"><pre><span></span><code>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>keycloak<span class="w"> </span>/opt/keycloak/bin/kc.sh<span class="w"> </span><span class="nb">export</span><span class="w"> </span>--dir<span class="w"> </span>/opt/keycloak/data/export<span class="w">  </span>--realm<span class="w"> </span>aiod
-</code></pre></div></p>
-<p>This puts the exported files in the <code>${DATA_PATH}/keycloak/data/export</code> directory.</p>
-<p>To <strong>import</strong>, just place the export files into the <code>{DATA_PATH}/keycloak/data/import</code> directory.
-When running the <code>develop</code> preset using <code>USE_LOCAL_DEV=true</code>, the import directly is populated by the data found in <code>./authentication/import/</code>.</p>
+<p><strong>PromQL (traffic/latency examples):</strong></p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Requests per endpoint (1m rate)</span>
+<span class="k">sum</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="o">(</span><span class="nv">handler</span><span class="o">)</span><span class="w"> </span><span class="o">(</span><span class="kr">rate</span><span class="o">(</span><span class="nv">http_requests_total</span><span class="p">[</span><span class="s">1m</span><span class="p">]</span><span class="o">))</span>
+
+<span class="c1"># P95 latency by handler (5m window)</span>
+<span class="kr">histogram_quantile</span><span class="o">(</span>
+<span class="w">  </span><span class="mf">0.95</span><span class="p">,</span>
+<span class="w">  </span><span class="k">sum</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="o">(</span><span class="nv">le</span><span class="p">,</span><span class="w"> </span><span class="nv">handler</span><span class="o">)</span><span class="w"> </span><span class="o">(</span><span class="kr">rate</span><span class="o">(</span><span class="nv">http_request_duration_seconds_bucket</span><span class="p">[</span><span class="s">5m</span><span class="p">]</span><span class="o">))</span>
+<span class="o">)</span>
+
+<span class="c1"># Error rate (4xx/5xx) per endpoint</span>
+<span class="k">sum</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="o">(</span><span class="nv">handler</span><span class="o">)</span><span class="w"> </span><span class="o">(</span><span class="kr">rate</span><span class="o">(</span><span class="nv">http_requests_total</span><span class="p">{</span><span class="nl">status</span><span class="o">=~</span><span class="p">&quot;</span><span class="s">4..|5..</span><span class="p">&quot;}[</span><span class="s">5m</span><span class="p">]</span><span class="o">))</span>
+</code></pre></div>
+<p><strong>MySQL (popularity examples):</strong></p>
+<div class="highlight"><pre><span></span><code><span class="c1">-- Top datasets (all time)</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">asset_id</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">asset</span><span class="p">,</span><span class="w"> </span><span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">hits</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">asset_access_log</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">resource_type</span><span class="o">=</span><span class="s1">&#39;datasets&#39;</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">status</span><span class="o">=</span><span class="mi">200</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">asset</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">hits</span><span class="w"> </span><span class="k">DESC</span>
+<span class="k">LIMIT</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span>
+
+<span class="c1">-- All assets by type</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">resource_type</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="k">type</span><span class="p">,</span><span class="w"> </span><span class="n">asset_id</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">asset</span><span class="p">,</span><span class="w"> </span><span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">hits</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">asset_access_log</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">status</span><span class="o">=</span><span class="mi">200</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">type</span><span class="p">,</span><span class="w"> </span><span class="n">asset</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">hits</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+
+<span class="c1">-- Top assets last 24h</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">resource_type</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="k">type</span><span class="p">,</span><span class="w"> </span><span class="n">asset_id</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">asset</span><span class="p">,</span><span class="w"> </span><span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">hits</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">asset_access_log</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">status</span><span class="o">=</span><span class="mi">200</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">accessed_at</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">NOW</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nb">INTERVAL</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">DAY</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">type</span><span class="p">,</span><span class="w"> </span><span class="n">asset</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">hits</span><span class="w"> </span><span class="k">DESC</span>
+<span class="k">LIMIT</span><span class="w"> </span><span class="mi">20</span><span class="p">;</span>
+</code></pre></div>
+<p>(Optional) Provision defaults in repo:</p>
+<div class="highlight"><pre><span></span><code>grafana/provisioning/datasources/datasources.yml
+grafana/provisioning/dashboards/dashboards.yml
+grafana/provisioning/dashboards/aiod-metrics.json
+</code></pre></div>
+<hr />
+<h2 id="tests">Tests</h2>
+<p>Focused middleware tests live under <code>src/tests/middleware/</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="nv">PYTHONPATH</span><span class="o">=</span>src<span class="w"> </span>pytest<span class="w"> </span>-q<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>src/tests/middleware/test_path_parse.py<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>src/tests/middleware/test_access_log_middleware.py
+</code></pre></div>
+<p>They cover:</p>
+<ul>
+<li>Path parsing of <code>/datasets/abc</code>, <code>/datasets/v1/1</code>, <code>/v2/models/bert</code>, etc.</li>
+<li>That asset hits are written for 200s and 404s.</li>
+<li>That excluded paths (e.g., <code>/metrics</code>) are ignored.</li>
+</ul>
+<hr />
+<h2 id="which-service-exposes-stats">Which service exposes <code>/stats</code>?</h2>
+<p>The <strong>apiserver</strong> (REST API) exposes <code>/stats/top/{resource_type}</code>. It’s mounted with the other routers in <code>src/main.py</code>.</p>
+<hr />
 
 
 
@@ -1251,7 +1386,7 @@ When running the <code>develop</code> preset using <code>USE_LOCAL_DEV=true</cod
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime">August 1, 2025 11:51:28</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime">August 21, 2025 10:37:52</span>
   </span>
 
     
@@ -1281,7 +1416,7 @@ When running the <code>develop</code> preset using <code>USE_LOCAL_DEV=true</cod
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../" class="md-footer__link md-footer__link--prev" aria-label="Previous: Hosting the API">
+          <a href="../synchronization/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Synchronization">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -1291,20 +1426,20 @@ When running the <code>develop</code> preset using <code>USE_LOCAL_DEV=true</cod
                 Previous
               </span>
               <div class="md-ellipsis">
-                Hosting the API
+                Synchronization
               </div>
             </div>
           </a>
         
         
           
-          <a href="../connectors/" class="md-footer__link md-footer__link--next" aria-label="Next: Connectors">
+          <a href="../../developer/" class="md-footer__link md-footer__link--next" aria-label="Next: Developer Resources">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Connectors
+                Developer Resources
               </div>
             </div>
             <div class="md-footer__button md-icon">
