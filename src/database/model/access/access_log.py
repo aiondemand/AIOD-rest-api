@@ -8,7 +8,7 @@ class AssetAccessLog(SQLModel, table=True):  # type: ignore[call-arg]
     __tablename__ = "asset_access_log"
     id: int | None = Field(default=None, primary_key=True)
     asset_id: str = Field(
-        # max_length=IDENTIFIER_LENGTH, schema_extra=dict(examples=["data_p7v02a70CbBGKk29T8przBjf"])
+        max_length=IDENTIFIER_LENGTH, schema_extra=dict(examples=["data_p7v02a70CbBGKk29T8przBjf"])
     )
     resource_type: str = Field(
         max_length=IDENTIFIER_LENGTH, schema_extra=dict(examples=["Datasets", "Models"])
