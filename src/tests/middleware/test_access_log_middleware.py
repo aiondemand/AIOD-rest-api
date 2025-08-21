@@ -12,11 +12,12 @@ class _FakeSession:
     def add(self, entry): self._store.append(entry)
     def commit(self): pass
 
+
 def test_middleware_logs_asset_hit(monkeypatch):
     app = FastAPI()
     app.add_middleware(AccessLogMiddleware)
 
-    @app.get("/datasets/123")
+    @app.get("/datasets/data_foobar12foobar12foobar12")
     def _ok(): return {"ok": True}
 
     written = []
@@ -24,13 +25,13 @@ def test_middleware_logs_asset_hit(monkeypatch):
     monkeypatch.setattr(m, "DbSession", lambda: _FakeSession(written), raising=True)
 
     client = TestClient(app)
-    r = client.get("/datasets/123")
+    r = client.get("/datasets/data_foobar12foobar12foobar12")
     assert r.status_code == 200
 
     assert len(written) == 1
     entry = written[0]
     assert entry.resource_type == "datasets"
-    assert entry.asset_id == "123"
+    assert entry.asset_id == "data_foobar12foobar12foobar12"
     assert entry.status == 200
 
 
@@ -43,13 +44,13 @@ def test_middleware_logs_404_asset(monkeypatch):
     monkeypatch.setattr(m, "DbSession", lambda: _FakeSession(written), raising=True)
 
     client = TestClient(app)
-    r = client.get("/v2/models/bert")
+    r = client.get("/v2/ml_models/mdl_bertbertbertbertbertbert")
     assert r.status_code == 404
 
     assert len(written) == 1
     entry = written[0]
-    assert entry.resource_type == "models"
-    assert entry.asset_id == "bert"
+    assert entry.resource_type == "ml_models"
+    assert entry.asset_id == "mdl_bertbertbertbertbertbert"
     assert entry.status == 404
 
 def test_middleware_ignores_non_asset(monkeypatch):

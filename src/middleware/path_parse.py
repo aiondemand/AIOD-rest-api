@@ -1,90 +1,52 @@
 import re
-from typing import Optional, Tuple
+from typing import Optional
 
 from config import DEV_CONFIG
+from routers.resource_routers import versioned_routers
+from versioning import Version
 
-EXCLUDE = {
-    "docs",
-    "metrics",
-    "openapi.json",
-    "authorization_test",
-    "counts",
-    "favicon.ico",
-    "health",
-    "redoc",
+_asset_abbreviation_to_plural = {
+    r.resource_class.__abbreviation__: r.resource_name_plural
+    for v in Version
+    for r in versioned_routers[v]
 }
 
-
-def _strip_deployment_and_api_version(segs: list[str]) -> tuple[Optional[str], list[str]]:
-    """
-    Removes optional deployment prefix ('aiod-api' or 'aiod') and a leading API version 'v<digits>'.
-    Returns (api_version_if_any, remaining_segments).
-    """
-    url_prefix = DEV_CONFIG.get("url_prefix", "")
-    if segs and segs[0] == url_prefix:
-        segs = segs[1:]
-
-    api_ver = None
-    if segs and re.fullmatch(r"v\d+", segs[0]):
-        api_ver = segs[0]
-        segs = segs[1:]
-    return api_ver, segs
+ADDITIONAL_INCLUDES = {
+    "assets",
+    "agents",
+    "ai_assets",
+    "ai_resources",
+}
+INCLUDE = set(_asset_abbreviation_to_plural.values()) | ADDITIONAL_INCLUDES
 
 
-def _split_identifier_prefix(identifier: str) -> Tuple[str, str]:
-    """
-    Supports both:
-      - slash form: 'datasets/123' -> ('datasets', '123')
-      - colon form: 'models:bert'  -> ('models',   'bert')
-    Returns (resource_type, tail_without_type).
-    """
-    if ":" in identifier and "/" not in identifier:
-        rtype, tail = identifier.split(":", 1)
-        return rtype, tail
-    parts = identifier.split("/")
-    rtype = parts[0]
-    tail = "/".join(parts[1:]) if len(parts) > 1 else ""
-    return rtype, tail
+def parse_asset_from_path(path: str) -> Optional[tuple[str, str]]:
+    """If the path represents direct asset access, return the asset type and identifier.
 
+    Direct asset access means that an asset is requested by its identifier,
+    either through the resource type's router or a different one (like the generic one).
+    If the path does not represent direct access, returns None.
 
-def parse_asset_from_path(
-    path: str,
-    *,
-    include_resource_type_in_asset: bool = False,
-) -> Optional[tuple[str, str]]:
-    """
-    Parse an incoming request path into (resource_type, asset_id).
-
-    - Understands:
-        /v2/datasets/123           -> ("datasets", "123")      [with defaults]
-        /datasets/v1/1             -> ("datasets", "v1/1")
+    Examples of direct access requests:
+        /v2/datasets/123           -> ("datasets", "123")
         /assets/datasets/123       -> ("datasets", "123")
-        /assets/models:bert        -> ("models", "bert")
         /aiod-api/v10/models/bert  -> ("models", "bert")
 
-    - EXCLUDE set is ignored (docs, metrics, etc.)
+    Access to endpoints like `/stats`, `/metrics`, `/docs` and so on return None.
     """
-    segs = [s for s in path.strip("/").split("/") if s]
-    if not segs:
+    prefix = f"/{DEV_CONFIG.get('url_prefix', '')}"
+    path = path.removeprefix(prefix).strip("/")
+
+    version_match = r"v\d+"
+    asset_type_match = "|".join(f"(?:{asset_type})" for asset_type in INCLUDE)
+    identifier_match = "\w{3,4}_[a-zA-Z0-9]{24}"
+    path_match = f"({version_match})?/?({asset_type_match})/({identifier_match})"
+    if (match := re.match(path_match, path)) is None:
         return None
 
-    _, segs = _strip_deployment_and_api_version(segs)
+    version, asset_type, identifier = match.groups()
+    if asset_type in ADDITIONAL_INCLUDES:
+        prefix, _ = identifier.split("_")
+        asset_type = _asset_abbreviation_to_plural[prefix]
 
-    if not segs or segs[0] in EXCLUDE:
-        return None
-
-    if segs[0] == "assets":
-        if len(segs) < 2:
-            return None
-        identifier = "/".join(segs[1:])
-        rtype, tail = _split_identifier_prefix(identifier)
-        asset_id = f"{rtype}/{tail}" if include_resource_type_in_asset else tail
-        return rtype, asset_id
-
-    if len(segs) >= 2:
-        rtype = segs[0]
-        tail = "/".join(segs[1:])
-        asset_id = f"{rtype}/{tail}" if include_resource_type_in_asset else tail
-        return rtype, asset_id
-
-    return None
+    return asset_type, identifier
