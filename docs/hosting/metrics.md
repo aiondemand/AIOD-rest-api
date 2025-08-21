@@ -5,7 +5,7 @@
 This adds two kinds of observability to the REST API:
 
 * **Operational metrics (Prometheus):** requests/second, latencies, error rates, exposed at **`/metrics`** and scraped by Prometheus; visualized in Grafana.
-* **Product usage (MySQL):** the middleware writes one row per “asset-shaped” request to **`assetaccesslog`** so we can query **top assets** (popularity) and build dashboards. Returned via **`/stats/top/{resource_type}`**.
+* **Product usage (MySQL):** the middleware writes one row per “asset-shaped” request to **`asset_access_log`** so we can query **top assets** (popularity) and build dashboards. Returned via **`/stats/top/{resource_type}`**.
 
 Low-coupling design: a small middleware observes the path and logs access; routers are unchanged. Path parsing is centralized to handle version prefixes.
 
@@ -17,7 +17,7 @@ Low-coupling design: a small middleware observes the path and logs access; route
 
   * **`/metrics`** (Prometheus exposition via `prometheus_fastapi_instrumentator`)
   * **`/stats/top/{resource_type}`** (JSON; success hits only)
-* **MySQL** — table `assetaccesslog` stores per-request asset hits
+* **MySQL** — table `asset_access_log` stores per-request asset hits
 * **Prometheus** — scrapes apiserver’s `/metrics`
 * **Grafana** — visualizes Prometheus (traffic) + MySQL (popularity)
 
@@ -49,7 +49,7 @@ Low-coupling design: a small middleware observes the path and logs access; route
 
 ---
 
-## Table schema: `assetaccesslog`
+## Table schema: `asset_access_log`
 
 * `id` (PK)
 * `asset_id` (string) — the identifier of the asset, e.g., `data_f8aa9...`.
@@ -141,7 +141,7 @@ sum by (handler) (rate(http_requests_total{status=~"4..|5.."}[5m]))
 ```sql
 -- Top datasets (all time)
 SELECT asset_id AS asset, COUNT(*) AS hits
-FROM assetaccesslog
+FROM asset_access_log
 WHERE resource_type='datasets' AND status=200
 GROUP BY asset
 ORDER BY hits DESC
@@ -149,14 +149,14 @@ LIMIT 10;
 
 -- All assets by type
 SELECT resource_type AS type, asset_id AS asset, COUNT(*) AS hits
-FROM assetaccesslog
+FROM asset_access_log
 WHERE status=200
 GROUP BY type, asset
 ORDER BY hits DESC;
 
 -- Top assets last 24h
 SELECT resource_type AS type, asset_id AS asset, COUNT(*) AS hits
-FROM assetaccesslog
+FROM asset_access_log
 WHERE status=200 AND accessed_at >= NOW() - INTERVAL 1 DAY
 GROUP BY type, asset
 ORDER BY hits DESC
