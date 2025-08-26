@@ -57,7 +57,7 @@ from versioning import (
 def add_routes(app: FastAPI, version: Version, url_prefix=""):
     """Add routes to the FastAPI application"""
 
-    @app.get(url_prefix + "/", include_in_schema=False, response_class=HTMLResponse)
+    @app.get("/", include_in_schema=False, response_class=HTMLResponse)
     def home() -> str:
         """Provides a redirect page to the docs."""
         return """
@@ -152,7 +152,6 @@ def build_app(*, url_prefix: str = "", version: str = "dev"):
         },
     )
     main_app = FastAPI(
-        root_path=url_prefix,
         title="AI-on-Demand Metadata Catalogue REST API",
         version="latest",
         **kwargs,
@@ -181,6 +180,12 @@ def build_app(*, url_prefix: str = "", version: str = "dev"):
     # Since all traffic goes through the main app, this middleware only
     # needs to be registered with the main app and not the mounted apps.
     main_app.add_middleware(AccessLogMiddleware)
+
+    from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
+
+    main_app.add_middleware(
+        ProxyHeadersMiddleware, trusted_hosts="*"  # or set to your domain(s) for safety
+    )
 
     for app, _ in versioned_apps:
         main_app.mount(f"/{app.version}", app)
