@@ -14,6 +14,7 @@ import uvicorn
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.responses import HTMLResponse
 from sqlmodel import select, SQLModel
+from starlette.requests import Request
 
 from authentication import get_user_or_raise, KeycloakUser, assert_required_settings_configured
 from config import KEYCLOAK_CONFIG, DB_CONFIG, DEV_CONFIG
@@ -79,6 +80,19 @@ def add_routes(app: FastAPI, version: Version, url_prefix=""):
         """
         return user
 
+    @app.get("/blodocs/oauth2-redirect")
+    def forward(request: Request):
+        # Janky setup needed for a proxy with the custom doc pages.
+        # `root_path` doesn't work, since it messes with the regular endpoints.
+        # but without rootpath, redirect uri explicitly needs the /aiod prefix..
+        # but then FastAPI also mounts the file with the prefix, which is now duplicated
+        # due to the header...
+        from fastapi.responses import RedirectResponse
+        print(vars(request))
+        redirect_url = f"/aiod/aiod{request.scope['path']}?{request.scope['query_string'].decode()}"
+        print("Redirec to", redirect_url)
+        return RedirectResponse(url=redirect_url, status_code=303)
+
     @app.get("/counts")
     def counts() -> dict:
         return {
@@ -135,8 +149,9 @@ def create_app() -> FastAPI:
 
 def build_app(*, url_prefix: str = "", version: str = "dev"):
     kwargs = dict(
-        docs_url=None,  # We override the default pages with custom html
-        redoc_url=None,
+        root_path='/aiod',
+        #docs_url=None,  # We override the default pages with custom html
+        #redoc_url=None,
         description="This is the REST API documentation of the AIoD Metadata Catalogue. "
         "See also our general "
         '<a href="https://aiondemand.github.io/AIOD-rest-api/">metadata catalogue documentation</a>, '
@@ -172,7 +187,7 @@ def build_app(*, url_prefix: str = "", version: str = "dev"):
         add_routes(app, version=version)
         app.add_exception_handler(HTTPException, http_exception_handler)
         add_deprecation_and_sunset_middleware(app)
-        add_version_to_openapi(app, root_path=url_prefix)
+        #add_version_to_openapi(app, root_path=url_prefix)
 
     Instrumentator().instrument(main_app).expose(
         main_app, endpoint="/metrics", include_in_schema=False
@@ -183,9 +198,9 @@ def build_app(*, url_prefix: str = "", version: str = "dev"):
 
     from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
 
-    main_app.add_middleware(
-        ProxyHeadersMiddleware, trusted_hosts="*"  # or set to your domain(s) for safety
-    )
+    #main_app.add_middleware(
+        #ProxyHeadersMiddleware, trusted_hosts="*"  # or set to your domain(s) for safety
+    #)
 
     for app, _ in versioned_apps:
         main_app.mount(f"/{app.version}", app)
