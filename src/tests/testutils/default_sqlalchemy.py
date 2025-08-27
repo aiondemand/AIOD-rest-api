@@ -150,11 +150,12 @@ def client(request, engine: Engine) -> TestClient:
     Create a TestClient that can be used to mock sending requests to our application
     """
     app = build_app(version="unittest")
-    path_prefix = str(request.param) if request.param != Version.LATEST else ""
-    client = TestClient(app, base_url=f"http://localhost/{path_prefix}")
+    client = TestClient(
+        app,
+        base_url=f"http://localhost/{request.param.prefix}",  # param is Version
+    )
     client.version = request.param
     yield client
-
 
 
 # *NEVER* broaden the scope of this fixture, bypassing reviews should be on a test-by-test basis

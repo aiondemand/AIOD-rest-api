@@ -23,7 +23,7 @@ def create(url_prefix: str, version: Version) -> APIRouter:
     # types are included, and the (schema) documentation is generated.
     # It also makes sure assets are deserialized the same way as
     # direct access would have.
-    suffix = "" if version == Version.LATEST else version.capitalize()
+    suffix = version.prefix.capitalize()
     Catalogue = create_model(
         f"Catalogue{suffix}",
         **{

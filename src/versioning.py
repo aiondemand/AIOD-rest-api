@@ -32,6 +32,12 @@ class Version(StrEnum):
     V3 = auto()
     LATEST = auto()
 
+    @property
+    def prefix(self) -> str:
+        if self == Version.LATEST:
+            return ""
+        return f"/{self}"
+
 
 def add_deprecation_header_middleware(app: FastAPI, date: datetime, link: str | None = None):
     async def add_deprecation_header(request: Request, call_next):
