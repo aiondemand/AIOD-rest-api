@@ -61,7 +61,7 @@ def add_routes(app: FastAPI, version: Version, url_prefix=""):
     @app.get("/", include_in_schema=False, response_class=HTMLResponse)
     def home(request: Request) -> str:
         """Provides a redirect page to the docs."""
-        prefix = request.headers.get("x-forwarded-prefix")
+        prefix = request.headers.get("x-forwarded-prefix", "")
         return f"""
         <!DOCTYPE html>
         <html>
