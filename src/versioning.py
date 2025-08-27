@@ -13,7 +13,7 @@ from typing import NamedTuple
 
 from fastapi import FastAPI
 from starlette.requests import Request
-from fastapi.openapi.docs import get_swagger_ui_html, get_redoc_html
+from fastapi.openapi.docs import get_swagger_ui_html, get_redoc_html, get_swagger_ui_oauth2_redirect_html
 from starlette.responses import HTMLResponse
 
 from config import CONFIG, default_config_path
@@ -124,12 +124,12 @@ def add_version_to_openapi(versioned_api: FastAPI, root_path: str = ""):
             if not info.retired
         }
         menu = generate_version_menu(all_versions=show_versions, selected=versioned_api.version)
-
+        redirect_url = f"{root_path}{version_prefix}{versioned_api.swagger_ui_oauth2_redirect_url}"
         html_response = get_swagger_ui_html(
             openapi_url=f"{root_path}{version_prefix}/openapi.json",
             title="AI-on-Demand REST API",
             swagger_favicon_url="https://aiod.eu/wp-content/themes/aiod-v2/assets/img/favicon-192x192.png",
-            oauth2_redirect_url=versioned_api.swagger_ui_oauth2_redirect_url,
+            oauth2_redirect_url=redirect_url,
             init_oauth=versioned_api.swagger_ui_init_oauth,
         )
         html_str = html_response.body.decode()
@@ -141,6 +141,10 @@ def add_version_to_openapi(versioned_api: FastAPI, root_path: str = ""):
         )
 
     versioned_api.get("/docs", include_in_schema=False)(overridden_swagger)
+
+    async def oauth_redirect(request: Request) -> HTMLResponse:
+        return get_swagger_ui_oauth2_redirect_html()
+    versioned_api.add_route(versioned_api.swagger_ui_oauth2_redirect_url, oauth_redirect, include_in_schema=False)
 
     def overridden_redoc():
         html = get_redoc_html(
