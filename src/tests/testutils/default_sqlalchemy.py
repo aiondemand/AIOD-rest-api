@@ -151,7 +151,10 @@ def client(request, engine: Engine) -> TestClient:
     """
     app = build_app(version="unittest")
     path_prefix = str(request.param) if request.param != Version.LATEST else ""
-    yield TestClient(app, base_url=f"http://localhost/{path_prefix}")
+    client = TestClient(app, base_url=f"http://localhost/{path_prefix}")
+    client.version = request.param
+    yield client
+
 
 
 # *NEVER* broaden the scope of this fixture, bypassing reviews should be on a test-by-test basis
