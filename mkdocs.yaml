@@ -47,6 +47,7 @@ nav:
       - 'Connectors': hosting/connectors.md
       - 'Synchronization': hosting/synchronization.md
       - 'Monitoring': hosting/metrics.md
+      - 'Proxies': hosting/proxy.md
   - 'Developer Resources':
       - developer/index.md
       - 'Authentication': developer/authentication.md
