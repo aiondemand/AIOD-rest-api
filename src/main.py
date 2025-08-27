@@ -174,7 +174,7 @@ def build_app(*, url_prefix: str = "", version: str = "dev"):
         add_routes(app, version=version)
         app.add_exception_handler(HTTPException, http_exception_handler)
         add_deprecation_and_sunset_middleware(app)
-        add_version_to_openapi(app, root_path=url_prefix)
+        add_version_to_openapi(app)
 
     Instrumentator().instrument(main_app).expose(
         main_app, endpoint="/metrics", include_in_schema=False
