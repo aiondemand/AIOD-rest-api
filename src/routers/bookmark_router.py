@@ -8,6 +8,8 @@ from database.session import get_session
 from database.model.bookmark.bookmark import Bookmark
 from http import HTTPStatus
 from datetime import datetime
+
+from dependencies.pagination import PaginationParams
 from routers.helper_functions import get_asset_type_by_abbreviation
 from versioning import Version
 
@@ -33,11 +35,17 @@ def create(url_prefix: str = "", version: Version = Version.LATEST) -> APIRouter
         response_model=List[BookmarkRead],
     )
     def list_bookmarks(
-        user: KeycloakUser = Depends(get_user_or_raise), session: Session = Depends(get_session)
+        pagination: PaginationParams,
+        user: KeycloakUser = Depends(get_user_or_raise),
+        session: Session = Depends(get_session),
     ) -> List[BookmarkRead]:
-        return session.exec(
-            select(Bookmark).where(Bookmark.user_identifier == user._subject_identifier)
-        ).all()
+        stmt = (
+            select(Bookmark)
+            .where(Bookmark.user_identifier == user._subject_identifier)
+            .offset(pagination.offset)
+            .limit(pagination.limit)
+        )
+        return session.exec(stmt).all()
 
     @router.post(
         path,
