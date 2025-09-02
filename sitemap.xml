@@ -2,98 +2,102 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://api.aiod.eu/docs/</loc>
-         <lastmod>2025-08-22</lastmod>
+         <lastmod>2025-09-02</lastmod>
     </url>
     <url>
          <loc>https://api.aiod.eu/docs/contributing/</loc>
-         <lastmod>2025-08-22</lastmod>
+         <lastmod>2025-09-02</lastmod>
     </url>
     <url>
          <loc>https://api.aiod.eu/docs/developer/</loc>
-         <lastmod>2025-08-22</lastmod>
+         <lastmod>2025-09-02</lastmod>
     </url>
     <url>
          <loc>https://api.aiod.eu/docs/developer/authentication/</loc>
-         <lastmod>2025-08-22</lastmod>
+         <lastmod>2025-09-02</lastmod>
     </url>
     <url>
          <loc>https://api.aiod.eu/docs/developer/elastic_search/</loc>
-         <lastmod>2025-08-22</lastmod>
+         <lastmod>2025-09-02</lastmod>
     </url>
     <url>
          <loc>https://api.aiod.eu/docs/developer/releases/</loc>
-         <lastmod>2025-08-22</lastmod>
+         <lastmod>2025-09-02</lastmod>
     </url>
     <url>
          <loc>https://api.aiod.eu/docs/developer/scripts/</loc>
-         <lastmod>2025-08-22</lastmod>
+         <lastmod>2025-09-02</lastmod>
     </url>
     <url>
          <loc>https://api.aiod.eu/docs/developer/troubleshooting/</loc>
-         <lastmod>2025-08-22</lastmod>
+         <lastmod>2025-09-02</lastmod>
     </url>
     <url>
          <loc>https://api.aiod.eu/docs/developer/users/</loc>
-         <lastmod>2025-08-22</lastmod>
+         <lastmod>2025-09-02</lastmod>
     </url>
     <url>
          <loc>https://api.aiod.eu/docs/developer/schema/</loc>
-         <lastmod>2025-08-22</lastmod>
+         <lastmod>2025-09-02</lastmod>
     </url>
     <url>
          <loc>https://api.aiod.eu/docs/developer/schema/attributes/</loc>
-         <lastmod>2025-08-22</lastmod>
+         <lastmod>2025-09-02</lastmod>
     </url>
     <url>
          <loc>https://api.aiod.eu/docs/developer/schema/migration/</loc>
-         <lastmod>2025-08-22</lastmod>
+         <lastmod>2025-09-02</lastmod>
     </url>
     <url>
          <loc>https://api.aiod.eu/docs/developer/schema/objects/</loc>
-         <lastmod>2025-08-22</lastmod>
+         <lastmod>2025-09-02</lastmod>
     </url>
     <url>
          <loc>https://api.aiod.eu/docs/developer/schema/relationships/</loc>
-         <lastmod>2025-08-22</lastmod>
+         <lastmod>2025-09-02</lastmod>
     </url>
     <url>
          <loc>https://api.aiod.eu/docs/developer/schema/taxonomies/</loc>
-         <lastmod>2025-08-22</lastmod>
+         <lastmod>2025-09-02</lastmod>
     </url>
     <url>
          <loc>https://api.aiod.eu/docs/developer/schema/versioning/</loc>
-         <lastmod>2025-08-22</lastmod>
+         <lastmod>2025-09-02</lastmod>
     </url>
     <url>
          <loc>https://api.aiod.eu/docs/hosting/</loc>
-         <lastmod>2025-08-22</lastmod>
+         <lastmod>2025-09-02</lastmod>
     </url>
     <url>
          <loc>https://api.aiod.eu/docs/hosting/authentication/</loc>
-         <lastmod>2025-08-22</lastmod>
+         <lastmod>2025-09-02</lastmod>
     </url>
     <url>
          <loc>https://api.aiod.eu/docs/hosting/connectors/</loc>
-         <lastmod>2025-08-22</lastmod>
+         <lastmod>2025-09-02</lastmod>
     </url>
     <url>
          <loc>https://api.aiod.eu/docs/hosting/metrics/</loc>
-         <lastmod>2025-08-22</lastmod>
+         <lastmod>2025-09-02</lastmod>
+    </url>
+    <url>
+         <loc>https://api.aiod.eu/docs/hosting/proxy/</loc>
+         <lastmod>2025-09-02</lastmod>
     </url>
     <url>
          <loc>https://api.aiod.eu/docs/hosting/synchronization/</loc>
-         <lastmod>2025-08-22</lastmod>
+         <lastmod>2025-09-02</lastmod>
     </url>
     <url>
          <loc>https://api.aiod.eu/docs/using/</loc>
-         <lastmod>2025-08-22</lastmod>
+         <lastmod>2025-09-02</lastmod>
     </url>
     <url>
          <loc>https://api.aiod.eu/docs/using/migration-v1-v2/</loc>
-         <lastmod>2025-08-22</lastmod>
+         <lastmod>2025-09-02</lastmod>
     </url>
     <url>
          <loc>https://api.aiod.eu/docs/using/upload/</loc>
-         <lastmod>2025-08-22</lastmod>
+         <lastmod>2025-09-02</lastmod>
     </url>
 </urlset>
