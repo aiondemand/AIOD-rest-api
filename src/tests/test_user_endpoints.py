@@ -1,6 +1,7 @@
 from http import HTTPStatus
 from typing import Callable
 
+import pytest
 from starlette.testclient import TestClient
 
 from database.authorization import set_permission, PermissionType, register_user
@@ -10,6 +11,7 @@ from database.session import DbSession
 from database.model.agent.organisation import Organisation
 from tests.testutils.users import register_asset, logged_in_user, ALICE, BOB
 from tests.testutils.default_instances import publication_factory, publication
+from versioning import Version
 
 
 def test_my_resources_can_be_empty(client: TestClient) -> None:
@@ -121,3 +123,25 @@ def test_my_resources_paginates(client: TestClient, publication_factory: Publica
         response = client.get("/user/resources?offset=1&limit=1", headers={"Authorization": "fake token"})
         assert response.status_code == HTTPStatus.OK
         assert len(response.json()["publication"]) == 1, "Offset and limit should be able to be used together."
+
+
+@pytest.mark.versions(Version.V2)
+def test_my_resources_no_limit_default_in_v2(client: TestClient, publication_factory: Publication) -> None:
+    for _ in range(11):  # The default pagination limit is 10
+        register_asset(publication_factory(), owner=ALICE, status=EntryStatus.PUBLISHED)
+
+    with logged_in_user(ALICE):
+        response = client.get("/user/resources", headers={"Authorization": "fake token"})
+        assert response.status_code == HTTPStatus.OK
+        assert len(response.json()["publication"]) == 11
+
+
+@pytest.mark.versions(Version.LATEST)
+def test_my_resources_limit_default_in_latest(client: TestClient, publication_factory: Publication) -> None:
+    for _ in range(11):  # The default pagination limit is 10
+        register_asset(publication_factory(), owner=ALICE, status=EntryStatus.PUBLISHED)
+
+    with logged_in_user(ALICE):
+        response = client.get("/user/resources", headers={"Authorization": "fake token"})
+        assert response.status_code == HTTPStatus.OK
+        assert len(response.json()["publication"]) == 10, "Set limit should be respected"
