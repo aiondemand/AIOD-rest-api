@@ -15,12 +15,10 @@ def pytest_generate_tests(metafunc):
         selected_versions = version_marker.args if version_marker else default_versions
 
         # If version is set through the command line, only use that for testing.
-        all_versions = list(Version)
-        versions_to_include = metafunc.config.getoption("versions") or all_versions
+        versions_to_include = list(Version)
+        if cmd_line_versions := metafunc.config.getoption("versions"):
+            versions_to_include = [Version(v) for v in cmd_line_versions]
         versions = set(selected_versions).intersection(set(versions_to_include))
-        if not versions:
-            pytest.skip(f"Test not defined for selection: {versions_to_include}")
-
         metafunc.parametrize(
             "client", versions, indirect=True
         )

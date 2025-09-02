@@ -152,7 +152,7 @@ def client(request, engine: Engine) -> TestClient:
     app = build_app(version="unittest")
     client = TestClient(
         app,
-        base_url=f"http://localhost/{request.param.prefix}",  # param is Version
+        base_url=f"http://localhost{request.param.prefix}/",  # param is Version
     )
     client.version = request.param
     yield client

@@ -40,7 +40,7 @@ repos:
     hooks:
       - id: pytest-check
         name: pytest-check
-        entry: pytest src/tests --versions ''
+        entry: pytest src/tests --versions 'latest'
         language: system
         pass_filenames: false
         exclude: ".*.md"

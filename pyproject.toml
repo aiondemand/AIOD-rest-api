@@ -84,3 +84,4 @@ env_files = [
     ".env",  # Only used if running from docker container
     "tests/.env"  # Only used if running from docker container
 ]
+markers=["versions"]
