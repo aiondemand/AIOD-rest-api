@@ -98,3 +98,26 @@ def test_my_resources_counts_only_if_admin(client: TestClient, publication_facto
 def test_my_resources_must_be_authorized(client: TestClient) -> None:
     response = client.get("/user/resources")
     assert response.status_code == HTTPStatus.UNAUTHORIZED
+
+
+def test_my_resources_paginates(client: TestClient, publication_factory: Publication) -> None:
+    register_asset(publication_factory(), owner=ALICE, status=EntryStatus.PUBLISHED)
+    register_asset(publication_factory(), owner=ALICE, status=EntryStatus.PUBLISHED)
+    register_asset(publication_factory(), owner=ALICE, status=EntryStatus.PUBLISHED)
+
+    with logged_in_user(ALICE):
+        response = client.get("/user/resources?limit=2", headers={"Authorization": "fake token"})
+        assert response.status_code == HTTPStatus.OK
+        assert len(response.json()["publication"]) == 2, "Set limit should be respected"
+
+        first_asset = response.json()["publication"][0]["identifier"]
+
+        response = client.get("/user/resources?offset=1", headers={"Authorization": "fake token"})
+        assert response.status_code == HTTPStatus.OK
+        assert len(response.json()["publication"]) == 2, "Using an offset can reduce the amount of returned results."
+        msg = "Increasing offset should lead to different assets."
+        assert first_asset not in [pub["identifier"] for pub in response.json()["publication"]], msg
+
+        response = client.get("/user/resources?offset=1&limit=1", headers={"Authorization": "fake token"})
+        assert response.status_code == HTTPStatus.OK
+        assert len(response.json()["publication"]) == 1, "Offset and limit should be able to be used together."
