@@ -159,7 +159,14 @@ def project_v3_to_v2() -> VersionedResource:
         fields["total_cost_euros"] = new or old
         return Project.model_validate(fields)
 
-    return VersionedResource(Project, ProjectV2Create, ProjectV2Read, create_to_orm, orm_to_read)
+    return VersionedResource(
+        Project,
+        ProjectV2Create,
+        ProjectV2Create,
+        ProjectV2Read,
+        create_to_orm,
+        orm_to_read,
+    )
 
 
 project_versions = VersionedResourceCollection(

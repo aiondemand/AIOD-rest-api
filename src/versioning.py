@@ -21,7 +21,7 @@ from fastapi.openapi.docs import (
 from starlette.responses import HTMLResponse
 
 from config import CONFIG, default_config_path
-from database.model.resource_read_and_create import resource_create, resource_read
+from database.model.resource_read_and_create import resource_create, resource_read, resource_update
 
 logger = logging.getLogger(__file__)
 
@@ -228,6 +228,7 @@ class VersionedResource(Generic[T]):
     orm_class: type[T]  #: type[AIoDConcept]
     # Allow sensible defaults through None, but post_init ensures it's always set.
     resource_class_create: type[SQLModel] = None  # type: ignore[assignment]
+    resource_class_update: type[SQLModel] = None  # type: ignore[assignment]
     resource_class_read: type[SQLModel] = None  # type: ignore[assignment]
     create_to_orm: Callable[[SQLModel], T] = None  # type: ignore[assignment]
     orm_to_read: Callable[[T], SQLModel] = None  # type: ignore[assignment]
@@ -235,6 +236,7 @@ class VersionedResource(Generic[T]):
     def __post_init__(self):
         self.resource_class_create = self.resource_class_create or resource_create(self.orm_class)
         self.resource_class_read = self.resource_class_read or resource_read(self.orm_class)
+        self.resource_class_update = self.resource_class_update or resource_update(self.orm_class)
         self.create_to_orm = self.create_to_orm or self.orm_class.model_validate
         self.orm_to_read = self.orm_to_read or self.resource_class_read.model_validate
 

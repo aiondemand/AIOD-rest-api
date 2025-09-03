@@ -1,5 +1,6 @@
 import abc
 import datetime
+import json
 import traceback
 from functools import partial
 from http import HTTPStatus
@@ -9,6 +10,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, Query, Path
 from sqlalchemy import and_, func
 from sqlalchemy.sql.operators import is_
 from sqlmodel import SQLModel, Session, select
+from starlette.requests import Request
 
 from authentication import KeycloakUser, get_user_or_none, get_user_or_raise
 from converters.schema_converters.schema_converter import SchemaConverter
@@ -65,6 +67,7 @@ class ResourceRouter(abc.ABC):
     def __init__(self, resource: VersionedResource | None = None):
         resource = resource or VersionedResource(self.resource_class)
         self.resource_class_create = resource.resource_class_create
+        self.resource_class_update = resource.resource_class_update
         self.resource_class_read = resource.resource_class_read
         self.create_to_orm = resource.create_to_orm
         self.orm_to_read = resource.orm_to_read
@@ -534,11 +537,12 @@ class ResourceRouter(abc.ABC):
         This function returns a function (instead of being that function directly) because the
         docstring is dynamic and used in Swagger.
         """
-        clz_create = self.resource_class_create
+        clz_update = self.resource_class_update
 
         def put_resource(
             identifier: str,
-            resource_create_instance: clz_create,  # type: ignore
+            resource_create_instance: clz_update,  # type: ignore
+            request: Request,
             user: KeycloakUser = Depends(get_user_or_raise),
         ):
             with DbSession() as session:
@@ -560,8 +564,17 @@ class ResourceRouter(abc.ABC):
                         )
                     # TODO: Versioning, probably need to change the Create instance into
                     # ORM object and then do the updates so they are of the same schema.
+                    # Parsing into Pydantic objects does not let us differentiate between user-supplied values,
+                    # defaults, or explicit nulls (except if we update those Pydantic objects to work with
+                    # sentinel values). However, in this endpoint we want to allow users to only supply
+                    # fields which should be updated. So we cross-reference the parsed response with the original
+                    # payload. Because loading and validation already happened, accessing `_body` and assuming it
+                    # contains valid JSON should be safe.
+                    updates = json.loads(request._body.decode())
                     for attribute_name in resource.schema()["properties"]:
-                        if hasattr(resource_create_instance, attribute_name):
+                        if attribute_name in updates and hasattr(
+                            resource_create_instance, attribute_name
+                        ):
                             new_value = getattr(resource_create_instance, attribute_name)
                             setattr(resource, attribute_name, new_value)
                     deserialize_resource_relationships(

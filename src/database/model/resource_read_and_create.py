@@ -79,6 +79,28 @@ def resource_create(resource_class: Type["AIoDConcept"] | Type["Platform"]) -> T
     return model
 
 
+@functools.cache  # For Pydantic 'bug', see note at `resource_read`
+def resource_update(resource_class: Type["AIoDConcept"] | Type["Platform"]) -> Type[SQLModel]:
+    """
+    Create a SQLModel for a Create class of a resource. This Create class is a Pydantic class
+    that can be used for POST and PUT requests (and thus has no identifier), and is not backed by a
+    ORM table.
+
+    Besides the default attributes, this class has the Pydantic-version of the relationships. If the
+    resource has a relationship to an "enum table", for instance, this will just be a string value
+    in this Create class.
+
+    See https://sqlmodel.tiangolo.com/tutorial/fastapi/multiple-models/ for background.
+    """
+    relationships = get_relationships(resource_class)
+    field_definitions = _get_field_definitions_create(resource_class, relationships)
+    field_definitions["name"] = (Optional[str], Field())  # type: ignore[assignment]
+    model = create_model(
+        resource_class.__name__ + "Update", __base__=resource_class.__base__, **field_definitions
+    )
+    return model
+
+
 # We cache this not for performance reason, but because if the model would be created multiple times,
 # this leads to a conflicting state in the Pydantic model map, erasing the older model.
 # Related to https://github.com/fastapi/fastapi/issues/4191 and might be fixed by upgrading to the
