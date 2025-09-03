@@ -62,7 +62,7 @@ def _get_field_definitions_create(
 def resource_create(resource_class: Type["AIoDConcept"] | Type["Platform"]) -> Type[SQLModel]:
     """
     Create a SQLModel for a Create class of a resource. This Create class is a Pydantic class
-    that can be used for POST and PUT requests (and thus has no identifier), and is not backed by a
+    that can be used for POST requests (and thus has no identifier), and is not backed by an
     ORM table.
 
     Besides the default attributes, this class has the Pydantic-version of the relationships. If the
@@ -83,8 +83,8 @@ def resource_create(resource_class: Type["AIoDConcept"] | Type["Platform"]) -> T
 def resource_update(resource_class: Type["AIoDConcept"] | Type["Platform"]) -> Type[SQLModel]:
     """
     Create a SQLModel for a Create class of a resource. This Create class is a Pydantic class
-    that can be used for POST and PUT requests (and thus has no identifier), and is not backed by a
-    ORM table.
+    that can be used for PUT requests (and thus has no identifier, and removes the requirement for
+    the name attribute), and is not backed by an ORM table.
 
     Besides the default attributes, this class has the Pydantic-version of the relationships. If the
     resource has a relationship to an "enum table", for instance, this will just be a string value
@@ -94,6 +94,7 @@ def resource_update(resource_class: Type["AIoDConcept"] | Type["Platform"]) -> T
     """
     relationships = get_relationships(resource_class)
     field_definitions = _get_field_definitions_create(resource_class, relationships)
+    # If we add more required fields, update this method to make any required field optional
     field_definitions["name"] = (Optional[str], Field())  # type: ignore[assignment]
     model = create_model(
         resource_class.__name__ + "Update", __base__=resource_class.__base__, **field_definitions

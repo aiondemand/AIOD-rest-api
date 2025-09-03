@@ -218,6 +218,10 @@ class VersionedResource(Generic[T]):
         and produces an ORM object corresponding to the type (e.g., CaseStudy).
         If not supplied, uses the `model_validate` function from `orm_class`.
         This breaks if there is a mismatch between fields of the create class and the orm class.
+    update_data: Callable[[dict], dict], optional
+        Function which takes a mapping of (attribute name -> value) matching possible attributes of
+        the `Create` or `Update` models, and convert it to attribute names and values expected by
+        the ORM model.
     orm_to_read: Callable[[SQLModel], SQLModel], optional
         A function which takes an ORM object of the router's type (e.g., CaseStudy),
         and produces an `resource_class_read` corresponding object (e.g., CaseStudyRead).
@@ -231,6 +235,7 @@ class VersionedResource(Generic[T]):
     resource_class_update: type[SQLModel] = None  # type: ignore[assignment]
     resource_class_read: type[SQLModel] = None  # type: ignore[assignment]
     create_to_orm: Callable[[SQLModel], T] = None  # type: ignore[assignment]
+    update_data: Callable[[dict], dict] = None  # type: ignore[assignment]
     orm_to_read: Callable[[T], SQLModel] = None  # type: ignore[assignment]
 
     def __post_init__(self):
@@ -238,6 +243,7 @@ class VersionedResource(Generic[T]):
         self.resource_class_read = self.resource_class_read or resource_read(self.orm_class)
         self.resource_class_update = self.resource_class_update or resource_update(self.orm_class)
         self.create_to_orm = self.create_to_orm or self.orm_class.model_validate
+        self.update_data = self.update_data or (lambda x: x)
         self.orm_to_read = self.orm_to_read or self.resource_class_read.model_validate
 
 

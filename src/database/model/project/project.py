@@ -14,7 +14,7 @@ from database.model.serializers import (
     FindByIdentifierDeserializerList,
 )
 from database.model.field_length import IDENTIFIER_LENGTH
-from database.model.resource_read_and_create import resource_read, resource_create
+from database.model.resource_read_and_create import resource_read, resource_create, resource_update
 from versioning import Version, VersionedResource, VersionedResourceCollection, schema_transform
 
 
@@ -130,9 +130,16 @@ def project_v3_to_v2() -> VersionedResource:
             ),
         ),
     )
+    mapping = dict(total_cost_euros="total_cost_euro")
+
     ProjectV2Read = schema_transform(
         resource_read(Project),
         "ProjectV2Read",
+        add_fields=old_parameter,
+    )
+    ProjectV2Update = schema_transform(
+        resource_update(Project),
+        "ProjectV2Update",
         add_fields=old_parameter,
     )
     ProjectV2Create = schema_transform(
@@ -143,28 +150,38 @@ def project_v3_to_v2() -> VersionedResource:
 
     def orm_to_read(project: Project) -> ProjectV2Read:  # type: ignore[valid-type]
         read = resource_read(Project).model_validate(project).model_dump()
-        read["total_cost_euro"] = project.total_cost_euros
+        for new_name, old_name in mapping.items():
+            read[old_name] = getattr(project, new_name)
         return ProjectV2Read.model_validate(read)
+
+    def update_data(data: dict) -> dict:
+        new_data = data.copy()
+        # v2 -> v3, in this case only renaming is necessary
+        for new_name, old_name in mapping.items():
+            old = data.get(old_name)
+            new = data.get(new_name)
+
+            if (old and new) and old != new:
+                raise ValueError(
+                    f"'{old_name}' and '{new_name}' are both specified, but with different values. Please only use one or the other."
+                )
+
+            new_data[new_name] = new or old
+            new_data.pop(old_name, None)
+        return new_data
 
     def create_to_orm(project: ProjectV2Create) -> Project:  # type: ignore[valid-type]
         fields = cast(SQLModel, project).model_dump()
-        old = fields.get("total_cost_euro")
-        new = fields.get("total_cost_euros")
-
-        if (old and new) and old != new:
-            raise ValueError(
-                "'total_cost_euro' and 'total_cost_euros' are both specified, but with different values. Please only use one or the other."
-            )
-
-        fields["total_cost_euros"] = new or old
+        fields = update_data(fields)
         return Project.model_validate(fields)
 
     return VersionedResource(
         Project,
         ProjectV2Create,
-        ProjectV2Create,
+        ProjectV2Update,
         ProjectV2Read,
         create_to_orm,
+        update_data,
         orm_to_read,
     )
 

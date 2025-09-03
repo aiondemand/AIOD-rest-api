@@ -71,6 +71,7 @@ class ResourceRouter(abc.ABC):
         self.resource_class_read = resource.resource_class_read
         self.create_to_orm = resource.create_to_orm
         self.orm_to_read = resource.orm_to_read
+        self.update_data = resource.update_data
 
     @property
     @abc.abstractmethod
@@ -541,7 +542,7 @@ class ResourceRouter(abc.ABC):
 
         def put_resource(
             identifier: str,
-            resource_create_instance: clz_update,  # type: ignore
+            resource_update_instance: clz_update,  # type: ignore
             request: Request,
             user: KeycloakUser = Depends(get_user_or_raise),
         ):
@@ -570,15 +571,18 @@ class ResourceRouter(abc.ABC):
                     # fields which should be updated. So we cross-reference the parsed response with the original
                     # payload. Because loading and validation already happened, accessing `_body` and assuming it
                     # contains valid JSON should be safe.
-                    updates = json.loads(request._body.decode())
+                    update_request = json.loads(request._body.decode())
+                    # But we still need to update the model with the *parsed* objects
+                    all_model_data = cast(SQLModel, resource_update_instance).model_dump()
+                    updated_model_data = {
+                        k: v for k, v in all_model_data.items() if k in update_request
+                    }
+                    updates = self.update_data(updated_model_data)
                     for attribute_name in resource.schema()["properties"]:
-                        if attribute_name in updates and hasattr(
-                            resource_create_instance, attribute_name
-                        ):
-                            new_value = getattr(resource_create_instance, attribute_name)
-                            setattr(resource, attribute_name, new_value)
+                        if attribute_name in updates:  # to distinguish from explicit `None`s
+                            setattr(resource, attribute_name, updates[attribute_name])
                     deserialize_resource_relationships(
-                        session, self.resource_class, resource, resource_create_instance, user
+                        session, self.resource_class, resource, resource_update_instance, user
                     )
                     if hasattr(resource, "aiod_entry"):
                         resource.aiod_entry.date_modified = datetime.datetime.utcnow()
@@ -586,10 +590,10 @@ class ResourceRouter(abc.ABC):
                         session.merge(resource)
                         session.commit()
                     except Exception as e:
-                        self._raise_clean_http_exception(e, session, resource_create_instance)
+                        self._raise_clean_http_exception(e, session, resource_update_instance)
                     return None
                 except Exception as e:
-                    raise self._raise_clean_http_exception(e, session, resource_create_instance)
+                    raise self._raise_clean_http_exception(e, session, resource_update_instance)
 
         return put_resource
 
