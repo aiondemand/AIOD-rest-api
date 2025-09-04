@@ -280,7 +280,6 @@ class ResourceRouter(abc.ABC):
 
                 if schema != "aiod":
                     return self.schema_converters[schema].convert(session, resource)
-                breakpoint()
                 return self.orm_to_read(resource)
         except Exception as e:
             raise as_http_exception(e)
@@ -513,7 +512,7 @@ class ResourceRouter(abc.ABC):
         """Store a resource in the database"""
         resource = self.create_to_orm(resource_create_instance)
         deserialize_resource_relationships(session, self.resource_class, resource,
-                                           resource_create_instance.model_dump(), user)
+                                           resource_create_instance, user)
         session.add(resource)
         session.flush()
 
@@ -558,6 +557,7 @@ class ResourceRouter(abc.ABC):
                         )
                     # TODO: Versioning, probably need to change the Create instance into
                     # ORM object and then do the updates so they are of the same schema.
+
                     # Parsing into Pydantic objects does not let us differentiate between user-supplied values,
                     # defaults, or explicit nulls (except if we update those Pydantic objects to work with
                     # sentinel values). However, in this endpoint we want to allow users to only supply
@@ -565,7 +565,8 @@ class ResourceRouter(abc.ABC):
                     # payload. Because loading and validation already happened, accessing `_body` and assuming it
                     # contains valid JSON should be safe.
                     update_request = json.loads(request._body.decode())
-                    # But we still need to update the model with the *parsed* objects
+                    # But we update the existing model with the *parsed* objects, not raw JSON
+                    new_resource = self.create_to_orm(resource_update_instance)
                     all_model_data = cast(SQLModel, resource_update_instance).model_dump()
                     updated_model_data = {
                         k: v for k, v in all_model_data.items() if k in update_request
@@ -575,7 +576,7 @@ class ResourceRouter(abc.ABC):
                         if attribute_name in updates:  # to distinguish from explicit `None`s
                             setattr(resource, attribute_name, updates[attribute_name])
                     deserialize_resource_relationships(session, self.resource_class, resource,
-                                                       resource_update_instance.model_dump(), user)
+                                                       resource_update_instance, user, update_only=list(update_request))
                     if hasattr(resource, "aiod_entry"):
                         resource.aiod_entry.date_modified = datetime.datetime.utcnow()
                     try:

@@ -218,7 +218,7 @@ class CastDeserializer(DeSerializer[SQLModel]):
 
     def _deserialize_single_resource(self, serialized, session, user):
         resource = self.clazz.from_orm(serialized)
-        deserialize_resource_relationships(session, self.clazz, resource, serialized.model_dump(), user)
+        deserialize_resource_relationships(session, self.clazz, resource, serialized, user)
         return resource
 
 
@@ -268,12 +268,18 @@ def deserialize_resource_relationships(
     session: Session,
     resource_class: Type[SQLModel],
     resource: SQLModel,
-    new_attributes: dict | None,
+    new_resource: SQLModel | None,
     user: KeycloakUser | None = None,
+    update_only: list[str] | None = None,
 ):
     """After deserialization of a resource, this function will deserialize all it's related
-    objects in place."""
-    if not hasattr(resource_class, "RelationshipConfig") or new_attributes is None:
+    objects in place and update `resource` with data of `new_resource`.
+    If `update_only` is specified, only those attributes will be updated on `resource`.
+    """
+    def should_update_attribute(attr: str) -> bool:
+        return update_only is None or attr in update_only
+
+    if not hasattr(resource_class, "RelationshipConfig") or new_resource is None:
         return
 
     relationships = get_relationships(resource_class)
@@ -288,13 +294,13 @@ def deserialize_resource_relationships(
             and getattr(resource, attribute)
         ):
             deserialize_object_relationship(
-                session, resource, new_attributes, attribute, user
+                session, resource, new_resource, attribute, user
             )
             continue
 
         # Attribute is automatically created if not present, modified otherwise
-        if relationship.include_in_create and attribute in new_attributes:
-            new_value = new_attributes[attribute]
+        if relationship.include_in_create and should_update_attribute(attribute):
+            new_value = getattr(new_resource, attribute)
             if new_value is None and relationship.default_factory_orm is not None:
                 # e.g. .aiod_entry, which should be generated if it's not present
                 relation = relationship.default_factory_orm(type_=resource_class.__tablename__)
@@ -328,10 +334,10 @@ def deserialize_resource_relationships(
         setattr(resource, relationship.identifier_name, relation.identifier)
 
     for attribute, relationship in relationships.items():
-        if relationship.deserialized_path is None:
+        if relationship.deserialized_path is None or not should_update_attribute(attribute):
             continue
 
-        new_value = new_attributes[attribute]
+        new_value = getattr(new_resource, attribute)
         if relationship.deserializer:
             new_value = relationship.deserializer.deserialize(session, new_value, user)
 
@@ -360,12 +366,12 @@ def deserialize_object_relationship(
             if hasattr(child_create, child_attribute):
                 child_value = getattr(child_create, child_attribute)
                 setattr(child, child_attribute, child_value)
-        deserialize_resource_relationships(session, child_class, child, child_create.model_dump(), user)
+        deserialize_resource_relationships(session, child_class, child, child_create, user)
     n_create = len(children_create)
     for child in children[n_create:]:
         session.delete(child)
     n_existing = len(children)
     for child_create in children_create[n_existing:]:
         child = child_class.from_orm(child_create)
-        deserialize_resource_relationships(session, child_class, child, child_create.model_dump(), user)
+        deserialize_resource_relationships(session, child_class, child, child_create, user)
         children.append(child)
