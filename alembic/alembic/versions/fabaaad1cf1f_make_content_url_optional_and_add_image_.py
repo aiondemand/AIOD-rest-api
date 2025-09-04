@@ -18,21 +18,47 @@ down_revision: Union[str, None] = "5d0d73539c21"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
+assets_with_media = [
+    "case_study",
+    "computational_asset",
+    "dataset",
+    "educational_resource",
+    "event",
+    "experiment",
+    "ml_model",
+    "news",
+    "organisation",
+    "person",
+    "project",
+    "publication",
+    "resource_bundle",
+    "service",
+    "team",
+]
+
 
 def upgrade() -> None:
-    op.alter_column(
-        "media_organisation", "content_url", existing_type=sa.String(length=1800), nullable=True
-    )
+    for asset_type in assets_with_media:
+        op.alter_column(
+            f"media_{asset_type}",
+            "content_url",
+            existing_type=sa.String(length=1800),
+            nullable=True,
+        )
 
-    op.add_column(
-        table_name="media_organisation",
-        column=sa.Column("binary_blob", sa.LargeBinary(), nullable=True),
-    )
+        op.add_column(
+            table_name=f"media_{asset_type}",
+            column=sa.Column("binary_blob", sa.LargeBinary(), nullable=True),
+        )
 
 
 def downgrade() -> None:
-    op.alter_column(
-        "media_organisation", "content_url", existing_type=sa.String(length=1800), nullable=False
-    )
+    for asset_type in assets_with_media:
+        op.alter_column(
+            f"media_{asset_type}",
+            "content_url",
+            existing_type=sa.String(length=1800),
+            nullable=False,
+        )
 
-    op.drop_column("media_organisation", "binary_blob")
+        op.drop_column(f"media_{asset_type}", "binary_blob")
