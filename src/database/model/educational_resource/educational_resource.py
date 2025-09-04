@@ -36,6 +36,7 @@ class EducationalResourceBase(AIResourceBase):
 class EducationalResource(EducationalResourceBase, AIResource, table=True):  # type: ignore [call-arg]
     __tablename__ = "educational_resource"
     __abbreviation__ = "edu"
+    __plural__ = "educational resources"
 
     type_identifier: int | None = Field(
         foreign_key=EducationalResourceType.__tablename__ + ".identifier"

@@ -53,6 +53,7 @@ class EventBase(AIResourceBase):
 class Event(EventBase, AIResource, table=True):  # type: ignore [call-arg]
     __tablename__ = "event"
     __abbreviation__ = "evnt"
+    __plural__ = "events"
 
     content_identifier: int | None = Field(
         index=True,

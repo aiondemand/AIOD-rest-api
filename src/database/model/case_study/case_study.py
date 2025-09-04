@@ -9,6 +9,7 @@ class CaseStudyBase(AIAssetBase):
 class CaseStudy(CaseStudyBase, AIAsset, table=True):  # type: ignore [call-arg]
     __tablename__ = "case_study"
     __abbreviation__ = "case"
+    __plural__ = "case studies"
 
 
 case_study_versions = VersionedResourceCollection(

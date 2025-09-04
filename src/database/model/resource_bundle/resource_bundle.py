@@ -26,6 +26,7 @@ class ResourceBundleBase(AIResourceBase):
 class ResourceBundle(ResourceBundleBase, AIResource, table=True):  # type: ignore [call-arg]
     __tablename__ = "resource_bundle"
     __abbreviation__ = "res"
+    __plural__ = "resource bundles"
 
     # Many-to-Many relationship linking ResourceBundle to external resources (URLs)
     includes_external_reference: List[ExternalResource] = Relationship(

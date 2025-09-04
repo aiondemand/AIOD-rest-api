@@ -49,6 +49,7 @@ class DatasetBase(AIAssetBase):
 class Dataset(DatasetBase, AIAsset, table=True):  # type: ignore [call-arg]
     __tablename__ = "dataset"
     __abbreviation__ = "data"
+    __plural__ = "datasets"
 
     funder: list["AgentTable"] = Relationship(
         link_model=many_to_many_link_factory(

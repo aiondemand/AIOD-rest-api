@@ -30,6 +30,7 @@ class MLModelBase(AIAssetBase):
 class MLModel(MLModelBase, AIAsset, table=True):  # type: ignore [call-arg]
     __tablename__ = "ml_model"
     __abbreviation__ = "mdl"
+    __plural__ = "ml models"
 
     related_experiment: list["Experiment"] = Relationship(
         link_model=many_to_many_link_factory(

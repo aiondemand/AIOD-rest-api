@@ -6,6 +6,7 @@ from sqlalchemy import Column, String
 
 class Bookmark(SQLModel, table=True):  # type: ignore [call-arg]
     __tablename__ = "bookmark"
+    __plural__ = "bookmarks"
     user_identifier: str = Field(
         foreign_key="user.subject_identifier",
         nullable=False,

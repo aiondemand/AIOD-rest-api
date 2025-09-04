@@ -44,6 +44,7 @@ class ExperimentBase(AIAssetBase):
 class Experiment(ExperimentBase, AIAsset, table=True):  # type: ignore [call-arg]
     __tablename__ = "experiment"
     __abbreviation__ = "exp"
+    __plural__ = "experiments"
 
     badge: list[Badge] = Relationship(
         link_model=many_to_many_link_factory(

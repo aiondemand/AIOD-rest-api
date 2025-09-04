@@ -49,6 +49,7 @@ class PersonBase(AgentBase):
 class Person(PersonBase, Agent, table=True):  # type: ignore [call-arg]
     __tablename__ = "person"
     __abbreviation__ = "prsn"
+    __plural__ = "persons"
 
     expertise: list[Expertise] = Relationship(
         link_model=many_to_many_link_factory(

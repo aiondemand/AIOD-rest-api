@@ -104,6 +104,7 @@ class LocationBase(SQLModel):
 
 class LocationORM(LocationBase, table=True):  # type: ignore [call-arg]
     __tablename__ = "location"
+    __plural__ = "locations"
 
     identifier: int | None = Field(primary_key=True)
     address: Optional["AddressORM"] = Relationship(

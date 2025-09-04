@@ -22,6 +22,7 @@ class Platform(PlatformBase, table=True):  # type: ignore [call-arg]
     AIoD. This table is partly filled with the enum PlatformName"""
 
     __tablename__ = "platform"
+    __plural__ = "platforms"
     __deletion_config__ = {"soft_delete": False}  # hard_deletion, otherwise name cannot be unique,
     # which is difficult for foreign key constraints
 

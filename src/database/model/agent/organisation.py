@@ -20,10 +20,16 @@ from database.model.serializers import (
 from versioning import Version, VersionedResource, VersionedResourceCollection
 
 
-Turnover: type[Taxonomy] = create_taxonomy(class_name="Turnover", table_name="turnover")
+Turnover: type[Taxonomy] = create_taxonomy(
+    class_name="Turnover",
+    table_name="turnover",
+    plural_name="turnovers",
+)
 
 NumberOfEmployees: type[Taxonomy] = create_taxonomy(
-    class_name="NumberOfEmployees", table_name="number_of_employees"
+    class_name="NumberOfEmployees",
+    table_name="number_of_employees",
+    plural_name="numbers of employees",
 )
 
 
@@ -48,6 +54,7 @@ class OrganisationBase(AgentBase):
 class Organisation(OrganisationBase, Agent, table=True):  # type: ignore [call-arg]
     __tablename__ = "organisation"
     __abbreviation__ = "org"
+    __plural__ = "organisations"
 
     contact_details: Optional[Contact] = Relationship(sa_relationship_kwargs={"uselist": False})
 

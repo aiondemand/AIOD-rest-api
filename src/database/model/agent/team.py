@@ -29,6 +29,7 @@ class TeamBase(AIResourceBase):
 class Team(TeamBase, AIResource, table=True):  # type: ignore [call-arg]
     __tablename__ = "team"
     __abbreviation__ = "team"
+    __plural__ = "teams"
 
     organisation_identifier: str | None = Field(
         max_length=IDENTIFIER_LENGTH, foreign_key=Organisation.__tablename__ + ".identifier"

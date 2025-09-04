@@ -39,6 +39,7 @@ class ProjectBase(AIResourceBase):
 class Project(ProjectBase, AIResource, table=True):  # type: ignore [call-arg]
     __tablename__ = "project"
     __abbreviation__ = "proj"
+    __plural__ = "projects"
 
     funder: list[Organisation] = Relationship(
         link_model=many_to_many_link_factory(

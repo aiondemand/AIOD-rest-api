@@ -38,6 +38,7 @@ class ContactBase(AIoDConceptBase):
 class Contact(ContactBase, AIoDConcept, table=True):  # type: ignore [call-arg]
     __tablename__ = "contact"
     __abbreviation__ = "con"
+    __plural__ = "contacts"
 
     email: list[Email] = Relationship(
         link_model=many_to_many_link_factory(

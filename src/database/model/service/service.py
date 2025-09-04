@@ -25,6 +25,7 @@ class ServiceBase(AIResourceBase):
 class Service(ServiceBase, AIResource, table=True):  # type: ignore [call-arg]
     __tablename__ = "service"
     __abbreviation__ = "srvc"
+    __plural__ = "services"
 
     class RelationshipConfig(AIResource.RelationshipConfig):
         pass

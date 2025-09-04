@@ -30,15 +30,29 @@ class TaxonomyRouter(EnumRouter):
         default_kwargs = {
             "response_model_exclude_none": True,
             "tags": ["Taxonomies"],
+            "endpoint": self.get_official_terms_func(),
+            "response_model": list[TaxonomyHierarchy],
+            "name": self.resource_name,
         }
 
+        new_path = f"/{self.resource_class.__plural__.replace(' ', '_')}"
         router.add_api_route(
-            path=f"/{self.resource_name_plural}",
-            endpoint=self.get_official_terms_func(),
-            response_model=list[TaxonomyHierarchy],
-            name=self.resource_name,
+            path=new_path,
+            description=f"List definitions and descriptions of all valid {self.resource_class.__plural__}.",
             **default_kwargs,
         )
+        old_path = f"/{self.resource_name_plural}"
+        if version == Version.V2 and old_path != new_path:
+            router.add_api_route(
+                path=old_path,
+                deprecated=True,
+                description=(
+                    "List definitions and descriptions of all valid "
+                    f"{self.resource_class.__plural__}. "
+                    f"Deprecated: use `{new_path}` instead."
+                ),
+                **default_kwargs,
+            )
         return router
 
     def get_official_terms_func(self):
