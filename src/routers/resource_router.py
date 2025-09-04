@@ -2,9 +2,7 @@ import abc
 import datetime
 import traceback
 from functools import partial
-from http import HTTPStatus
 from typing import Annotated, Any, Literal, Sequence, Type, TypeVar, Union, Callable, cast
-from wsgiref.handlers import format_date_time
 from fastapi import APIRouter, Depends, HTTPException, status, Query, Path
 from sqlalchemy import and_, func
 from sqlalchemy.sql.operators import is_
@@ -25,20 +23,16 @@ from database.model.concept.aiod_entry import AIoDEntryORM, EntryStatus
 from database.model.concept.concept import AIoDConcept
 from database.model.platform.platform import Platform
 from database.model.platform.platform_names import PlatformName
-from database.model.resource_read_and_create import (
-    resource_create,
-    resource_read,
-)
 from database.model.serializers import deserialize_resource_relationships
 from database.review import Submission, SubmissionCreate
 from database.session import DbSession
 from dependencies.filtering import ResourceFilters, ResourceFiltersParams
 from dependencies.pagination import Pagination, PaginationParams
 from error_handling import as_http_exception
+from database.model.ai_asset.distribution import Distribution
 from versioning import Version, VersionedResource
 
 from http import HTTPStatus
-from pydantic import BaseModel
 import base64
 
 RESOURCE = TypeVar("RESOURCE", bound=AIResource)
@@ -488,6 +482,7 @@ class ResourceRouter(abc.ABC):
                         detail="No permission to set platform or platform resource identifier.",
                     )
 
+            _raise_if_contains_binary_blob(resource_create)
             try:
                 with DbSession() as session:
                     try:
@@ -544,6 +539,7 @@ class ResourceRouter(abc.ABC):
             with DbSession() as session:
                 try:
                     resource: Any = self._retrieve_resource(session, identifier)
+                    _raise_if_contains_binary_blob(resource_create_instance)
                     if not (
                         user_can_write(user, resource.aiod_entry)
                         or user.has_role(f"update_{self.resource_name_plural}")
@@ -872,3 +868,15 @@ def _raise_error_on_invalid_schema(possible_schemas, schema):
             detail=f"Invalid schema {schema}. Expected {' or '.join(possible_schemas)}",
             status_code=status.HTTP_400_BAD_REQUEST,
         )
+
+
+def _raise_if_contains_binary_blob(item):
+    if not hasattr(item, "media") or not (media := getattr(item, "media")):
+        return
+
+    for item in media:
+        if isinstance(item, Distribution) and item.binary_blob:
+            raise HTTPException(
+                status_code=HTTPStatus.BAD_REQUEST,
+                detail="Setting `binary_blob` is forbidden. Consider using `content_url` instead.",
+            )

@@ -54,7 +54,11 @@ class DistributionBase(AIoDConceptBase):
     # Currently, only organisation accepts this field, potentially to store images (ex. organisation logo).
     binary_blob: bytes | None = Field(
         default=None,
-        description="Binary blob for storing image (or other type of media) data.",
+        description=(
+            "Binary blob for storing image (or other type of media) data. "
+            "You may not set this property directly, set it indirectly through dedicated "
+            "endpoints such as /organisations/{identifier}/image instead."
+        ),
         sa_column=Column(LargeBinary),
     )
 
