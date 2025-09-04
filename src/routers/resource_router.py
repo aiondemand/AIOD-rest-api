@@ -3,9 +3,7 @@ import datetime
 import json
 import traceback
 from functools import partial
-from http import HTTPStatus
 from typing import Annotated, Any, Literal, Sequence, Type, TypeVar, Union, Callable, cast
-from wsgiref.handlers import format_date_time
 from fastapi import APIRouter, Depends, HTTPException, status, Query, Path
 from sqlalchemy import and_, func
 from sqlalchemy.sql.operators import is_
@@ -27,10 +25,6 @@ from database.model.concept.aiod_entry import AIoDEntryORM, EntryStatus
 from database.model.concept.concept import AIoDConcept
 from database.model.platform.platform import Platform
 from database.model.platform.platform_names import PlatformName
-from database.model.resource_read_and_create import (
-    resource_create,
-    resource_read,
-)
 from database.model.serializers import deserialize_resource_relationships
 from database.review import Submission, SubmissionCreate
 from database.session import DbSession
@@ -40,7 +34,6 @@ from error_handling import as_http_exception
 from versioning import Version, VersionedResource
 
 from http import HTTPStatus
-from pydantic import BaseModel
 import base64
 
 RESOURCE = TypeVar("RESOURCE", bound=AIResource)
@@ -287,6 +280,7 @@ class ResourceRouter(abc.ABC):
 
                 if schema != "aiod":
                     return self.schema_converters[schema].convert(session, resource)
+                breakpoint()
                 return self.orm_to_read(resource)
         except Exception as e:
             raise as_http_exception(e)
@@ -518,9 +512,8 @@ class ResourceRouter(abc.ABC):
     ):
         """Store a resource in the database"""
         resource = self.create_to_orm(resource_create_instance)
-        deserialize_resource_relationships(
-            session, self.resource_class, resource, resource_create_instance, user
-        )
+        deserialize_resource_relationships(session, self.resource_class, resource,
+                                           resource_create_instance.model_dump(), user)
         session.add(resource)
         session.flush()
 
@@ -581,9 +574,8 @@ class ResourceRouter(abc.ABC):
                     for attribute_name in resource.schema()["properties"]:
                         if attribute_name in updates:  # to distinguish from explicit `None`s
                             setattr(resource, attribute_name, updates[attribute_name])
-                    deserialize_resource_relationships(
-                        session, self.resource_class, resource, resource_update_instance, user
-                    )
+                    deserialize_resource_relationships(session, self.resource_class, resource,
+                                                       resource_update_instance.model_dump(), user)
                     if hasattr(resource, "aiod_entry"):
                         resource.aiod_entry.date_modified = datetime.datetime.utcnow()
                     try:

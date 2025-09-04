@@ -1,12 +1,14 @@
 import copy
+from http import HTTPStatus
 from unittest.mock import Mock
 
+import pytest
 from starlette import status
 from starlette.testclient import TestClient
 
 from database.model.agent.person import Person
 from database.session import DbSession
-from tests.testutils.users import logged_in_user
+from tests.testutils.users import logged_in_user, register_asset, ALICE
 
 
 def test_happy_path(
@@ -82,3 +84,42 @@ def test_post_invalid_openml_identifier(
         response.json()["detail"][0]["msg"]
         == "An OpenML platform_resource_identifier should be a positive integer."
     )
+
+
+@pytest.mark.parametrize(
+    ("property_", "value"), [("name", "Foo"), ("issn", "Bar")]
+)
+def test_update_does_not_affect_left_out_properties(
+        property_: str,
+        value: str,
+        client: TestClient,
+        dataset,
+):
+    identifier = register_asset(dataset, owner=ALICE)
+    with logged_in_user(ALICE):
+        response = client.get(
+            f"/datasets/{identifier}",
+            headers={"Authorization": "Fake token"},
+        )
+        assert response.status_code == HTTPStatus.OK, response.json()
+        before = response.json()
+        assert before[property_] != value  # sanity check
+
+        response = client.put(
+            f"/datasets/{identifier}",
+            json={property_: value},
+            headers={"Authorization": "Fake token"},
+        )
+        assert response.status_code == HTTPStatus.OK, response.json()
+
+        response = client.get(
+            f"/datasets/{identifier}",
+            headers={"Authorization": "Fake token"},
+        )
+        assert response.status_code == HTTPStatus.OK, response.json()
+        after = response.json()
+        assert after[property_] == value
+
+        assert set(before) == set(after)
+        assert all(before[p] == after[p] for p in before if p != property_)
+

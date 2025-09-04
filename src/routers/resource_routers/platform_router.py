@@ -203,9 +203,8 @@ class PlatformRouter:
     ):
         """Store a resource in the database"""
         resource = self.resource_class.model_validate(resource_create_instance)
-        deserialize_resource_relationships(
-            session, self.resource_class, resource, resource_create_instance, user
-        )
+        deserialize_resource_relationships(session, self.resource_class, resource,
+                                           resource_create_instance.model_dump(), user)
         session.add(resource)
         session.commit()
         return resource
@@ -236,9 +235,8 @@ class PlatformRouter:
                         if hasattr(resource_create_instance, attribute_name):
                             new_value = getattr(resource_create_instance, attribute_name)
                             setattr(resource, attribute_name, new_value)
-                    deserialize_resource_relationships(
-                        session, self.resource_class, resource, resource_create_instance, user
-                    )
+                    deserialize_resource_relationships(session, self.resource_class, resource,
+                                                       resource_create_instance.model_dump(), user)
                     try:
                         session.merge(resource)
                         session.commit()

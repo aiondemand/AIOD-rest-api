@@ -6,6 +6,7 @@ request.
 """
 
 import functools
+import typing
 from typing import Type, Tuple, TYPE_CHECKING, Optional
 
 from pydantic import create_model
@@ -94,8 +95,9 @@ def resource_update(resource_class: Type["AIoDConcept"] | Type["Platform"]) -> T
     """
     relationships = get_relationships(resource_class)
     field_definitions = _get_field_definitions_create(resource_class, relationships)
-    # If we add more required fields, update this method to make any required field optional
-    field_definitions["name"] = (Optional[str], Field())  # type: ignore[assignment]
+    for field_name, (field_type, field_info) in field_definitions.items():
+        if typing.get_origin(field_type) is not typing.Union or type(None) not in typing.get_args(field_type):
+            field_definitions[field_name] = (Optional[field_type], field_info)  # type: ignore[assignment]
     model = create_model(
         resource_class.__name__ + "Update", __base__=resource_class.__base__, **field_definitions
     )
