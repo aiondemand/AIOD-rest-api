@@ -114,15 +114,17 @@ def synchronize(
                 parent := db_definitions.get(term.parent.name.casefold())
             ):
                 term.parent = parent
+            term.children = synchronized_children
             added_terms[term.name] = term
-            session.add(term)
             return term
 
         logging.warning(f"Term {term.name!r} defined more than once!")
-        return added_terms[term.name]
+        return None
 
     for term in definitions:
-        synchronize_term(term)
+        sync_term = synchronize_term(term)
+        if sync_term is not None:
+            session.merge(sync_term)
 
 
 def synchronize_taxonomy_from_file(file: Path) -> None:
