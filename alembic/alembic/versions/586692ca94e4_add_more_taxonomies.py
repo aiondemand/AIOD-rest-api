@@ -1,32 +1,32 @@
-"""Adds `description`, `official`, and `parent_id` columns to taxonomy tables
+"""add more taxonomies
 
-Revision ID: 751c3f34323a
-Revises: 459323683348
-Create Date: 2025-06-15 09:07:21.057214
+Revision ID: 586692ca94e4
+Revises: 1fd9b6a162c4
+Create Date: 2025-09-08 15:27:09.067620
 
 """
 
 from typing import Sequence, Union
 
 from alembic import op
-from sqlalchemy import Column, String, Boolean, Integer
-
-from database.model.field_length import NORMAL, LONG
+import sqlalchemy as sa
+from sqlalchemy import String, Column, Boolean, Integer
 
 # revision identifiers, used by Alembic.
-revision: str = "751c3f34323a"
-down_revision: Union[str, None] = "42f747800456"
+revision: str = "586692ca94e4"
+down_revision: Union[str, None] = "1fd9b6a162c4"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
-TAXONOMY_TABLES = [
-    ("industrial_sector", "IndustrialSector"),
-    ("license", "License"),
-    ("news_category", "NewsCategory"),
-    ("publication_type", "PublicationType"),
-    ("research_area", "ResearchArea"),
-    ("scientific_domain", "ScientificDomain"),
+NORMAL = 256
+LONG = 1800
+# These classes already existed as NamedRelation tables prior to this update
+UPGRADE_TAXONOMY_TABLES = [
+    # ("industrial_sector", "IndustrialSector"),
 ]
+
+# These classes were introduced or existed as something other than a NamedRelation
+ADD_TAXONOMY_TABLES = []
 
 
 def upgrade() -> None:
