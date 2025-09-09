@@ -16,6 +16,7 @@ from database.model.ai_resource.industrial_sector import IndustrialSector
 from database.model.ai_resource.scientific_domain import ScientificDomain
 from database.model.news.news_category import NewsCategory
 from database.model.agent.organisation import NumberOfEmployees, Turnover
+from database.model.agent.organisation import OrganisationType
 
 
 def parse_args():
@@ -43,6 +44,7 @@ type_by_name: dict[str, type] = {
     "Scientific Domain": ScientificDomain,
     "Number of Employees": NumberOfEmployees,
     "Turnover": Turnover,
+    "Organisation Type": OrganisationType,
 }
 
 

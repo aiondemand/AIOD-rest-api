@@ -1,5 +1,5 @@
 from datetime import date
-from typing import Optional, Literal
+from typing import Optional
 
 from sqlmodel import Field, Relationship
 
@@ -7,7 +7,6 @@ from database.model.named_relation import Taxonomy, create_taxonomy
 from database.model.agent.agent import AgentBase, Agent
 from database.model.agent.agent_table import AgentTable
 from database.model.agent.contact import Contact
-from database.model.agent.organisation_type import OrganisationType
 from database.model.field_length import NORMAL, LONG
 from database.model.helper_functions import many_to_many_link_factory
 from database.model.relationships import ManyToOne, ManyToMany, OneToOne
@@ -19,6 +18,12 @@ from database.model.serializers import (
 )
 from versioning import Version, VersionedResource, VersionedResourceCollection
 
+
+OrganisationType: type[Taxonomy] = create_taxonomy(
+    class_name="OrganisationType",
+    table_name="organisation_type",
+    plural_name="organisation types",
+)
 
 Turnover: type[Taxonomy] = create_taxonomy(
     class_name="Turnover",
@@ -59,7 +64,7 @@ class Organisation(OrganisationBase, Agent, table=True):  # type: ignore [call-a
     contact_details: Optional[Contact] = Relationship(sa_relationship_kwargs={"uselist": False})
 
     type_identifier: int | None = Field(foreign_key=OrganisationType.__tablename__ + ".identifier")
-    type: Optional[OrganisationType] = Relationship()
+    type: Optional[OrganisationType] = Relationship()  # type: ignore[valid-type]
 
     member: list[AgentTable] = Relationship(
         link_model=many_to_many_link_factory(

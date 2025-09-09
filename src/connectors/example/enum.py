@@ -2,7 +2,6 @@ import pathlib
 
 from connectors.example.enum_fill_connector import EnumConnector
 from database.model.agent.language import Language
-from database.model.agent.organisation_type import OrganisationType
 from database.model.ai_asset.license import License
 from database.model.ai_resource.application_area import ApplicationArea
 from database.model.educational_resource.educational_resource_type import EducationalResourceType
@@ -47,12 +46,6 @@ class EnumConnectorLicense(EnumConnector[License]):  # type: ignore[valid-type]
     def __init__(self):
         json_path = ENUM_PATH / "licenses.json"
         super().__init__(json_path, License)
-
-
-class EnumConnectorOrganisationType(EnumConnector[OrganisationType]):
-    def __init__(self):
-        json_path = ENUM_PATH / "organisation_types.json"
-        super().__init__(json_path, OrganisationType)
 
 
 class EnumConnectorNewsCategory(EnumConnector[NewsCategory]):  # type: ignore[valid-type]

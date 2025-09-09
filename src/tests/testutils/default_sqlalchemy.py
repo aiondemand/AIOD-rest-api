@@ -26,6 +26,7 @@ from database.model.ai_resource.scientific_domain import ScientificDomain
 from database.model.ai_asset.license import License
 from database.model.knowledge_asset.PublicationType import PublicationType
 from database.model.news.news_category import NewsCategory
+from database.model.agent.organisation import OrganisationType
 from tests.testutils.test_resource import RouterTestResource, factory_test_resource
 from tests.testutils.users import bypass_reviewer_publish_everything
 from taxonomies.synchronize_taxonomy import Term
@@ -60,6 +61,10 @@ DEFAULT_NEWS_CATEGORY = [
 ]
 DEFAULT_LICENSE = [
     Term("CC-BY-4.0", "for use in tests", children=[]),
+]
+DEFAULT_ORGANISATION_TYPE = [
+    Term("research institute", "for use in tests", children=[]),
+    Term("association", "for use in tests", children=[]),
 ]
 
 
@@ -115,6 +120,7 @@ def clear_db(request, engine: Engine):
             (License, DEFAULT_LICENSE),
             (PublicationType, DEFAULT_PUBLICATION_TYPE),
             (NewsCategory, DEFAULT_NEWS_CATEGORY),
+            (OrganisationType, DEFAULT_ORGANISATION_TYPE)
         ]:
             for term in terms:
                 session.add(taxonomy(**term._asdict(), official=True))

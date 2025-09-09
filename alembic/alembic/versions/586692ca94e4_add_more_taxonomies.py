@@ -23,6 +23,7 @@ LONG = 1800
 # These classes already existed as NamedRelation tables prior to this update
 UPGRADE_TAXONOMY_TABLES = [
     # ("industrial_sector", "IndustrialSector"),
+    ("organisation_type", "OrganisationType"),
 ]
 
 # These classes were introduced or existed as something other than a NamedRelation
