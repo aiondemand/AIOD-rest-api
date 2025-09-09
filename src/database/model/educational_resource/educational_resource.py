@@ -6,7 +6,6 @@ from database.model.agent.location import Location, LocationORM
 from database.model.ai_resource.resource import AIResource, AIResourceBase
 from database.model.ai_resource.text import TextORM, Text
 from database.model.educational_resource.access_mode import AccessMode
-from database.model.educational_resource.educational_level import EducationalLevel
 from database.model.educational_resource.educational_resource_type import EducationalResourceType
 from database.model.educational_resource.pace import Pace
 from database.model.educational_resource.prerequisite import Prerequisite
@@ -21,7 +20,15 @@ from database.model.serializers import (
     CastDeserializerList,
     FindByNameDeserializerList,
 )
+from database.model.named_relation import create_taxonomy
 from versioning import VersionedResource, Version, VersionedResourceCollection
+
+
+EducationalLevel = create_taxonomy(
+    class_name="EducationalLevel",
+    table_name="educational_level",
+    plural_name="educational levels",
+)
 
 
 class EducationalResourceBase(AIResourceBase):
@@ -61,7 +68,7 @@ class EducationalResource(EducationalResourceBase, AIResource, table=True):  # t
     content: TextORM | None = Relationship(
         sa_relationship_kwargs=dict(foreign_keys="[EducationalResource.content_identifier]")
     )
-    educational_level: list[EducationalLevel] = Relationship(
+    educational_level: list[EducationalLevel] = Relationship(  # type: ignore[valid-type]
         link_model=many_to_many_link_factory(
             table_from="educational_resource",
             table_to=EducationalLevel.__tablename__,

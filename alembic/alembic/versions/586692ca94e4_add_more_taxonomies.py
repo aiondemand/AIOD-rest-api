@@ -27,6 +27,7 @@ UPGRADE_TAXONOMY_TABLES = [
     ("event_mode", "EventMode"),
     ("event_status", "EventStatus"),
     ("language", "Language"),
+    ("educational_level", "EducationalLevel"),
 ]
 
 # These classes were introduced or existed as something other than a NamedRelation
