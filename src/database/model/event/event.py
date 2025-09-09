@@ -7,8 +7,6 @@ from database.model.agent.agent_table import AgentTable
 from database.model.agent.location import LocationORM, Location
 from database.model.ai_resource.resource import AIResourceBase, AIResource
 from database.model.ai_resource.text import TextORM, Text
-from database.model.event.event_mode import EventMode
-from database.model.event.event_status import EventStatus
 from database.model.field_length import NORMAL, LONG, IDENTIFIER_LENGTH
 from database.model.helper_functions import many_to_many_link_factory
 from database.model.relationships import ManyToMany, ManyToOne, OneToMany, OneToOne
@@ -19,7 +17,21 @@ from database.model.serializers import (
     CastDeserializerList,
     FindByIdentifierDeserializerList,
 )
+from database.model.named_relation import create_taxonomy
 from versioning import VersionedResource, Version, VersionedResourceCollection
+
+
+EventMode = create_taxonomy(
+    class_name="EventMode",
+    table_name="event_mode",
+    plural_name="event modes",
+)
+
+EventStatus = create_taxonomy(
+    class_name="EventStatus",
+    table_name="event status",
+    plural_name="event statuses",
+)
 
 
 class EventBase(AIResourceBase):
@@ -79,9 +91,9 @@ class Event(EventBase, AIResource, table=True):  # type: ignore [call-arg]
     )
     organiser: Optional[AgentTable] = Relationship()
     status_identifier: int | None = Field(foreign_key=EventStatus.__tablename__ + ".identifier")
-    status: Optional[EventStatus] = Relationship()
+    status: Optional[EventStatus] = Relationship()  # type: ignore[valid-type]
     mode_identifier: int | None = Field(foreign_key=EventMode.__tablename__ + ".identifier")
-    mode: Optional[EventMode] = Relationship()
+    mode: Optional[EventMode] = Relationship()  # type: ignore[valid-type]
 
     class RelationshipConfig(AIResource.RelationshipConfig):
         content: Optional[Text] = OneToOne(

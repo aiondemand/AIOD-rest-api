@@ -27,10 +27,10 @@ from database.model.ai_asset.license import License
 from database.model.knowledge_asset.PublicationType import PublicationType
 from database.model.news.news_category import NewsCategory
 from database.model.agent.organisation import OrganisationType
+from database.model.event.event import EventMode, EventStatus
 from tests.testutils.test_resource import RouterTestResource, factory_test_resource
 from tests.testutils.users import bypass_reviewer_publish_everything
 from taxonomies.synchronize_taxonomy import Term
-from versioning import Version
 
 DEFAULT_TEST_RESOURCE_IDENTIFIER = "test_KwfnsoJOAejyRdv2PaXUPAbW"
 DEFAULT_INDUSTRIAL_SECTORS = [
@@ -66,7 +66,12 @@ DEFAULT_ORGANISATION_TYPE = [
     Term("research institute", "for use in tests", children=[]),
     Term("association", "for use in tests", children=[]),
 ]
-
+DEFAULT_EVENT_MODE = [
+    Term("offline", "for use in tests", children=[]),
+]
+DEFAULT_EVENT_STATUS = [
+   Term("scheduled", "for use in tests", children=[]),
+]
 
 @pytest.fixture(scope="session")
 def engine() -> Iterator[Engine]:
@@ -120,7 +125,9 @@ def clear_db(request, engine: Engine):
             (License, DEFAULT_LICENSE),
             (PublicationType, DEFAULT_PUBLICATION_TYPE),
             (NewsCategory, DEFAULT_NEWS_CATEGORY),
-            (OrganisationType, DEFAULT_ORGANISATION_TYPE)
+            (OrganisationType, DEFAULT_ORGANISATION_TYPE),
+            (EventMode, DEFAULT_EVENT_MODE),
+            (EventStatus, DEFAULT_EVENT_STATUS),
         ]:
             for term in terms:
                 session.add(taxonomy(**term._asdict(), official=True))

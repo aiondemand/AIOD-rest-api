@@ -17,6 +17,7 @@ from database.model.ai_resource.scientific_domain import ScientificDomain
 from database.model.news.news_category import NewsCategory
 from database.model.agent.organisation import NumberOfEmployees, Turnover
 from database.model.agent.organisation import OrganisationType
+from database.model.event.event import EventStatus, EventMode
 
 
 def parse_args():
@@ -45,6 +46,8 @@ type_by_name: dict[str, type] = {
     "Number of Employees": NumberOfEmployees,
     "Turnover": Turnover,
     "Organisation Type": OrganisationType,
+    "Event Status": EventStatus,
+    "Event Mode": EventMode,
 }
 
 

@@ -24,18 +24,6 @@ class EnumConnectorEducationalResourceType(EnumConnector[EducationalResourceType
         super().__init__(json_path, EducationalResourceType)
 
 
-class EnumConnectorEventMode(EnumConnector[EventMode]):
-    def __init__(self):
-        json_path = ENUM_PATH / "event_modes.json"
-        super().__init__(json_path, EventMode)
-
-
-class EnumConnectorEventStatus(EnumConnector[EventStatus]):
-    def __init__(self):
-        json_path = ENUM_PATH / "event_status.json"
-        super().__init__(json_path, EventStatus)
-
-
 class EnumConnectorLanguage(EnumConnector[Language]):
     def __init__(self):
         json_path = ENUM_PATH / "languages.json"

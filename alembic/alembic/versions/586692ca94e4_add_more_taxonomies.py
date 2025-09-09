@@ -24,6 +24,8 @@ LONG = 1800
 UPGRADE_TAXONOMY_TABLES = [
     # ("industrial_sector", "IndustrialSector"),
     ("organisation_type", "OrganisationType"),
+    ("event_mode", "EventMode"),
+    ("event_status", "EventStatus"),
 ]
 
 # These classes were introduced or existed as something other than a NamedRelation
