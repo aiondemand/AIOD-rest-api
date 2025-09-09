@@ -36,6 +36,15 @@ assets_with_media = [
     "team",
 ]
 
+assets_with_distributions = [
+    "case_study",
+    "dataset",
+    "experiment",
+    "computational_asset",
+    "ml_model",
+    "publication",
+]
+
 
 def upgrade() -> None:
     for asset_type in assets_with_media:
@@ -51,6 +60,12 @@ def upgrade() -> None:
             column=sa.Column("binary_blob", sa.LargeBinary(), nullable=True),
         )
 
+    for asset_type in assets_with_distributions:
+        op.add_column(
+            table_name=f"distribution_{asset_type}",
+            column=sa.Column("binary_blob", sa.LargeBinary(), nullable=True),
+        )
+
 
 def downgrade() -> None:
     for asset_type in assets_with_media:
@@ -62,3 +77,6 @@ def downgrade() -> None:
         )
 
         op.drop_column(f"media_{asset_type}", "binary_blob")
+
+    for asset_type in assets_with_distributions:
+        op.drop_column(f"distribution_{asset_type}", "binary_blob")

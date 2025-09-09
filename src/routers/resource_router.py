@@ -871,12 +871,14 @@ def _raise_error_on_invalid_schema(possible_schemas, schema):
 
 
 def _raise_if_contains_binary_blob(item):
-    if not hasattr(item, "media") or not (media := getattr(item, "media")):
-        return
+    distributions = []
+    if hasattr(item, "distribution") and (distribution := getattr(item, "distribution")):
+        distributions += distribution
+    if hasattr(item, "media") and (media := getattr(item, "media")):
+        distributions += media
 
-    for item in media:
-        if isinstance(item, Distribution) and item.binary_blob:
-            raise HTTPException(
-                status_code=HTTPStatus.BAD_REQUEST,
-                detail="Setting `binary_blob` is forbidden. Consider using `content_url` instead.",
-            )
+    if any((isinstance(item, Distribution) and item.binary_blob) for item in distributions):
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST,
+            detail="Setting `binary_blob` is forbidden. Consider using `content_url` instead.",
+        )
