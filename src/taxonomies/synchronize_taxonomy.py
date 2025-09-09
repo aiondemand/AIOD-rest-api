@@ -21,6 +21,10 @@ from database.model.agent.organisation import OrganisationType
 from database.model.event.event import EventStatus, EventMode
 from database.model.agent.language import Language
 from database.model.educational_resource.educational_resource import EducationalLevel
+from database.model.educational_resource.educational_resource import (
+    LearningMode,
+    EducationalCompetency,
+)
 
 
 def parse_args():
@@ -53,6 +57,8 @@ type_by_name: dict[str, type] = {
     "Event Mode": EventMode,
     "Language": Language,
     "Educational Level": EducationalLevel,
+    "Learning Mode": LearningMode,
+    "Educational Competency": EducationalCompetency,
 }
 
 

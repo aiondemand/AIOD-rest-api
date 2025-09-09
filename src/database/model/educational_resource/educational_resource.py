@@ -36,6 +36,12 @@ EducationalCompetency = create_taxonomy(
     plural_name="educational competencies",
 )
 
+LearningMode = create_taxonomy(
+    class_name="LearningMode",
+    table_name="learning_mode",
+    plural_name="learning modes",
+)
+
 
 class EducationalResourceBase(AIResourceBase):
     time_required: str | None = Field(
