@@ -31,7 +31,9 @@ UPGRADE_TAXONOMY_TABLES = [
 ]
 
 # These classes were introduced or existed as something other than a NamedRelation
-ADD_TAXONOMY_TABLES = []
+ADD_TAXONOMY_TABLES = [
+    "educational_competency",
+]
 
 
 def upgrade() -> None:

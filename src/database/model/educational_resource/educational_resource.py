@@ -30,6 +30,12 @@ EducationalLevel = create_taxonomy(
     plural_name="educational levels",
 )
 
+EducationalCompetency = create_taxonomy(
+    class_name="EducationalCompetency",
+    table_name="educational_competency",
+    plural_name="educational competencies",
+)
+
 
 class EducationalResourceBase(AIResourceBase):
     time_required: str | None = Field(
