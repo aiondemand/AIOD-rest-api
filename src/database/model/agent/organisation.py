@@ -25,6 +25,12 @@ OrganisationType: type[Taxonomy] = create_taxonomy(
     plural_name="organisation types",
 )
 
+OrganisationActivityType: type[Taxonomy] = create_taxonomy(
+    class_name="OrganisationActivityType",
+    table_name="organisation_activity_type",
+    plural_name="organisation activity types",
+)
+
 Turnover: type[Taxonomy] = create_taxonomy(
     class_name="Turnover",
     table_name="turnover",

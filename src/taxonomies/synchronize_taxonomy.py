@@ -16,8 +16,12 @@ from database.model.ai_asset.license import License
 from database.model.ai_resource.industrial_sector import IndustrialSector
 from database.model.ai_resource.scientific_domain import ScientificDomain
 from database.model.news.news_category import NewsCategory
-from database.model.agent.organisation import NumberOfEmployees, Turnover
-from database.model.agent.organisation import OrganisationType
+from database.model.agent.organisation import (
+    NumberOfEmployees,
+    Turnover,
+    OrganisationType,
+    OrganisationActivityType,
+)
 from database.model.event.event import EventStatus, EventMode
 from database.model.agent.language import Language
 from database.model.educational_resource.educational_resource import EducationalLevel
@@ -59,6 +63,7 @@ type_by_name: dict[str, type] = {
     "Educational Level": EducationalLevel,
     "Learning Mode": LearningMode,
     "Educational Competency": EducationalCompetency,
+    "Organisation Activity Type": OrganisationActivityType,
 }
 
 

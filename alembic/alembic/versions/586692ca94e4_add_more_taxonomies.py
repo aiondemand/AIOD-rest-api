@@ -34,6 +34,7 @@ UPGRADE_TAXONOMY_TABLES = [
 ADD_TAXONOMY_TABLES = [
     "educational_competency",
     "learing_mode",
+    "organisation_activity_type",
 ]
 
 
