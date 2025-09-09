@@ -56,7 +56,7 @@ class Person(PersonBase, Agent, table=True):  # type: ignore [call-arg]
             "person", Expertise.__tablename__, from_identifier_type=str
         )
     )
-    languages: list[Language] = Relationship(
+    languages: list[Language] = Relationship(  # type: ignore[valid-type]
         link_model=many_to_many_link_factory(
             "person", Language.__tablename__, from_identifier_type=str
         )

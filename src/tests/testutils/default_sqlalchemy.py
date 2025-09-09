@@ -28,6 +28,7 @@ from database.model.knowledge_asset.PublicationType import PublicationType
 from database.model.news.news_category import NewsCategory
 from database.model.agent.organisation import OrganisationType
 from database.model.event.event import EventMode, EventStatus
+from database.model.agent.language import Language
 from tests.testutils.test_resource import RouterTestResource, factory_test_resource
 from tests.testutils.users import bypass_reviewer_publish_everything
 from taxonomies.synchronize_taxonomy import Term
@@ -71,6 +72,10 @@ DEFAULT_EVENT_MODE = [
 ]
 DEFAULT_EVENT_STATUS = [
    Term("scheduled", "for use in tests", children=[]),
+]
+DEFAULT_LANGUAGES = [
+    Term("nld","for use in tests", children=[]),
+    Term("eng","for use in tests", children=[]),
 ]
 
 @pytest.fixture(scope="session")
@@ -128,6 +133,7 @@ def clear_db(request, engine: Engine):
             (OrganisationType, DEFAULT_ORGANISATION_TYPE),
             (EventMode, DEFAULT_EVENT_MODE),
             (EventStatus, DEFAULT_EVENT_STATUS),
+            (Language, DEFAULT_LANGUAGES),
         ]:
             for term in terms:
                 session.add(taxonomy(**term._asdict(), official=True))

@@ -1,6 +1,7 @@
-from database.model.named_relation import NamedRelation
+from database.model.named_relation import create_taxonomy
 
-
-class Language(NamedRelation, table=True):  # type: ignore [call-arg]
-    __tablename__ = "language"
-    __plural__ = "languages"
+Language = create_taxonomy(
+    class_name="Language",
+    table_name="language",
+    plural_name="languages",
+)

@@ -68,7 +68,7 @@ class EducationalResource(EducationalResourceBase, AIResource, table=True):  # t
             from_identifier_type=str,
         )
     )
-    in_language: list[Language] = Relationship(
+    in_language: list[Language] = Relationship(  # type: ignore[valid-type]
         link_model=many_to_many_link_factory(
             table_from="educational_resource",
             table_to=Language.__tablename__,

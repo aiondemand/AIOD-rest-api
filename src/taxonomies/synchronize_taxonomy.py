@@ -1,7 +1,8 @@
+from __future__ import annotations
 import json
 from argparse import ArgumentParser
 from pathlib import Path
-from typing import NamedTuple, TypeVar, cast, Self
+from typing import NamedTuple
 import logging
 
 from sqlalchemy import select
@@ -18,6 +19,7 @@ from database.model.news.news_category import NewsCategory
 from database.model.agent.organisation import NumberOfEmployees, Turnover
 from database.model.agent.organisation import OrganisationType
 from database.model.event.event import EventStatus, EventMode
+from database.model.agent.language import Language
 
 
 def parse_args():
@@ -33,7 +35,7 @@ def parse_args():
 class Term(NamedTuple):
     name: str
     definition: str
-    children: list[Self]  # type: ignore[valid-type]
+    children: list[Term]
 
 
 type_by_name: dict[str, type] = {
@@ -48,6 +50,7 @@ type_by_name: dict[str, type] = {
     "Organisation Type": OrganisationType,
     "Event Status": EventStatus,
     "Event Mode": EventMode,
+    "Language": Language,
 }
 
 
