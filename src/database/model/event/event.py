@@ -29,7 +29,7 @@ EventMode = create_taxonomy(
 
 EventStatus = create_taxonomy(
     class_name="EventStatus",
-    table_name="event status",
+    table_name="event_status",
     plural_name="event statuses",
 )
 

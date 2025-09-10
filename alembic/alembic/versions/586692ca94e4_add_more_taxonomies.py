@@ -40,6 +40,10 @@ ADD_TAXONOMY_TABLES = [
 
 def upgrade() -> None:
     op.rename_table("edu_educational_level", "educational_level")
+    op.rename_table(
+        "educational_resource_edu_educational_level_link",
+        "educational_resource_educational_level_link",
+    )
 
     description_column = Column("definition", String(LONG), nullable=True)
     official_column = Column("official", Boolean(), nullable=True, default=False)
