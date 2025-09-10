@@ -30,6 +30,7 @@ from dependencies.filtering import ResourceFilters, ResourceFiltersParams
 from dependencies.pagination import Pagination, PaginationParams
 from error_handling import as_http_exception
 from database.model.ai_asset.distribution import Distribution
+from routers.helper_functions import get_asset_type_by_abbreviation
 from versioning import Version, VersionedResource
 
 from http import HTTPStatus
@@ -418,12 +419,15 @@ class ResourceRouter(abc.ABC):
 
     def _raise_if_identifier_is_wrong_type(self, identifier: str):
         if not identifier.startswith(self.resource_class.__abbreviation__):
+            hint = ""
+            if other_type := get_asset_type_by_abbreviation().get(identifier.split("_")[0]):
+                hint = f" Did you mean to request a {other_type.__tablename__!r} instead?"
             raise HTTPException(
                 status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
                 detail=(
                     f"{identifier!r} is not a valid {self.resource_name} identifier, "
                     f"valid {self.resource_name} identifiers start with "
-                    f"{self.resource_class.__abbreviation__!r}."
+                    f"{self.resource_class.__abbreviation__!r}." + hint
                 ),
             )
 
