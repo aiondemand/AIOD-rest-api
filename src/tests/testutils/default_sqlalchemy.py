@@ -82,6 +82,9 @@ DEFAULT_EDUCATIONAL_LEVEL = [
     Term("university","for use in tests", children=[]),
     Term("secondary school","for use in tests", children=[]),
 ]
+DEFAULT_COUNTRY = [
+    Term("NLD", "for use in tests", children=[])
+]
 
 @pytest.fixture(scope="session")
 def engine() -> Iterator[Engine]:

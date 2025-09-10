@@ -29,6 +29,7 @@ from database.model.educational_resource.educational_resource import (
     LearningMode,
     EducationalCompetency,
 )
+from database.model.agent.location import Country
 
 
 def parse_args():
@@ -64,6 +65,7 @@ type_by_name: dict[str, type] = {
     "Learning Mode": LearningMode,
     "Educational Competency": EducationalCompetency,
     "Organisation Activity Type": OrganisationActivityType,
+    "Country": Country,
 }
 
 

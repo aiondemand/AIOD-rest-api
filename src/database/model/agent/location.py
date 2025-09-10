@@ -6,6 +6,7 @@ from sqlmodel import SQLModel, Field, Relationship
 from database.model.field_length import NORMAL, SHORT, IDENTIFIER_LENGTH
 from database.model.relationships import OneToOne
 from database.model.serializers import CastDeserializer
+from database.model.named_relation import create_taxonomy
 
 
 class GeoBase(SQLModel):
@@ -37,6 +38,13 @@ class GeoORM(GeoBase, table=True):  # type: ignore [call-arg]
 
 class Geo(GeoBase):
     """The geographic coordinates of a physical location"""
+
+
+Country = create_taxonomy(
+    class_name="Country",
+    table_name="country",
+    plural_name="countries",
+)
 
 
 class AddressBase(SQLModel):
