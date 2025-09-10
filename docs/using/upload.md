@@ -41,31 +41,31 @@ of the endpoints, including their exact addresses and schemas used.
 The sections below describe the process in more detail.
 
 ### Registering the Asset
-You upload your assets to `/ASSET/v1` using a `POST` request that contains
+You upload your assets to `/ASSET` using a `POST` request that contains
 in the JSON body all the required data for the asset type. A successful response
 should look something like this:
 
 ```json
 {
-  "identifier": 3
+  "identifier": "case_n8DhfFgMYv4beBnVurHa13ZS"
 }
 ```
 
 Take a note of the identifier assigned to the asset, as you will need it to request a review in the next step.
 The asset is now in draft mode, which means that other users cannot see it but you can, and you may still edit it.
-To edit the asset, use the `PUT` endpoints for `/ASSET/v1`.
+To edit the asset, use the `PUT` endpoints for `/ASSET`.
 
 ### Requesting a Review
 When you want to publish the asset, you can submit it for review. You
-can do this by making a `POST` request to the `/ASSET/submit/v1/IDENTIFIER` endpoint.
-Here you need to replace `IDENTIFIER` with the identifier of the asset you retrieved
-in the last step.
-You may include a comment to the reviewer of up to 256 characters in the body of the
+can do this by making a `POST` request to the `/submissions` endpoint.
+You are required to include the identifier in the request body,
+and may include a comment to the reviewer of up to 256 characters in the body of the
 `POST` request, this should generally not be necessary but may be useful to provide
 some clarification:
 
 ```json
 {
+  "asset_identifier": "case_n8DhfFgMYv4beBnVurHa13ZS",
   "comment": "Clarification the reviewer should be aware of."
 }
 ```
@@ -92,10 +92,10 @@ in their review.
 
 You can check that status of your pending submission in two ways.
 First, you can request the status for that review specifically using the
-`/submissions/v1/IDENTIFIER` endpoint, where `IDENTIFIER` needs to replaced with the
+`/submissions/IDENTIFIER` endpoint, where `IDENTIFIER` needs to replaced with the
 identifier of the _submission_ (not the asset!).
 For example, if the submission identifier we received was '1', we can query
-`submissions/v1/1` and retrieve its status which would look something like:
+`submissions/1` and retrieve its status which would look something like:
 ```json
 {
   "comment": "Clarification the reviewer should be aware of.",
@@ -103,6 +103,7 @@ For example, if the submission identifier we received was '1', we can query
   "request_date": "2025-03-20T09:09:54",
   "aiod_entry_identifier": 212,
   "asset_type": "case_study",
+  "asset_identifier": "case_n8DhfFgMYv4beBnVurHa13ZS",
   "reviews": [],
   "asset": {
     ...
@@ -113,7 +114,7 @@ No reviews have yet been performed on the submission, as indicated by the empty 
 of reviews (`"reviews": []`).
 
 Alternatively, you can request an overview of all your submissions with a `GET` request
-to the `submissions/v1` endpoint, which will result in a response such as:
+to the `submissions` endpoint, which will result in a response such as:
 ```json
 [
   {
@@ -121,7 +122,8 @@ to the `submissions/v1` endpoint, which will result in a response such as:
     "identifier": 1,
     "request_date": "2025-03-20T09:09:54",
     "aiod_entry_identifier": 212,
-    "asset_type": "case_study"
+    "asset_type": "case_study",
+    "asset_identifier": "case_n8DhfFgMYv4beBnVurHa13ZS",
   }
 ]
 ```
@@ -129,7 +131,7 @@ This endpoint fetches and returns minimal information of the submission, which m
 more lightweight for creating an overview. However, it does not return the status of the
 submissions directly. Instead, you may use query parameters to request only a subset of
 the submissions, such as those that still require a review (i.e., pending submissions)
-by querying `submissions/v1/?mode=pending`.
+by querying `submissions?mode=pending`.
 Please refer to the endpoint documentation for other options.
 
 Users are only ever able to view information about their own submissions.
@@ -141,14 +143,14 @@ is likely revealing).
 #### Retracting a Submission
 Sometimes you may want to retract a submitted asset before a reviewer manages to review it.
 For example, to correct a mistake in the original submission. You can retract an asset from
-review at any time by doing a `POST` request to the `/submissions/retract/v1/SUBMISSION_IDENTIFIER`
+review at any time by doing a `POST` request to the `/submissions/retract/SUBMISSION_IDENTIFIER`
 endpoint.
 
 A retracted submission is treated the same as a rejected submission. The asset is put back
-into draft status and will not be reviewed until the you submit a new review request.
+into draft status and will not be reviewed until you submit a new review request.
 
 ### A Rejected Submission
-You may find that your submission gets rejected. In that case, the `submissions/v1/IDENTIFIER`
+You may find that your submission gets rejected. In that case, the `submissions/IDENTIFIER`
 endpoint will provide you with the reviewer feedback, e.g.:
 ```json
 {
@@ -157,6 +159,7 @@ endpoint will provide you with the reviewer feedback, e.g.:
   "request_date": "2025-03-20T09:09:54",
   "aiod_entry_identifier": 212,
   "asset_type": "case_study",
+  "asset_identifier": "case_n8DhfFgMYv4beBnVurHa13ZS",
   "reviews": [
     {
       "comment": "Several critical fields have incomplete information. Please improve the description, and add a house number to the address.",
@@ -170,7 +173,7 @@ endpoint will provide you with the reviewer feedback, e.g.:
 }
 ```
 You'll find reviewer comments under "reviews".
-You may subsequently edit your asset using `PUT` requests to `/ASSET/v1` to address
+You may subsequently edit your asset using `PUT` requests to `/ASSET` to address
 the reviewer feedback, and then request a new review following the regular submission
 process.
 
@@ -182,17 +185,17 @@ The only restriction is that a reviewer cannot review their own submission.
 
 For reviewers, the main endpoints of interest are:
 
-  * `/submissions/v1` to fetch identifiers of submissions which require a review.
+  * `/submissions` to fetch identifiers of submissions which require a review.
 The `?mode=oldest` parameter can be used to fetch the submission which has been waiting for a review the longest.
-  * `/submissions/v1/{identifier}` to get more detailed information on the submission,
+  * `/submissions/{identifier}` to get more detailed information on the submission,
 in particular this will provide also the asset body to review.
   * `/reviews/v1` the endpoint through which reviews can be made using `POST` requests.
 
 Given a submission identifier (obtained from either `/submissions` endpoint mentioned above),
-the review can post a review to `/reviews/v1`. This requires the user to make a decision
+the review can post a review to `/reviews`. This requires the user to make a decision
 to accept or reject the submission, and optionally leave a comment. When rejecting an
 asset, a comment is strongly encouraged, otherwise the user will not know how to improve
-their submission. An example body of the `POST` request to `/reviews/v1` could look like:
+their submission. An example body of the `POST` request to `/reviews` could look like:
 ```json
 {
   "comment": "Several critical fields have incomplete information. Please improve the description, and add a house number to the address.",
