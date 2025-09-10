@@ -19,9 +19,15 @@ def test_get_happy_path(client_test_resource: TestClient, engine_test_resource_f
 
 
 def test_not_found(client_test_resource: TestClient, engine_test_resource_filled: str):
-    response = client_test_resource.get("/test_resources/99")
+    response = client_test_resource.get("/test_resources/test_99")
     assert response.status_code == HTTPStatus.NOT_FOUND, response.json()
-    assert response.json()["detail"] == "Test_resource '99' not found in the database."
+    assert response.json()["detail"] == "Test_resource 'test_99' not found in the database."
+
+
+def test_not_valid(client_test_resource: TestClient, engine_test_resource_filled: str):
+    response = client_test_resource.get("/test_resources/99")
+    assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY, response.json()
+    assert "is not a valid" in response.json()["detail"]
 
 
 def test_get_draft_unauthenticated_not_allowed(client_test_resource: TestClient):

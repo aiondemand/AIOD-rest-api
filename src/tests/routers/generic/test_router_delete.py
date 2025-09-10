@@ -64,27 +64,26 @@ def test_delete_requires_admin(
         assert try_delete().status_code == HTTPStatus.OK
 
 
-@pytest.mark.parametrize("identifier", [3, 4])
 def test_non_existent(
     client_test_resource: TestClient,
-    identifier: int,
     mocked_privileged_token: Mock,
 ):
-    with DbSession() as session:
-        session.add_all(
-            [
-                factory_test_resource(title="my_test_resource", status=EntryStatus.DRAFT,
-                                      platform="example", platform_resource_identifier=1),
-                factory_test_resource(title="second_test_resource", status=EntryStatus.DRAFT,
-                                      platform="example", platform_resource_identifier=2),
-            ]
-        )
-        session.commit()
     response = client_test_resource.delete(
-        f"/test_resources/{identifier}", headers={"Authorization": "Fake token"}
+        f"/test_resources/test_44", headers={"Authorization": "Fake token"}
     )
-    assert response.status_code == 404, response.json()
-    assert response.json()["detail"] == f"Test_resource '{identifier}' not found in the database."
+    assert response.status_code == HTTPStatus.NOT_FOUND, response.json()
+    assert response.json()["detail"] == f"Test_resource 'test_44' not found in the database."
+
+
+def test_not_valid(
+        client_test_resource: TestClient,
+        mocked_privileged_token: Mock,
+):
+    response = client_test_resource.delete(
+        f"/test_resources/data_44", headers={"Authorization": "Fake token"}
+    )
+    assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY, response.json()
+    assert "is not a valid" in response.json()["detail"]
 
 
 def test_add_after_deletion(

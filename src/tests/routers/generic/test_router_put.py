@@ -1,3 +1,4 @@
+from http import HTTPStatus
 from unittest.mock import Mock
 
 import pytest
@@ -37,13 +38,28 @@ def test_non_existent(
     mocked_privileged_token: Mock,
 ):
     response = client_test_resource.put(
-        "/test_resources/2",
+        "/test_resources/test_2",
         json={"title": "new_title", "platform": "other", "platform_resource_identifier": "2"},
         headers={"Authorization": "Fake token"},
     )
     assert response.status_code == 404, response.json()
     response_json = response.json()
-    assert response_json["detail"] == "Test_resource '2' not found in the database."
+    assert response_json["detail"] == "Test_resource 'test_2' not found in the database."
+
+
+def test_wrong_identifier_type(
+        client_test_resource: TestClient,
+        engine_test_resource_filled: Engine,
+        mocked_privileged_token: Mock,
+):
+    response = client_test_resource.put(
+        "/test_resources/data_2",
+        json={"title": "new_title", "platform": "other", "platform_resource_identifier": "2"},
+        headers={"Authorization": "Fake token"},
+    )
+    assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY, response.json()
+    response_json = response.json()
+    assert "is not a valid" in response_json["detail"]
 
 
 def test_too_long_name(

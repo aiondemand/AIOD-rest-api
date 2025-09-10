@@ -407,6 +407,7 @@ class ResourceRouter(abc.ABC):
             schema: self._possible_schemas_type = "aiod",  # type: ignore
             user: KeycloakUser | None = Depends(get_user_or_none),
         ):
+            self._raise_if_identifier_is_wrong_type(identifier)
             resource = self.get_resource(
                 identifier=identifier, schema=schema, user=user, platform=None
             )
@@ -414,6 +415,17 @@ class ResourceRouter(abc.ABC):
             return resource
 
         return get_resource
+
+    def _raise_if_identifier_is_wrong_type(self, identifier: str):
+        if not identifier.startswith(self.resource_class.__abbreviation__):
+            raise HTTPException(
+                status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
+                detail=(
+                    f"{identifier!r} is not a valid {self.resource_name} identifier, "
+                    f"valid {self.resource_name} identifiers start with "
+                    f"{self.resource_class.__abbreviation__!r}."
+                ),
+            )
 
     def get_platform_resource_func(self):
         """
@@ -536,6 +548,7 @@ class ResourceRouter(abc.ABC):
             resource_create_instance: clz_create,  # type: ignore
             user: KeycloakUser = Depends(get_user_or_raise),
         ):
+            self._raise_if_identifier_is_wrong_type(identifier)
             with DbSession() as session:
                 try:
                     resource: Any = self._retrieve_resource(session, identifier)
@@ -587,6 +600,7 @@ class ResourceRouter(abc.ABC):
             identifier: str,
             user: KeycloakUser = Depends(get_user_or_raise),
         ):
+            self._raise_if_identifier_is_wrong_type(identifier)
             with DbSession() as session:
                 try:
                     # Raise error if it does not exist
@@ -622,6 +636,7 @@ class ResourceRouter(abc.ABC):
             submission: SubmissionCreate | None = None,
             user: KeycloakUser = Depends(get_user_or_raise),
         ):
+            self._raise_if_identifier_is_wrong_type(identifier)
             with DbSession() as session:
                 resource = self._retrieve_resource(identifier=identifier, session=session)  # type: ignore
 
