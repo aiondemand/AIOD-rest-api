@@ -39,16 +39,17 @@ ADD_TAXONOMY_TABLES = [
 
 
 def upgrade() -> None:
+    op.rename_table("edu_educational_level", "educational_level")
+
     description_column = Column("definition", String(LONG), nullable=True)
     official_column = Column("official", Boolean(), nullable=True, default=False)
     parent_id = Column("parent_id", Integer(), nullable=True)
 
-    op.rename_table("edu_educational_level", "educational_level")
     for table, class_name in UPGRADE_TAXONOMY_TABLES:
         for column in [description_column, official_column, parent_id]:
             op.add_column(table_name=table, column=column)
-
         op.execute(f"ALTER TABLE {table} DROP CONSTRAINT {class_name}_name_lowercase")
+
     for table_name in ADD_TAXONOMY_TABLES:
         op.create_table(
             table_name,
@@ -68,6 +69,8 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
+    op.rename_table("educational_level", "edu_educational_level")
+
     for table, _ in UPGRADE_TAXONOMY_TABLES:
         op.drop_column(table_name=table, column_name="definition")
         op.drop_column(table_name=table, column_name="official")
@@ -77,5 +80,6 @@ def downgrade() -> None:
             type_=String(length=NORMAL),
             existing_nullable=False,
         )
+
     for table in ADD_TAXONOMY_TABLES:
         op.drop_table(table)
