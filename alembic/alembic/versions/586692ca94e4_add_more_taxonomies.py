@@ -22,7 +22,6 @@ NORMAL = 256
 LONG = 1800
 # These classes already existed as NamedRelation tables prior to this update
 UPGRADE_TAXONOMY_TABLES = [
-    # ("industrial_sector", "IndustrialSector"),
     ("organisation_type", "OrganisationType"),
     ("event_mode", "EventMode"),
     ("event_status", "EventStatus"),
@@ -43,15 +42,31 @@ def upgrade() -> None:
     description_column = Column("definition", String(LONG), nullable=True)
     official_column = Column("official", Boolean(), nullable=True, default=False)
     parent_id = Column("parent_id", Integer(), nullable=True)
-    for table, class_name in TAXONOMY_TABLES:
+    for table, class_name in UPGRADE_TAXONOMY_TABLES:
         for column in [description_column, official_column, parent_id]:
             op.add_column(table_name=table, column=column)
 
         op.execute(f"ALTER TABLE {table} DROP CONSTRAINT {class_name}_name_lowercase")
+    for table_name in ADD_TAXONOMY_TABLES:
+        op.create_table(
+            table_name,
+            sa.Column(
+                "identifier", sa.Integer, primary_key=True, autoincrement=True, nullable=False
+            ),
+            sa.Column("name", sa.String(NORMAL), nullable=True),
+            sa.Column("definition", sa.String(LONG), nullable=True),
+            sa.Column("official", sa.Boolean, nullable=False),
+            sa.Column("parent_id", sa.Integer, nullable=True),
+            sa.UniqueConstraint("name", name=f"ix_{table_name}_name"),
+            sa.ForeignKeyConstraint(
+                ["parent_id"], [f"{table_name}.identifier"], name=f"{table_name}_ibfk_1"
+            ),
+        )
+        op.create_index("parent_id", table_name, ["parent_id"])
 
 
 def downgrade() -> None:
-    for table, _ in TAXONOMY_TABLES:
+    for table, _ in UPGRADE_TAXONOMY_TABLES:
         op.drop_column(table_name=table, column_name="definition")
         op.drop_column(table_name=table, column_name="official")
         op.alter_column(
@@ -60,3 +75,5 @@ def downgrade() -> None:
             type_=String(length=NORMAL),
             existing_nullable=False,
         )
+    for table in ADD_TAXONOMY_TABLES:
+        op.drop_table(table)
