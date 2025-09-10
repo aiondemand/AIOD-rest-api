@@ -32,7 +32,7 @@ UPGRADE_TAXONOMY_TABLES = [
 # These classes were introduced or existed as something other than a NamedRelation
 ADD_TAXONOMY_TABLES = [
     "educational_competency",
-    "learing_mode",
+    "learning_mode",
     "organisation_activity_type",
     "country",
 ]
@@ -42,6 +42,8 @@ def upgrade() -> None:
     description_column = Column("definition", String(LONG), nullable=True)
     official_column = Column("official", Boolean(), nullable=True, default=False)
     parent_id = Column("parent_id", Integer(), nullable=True)
+
+    op.rename_table("edu_educational_level", "educational_level")
     for table, class_name in UPGRADE_TAXONOMY_TABLES:
         for column in [description_column, official_column, parent_id]:
             op.add_column(table_name=table, column=column)
