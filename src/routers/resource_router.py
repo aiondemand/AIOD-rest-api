@@ -24,7 +24,7 @@ from database.model.concept.concept import AIoDConcept
 from database.model.platform.platform import Platform
 from database.model.platform.platform_names import PlatformName
 from database.model.serializers import deserialize_resource_relationships
-from database.review import Submission, SubmissionCreate
+from database.review import Submission, SubmissionCreateV2
 from database.session import DbSession
 from dependencies.filtering import ResourceFilters, ResourceFiltersParams
 from dependencies.pagination import Pagination, PaginationParams
@@ -132,14 +132,19 @@ class ResourceRouter(abc.ABC):
             **default_kwargs,
         )
 
-        router.add_api_route(
-            path=f"/{self.resource_name_plural}/submit/{{identifier}}",
-            methods={"POST"},
-            endpoint=self.get_submit_func(),
-            name=self.resource_name,
-            description=f"Submit a {self.resource_name} for review.",
-            **default_kwargs,
-        )
+        if version == Version.V2:
+            router.add_api_route(
+                path=f"/{self.resource_name_plural}/submit/{{identifier}}",
+                methods={"POST"},
+                endpoint=self.get_submit_func(),
+                name=self.resource_name,
+                description=(
+                    "DEPRECATED: Use `POST /submissions` instead. <br>"
+                    f"Submit a {self.resource_name} for review."
+                ),
+                deprecated=True,
+                **default_kwargs,
+            )
 
         router.add_api_route(
             path=f"/{self.resource_name_plural}",
@@ -619,7 +624,7 @@ class ResourceRouter(abc.ABC):
 
         def submit_resource(
             identifier: str,
-            submission: SubmissionCreate | None = None,
+            submission: SubmissionCreateV2 | None = None,
             user: KeycloakUser = Depends(get_user_or_raise),
         ):
             with DbSession() as session:
@@ -643,6 +648,7 @@ class ResourceRouter(abc.ABC):
                     aiod_entry_identifier=resource.aiod_entry.identifier,
                     comment=submission.comment if submission else "",
                     asset_type=self.resource_name,
+                    asset_identifier=identifier,
                 )
                 session.add(review_request)
                 session.commit()

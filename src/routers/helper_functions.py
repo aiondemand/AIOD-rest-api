@@ -1,7 +1,12 @@
+from typing import TYPE_CHECKING
+
 from database.model.concept.concept import AIoDConcept
 from database.model.helper_functions import non_abstract_subclasses
 from functools import cache
 from versioning import Version
+
+if TYPE_CHECKING:
+    from routers import ResourceRouter
 
 
 def get_all_read_classes(version: Version = Version.LATEST) -> dict[str, AIoDConcept]:
@@ -31,3 +36,11 @@ def get_asset_type_by_abbreviation() -> dict[str, type[AIoDConcept]]:
         for cls in non_abstract_subclasses(AIoDConcept)
         if hasattr(cls, "__abbreviation__")
     }
+
+
+@cache
+def get_router_by_type() -> dict[type[AIoDConcept], type["ResourceRouter"]]:
+    from routers.resource_routers import versioned_routers  # avoid cyclical import
+
+    routers = versioned_routers[Version.LATEST]
+    return {r.resource_class: r for r in routers}

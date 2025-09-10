@@ -17,6 +17,7 @@ from database.model.knowledge_asset.publication import Publication
 from routers.review_router import ListMode
 from tests.testutils.users import ALICE, BOB, REVIEWER, _register_user_in_db, \
     logged_in_user, register_asset
+from versioning import Version
 
 
 def test_user_must_be_logged_in_to_publish(client, publication):
@@ -63,10 +64,11 @@ def test_drafts_are_private(
     # with and without authentication
 
 
+@pytest.mark.versions(Version.V2)
 @pytest.mark.parametrize(
     "comment", [None, "foo"]
 )
-def test_user_can_submit_draft_for_review(comment, client, publication):
+def test_user_can_submit_draft_for_review_v2(comment, client, publication):
     identifier = register_asset(publication, owner=ALICE, status=EntryStatus.DRAFT)
     content = f'{{"comment": "{comment}"}}' if comment else None
 
@@ -88,13 +90,41 @@ def test_user_can_submit_draft_for_review(comment, client, publication):
         assert sub["comment"] == (comment if comment else ""), "Comment should be stored."
 
 
+@pytest.mark.parametrize(
+    "comment", [None, "foo"]
+)
+def test_user_can_submit_draft_for_review(comment, client, publication):
+    identifier = register_asset(publication, owner=ALICE, status=EntryStatus.DRAFT)
+    content = {"asset_identifier": identifier}
+    if comment:
+        content["comment"] = comment
+
+    with logged_in_user(ALICE):
+        submission = client.post(
+            f"/submissions",
+            headers={"Authorization": "Fake token"},
+            json=content,
+        )
+        assert submission.status_code == HTTPStatus.OK, submission.json()
+        assert "submission_identifier" in submission.json()
+
+    with logged_in_user(REVIEWER):
+        queue = client.get("/submissions", headers={"Authorization": "Fake token"})
+        assert queue.status_code == HTTPStatus.OK, queue.json()
+        assert len(queue.json()) == 1, "A successful request should result in a submission."
+        [sub] = queue.json()
+        assert "requestee_identifier" not in sub, "Submissions should not review who submitted."
+        assert sub["comment"] == (comment if comment else ""), "Comment should be stored."
+
+
 def test_user_can_not_submit_other_for_review(client, publication):
     identifier = register_asset(publication, owner=ALICE, status=EntryStatus.DRAFT)
 
     with logged_in_user(BOB):
         submission = client.post(
-            f"/publications/submit/{identifier}",
+            f"/submissions",
             headers={"Authorization": "Fake token"},
+            json={"asset_identifier": identifier},
         )
         assert submission.status_code == HTTPStatus.FORBIDDEN, submission.json()
 
@@ -122,7 +152,7 @@ def test_a_submitted_asset_is_pending_for_review(client, publication):
         assert len(queue.json()) == 1, "A submitted asset should be pending until a review is done."
 
 def test_get_submission_by_id(client, publication):
-    register_asset(publication, owner=ALICE, status=EntryStatus.PUBLISHED)
+    identifier = register_asset(publication, owner=ALICE, status=EntryStatus.PUBLISHED)
 
     with logged_in_user(REVIEWER):
         submission = client.get("/submissions/1", headers={"Authorization": "Fake token"})
@@ -139,6 +169,7 @@ def test_get_submission_by_id(client, publication):
             "aiod_entry_identifier": 1,
             "comment": "",
             "asset_type": "publication",
+            "asset_identifier": identifier,
         }
         assert reviews == [
             {

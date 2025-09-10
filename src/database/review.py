@@ -6,7 +6,7 @@ import sqlalchemy
 from sqlalchemy import Column, select
 from sqlmodel import SQLModel, Field, Relationship, Session
 
-from database.model.field_length import NORMAL, LONG
+from database.model.field_length import NORMAL, LONG, IDENTIFIER_LENGTH
 from database.model.concept.concept import AIoDConcept
 from database.model.helper_functions import non_abstract_subclasses
 from routers.helper_functions import get_all_asset_schemas
@@ -53,9 +53,25 @@ class Review(ReviewBase, table=True):  # type: ignore [call-arg]
     submission: "Submission" = Relationship(back_populates="reviews")
 
 
+class SubmissionCreateV2(SQLModel):
+    """User provided information to submit a review request."""
+
+    comment: str = Field(
+        description="Optional. Comment to the reviewer to motivate the submission or provide clarification.",
+        max_length=NORMAL,
+        default="",
+        schema_extra={"example": "'IA' is not a typo, it's for L'intelligence artificielle."},
+    )
+
+
 class SubmissionCreate(SQLModel):
     """User provided information to submit a review request."""
 
+    asset_identifier: str = Field(
+        description="The identifier of the asset to submit for review",
+        max_length=IDENTIFIER_LENGTH,
+        schema_extra={"example": "case_n8DhfFgMYv4beBnVurHa13ZS"},
+    )
     comment: str = Field(
         description="Optional. Comment to the reviewer to motivate the submission or provide clarification.",
         max_length=NORMAL,
