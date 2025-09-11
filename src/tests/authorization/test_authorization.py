@@ -124,7 +124,7 @@ def test_user_can_not_submit_other_for_review(client, publication):
         submission = client.post(
             f"/submissions",
             headers={"Authorization": "Fake token"},
-            json={"asset_identifier": identifier},
+            json={"asset_identifiers": [identifier]},
         )
         assert submission.status_code == HTTPStatus.FORBIDDEN, submission.json()
 
@@ -163,13 +163,10 @@ def test_get_submission_by_id(client, publication):
         review_date = submission_dict["reviews"][0].pop("decision_date")
         assert submission_date < review_date
         reviews = submission_dict.pop("reviews")
-        asset = submission_dict.pop("asset")
+        assets = submission_dict.pop("assets")
         assert submission_dict == {
             "identifier": 1,
-            "aiod_entry_identifier": 1,
             "comment": "",
-            "asset_type": "publication",
-            "asset_identifier": identifier,
         }
         assert reviews == [
             {
@@ -181,7 +178,8 @@ def test_get_submission_by_id(client, publication):
         ]
         # Convert to loaded JSON, including e.g., stringification of dates
         publication_json = json.loads(publication.json())
-        assert asset == publication_json
+        assert assets == [publication_json]
+
 
 def test_get_submission_by_id_must_be_reviewer_or_owner(client, publication):
     register_asset(publication, owner=ALICE, status=EntryStatus.SUBMITTED)
@@ -230,6 +228,7 @@ def test_submission_by_state_respects_privacy(user: KeycloakUser, mode: ListMode
         returned_submissions = [submission["identifier"] for submission in queue.json()]
         assert returned_submissions == assets, f"{reason} Response: {queue.json()}"
 
+
 def test_an_published_asset_is_not_pending_for_review(client, publication):
     register_asset(publication, owner=ALICE, status=EntryStatus.PUBLISHED)
 
@@ -272,7 +271,7 @@ def test_retrieving_single_submission_works(user: KeycloakUser, mode: ListMode, 
     with logged_in_user(user):
         queue = client.get(f"/submissions?mode={mode}", headers={"Authorization": "Fake token"})
         assert queue.status_code == HTTPStatus.OK, queue.json()
-        assert queue.json()[0]["aiod_entry_identifier"] == asset, reason
+        assert queue.json()[0]["identifier"] == asset, reason
 
 
 def test_user_can_retract_assets(client, publication):
@@ -312,6 +311,7 @@ def test_user_can_always_delete_asset(status: EntryStatus, publication, client):
             headers={"Authorization": "Fake token"},
         )
         assert response.status_code == HTTPStatus.OK, response.json()
+
 
 def test_user_can_edit_asset_in_draft(publication, client):
     identifier = register_asset(publication, owner=ALICE, status=EntryStatus.DRAFT)

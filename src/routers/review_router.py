@@ -20,7 +20,7 @@ from database.review import (
     AssetReview,
 )
 from database.model.concept.aiod_entry import EntryStatus, AIoDEntryORM
-from model.concept.concept import AIoDConcept
+from database.model.concept.concept import AIoDConcept
 from routers.helper_functions import get_asset_type_by_abbreviation, get_router_by_type
 from versioning import Version
 
@@ -220,7 +220,7 @@ def _review_resource(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail=(
                     f"Review request contains asset {asset_to_review.asset_identifier!r}, "
-                    "which you own. You do not have permission to review your own assets.",
+                    "which you own. You do not have permission to review your own assets."
                 ),
             )
 
@@ -259,7 +259,10 @@ def retract_submission(
                 detail="Cannot retract this submission, as it is not under review.",
             )
 
-        if not any(user_can_administer(user, a.aiod_entry_identifier) for a in submission._assets):
+        if not any(
+            user_can_administer(user, session.get(AIoDEntryORM, a.aiod_entry_identifier))
+            for a in submission._assets
+        ):
             msg = f"You must be administrator of at least one asset in the review to retract the submission."
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=msg)
 
@@ -268,7 +271,8 @@ def retract_submission(
             reviewer_identifier=user._subject_identifier,
             submission_identifier=submission.identifier,
         )
-        submission.asset.aiod_entry.status = EntryStatus.DRAFT
+        for asset in submission.assets:
+            asset.aiod_entry.status = EntryStatus.DRAFT
         session.add(retraction)
         session.commit()
         return {

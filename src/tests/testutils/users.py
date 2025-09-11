@@ -11,6 +11,7 @@ from database.model.concept.aiod_entry import EntryStatus, AIoDEntryORM
 from database.model.concept.concept import AIoDConcept
 from database.review import Submission, Review, Decision
 from database.session import DbSession
+from database.review import AssetReview
 
 ALICE = KeycloakUser("Alice", set(), "alice-sub")
 BOB = KeycloakUser("Bob", set(), "bob-sub")
@@ -81,11 +82,9 @@ def register_asset(asset: AIoDConcept, /, *, owner: KeycloakUser | None = None, 
 
         asset.aiod_entry.status = status
         if status in [EntryStatus.SUBMITTED, EntryStatus.PUBLISHED, EntryStatus.REJECTED]:
-            submission = Submission(
-                requestee_identifier=owner._subject_identifier,
-                aiod_entry_identifier=asset.aiod_entry.identifier,
-                asset_type=asset.__tablename__,
-                asset_identifiers=[asset.identifier],
+            submission = Submission(requestee_identifier=owner._subject_identifier)
+            submission._assets.append(
+                AssetReview(asset_identifier=asset.identifier, aiod_entry_identifier=asset.aiod_entry.identifier)
             )
             session.add(submission)
             if status == EntryStatus.PUBLISHED:
