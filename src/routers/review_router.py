@@ -20,6 +20,7 @@ from database.review import (
     AssetReview,
 )
 from database.model.concept.aiod_entry import EntryStatus, AIoDEntryORM
+from model.concept.concept import AIoDConcept
 from routers.helper_functions import get_asset_type_by_abbreviation, get_router_by_type
 from versioning import Version
 
@@ -145,8 +146,7 @@ def _submit_resource(
         for identifier in submission.asset_identifiers
     }
     invalid_identifier = next(
-        (identifier for identifier, type_ in id_to_type.items() if type_ is None),
-        None
+        (identifier for identifier, type_ in id_to_type.items() if type_ is None), None
     )
     if invalid_identifier:
         raise HTTPException(
@@ -160,7 +160,7 @@ def _submit_resource(
             comment=submission.comment,
         )
         for identifier, asset_type in id_to_type.items():
-            router = get_router_by_type()[asset_type]
+            router = get_router_by_type()[cast(type[AIoDConcept], asset_type)]
             resource = router._retrieve_resource(identifier=identifier, session=session)  # type: ignore
 
             if not resource.aiod_entry.status == EntryStatus.DRAFT:
@@ -177,7 +177,10 @@ def _submit_resource(
 
             resource.aiod_entry.status = EntryStatus.SUBMITTED
             review_request._assets.append(
-                AssetReview(asset_identifier=resource.identifier, aiod_entry_identifier=resource.aiod_entry.identifier)
+                AssetReview(
+                    asset_identifier=resource.identifier,
+                    aiod_entry_identifier=resource.aiod_entry.identifier,
+                )
             )
         session.add(review_request)
         session.commit()
@@ -209,14 +212,16 @@ def _review_resource(
     register_user(user, session)
 
     for asset_to_review in submission._assets:
-        aiod_entry = cast(AIoDEntryORM, session.get(AIoDEntryORM, asset_to_review.aiod_entry_identifier))
+        aiod_entry = cast(
+            AIoDEntryORM, session.get(AIoDEntryORM, asset_to_review.aiod_entry_identifier)
+        )
         if user_can_write(user, aiod_entry):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail=(
                     f"Review request contains asset {asset_to_review.asset_identifier!r}, "
                     "which you own. You do not have permission to review your own assets.",
-                )
+                ),
             )
 
         if review.decision == Decision.ACCEPTED:
@@ -245,7 +250,7 @@ def retract_submission(
         if submission is None:
             return HTTPException(
                 status_code=HTTPStatus.NOT_FOUND,
-                detail=f"Submission {submission_identifier} not found."
+                detail=f"Submission {submission_identifier} not found.",
             )
 
         if not submission.is_pending:

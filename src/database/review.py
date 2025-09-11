@@ -93,13 +93,17 @@ class SubmissionBase(SQLModel):
     )
 
 
-class AssetReview(SQLModel, table=True):
+class AssetReview(SQLModel, table=True):  # type: ignore[call-arg]
     __tablename__ = "asset_review"
     asset_identifier: str = Field()
     # If the entry corresponding to the thing it reviews is removed,
     # then we also want to permanently remove the review data.
-    aiod_entry_identifier: int = Field(primary_key=True, nullable=False, foreign_key="aiod_entry.identifier", ondelete="CASCADE")
-    review_identifier: int = Field(primary_key=True, nullable=False, foreign_key="submission.identifier", ondelete="CASCADE")
+    aiod_entry_identifier: int = Field(
+        primary_key=True, nullable=False, foreign_key="aiod_entry.identifier", ondelete="CASCADE"
+    )
+    review_identifier: int = Field(
+        primary_key=True, nullable=False, foreign_key="submission.identifier", ondelete="CASCADE"
+    )
 
 
 class Submission(SubmissionBase, table=True):  # type: ignore [call-arg]
@@ -126,8 +130,8 @@ class Submission(SubmissionBase, table=True):  # type: ignore [call-arg]
 
         assets = []
         for identifier in [a.asset_identifier for a in self._assets]:
-            prefix, _ = identifier.split('_')
-            asset_type = get_asset_type_by_abbreviation().get(prefix)
+            prefix, _ = identifier.split("_")
+            asset_type = get_asset_type_by_abbreviation()[prefix]
             schema = schema_by_name[asset_type.__tablename__]
             assets.append(session.get(schema, identifier))
         return assets
