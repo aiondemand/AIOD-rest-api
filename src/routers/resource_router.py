@@ -646,7 +646,6 @@ class ResourceRouter(abc.ABC):
                 review_request = Submission(
                     requestee_identifier=user._subject_identifier,
                     comment=submission.comment if submission else "",
-                    asset_type=self.resource_name,
                 )
                 review_request._assets.append(
                     AssetReview(

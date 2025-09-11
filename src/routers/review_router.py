@@ -140,49 +140,46 @@ def _submit_resource(
     submission: SubmissionCreate,
     user: KeycloakUser = Depends(get_user_or_raise),
 ):
-    if len(submission.asset_identifiers) > 1:
-        raise HTTPException(
-            status_code=HTTPStatus.NOT_IMPLEMENTED,
-            detail="Bundling review requests is not implemented yet.",
-        )
-    identifier = submission.asset_identifiers[0]
-    resource_type = get_asset_type_by_abbreviation().get(identifier.split("_")[0])
-    if not resource_type:
-        raise HTTPException(
-            status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
-            detail=f"{identifier} is not a valid resource identifier.",
-        )
-    router = get_router_by_type().get(resource_type)
-    if not router:
-        raise HTTPException(
-            status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
-            detail=f"Router for {resource_type!r} not found, please contact the developers.",
-        )
+    id_to_type = {
+        identifier: get_asset_type_by_abbreviation().get(identifier.split("_")[0])
+        for identifier in submission.asset_identifiers
+    }
+    # if not resource_type:
+    #     raise HTTPException(
+    #         status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
+    #         detail=f"{identifier} is not a valid resource identifier.",
+    #     )
+    # if len(submission.asset_identifiers) > 1:
+    #     raise HTTPException(
+    #         status_code=HTTPStatus.NOT_IMPLEMENTED,
+    #         detail="Bundling review requests is not implemented yet.",
+    #     )
 
     with DbSession() as session:
-        resource = router._retrieve_resource(identifier=identifier, session=session)  # type: ignore
-
-        if not resource.aiod_entry.status == EntryStatus.DRAFT:
-            msg = (
-                f"Cannot submit {router.resource_name} {identifier} "
-                f"since it has '{resource.aiod_entry.status}' status."
-            )
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=msg)
-
-        if not user_can_administer(user, resource.aiod_entry):
-            # Could choose to instead give same error as if resource does not exist.
-            msg = f"You do not have permission to submit {router.resource_name} {identifier}."
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=msg)
-
-        resource.aiod_entry.status = EntryStatus.SUBMITTED
         review_request = Submission(
             requestee_identifier=user._subject_identifier,
             comment=submission.comment,
-            asset_type=router.resource_name,
         )
-        review_request._assets.append(
-            AssetReview(asset_identifier=resource.identifier, aiod_entry_identifier=resource.aiod_entry.identifier)
-        )
+        for identifier, asset_type in id_to_type.items():
+            router = get_router_by_type()[asset_type]
+            resource = router._retrieve_resource(identifier=identifier, session=session)  # type: ignore
+
+            if not resource.aiod_entry.status == EntryStatus.DRAFT:
+                msg = (
+                    f"Cannot submit {router.resource_name} {identifier} "
+                    f"since it has '{resource.aiod_entry.status}' status."
+                )
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=msg)
+
+            if not user_can_administer(user, resource.aiod_entry):
+                # Could choose to instead give same error as if resource does not exist.
+                msg = f"You do not have permission to submit {router.resource_name} {identifier}."
+                raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=msg)
+
+            resource.aiod_entry.status = EntryStatus.SUBMITTED
+            review_request._assets.append(
+                AssetReview(asset_identifier=resource.identifier, aiod_entry_identifier=resource.aiod_entry.identifier)
+            )
         session.add(review_request)
         session.commit()
         return {"submission_identifier": review_request.identifier}

@@ -91,10 +91,6 @@ class SubmissionBase(SQLModel):
         default="",
         schema_extra={"example": "'IA' is not a typo, it's for L'intelligence artificielle."},
     )
-    # This is primarily a convenience for the SubmissionView, can we make it a property there?
-    asset_type: str = Field(
-        description="The name of the table of the resource. E.g. 'dataset' or 'person'"
-    )
 
 
 class AssetReview(SQLModel, table=True):
