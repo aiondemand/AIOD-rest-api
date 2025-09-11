@@ -3,13 +3,13 @@ from datetime import datetime, timezone
 from typing import Any
 
 import sqlalchemy
-from sqlalchemy import Column, select
+from sqlalchemy import Column
 from sqlmodel import SQLModel, Field, Relationship, Session
 
-from database.model.field_length import NORMAL, LONG, IDENTIFIER_LENGTH
+from database.model.field_length import NORMAL, LONG
 from database.model.concept.concept import AIoDConcept
 from database.model.helper_functions import non_abstract_subclasses
-from routers.helper_functions import get_all_asset_schemas
+from routers.helper_functions import get_all_asset_schemas, get_asset_type_by_abbreviation
 
 REQUIRED_NUMBER_OF_REVIEWS = 1
 
@@ -67,10 +67,10 @@ class SubmissionCreateV2(SQLModel):
 class SubmissionCreate(SQLModel):
     """User provided information to submit a review request."""
 
-    asset_identifier: str = Field(
-        description="The identifier of the asset to submit for review",
-        max_length=IDENTIFIER_LENGTH,
-        schema_extra={"example": "case_n8DhfFgMYv4beBnVurHa13ZS"},
+    asset_identifiers: list[str] = Field(
+        description="List of identifiers of the assets to submit for review",
+        min_length=1,
+        schema_extra={"example": ["case_n8DhfFgMYv4beBnVurHa13ZS"]},
     )
     comment: str = Field(
         description="Optional. Comment to the reviewer to motivate the submission or provide clarification.",
@@ -80,18 +80,30 @@ class SubmissionCreate(SQLModel):
     )
 
 
-class SubmissionBase(SubmissionCreate):
+class SubmissionBase(SQLModel):
     """A review request, requested by a user to publish an asset/change."""
 
     identifier: int = Field(primary_key=True, default=None)
     request_date: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-
-    # If the entry corresponding to the thing it reviews is removed,
-    # then we also want to permanently remove the review data.
-    aiod_entry_identifier: int = Field(foreign_key="aiod_entry.identifier", ondelete="CASCADE")
+    comment: str = Field(
+        description="Optional. Comment to the reviewer to motivate the submission or provide clarification.",
+        max_length=NORMAL,
+        default="",
+        schema_extra={"example": "'IA' is not a typo, it's for L'intelligence artificielle."},
+    )
+    # This is primarily a convenience for the SubmissionView, can we make it a property there?
     asset_type: str = Field(
         description="The name of the table of the resource. E.g. 'dataset' or 'person'"
     )
+
+
+class AssetReview(SQLModel, table=True):
+    __tablename__ = "asset_review"
+    asset_identifier: str = Field()
+    # If the entry corresponding to the thing it reviews is removed,
+    # then we also want to permanently remove the review data.
+    aiod_entry_identifier: int = Field(primary_key=True, nullable=False, foreign_key="aiod_entry.identifier", ondelete="CASCADE")
+    review_identifier: int = Field(primary_key=True, nullable=False, foreign_key="submission.identifier", ondelete="CASCADE")
 
 
 class Submission(SubmissionBase, table=True):  # type: ignore [call-arg]
@@ -104,9 +116,10 @@ class Submission(SubmissionBase, table=True):  # type: ignore [call-arg]
     )
 
     reviews: list[Review] = Relationship(back_populates="submission")
+    _assets: list[AssetReview] = Relationship()
 
     @property
-    def asset(self) -> AIoDConcept:
+    def assets(self) -> list[AIoDConcept]:
         # I could not find a way to just use a Relationship directly on account of it needing
         # to be defined on creation but the asset_type is only known at runtime.
         # We still mimic the behavior of a lazy-loaded relationship by fetching the session
@@ -114,10 +127,14 @@ class Submission(SubmissionBase, table=True):  # type: ignore [call-arg]
         session = Session.object_session(self)
         available_schemas: list[AIoDConcept] = list(non_abstract_subclasses(AIoDConcept))
         schema_by_name = {schema.__tablename__: schema for schema in available_schemas}
-        schema = schema_by_name[self.asset_type]
 
-        query = select(schema).where(schema.aiod_entry_identifier == self.aiod_entry_identifier)
-        return session.scalars(query).one()
+        assets = []
+        for identifier in [a.asset_identifier for a in self._assets]:
+            prefix, _ = identifier.split('_')
+            asset_type = get_asset_type_by_abbreviation().get(prefix)
+            schema = schema_by_name[asset_type.__tablename__]
+            assets.append(session.get(schema, identifier))
+        return assets
 
     @property
     def is_pending(self):
@@ -130,7 +147,7 @@ class SubmissionView(SubmissionBase):
     # only return AIoDConcept fields to the user, instead of all supplied attributes.
     # E.g., a publication's issn is now returned but would not if it was AIoDConcept.
     # Instead we use the configuration below to set the schema annotations.
-    asset: Any = Field()
+    assets: Any = Field()
 
     class Config:
         # This allows us to set the schema generation at runtime, which is necessary since the

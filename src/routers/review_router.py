@@ -17,6 +17,7 @@ from database.review import (
     ReviewCreate,
     Decision,
     SubmissionCreate,
+    AssetReview,
 )
 from database.model.concept.aiod_entry import EntryStatus, AIoDEntryORM
 from routers.helper_functions import get_asset_type_by_abbreviation, get_router_by_type
@@ -139,7 +140,12 @@ def _submit_resource(
     submission: SubmissionCreate,
     user: KeycloakUser = Depends(get_user_or_raise),
 ):
-    identifier = submission.asset_identifier
+    if len(submission.asset_identifiers) > 1:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_IMPLEMENTED,
+            detail="Bundling review requests is not implemented yet.",
+        )
+    identifier = submission.asset_identifiers[0]
     resource_type = get_asset_type_by_abbreviation().get(identifier.split("_")[0])
     if not resource_type:
         raise HTTPException(
@@ -171,10 +177,11 @@ def _submit_resource(
         resource.aiod_entry.status = EntryStatus.SUBMITTED
         review_request = Submission(
             requestee_identifier=user._subject_identifier,
-            aiod_entry_identifier=resource.aiod_entry.identifier,
             comment=submission.comment,
             asset_type=router.resource_name,
-            asset_identifier=submission.asset_identifier,
+        )
+        review_request._assets.append(
+            AssetReview(asset_identifier=resource.identifier, aiod_entry_identifier=resource.aiod_entry.identifier)
         )
         session.add(review_request)
         session.commit()

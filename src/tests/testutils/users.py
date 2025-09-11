@@ -85,7 +85,7 @@ def register_asset(asset: AIoDConcept, /, *, owner: KeycloakUser | None = None, 
                 requestee_identifier=owner._subject_identifier,
                 aiod_entry_identifier=asset.aiod_entry.identifier,
                 asset_type=asset.__tablename__,
-                asset_identifier=asset.identifier,
+                asset_identifiers=[asset.identifier],
             )
             session.add(submission)
             if status == EntryStatus.PUBLISHED:

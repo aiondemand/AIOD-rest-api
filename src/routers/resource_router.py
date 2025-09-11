@@ -24,7 +24,7 @@ from database.model.concept.concept import AIoDConcept
 from database.model.platform.platform import Platform
 from database.model.platform.platform_names import PlatformName
 from database.model.serializers import deserialize_resource_relationships
-from database.review import Submission, SubmissionCreateV2
+from database.review import Submission, SubmissionCreateV2, AssetReview
 from database.session import DbSession
 from dependencies.filtering import ResourceFilters, ResourceFiltersParams
 from dependencies.pagination import Pagination, PaginationParams
@@ -645,10 +645,14 @@ class ResourceRouter(abc.ABC):
                 resource.aiod_entry.status = EntryStatus.SUBMITTED
                 review_request = Submission(
                     requestee_identifier=user._subject_identifier,
-                    aiod_entry_identifier=resource.aiod_entry.identifier,
                     comment=submission.comment if submission else "",
                     asset_type=self.resource_name,
-                    asset_identifier=identifier,
+                )
+                review_request._assets.append(
+                    AssetReview(
+                        asset_identifier=resource.identifier,
+                        aiod_entry_identifier=resource.aiod_entry.identifier,
+                    )
                 )
                 session.add(review_request)
                 session.commit()

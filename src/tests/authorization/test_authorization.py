@@ -95,7 +95,7 @@ def test_user_can_submit_draft_for_review_v2(comment, client, publication):
 )
 def test_user_can_submit_draft_for_review(comment, client, publication):
     identifier = register_asset(publication, owner=ALICE, status=EntryStatus.DRAFT)
-    content = {"asset_identifier": identifier}
+    content: dict[str, str | list[str]] = {"asset_identifiers": [identifier]}
     if comment:
         content["comment"] = comment
 
