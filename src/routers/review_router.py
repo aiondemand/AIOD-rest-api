@@ -144,16 +144,15 @@ def _submit_resource(
         identifier: get_asset_type_by_abbreviation().get(identifier.split("_")[0])
         for identifier in submission.asset_identifiers
     }
-    # if not resource_type:
-    #     raise HTTPException(
-    #         status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
-    #         detail=f"{identifier} is not a valid resource identifier.",
-    #     )
-    # if len(submission.asset_identifiers) > 1:
-    #     raise HTTPException(
-    #         status_code=HTTPStatus.NOT_IMPLEMENTED,
-    #         detail="Bundling review requests is not implemented yet.",
-    #     )
+    invalid_identifier = next(
+        (identifier for identifier, type_ in id_to_type.items() if type_ is None),
+        None
+    )
+    if invalid_identifier:
+        raise HTTPException(
+            status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
+            detail=f"{invalid_identifier} is not a valid resource identifier.",
+        )
 
     with DbSession() as session:
         review_request = Submission(
@@ -209,18 +208,22 @@ def _review_resource(
         )
     register_user(user, session)
 
-    aiod_entry = cast(AIoDEntryORM, session.get(AIoDEntryORM, submission.aiod_entry_identifier))
-    if user_can_write(user, aiod_entry):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You do not have permission to review your own assets.",
-        )
+    for asset_to_review in submission._assets:
+        aiod_entry = cast(AIoDEntryORM, session.get(AIoDEntryORM, asset_to_review.aiod_entry_identifier))
+        if user_can_write(user, aiod_entry):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=(
+                    f"Review request contains asset {asset_to_review.asset_identifier!r}, "
+                    "which you own. You do not have permission to review your own assets.",
+                )
+            )
 
-    if review.decision == Decision.ACCEPTED:
-        new_status = EntryStatus.PUBLISHED
-    else:
-        new_status = EntryStatus.DRAFT
-    aiod_entry.status = new_status
+        if review.decision == Decision.ACCEPTED:
+            new_status = EntryStatus.PUBLISHED
+        else:
+            new_status = EntryStatus.DRAFT
+        aiod_entry.status = new_status
 
     review = Review(
         reviewer_identifier=user._subject_identifier,
@@ -239,16 +242,21 @@ def retract_submission(
 ):
     with DbSession() as session:
         submission = session.get(Submission, submission_identifier)
-        if not user_can_administer(user, submission.asset.aiod_entry):
-            # Could choose to instead give same error as if resource does not exist.
-            msg = f"You do not have permission to retract {submission.asset_type} {submission.asset.identifier}."
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=msg)
+        if submission is None:
+            return HTTPException(
+                status_code=HTTPStatus.NOT_FOUND,
+                detail=f"Submission {submission_identifier} not found."
+            )
 
-        if submission is None or not submission.is_pending:
+        if not submission.is_pending:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Cannot retract this asset, as it is not under review.",
+                detail="Cannot retract this submission, as it is not under review.",
             )
+
+        if not any(user_can_administer(user, a.aiod_entry_identifier) for a in submission._assets):
+            msg = f"You must be administrator of at least one asset in the review to retract the submission."
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=msg)
 
         retraction = Review(
             decision=Decision.RETRACTED,
