@@ -17,6 +17,10 @@ from database.model.serializers import (
     FindByIdentifierDeserializerList,
 )
 from versioning import Version, VersionedResource, VersionedResourceCollection
+from typing import cast
+from sqlmodel import SQLModel
+from database.model.resource_read_and_create import resource_read, resource_create
+from versioning import schema_transform
 
 
 OrganisationInvolvementLevel: type[Taxonomy] = create_taxonomy(
@@ -106,30 +110,27 @@ class Organisation(OrganisationBase, Agent, table=True):  # type: ignore [call-a
         description="The employee size bracket of the organisation.",
     )
     number_of_employees: Optional[NumberOfEmployees] = Relationship()  # type: ignore[valid-type]
-    
+
     has_activity_type_identifier: int | None = Field(
-    default=None,
-    foreign_key="organisation_activity_type.identifier",
-    description="The activity type of the organisation.",
+        default=None,
+        foreign_key="organisation_activity_type.identifier",
+        description="The activity type of the organisation.",
     )
     has_activity_type: Optional[OrganisationActivityType] = Relationship()  # type: ignore[valid-type]
-    
+
     involved_in_area_identifier: int | None = Field(
-    default=None,
-    foreign_key="organisation_involvement_level.identifier",
-    description="The involvement level of the organisation in a specific area.",
+        default=None,
+        foreign_key="organisation_involvement_level.identifier",
+        description="The involvement level of the organisation in a specific area.",
     )
     involved_in_area: Optional[OrganisationInvolvementLevel] = Relationship()  # type: ignore[valid-type]
-    
+
     has_membership_in_identifier: int | None = Field(
         default=None,
         foreign_key="organisation_network_membership.identifier",
-        description="The network membership(s) of the organisation.",
+        description="The network membership of the organisation.",
     )
     has_membership_in: Optional[OrganisationNetworkMembership] = Relationship()  # type: ignore[valid-type]
-
-
-
 
     class RelationshipConfig(Agent.RelationshipConfig):
         contact_details: str | None = OneToOne(
@@ -170,7 +171,7 @@ class Organisation(OrganisationBase, Agent, table=True):  # type: ignore [call-a
             deserializer=FindByNameDeserializer(NumberOfEmployees),
             example="<10",
         )
-        
+
         has_activity_type: Optional[str] = ManyToOne(
             description="The activity type of the organisation.",
             identifier_name="has_activity_type_identifier",
@@ -186,7 +187,7 @@ class Organisation(OrganisationBase, Agent, table=True):  # type: ignore [call-a
             deserializer=FindByNameDeserializer(OrganisationInvolvementLevel),
             example="Strategic Partner",
         )
-        
+
         has_membership_in: Optional[str] = ManyToOne(
             description="The membership(s) of the organisation in networks.",
             identifier_name="has_membership_in_identifier",
@@ -196,15 +197,52 @@ class Organisation(OrganisationBase, Agent, table=True):  # type: ignore [call-a
         )
 
 
-
-
-
 deserializer = FindByIdentifierDeserializer(Organisation)
 Contact.RelationshipConfig.organisation.deserializer = deserializer  # type: ignore
 
+
+def organisation_v3_to_v2() -> VersionedResource:
+    """Drop new fields (has_activity_type, involved_in_area, has_membership_in) for V2 compatibility."""
+
+    OrganisationV2Read = schema_transform(
+        resource_read(Organisation),
+        "OrganisationV2Read",
+        remove_fields=[
+            "has_activity_type",
+            "involved_in_area",
+            "has_membership_in",
+        ],
+    )
+
+    OrganisationV2Create = schema_transform(
+        resource_create(Organisation),
+        "OrganisationV2Create",
+        remove_fields=[
+            "has_activity_type",
+            "involved_in_area",
+            "has_membership_in",
+        ],
+    )
+
+    def orm_to_read(org: Organisation) -> OrganisationV2Read:  # type: ignore[valid-type]
+        read = resource_read(Organisation).model_validate(org).model_dump()
+        for f in ["has_activity_type", "involved_in_area", "has_membership_in"]:
+            read.pop(f, None)
+        return OrganisationV2Read.model_validate(read)
+
+    def create_to_orm(org: OrganisationV2Create) -> Organisation:  # type: ignore[valid-type]
+        fields = cast(SQLModel, org).model_dump()
+        return Organisation.model_validate(fields)
+
+    return VersionedResource(
+        Organisation, OrganisationV2Create, OrganisationV2Read, create_to_orm, orm_to_read
+    )
+
+
 organisation_versions = VersionedResourceCollection(
     {
-        Version.V2: VersionedResource(Organisation),
+        Version.V3: VersionedResource(Organisation),
+        Version.V2: organisation_v3_to_v2(),
         Version.LATEST: VersionedResource(Organisation),
     }
 )

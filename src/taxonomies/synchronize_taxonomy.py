@@ -21,7 +21,7 @@ from database.model.agent.organisation import (
     Turnover,
     OrganisationType,
     OrganisationActivityType,
-    OrganisationInvolvementLevel
+    OrganisationInvolvementLevel,
 )
 from database.model.event.event import EventStatus, EventMode
 from database.model.agent.language import Language
