@@ -61,16 +61,17 @@ can do this by making a `POST` request to the `/submissions` endpoint.
 You are required to include the identifier in the request body,
 and may include a comment to the reviewer of up to 256 characters in the body of the
 `POST` request, this should generally not be necessary but may be useful to provide
-some clarification:
+some clarification. You may supply more than one asset identifier at once,
+these assets will then be accepted and rejected together.
 
 ```json
 {
-  "asset_identifier": "case_n8DhfFgMYv4beBnVurHa13ZS",
+  "asset_identifiers": ["case_n8DhfFgMYv4beBnVurHa13ZS"],
   "comment": "Clarification the reviewer should be aware of."
 }
 ```
 
-When you request a submission, you also get a response with the submission's identifier.
+When you request a submission, you get a response with the submission's identifier.
 
 ```json
 {
@@ -102,12 +103,10 @@ For example, if the submission identifier we received was '1', we can query
   "identifier": 1,
   "request_date": "2025-03-20T09:09:54",
   "aiod_entry_identifier": 212,
-  "asset_type": "case_study",
-  "asset_identifier": "case_n8DhfFgMYv4beBnVurHa13ZS",
   "reviews": [],
-  "asset": {
+  "assets": [{
     ...
-  }
+  }]
 }
 ```
 No reviews have yet been performed on the submission, as indicated by the empty list
@@ -122,8 +121,7 @@ to the `submissions` endpoint, which will result in a response such as:
     "identifier": 1,
     "request_date": "2025-03-20T09:09:54",
     "aiod_entry_identifier": 212,
-    "asset_type": "case_study",
-    "asset_identifier": "case_n8DhfFgMYv4beBnVurHa13ZS",
+    "asset_identifiers": ["case_n8DhfFgMYv4beBnVurHa13ZS"],
   }
 ]
 ```
@@ -158,8 +156,6 @@ endpoint will provide you with the reviewer feedback, e.g.:
   "identifier": 1,
   "request_date": "2025-03-20T09:09:54",
   "aiod_entry_identifier": 212,
-  "asset_type": "case_study",
-  "asset_identifier": "case_n8DhfFgMYv4beBnVurHa13ZS",
   "reviews": [
     {
       "comment": "Several critical fields have incomplete information. Please improve the description, and add a house number to the address.",
@@ -169,7 +165,7 @@ endpoint will provide you with the reviewer feedback, e.g.:
       "submission_identifier": 1
     }
   ],
-  "asset": { ... }
+  "assets": [{ ... }]
 }
 ```
 You'll find reviewer comments under "reviews".

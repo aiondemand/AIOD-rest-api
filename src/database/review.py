@@ -154,9 +154,13 @@ class SubmissionView(SubmissionBase):
         # ResourceRead classes are only defined at runtime (generated dynamically).
         @staticmethod
         def schema_extra(schema: dict[str, Any], _: type["SubmissionView"]) -> None:
-            schema["properties"]["asset"] = {
-                "title": "Asset under review",
-                "description": "The type of the object can be found in SubmissionView.asset_type.",
-                "type": "object",
-                "anyOf": get_all_asset_schemas(),
+            schema["properties"]["assets"] = {
+                "type": "array",
+                "title": "Assets under review",
+                "items": {
+                    "title": "Asset",
+                    "description": "The type of the object can be derived from its identifier.",
+                    "type": "object",
+                    "anyOf": get_all_asset_schemas(),
+                },
             }
