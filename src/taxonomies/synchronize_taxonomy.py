@@ -21,6 +21,7 @@ from database.model.agent.organisation import (
     Turnover,
     OrganisationType,
     OrganisationActivityType,
+    OrganisationInvolvementLevel
 )
 from database.model.event.event import EventStatus, EventMode
 from database.model.agent.language import Language
@@ -66,6 +67,7 @@ type_by_name: dict[str, type] = {
     "Educational Competency": EducationalCompetency,
     "Organisation Activity Type": OrganisationActivityType,
     "Country": Country,
+    "Organisation Involvement Level": OrganisationInvolvementLevel,
 }
 
 

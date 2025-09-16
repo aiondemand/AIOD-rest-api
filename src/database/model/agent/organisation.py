@@ -19,6 +19,18 @@ from database.model.serializers import (
 from versioning import Version, VersionedResource, VersionedResourceCollection
 
 
+OrganisationInvolvementLevel: type[Taxonomy] = create_taxonomy(
+    class_name="OrganisationInvolvementLevel",
+    table_name="organisation_involvement_level",
+    plural_name="organisation involvement levels",
+)
+
+OrganisationNetworkMembership: type[Taxonomy] = create_taxonomy(
+    class_name="OrganisationNetworkMembership",
+    table_name="organisation_network_membership",
+    plural_name="organisation network memberships",
+)
+
 OrganisationType: type[Taxonomy] = create_taxonomy(
     class_name="OrganisationType",
     table_name="organisation_type",
@@ -94,6 +106,30 @@ class Organisation(OrganisationBase, Agent, table=True):  # type: ignore [call-a
         description="The employee size bracket of the organisation.",
     )
     number_of_employees: Optional[NumberOfEmployees] = Relationship()  # type: ignore[valid-type]
+    
+    has_activity_type_identifier: int | None = Field(
+    default=None,
+    foreign_key="organisation_activity_type.identifier",
+    description="The activity type of the organisation.",
+    )
+    has_activity_type: Optional[OrganisationActivityType] = Relationship()  # type: ignore[valid-type]
+    
+    involved_in_area_identifier: int | None = Field(
+    default=None,
+    foreign_key="organisation_involvement_level.identifier",
+    description="The involvement level of the organisation in a specific area.",
+    )
+    involved_in_area: Optional[OrganisationInvolvementLevel] = Relationship()  # type: ignore[valid-type]
+    
+    has_membership_in_identifier: int | None = Field(
+        default=None,
+        foreign_key="organisation_network_membership.identifier",
+        description="The network membership(s) of the organisation.",
+    )
+    has_membership_in: Optional[OrganisationNetworkMembership] = Relationship()  # type: ignore[valid-type]
+
+
+
 
     class RelationshipConfig(Agent.RelationshipConfig):
         contact_details: str | None = OneToOne(
@@ -134,6 +170,33 @@ class Organisation(OrganisationBase, Agent, table=True):  # type: ignore [call-a
             deserializer=FindByNameDeserializer(NumberOfEmployees),
             example="<10",
         )
+        
+        has_activity_type: Optional[str] = ManyToOne(
+            description="The activity type of the organisation.",
+            identifier_name="has_activity_type_identifier",
+            _serializer=AttributeSerializer("name"),
+            deserializer=FindByNameDeserializer(OrganisationActivityType),
+            example="Research",
+        )
+
+        involved_in_area: Optional[str] = ManyToOne(
+            description="The involvement level of the organisation in a specific area.",
+            identifier_name="involved_in_area_identifier",
+            _serializer=AttributeSerializer("name"),
+            deserializer=FindByNameDeserializer(OrganisationInvolvementLevel),
+            example="Strategic Partner",
+        )
+        
+        has_membership_in: Optional[str] = ManyToOne(
+            description="The membership(s) of the organisation in networks.",
+            identifier_name="has_membership_in_identifier",
+            _serializer=AttributeSerializer("name"),
+            deserializer=FindByNameDeserializer(OrganisationNetworkMembership),
+            example="CLAIRE Network",
+        )
+
+
+
 
 
 deserializer = FindByIdentifierDeserializer(Organisation)
