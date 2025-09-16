@@ -10,7 +10,7 @@ from authentication import KeycloakUser
 from database.authorization import (
     PermissionType, user_can_read, user_can_write, user_can_administer, set_permission,
 )
-from database.model.concept.aiod_entry import EntryStatus, AIoDEntryORM
+from database.model.concept.aiod_entry import EntryStatus
 from database.review import Decision, ReviewCreate
 from database.session import DbSession
 from database.model.knowledge_asset.publication import Publication
@@ -115,6 +115,37 @@ def test_user_can_submit_draft_for_review(comment, client, publication):
         [sub] = queue.json()
         assert "requestee_identifier" not in sub, "Submissions should not review who submitted."
         assert sub["comment"] == (comment if comment else ""), "Comment should be stored."
+
+
+def test_user_needs_to_own_all_assets_for_submission(client, publication_factory):
+    own = register_asset(publication_factory(), owner=ALICE, status=EntryStatus.DRAFT)
+    bobs_publication = publication_factory()
+    other = register_asset(bobs_publication, owner=BOB, status=EntryStatus.DRAFT)
+    content: dict[str, str | list[str]] = {"asset_identifiers": [own, other]}
+
+    with logged_in_user(ALICE):
+        submission = client.post(
+            f"/submissions",
+            headers={"Authorization": "Fake token"},
+            json=content,
+        )
+        reason = "Request should be rejected because Alice does not own `other`."
+        assert submission.status_code == HTTPStatus.FORBIDDEN, reason
+        assert "You do not have permission" in submission.json()["detail"]
+
+    with DbSession() as session:
+        session.add(bobs_publication)
+        set_permission(user=ALICE, resource=bobs_publication.aiod_entry, session=session, type_=PermissionType.ADMIN)
+        session.commit()
+
+    with logged_in_user(ALICE):
+        submission = client.post(
+            f"/submissions",
+            headers={"Authorization": "Fake token"},
+            json=content,
+        )
+        reason = "Request should be accepted because Alice does now co-owns `other`."
+        assert submission.status_code == HTTPStatus.OK, reason
 
 
 def test_user_can_not_submit_other_for_review(client, publication):
@@ -299,6 +330,35 @@ def test_other_user_can_not_retract_assets(client, publication):
             f"/submissions/retract/1", headers={"Authorization": "Fake token"}
         )
         assert response.status_code == HTTPStatus.FORBIDDEN, response.json()
+
+
+def test_user_needs_only_one_asset_to_retract(client, publication_factory):
+    own = register_asset(publication_factory(), owner=ALICE, status=EntryStatus.DRAFT)
+    bobs_publication = publication_factory()
+    other = register_asset(bobs_publication, owner=BOB, status=EntryStatus.DRAFT)
+    with DbSession() as session:
+        session.add(bobs_publication)
+        set_permission(user=ALICE, resource=bobs_publication.aiod_entry, session=session, type_=PermissionType.ADMIN)
+        session.commit()
+
+    content: dict[str, str | list[str]] = {"asset_identifiers": [own, other]}
+    with logged_in_user(ALICE):
+        submission = client.post(
+            f"/submissions",
+            headers={"Authorization": "Fake token"},
+            json=content,
+        )
+        assert submission.status_code == HTTPStatus.OK
+    submission_identifier = submission.json()["submission_identifier"]
+
+    with logged_in_user(BOB):
+        submission = client.post(
+            f"/submissions/retract/{submission_identifier}",
+            headers={"Authorization": "Fake token"},
+            json=content,
+        )
+        reason = "Since Bob owns one of the two assets, he can retract the submission."
+        assert submission.status_code == HTTPStatus.OK, reason
 
 
 @pytest.mark.parametrize("status", EntryStatus)
