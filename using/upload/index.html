@@ -1260,29 +1260,30 @@ of the endpoints, including their exact addresses and schemas used.</p>
 <p><img alt="Flowchart that depicts the upload process" src="../../media/upload_and_review.svg" /></p>
 <p>The sections below describe the process in more detail.</p>
 <h3 id="registering-the-asset">Registering the Asset</h3>
-<p>You upload your assets to <code>/ASSET/v1</code> using a <code>POST</code> request that contains
+<p>You upload your assets to <code>/ASSET</code> using a <code>POST</code> request that contains
 in the JSON body all the required data for the asset type. A successful response
 should look something like this:</p>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;identifier&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span>
+<span class="w">  </span><span class="nt">&quot;identifier&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;case_n8DhfFgMYv4beBnVurHa13ZS&quot;</span>
 <span class="p">}</span>
 </code></pre></div>
 <p>Take a note of the identifier assigned to the asset, as you will need it to request a review in the next step.
 The asset is now in draft mode, which means that other users cannot see it but you can, and you may still edit it.
-To edit the asset, use the <code>PUT</code> endpoints for <code>/ASSET/v1</code>.</p>
+To edit the asset, use the <code>PUT</code> endpoints for <code>/ASSET</code>.</p>
 <h3 id="requesting-a-review">Requesting a Review</h3>
 <p>When you want to publish the asset, you can submit it for review. You
-can do this by making a <code>POST</code> request to the <code>/ASSET/submit/v1/IDENTIFIER</code> endpoint.
-Here you need to replace <code>IDENTIFIER</code> with the identifier of the asset you retrieved
-in the last step.
-You may include a comment to the reviewer of up to 256 characters in the body of the
+can do this by making a <code>POST</code> request to the <code>/submissions</code> endpoint.
+You are required to include the identifier in the request body,
+and may include a comment to the reviewer of up to 256 characters in the body of the
 <code>POST</code> request, this should generally not be necessary but may be useful to provide
-some clarification:</p>
+some clarification. You may supply more than one asset identifier at once,
+these assets will then be accepted and rejected together.</p>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;asset_identifiers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;case_n8DhfFgMYv4beBnVurHa13ZS&quot;</span><span class="p">],</span>
 <span class="w">  </span><span class="nt">&quot;comment&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Clarification the reviewer should be aware of.&quot;</span>
 <span class="p">}</span>
 </code></pre></div>
-<p>When you request a submission, you also get a response with the submission's identifier.</p>
+<p>When you request a submission, you get a response with the submission's identifier.</p>
 <p><div class="highlight"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;submission_identifier&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
 <span class="p">}</span>
@@ -1301,33 +1302,32 @@ further action by you. If the reviewer rejects the submission, you can find thei
 in their review.</p>
 <p>You can check that status of your pending submission in two ways.
 First, you can request the status for that review specifically using the
-<code>/submissions/v1/IDENTIFIER</code> endpoint, where <code>IDENTIFIER</code> needs to replaced with the
+<code>/submissions/IDENTIFIER</code> endpoint, where <code>IDENTIFIER</code> needs to replaced with the
 identifier of the <em>submission</em> (not the asset!).
 For example, if the submission identifier we received was '1', we can query
-<code>submissions/v1/1</code> and retrieve its status which would look something like:
+<code>submissions/1</code> and retrieve its status which would look something like:
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;comment&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Clarification the reviewer should be aware of.&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;identifier&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;request_date&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-03-20T09:09:54&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;aiod_entry_identifier&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">212</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;asset_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;case_study&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;reviews&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
-<span class="w">  </span><span class="nt">&quot;asset&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;assets&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span>
 <span class="w">    </span><span class="err">...</span>
-<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}]</span>
 <span class="p">}</span>
 </code></pre></div>
 No reviews have yet been performed on the submission, as indicated by the empty list
 of reviews (<code>"reviews": []</code>).</p>
 <p>Alternatively, you can request an overview of all your submissions with a <code>GET</code> request
-to the <code>submissions/v1</code> endpoint, which will result in a response such as:
+to the <code>submissions</code> endpoint, which will result in a response such as:
 <div class="highlight"><pre><span></span><code><span class="p">[</span>
 <span class="w">  </span><span class="p">{</span>
 <span class="w">    </span><span class="nt">&quot;comment&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Clarification the reviewer should be aware of.&quot;</span><span class="p">,</span>
 <span class="w">    </span><span class="nt">&quot;identifier&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
 <span class="w">    </span><span class="nt">&quot;request_date&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-03-20T09:09:54&quot;</span><span class="p">,</span>
 <span class="w">    </span><span class="nt">&quot;aiod_entry_identifier&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">212</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;asset_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;case_study&quot;</span>
+<span class="w">    </span><span class="nt">&quot;asset_identifiers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;case_n8DhfFgMYv4beBnVurHa13ZS&quot;</span><span class="p">],</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">]</span>
 </code></pre></div>
@@ -1335,7 +1335,7 @@ This endpoint fetches and returns minimal information of the submission, which m
 more lightweight for creating an overview. However, it does not return the status of the
 submissions directly. Instead, you may use query parameters to request only a subset of
 the submissions, such as those that still require a review (i.e., pending submissions)
-by querying <code>submissions/v1/?mode=pending</code>.
+by querying <code>submissions?mode=pending</code>.
 Please refer to the endpoint documentation for other options.</p>
 <p>Users are only ever able to view information about their own submissions.
 While it is registered in the database which user requested the submission,
@@ -1345,19 +1345,18 @@ is likely revealing).</p>
 <h4 id="retracting-a-submission">Retracting a Submission</h4>
 <p>Sometimes you may want to retract a submitted asset before a reviewer manages to review it.
 For example, to correct a mistake in the original submission. You can retract an asset from
-review at any time by doing a <code>POST</code> request to the <code>/submissions/retract/v1/SUBMISSION_IDENTIFIER</code>
+review at any time by doing a <code>POST</code> request to the <code>/submissions/retract/SUBMISSION_IDENTIFIER</code>
 endpoint.</p>
 <p>A retracted submission is treated the same as a rejected submission. The asset is put back
-into draft status and will not be reviewed until the you submit a new review request.</p>
+into draft status and will not be reviewed until you submit a new review request.</p>
 <h3 id="a-rejected-submission">A Rejected Submission</h3>
-<p>You may find that your submission gets rejected. In that case, the <code>submissions/v1/IDENTIFIER</code>
+<p>You may find that your submission gets rejected. In that case, the <code>submissions/IDENTIFIER</code>
 endpoint will provide you with the reviewer feedback, e.g.:
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;comment&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Clarification the reviewer should be aware of.&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;identifier&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;request_date&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-03-20T09:09:54&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;aiod_entry_identifier&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">212</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;asset_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;case_study&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;reviews&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">    </span><span class="p">{</span>
 <span class="w">      </span><span class="nt">&quot;comment&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Several critical fields have incomplete information. Please improve the description, and add a house number to the address.&quot;</span><span class="p">,</span>
@@ -1367,11 +1366,11 @@ endpoint will provide you with the reviewer feedback, e.g.:
 <span class="w">      </span><span class="nt">&quot;submission_identifier&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">  </span><span class="p">],</span>
-<span class="w">  </span><span class="nt">&quot;asset&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="err">...</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="nt">&quot;assets&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="w"> </span><span class="err">...</span><span class="w"> </span><span class="p">}]</span>
 <span class="p">}</span>
 </code></pre></div>
 You'll find reviewer comments under "reviews".
-You may subsequently edit your asset using <code>PUT</code> requests to <code>/ASSET/v1</code> to address
+You may subsequently edit your asset using <code>PUT</code> requests to <code>/ASSET</code> to address
 the reviewer feedback, and then request a new review following the regular submission
 process.</p>
 <h2 id="reviewer-process">Reviewer Process</h2>
@@ -1380,17 +1379,17 @@ They have access to all submissions and can review them.
 The only restriction is that a reviewer cannot review their own submission.</p>
 <p>For reviewers, the main endpoints of interest are:</p>
 <ul>
-<li><code>/submissions/v1</code> to fetch identifiers of submissions which require a review.
+<li><code>/submissions</code> to fetch identifiers of submissions which require a review.
 The <code>?mode=oldest</code> parameter can be used to fetch the submission which has been waiting for a review the longest.</li>
-<li><code>/submissions/v1/{identifier}</code> to get more detailed information on the submission,
+<li><code>/submissions/{identifier}</code> to get more detailed information on the submission,
 in particular this will provide also the asset body to review.</li>
 <li><code>/reviews/v1</code> the endpoint through which reviews can be made using <code>POST</code> requests.</li>
 </ul>
 <p>Given a submission identifier (obtained from either <code>/submissions</code> endpoint mentioned above),
-the review can post a review to <code>/reviews/v1</code>. This requires the user to make a decision
+the review can post a review to <code>/reviews</code>. This requires the user to make a decision
 to accept or reject the submission, and optionally leave a comment. When rejecting an
 asset, a comment is strongly encouraged, otherwise the user will not know how to improve
-their submission. An example body of the <code>POST</code> request to <code>/reviews/v1</code> could look like:
+their submission. An example body of the <code>POST</code> request to <code>/reviews</code> could look like:
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;comment&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Several critical fields have incomplete information. Please improve the description, and add a house number to the address.&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;decision&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;rejected&quot;</span><span class="p">,</span>
@@ -1426,7 +1425,7 @@ directly when their assets are published. Some polling mechanism needs to be use
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime">March 20, 2025 14:49:11</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime">September 18, 2025 09:20:56</span>
   </span>
 
     
