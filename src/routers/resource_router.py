@@ -513,6 +513,8 @@ class ResourceRouter(abc.ABC):
                         set_permission(
                             user, resource.aiod_entry, session, type_=PermissionType.ADMIN
                         )
+                        if user.is_connector:
+                            resource.aiod_entry.status = EntryStatus.PUBLISHED
                         session.commit()
                         return {"identifier": resource.identifier}
                     except Exception as e:
