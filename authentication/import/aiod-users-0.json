@@ -38,6 +38,20 @@
     "notBefore" : 0,
     "groups" : [ ]
   }, {
+    "id" : "bbe1da8d-236c-40bb-9ca3-30d494b471cc",
+    "username" : "service-account-sdk-service",
+    "emailVerified" : false,
+    "createdTimestamp" : 1758277112410,
+    "enabled" : true,
+    "totp" : false,
+    "serviceAccountClientId" : "sdk-service",
+    "credentials" : [ ],
+    "disableableCredentialTypes" : [ ],
+    "requiredActions" : [ ],
+    "realmRoles" : [ "platform_example", "default-roles-aiod" ],
+    "notBefore" : 0,
+    "groups" : [ ]
+  }, {
     "id" : "4a80f256-3928-4cfa-ba66-5e22bb36fc01",
     "username" : "user",
     "firstName" : "",
@@ -56,7 +70,7 @@
     } ],
     "disableableCredentialTypes" : [ ],
     "requiredActions" : [ ],
-    "realmRoles" : [ "default-roles-aiod"],
+    "realmRoles" : [ "default-roles-aiod" ],
     "notBefore" : 0,
     "groups" : [ ]
   } ]

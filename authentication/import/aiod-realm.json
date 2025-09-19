@@ -46,6 +46,14 @@
   "failureFactor" : 30,
   "roles" : {
     "realm" : [ {
+      "id" : "e08fe59a-cf81-451d-9f47-59141894dfc3",
+      "name" : "platform_example",
+      "description" : "Role for a connector which uploads assets from the \"example\" platform",
+      "composite" : false,
+      "clientRole" : false,
+      "containerId" : "3df7e07d-ebbd-41c4-bc0c-1ba0e1a40ac5",
+      "attributes" : { }
+    }, {
       "id" : "25a45d6d-fe0d-4855-945f-f5a27ec86ad0",
       "name" : "uma_authorization",
       "description" : "${role_uma_authorization}",
@@ -1416,7 +1424,7 @@
       "subType" : "authenticated",
       "subComponents" : { },
       "config" : {
-        "allowed-protocol-mapper-types" : [ "oidc-usermodel-property-mapper", "saml-role-list-mapper", "oidc-address-mapper", "oidc-full-name-mapper", "oidc-sha256-pairwise-sub-mapper", "saml-user-property-mapper", "oidc-usermodel-attribute-mapper", "saml-user-attribute-mapper" ]
+        "allowed-protocol-mapper-types" : [ "saml-user-attribute-mapper", "oidc-full-name-mapper", "oidc-usermodel-property-mapper", "saml-role-list-mapper", "oidc-address-mapper", "oidc-sha256-pairwise-sub-mapper", "saml-user-property-mapper", "oidc-usermodel-attribute-mapper" ]
       }
     }, {
       "id" : "10f8b9b2-1038-4c98-b7a5-a9ac88fed69e",
@@ -1458,7 +1466,7 @@
       "subType" : "anonymous",
       "subComponents" : { },
       "config" : {
-        "allowed-protocol-mapper-types" : [ "saml-role-list-mapper", "saml-user-property-mapper", "oidc-sha256-pairwise-sub-mapper", "saml-user-attribute-mapper", "oidc-usermodel-property-mapper", "oidc-full-name-mapper", "oidc-usermodel-attribute-mapper", "oidc-address-mapper" ]
+        "allowed-protocol-mapper-types" : [ "saml-user-attribute-mapper", "oidc-usermodel-attribute-mapper", "oidc-address-mapper", "oidc-sha256-pairwise-sub-mapper", "oidc-full-name-mapper", "saml-user-property-mapper", "saml-role-list-mapper", "oidc-usermodel-property-mapper" ]
       }
     }, {
       "id" : "1d21f027-e0ae-4b80-b95e-f21d9426f115",
