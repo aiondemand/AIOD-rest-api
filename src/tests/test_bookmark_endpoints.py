@@ -2,7 +2,6 @@ from http import HTTPStatus
 
 import pytest
 from starlette.testclient import TestClient
-from database.session import DbSession
 
 from tests.testutils.users import logged_in_user, ALICE
 from database.model.bookmark.bookmark import Bookmark
@@ -20,7 +19,7 @@ def test_create_bookmark(
 
     identifier = register_asset(person)
 
-    with logged_in_user():
+    with logged_in_user(ALICE):
         response = client.post(
             f"/bookmarks?resource_identifier={identifier}",
             headers={"Authorization": "fake token"},

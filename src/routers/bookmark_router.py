@@ -1,3 +1,5 @@
+import logging
+
 import sqlalchemy.exc
 from fastapi import APIRouter, Depends, HTTPException
 from typing import List, cast
@@ -5,6 +7,7 @@ from sqlmodel import Session, select, Field, SQLModel
 
 from authentication import KeycloakUser, get_user_or_raise
 from database.session import get_session
+from database.authorization import register_user
 from database.model.bookmark.bookmark import Bookmark
 from http import HTTPStatus
 from datetime import datetime
@@ -12,6 +15,9 @@ from datetime import datetime
 from dependencies.pagination import PaginationParams
 from routers.helper_functions import get_asset_type_by_abbreviation
 from versioning import Version
+
+
+logger = logging.getLogger(__name__)
 
 
 class BookmarkRead(SQLModel):
@@ -66,6 +72,7 @@ def create(url_prefix: str = "", version: Version = Version.LATEST) -> APIRouter
                 detail=f"Resource {resource_identifier} does not exist.",
             )
 
+        register_user(user, session)
         try:
             bookmark = Bookmark(
                 user_identifier=user._subject_identifier,
@@ -73,9 +80,16 @@ def create(url_prefix: str = "", version: Version = Version.LATEST) -> APIRouter
             )
             session.add(bookmark)
             session.commit()
-        except sqlalchemy.exc.IntegrityError:  # The entry already exists
+        except sqlalchemy.exc.IntegrityError as e:
             session.rollback()
+            # Most likely there is an error here because the bookmark already exists.
             bookmark = session.get(Bookmark, (user._subject_identifier, resource_identifier))
+            if not bookmark:
+                logger.warning(f"Unexpected error creating bookmark: {e}")
+                raise HTTPException(
+                    status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+                    detail=f"Unexpected error creating bookmark ({user}, {resource_identifier!r}): {e}",
+                )
         return cast(BookmarkRead, bookmark)
 
     @router.delete(
