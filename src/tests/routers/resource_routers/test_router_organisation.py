@@ -53,7 +53,7 @@ def test_happy_path(
     body["date_founded"] = "2023-01-01"
     body["legal_name"] = "A name for the organisation"
     body["ai_relevance"] = "Part of CLAIRE"
-    body["type"] = "Research Institute"
+    body["type"] = "Research University"
     body["turnover"] = "<1 million euros"
     with DbSession() as session:
         session.add(organisation)  # The new organisation will be a member of this organisation
@@ -79,7 +79,7 @@ def test_happy_path(
     assert response_json["date_founded"] == "2023-01-01"
     assert response_json["legal_name"] == "A name for the organisation"
     assert response_json["ai_relevance"] == "Part of CLAIRE"
-    assert response_json["type"] == "research institute"
+    assert response_json["type"] == "research university"
     assert response_json["turnover"] == "<1 million euros"
     assert response_json["member"] == body["member"]
     assert response_json["contact_details"] == body["contact_details"]

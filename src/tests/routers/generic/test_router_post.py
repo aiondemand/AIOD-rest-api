@@ -10,6 +10,7 @@ from tests.routers.resource_routers.test_router_organisation import with_organis
 from database.model.platform.platform_names import PlatformName
 from database.model.resource_read_and_create import resource_create
 from routers import resource_routers
+from versioning import Version
 
 
 @pytest.mark.parametrize(
@@ -254,9 +255,10 @@ def test_taxonomy_is_not_enforced_for_connector(
         assert response.status_code == HTTPStatus.OK, response.json()
 
 
+@pytest.mark.versions(Version.LATEST)
 @pytest.mark.parametrize(
     "router",
-    tested_routers := [r for r in resource_routers.router_list if r.resource_name != 'platform'],
+    tested_routers := [r for r in resource_routers.versioned_routers[Version.LATEST] if r.resource_name != 'platform'],
     ids=map(lambda r: r.resource_name, tested_routers),
 )
 def test_example_is_valid(router, client: TestClient, with_organisation_taxonomies):

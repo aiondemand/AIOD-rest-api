@@ -29,7 +29,8 @@ from database.model.news.news_category import NewsCategory
 from database.model.agent.organisation import OrganisationType
 from database.model.event.event import EventMode, EventStatus
 from database.model.agent.language import Language
-from database.model.educational_resource.educational_resource import EducationalLevel
+from database.model.educational_resource.educational_resource import EducationalLevel, \
+    EducationalCompetency
 from tests.testutils.test_resource import RouterTestResource, factory_test_resource
 from tests.testutils.users import bypass_reviewer_publish_everything
 from taxonomies.synchronize_taxonomy import Term
@@ -65,7 +66,7 @@ DEFAULT_LICENSE = [
     Term("CC-BY-4.0", "for use in tests", children=[]),
 ]
 DEFAULT_ORGANISATION_TYPE = [
-    Term("research institute", "for use in tests", children=[]),
+    Term("research university", "for use in tests", children=[]),
     Term("association", "for use in tests", children=[]),
 ]
 DEFAULT_EVENT_MODE = [
@@ -77,10 +78,18 @@ DEFAULT_EVENT_STATUS = [
 DEFAULT_LANGUAGE = [
     Term("nld","for use in tests", children=[]),
     Term("eng","for use in tests", children=[]),
+    Term("English","for use in tests", children=[]),
+    Term("Catalan","for use in tests", children=[]),
+    Term("Spanish","for use in tests", children=[]),
 ]
 DEFAULT_EDUCATIONAL_LEVEL = [
     Term("university","for use in tests", children=[]),
     Term("secondary school","for use in tests", children=[]),
+    Term("primary education","for use in tests", children=[]),
+    Term("Bachelor’s or equivalent level","for use in tests", children=[]),
+]
+DEFAULT_EDUCATIONAL_COMPETENCY = [
+    Term("intermediate","for use in tests", children=[]),
 ]
 DEFAULT_COUNTRY = [
     Term("NLD", "for use in tests", children=[])
@@ -143,6 +152,7 @@ def clear_db(request, engine: Engine):
             (EventStatus, DEFAULT_EVENT_STATUS),
             (Language, DEFAULT_LANGUAGE),
             (EducationalLevel, DEFAULT_EDUCATIONAL_LEVEL),
+            (EducationalCompetency, DEFAULT_EDUCATIONAL_COMPETENCY),
         ]:
             for term in terms:
                 session.add(taxonomy(**term._asdict(), official=True))

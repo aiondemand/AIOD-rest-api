@@ -87,6 +87,11 @@ class EducationalResource(EducationalResourceBase, AIResource, table=True):  # t
             from_identifier_type=str,
         )
     )
+    required_competency_level_identifier: int | None = Field(
+        foreign_key=f"{EducationalCompetency.__tablename__}.identifier",
+        description="The required competency level for engaging with this resource.",
+    )
+    required_competency_level: EducationalCompetency | None = Relationship()  # type: ignore[valid-type]
     in_language: list[Language] = Relationship(  # type: ignore[valid-type]
         link_model=many_to_many_link_factory(
             table_from="educational_resource",
@@ -147,14 +152,21 @@ class EducationalResource(EducationalResourceBase, AIResource, table=True):  # t
             description="The level or levels of education for which this resource is intended.",
             _serializer=AttributeSerializer("name"),
             deserializer=FindByNameDeserializerList(EducationalLevel),
-            example=["primary school", "secondary school", "university"],
+            example=["Bachelor’s or equivalent level", "primary education"],
             default_factory_pydantic=list,
+        )
+        required_competency_level: Optional[str] = ManyToOne(
+            description="The required competency level for engaging with this resource.",
+            identifier_name="required_competency_level_identifier",
+            _serializer=AttributeSerializer("name"),
+            deserializer=FindByNameDeserializer(EducationalCompetency),
+            example="intermediate",
         )
         in_language: list[str] = ManyToMany(
             description="The language(s) of the educational resource, in ISO639-3.",
             _serializer=AttributeSerializer("name"),
             deserializer=FindByNameDeserializerList(Language),
-            example=["eng", "fra", "spa"],
+            example=["Catalan"],
             default_factory_pydantic=list,
         )
         location: list[Location] = ManyToMany(

@@ -107,7 +107,7 @@ class Organisation(OrganisationBase, Agent, table=True):  # type: ignore [call-a
             identifier_name="type_identifier",
             _serializer=AttributeSerializer("name"),
             deserializer=FindByNameDeserializer(OrganisationType),
-            example="Research Institution",
+            example="Research University",
         )
         member: list[str] = ManyToMany(
             description="The identifier of an agent (e.g. organisation or person) that is a "

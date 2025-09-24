@@ -84,10 +84,10 @@ class Person(PersonBase, Agent, table=True):  # type: ignore [call-arg]
             on_delete_trigger_orphan_deletion=list,
         )
         languages: list[str] = ManyToMany(
-            description="A language this person masters, in ISO639-3",
+            description="A language this person masters",
             _serializer=AttributeSerializer("name"),
             deserializer=FindByNameDeserializerList(Language),
-            example=["eng", "fra", "spa"],
+            example=["Catalan", "Spanish", "English"],
             default_factory_pydantic=list,
         )
 
