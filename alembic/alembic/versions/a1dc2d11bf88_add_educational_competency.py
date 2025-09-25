@@ -20,8 +20,23 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    pass
+    op.add_column(
+        "educational_resource",
+        sa.Column("required_competency_level_identifier", sa.Integer(), nullable=True),
+    )
+    op.create_foreign_key(
+        "educational_resource_required_competency_level_ibfk",
+        "educational_resource",
+        "educational_competency",
+        ["required_competency_level_identifier"],
+        ["identifier"],
+    )
 
 
 def downgrade() -> None:
-    pass
+    op.drop_constraint(
+        "educational_resource_required_competency_level_ibfk",
+        "educational_resource",
+        type_="foreignkey",
+    )
+    op.drop_column("educational_resource", "required_competency_level_identifier")
