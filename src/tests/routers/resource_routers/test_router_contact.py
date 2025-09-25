@@ -27,7 +27,7 @@ def test_happy_path(client: TestClient, body_asset: dict, auto_publish: None):
     body["telephone"] = ["0032 xxxx xxxx"]
     body["location"] = [
         {
-            "address": {"country": "NED", "street": "Street Name 10", "postal_code": "1234AB"},
+            "address": {"country": "Spain", "street": "Street Name 10", "postal_code": "1234AB"},
             "geo": {"latitude": 37.42242, "longitude": -122.08585, "elevation_millimeters": 2000},
         }
     ]
@@ -48,7 +48,7 @@ def test_happy_path(client: TestClient, body_asset: dict, auto_publish: None):
     assert response_json["telephone"] == ["0032 xxxx xxxx"]
     assert response_json["location"] == [
         {
-            "address": {"country": "NED", "street": "Street Name 10", "postal_code": "1234AB"},
+            "address": {"country": "Spain", "street": "Street Name 10", "postal_code": "1234AB"},
             "geo": {"latitude": 37.42242, "longitude": -122.08585, "elevation_millimeters": 2000},
         }
     ]

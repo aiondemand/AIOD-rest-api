@@ -19,7 +19,7 @@ def test_happy_path(
     body["in_language"] = ["nld", "eng"]
     locations = [
         {
-            "address": {"country": "NED", "street": "Street Name 10", "postal_code": "1234AB"},
+            "address": {"country": "Spain", "street": "Street Name 10", "postal_code": "1234AB"},
         },
         {
             "geo": {"latitude": 37.42242, "longitude": -122.08585, "elevation_millimeters": 2000},

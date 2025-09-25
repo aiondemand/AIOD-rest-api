@@ -88,7 +88,7 @@ def test_happy_path(
     assert response_json["contacts"][0]["email"] == ["a@b.com"]
     assert response_json["contacts"][0]["location"] == [
         {
-            "address": {"country": "NED", "street": "Street Name 10", "postal_code": "1234AB"},
+            "address": {"country": "Spain", "street": "Street Name 10", "postal_code": "1234AB"},
             "geo": {"latitude": 37.42242, "longitude": -122.08585, "elevation_millimeters": 2000},
         }
     ]

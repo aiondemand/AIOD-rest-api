@@ -2,7 +2,7 @@ from sqlmodel import select
 from starlette.testclient import TestClient
 
 from database.model.agent.agent_table import AgentTable
-from database.model.agent.location import LocationORM, AddressORM, GeoORM
+from database.model.agent.location import LocationORM, AddressORM, GeoORM, Country
 from database.model.ai_asset.ai_asset_table import AIAssetTable
 from database.model.dataset.dataset import Dataset
 from database.model.dataset.size import DatasetSizeORM
@@ -15,7 +15,7 @@ def test_happy_path(client: TestClient):
         ai_asset_identifier=AIAssetTable(type="dataset"),
         name="dataset 1",
         spatial_coverage=LocationORM(
-            address=AddressORM(country="BEL"), geo=GeoORM(latitude=37.42242, longitude=-122.08585)
+            address=AddressORM(country=Country(name="Belgium")), geo=GeoORM(latitude=37.42242, longitude=-122.08585)
         ),
         size=DatasetSizeORM(unit="number of rows", value=10),
         funder=[AgentTable(type="person")],

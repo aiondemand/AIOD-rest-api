@@ -28,7 +28,7 @@ def test_happy_path(
     body["funder"] = [person.identifier]
     body["size"] = {"unit": "Rows", "value": "100"}
     body["spatial_coverage"] = {
-        "address": {"country": "NED", "street": "Street Name 10", "postal_code": "1234AB"},
+        "address": {"country": "Spain", "street": "Street Name 10", "postal_code": "1234AB"},
         "geo": {"latitude": 37.42242, "longitude": -122.08585, "elevation_millimeters": 2000},
     }
 
@@ -48,7 +48,7 @@ def test_happy_path(
     assert response_json["funder"] == [person.identifier]
     assert response_json["size"] == {"unit": "Rows", "value": 100}
     assert response_json["spatial_coverage"] == {
-        "address": {"country": "NED", "street": "Street Name 10", "postal_code": "1234AB"},
+        "address": {"country": "Spain", "street": "Street Name 10", "postal_code": "1234AB"},
         "geo": {"latitude": 37.42242, "longitude": -122.08585, "elevation_millimeters": 2000},
     }
     # TODO: test delete

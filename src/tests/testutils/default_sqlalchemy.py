@@ -31,6 +31,7 @@ from database.model.event.event import EventMode, EventStatus
 from database.model.agent.language import Language
 from database.model.educational_resource.educational_resource import EducationalLevel, \
     EducationalCompetency
+from database.model.agent.location import Country
 from tests.testutils.test_resource import RouterTestResource, factory_test_resource
 from tests.testutils.users import bypass_reviewer_publish_everything
 from taxonomies.synchronize_taxonomy import Term
@@ -92,7 +93,7 @@ DEFAULT_EDUCATIONAL_COMPETENCY = [
     Term("intermediate","for use in tests", children=[]),
 ]
 DEFAULT_COUNTRY = [
-    Term("NLD", "for use in tests", children=[])
+    Term("Spain", "for use in tests", children=[])
 ]
 
 @pytest.fixture(scope="session")
@@ -153,6 +154,7 @@ def clear_db(request, engine: Engine):
             (Language, DEFAULT_LANGUAGE),
             (EducationalLevel, DEFAULT_EDUCATIONAL_LEVEL),
             (EducationalCompetency, DEFAULT_EDUCATIONAL_COMPETENCY),
+            (Country, DEFAULT_COUNTRY),
         ]:
             for term in terms:
                 session.add(taxonomy(**term._asdict(), official=True))
