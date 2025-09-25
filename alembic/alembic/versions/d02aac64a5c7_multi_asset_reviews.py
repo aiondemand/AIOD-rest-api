@@ -1,7 +1,7 @@
 """multi_asset_reviews
 
 Revision ID: d02aac64a5c7
-Revises: 1fd9b6a162c4
+Revises: 586692ca94e4
 Create Date: 2025-09-16 12:27:10.238574
 
 """
@@ -14,7 +14,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision: str = "d02aac64a5c7"
-down_revision: Union[str, None] = "1fd9b6a162c4"
+down_revision: Union[str, None] = "586692ca94e4"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
