@@ -55,6 +55,10 @@ def test_happy_path(
     body["ai_relevance"] = "Part of CLAIRE"
     body["type"] = "Research Institute"
     body["turnover"] = "<1 million euros"
+    # body["has_activity_type"] = "Research"
+    # body["involved_in_area"] = "Strategic Partner"
+    # body["has_membership_in"] = "CLAIRE Network"
+
     with DbSession() as session:
         session.add(organisation)  # The new organisation will be a member of this organisation
         session.add(contact)
@@ -92,6 +96,9 @@ def test_happy_path(
             "geo": {"latitude": 37.42242, "longitude": -122.08585, "elevation_millimeters": 2000},
         }
     ]
+    # assert body["has_activity_type"] == "Research"
+    # assert body["involved_in_area"] == "Strategic Partner"
+    # assert body["has_membership_in"] == "CLAIRE Network"
 
     # response = client.delete("/organisations/1", headers={"Authorization": "Fake token"})
     # assert response.status_code == 200
