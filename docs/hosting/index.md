@@ -29,6 +29,12 @@ However, we do need to fetch files from the latest release of the repository:
     * Find the downloaded file on disk, and extract the content.
 
 ## Starting the Metadata Catalogue
+If this is the first time starting the services on your system, or you need to ensure you have the latest images
+of the metadata catalogue available, first run the `./scripts/build.sh` script or invoke `docker compose build`.
+During development with `USE_LOCAL_DEV=true` set, you do not need to rebuild containers unless new dependencies
+are added to the project.
+
+Assuming the images for the metadata catalogue are available, you can now start the metadata catalogue service.
 From the root of the project directory (i.e., the directory with the `docker-compose.yaml` file), run:
 
 === "Shorthand"
