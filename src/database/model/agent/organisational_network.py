@@ -1,4 +1,3 @@
-
 from typing import Optional, TYPE_CHECKING, List
 from sqlmodel import Field, Relationship
 from database.model.agent.agent import Agent, AgentBase
@@ -8,11 +7,12 @@ from versioning import Version, VersionedResource, VersionedResourceCollection
 class OrganisationalNetworkBase(AgentBase):
     pass
 
+
 class OrganisationalNetwork(OrganisationalNetworkBase, Agent, table=True):  # type: ignore
     __tablename__ = "organisational_network"
     __abbreviation__ = "net"
     __plural__ = "organisational_networks"
-    
+
     class RelationshipConfig(Agent.RelationshipConfig):
         pass
 

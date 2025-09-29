@@ -1,4 +1,7 @@
-from database.model.agent.organisational_network import OrganisationalNetwork, organisational_network_versions
+from database.model.agent.organisational_network import (
+    OrganisationalNetwork,
+    organisational_network_versions,
+)
 from routers.resource_router import ResourceRouter
 
 
@@ -18,6 +21,7 @@ class OrganisationalNetworkRouter(ResourceRouter):
     @property
     def resource_class(self) -> type[OrganisationalNetwork]:
         return OrganisationalNetwork
+
 
 organisational_network_routers = {
     version: OrganisationalNetworkRouter(versioned_resource)
