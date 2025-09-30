@@ -113,8 +113,8 @@ class Address(AddressBase):
     country: str | None
 
     @validator("country", pre=True)
-    def use_country_name(cls, v):
-        if isinstance(v, str):
+    def use_country_name(cls, v) -> str | None:
+        if v is None or isinstance(v, str):
             return v
         if isinstance(v, Country):
             return v.name

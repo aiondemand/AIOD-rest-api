@@ -1,4 +1,6 @@
 import copy
+from http import HTTPStatus
+
 import pytest
 from unittest.mock import Mock
 
@@ -235,3 +237,14 @@ def test_email_privacy_for_ai4europe_cms(
     assert response.status_code == 200, response_json
     assert len(response_json) > 0, response_json
     assert response_json["email"] == ["fake@email.com", "fake2@email.com"]
+
+
+def test_empty_country(client: TestClient, body_asset: dict, auto_publish: None):
+    body = copy.deepcopy(body_asset)
+    body["name"] = "Contact name"
+    body["location"] = [{"address": {}}]
+    with logged_in_user():
+        response = client.post("/contacts", json=body, headers={"Authorization": "Fake token"})
+        assert response.status_code == HTTPStatus.OK, response.json()
+    response = client.get(f"/contacts/{response.json()['identifier']}")
+    assert response.status_code == HTTPStatus.OK
