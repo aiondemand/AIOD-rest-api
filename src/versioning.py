@@ -96,18 +96,25 @@ def add_version_to_openapi(versioned_api: FastAPI):
     else:
         version_prefix = f"/{versioned_api.version}"
 
+    # custom_openapi does not have access to the `request` information which
+    # details whether or not the application is behind a proxy (which has to
+    # be configured with a special header). But because `swagger` or `redoc`
+    # pages are called before they internally call `custom_openapi`, we relay
+    # the information through this variable. This does not work if the same app
+    # is hosted under different paths at the same time (the OpenAPI schema is
+    # only generated the first request). We could regenerate it every time,
+    # but this would still introduce a race-condition when multiple people call
+    # the swagger/redoc pages concurrently from different proxies.
+    root_path = ""
+
     def custom_openapi():
         if versioned_api.openapi_schema:
             return versioned_api.openapi_schema
         schema = versioned_api._openapi()
 
-        # We edit the servers instead of dropping them to preserve information
-        # on the root_path and hostname.
-        for server in schema.get("servers", []):
-            server["url"] = server["url"].removesuffix(version_prefix)
-        # If everything is simply relative to the hostname, then we can drop the
-        # server information, which ensures there isn't an empty dropdown menu.
-        if schema.get("servers", []) == [{"url": ""}]:
+        if root_path:
+            schema["servers"] = [{"url": root_path}]
+        elif "servers" in schema:
             del schema["servers"]
 
         versioned_api.openapi_schema = schema
@@ -128,6 +135,7 @@ def add_version_to_openapi(versioned_api: FastAPI):
     versioned_api.openapi = custom_openapi
 
     def overridden_swagger(request: Request):
+        nonlocal root_path
         root_path = request.headers.get("x-forwarded-prefix", "")
         show_versions = {"latest": f"{root_path}/docs"} | {
             version: f"{root_path}/{version}/docs"
@@ -161,6 +169,7 @@ def add_version_to_openapi(versioned_api: FastAPI):
     )
 
     def overridden_redoc(request: Request):
+        nonlocal root_path
         root_path = request.headers.get("x-forwarded-prefix", "")
         html = get_redoc_html(
             openapi_url=f"{root_path}{version_prefix}/openapi.json",

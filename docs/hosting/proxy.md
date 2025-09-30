@@ -28,3 +28,11 @@ Here are examples on how to configure a proxy with the `/aiod` prefix and add th
         }
     }
     ```
+
+!!! warning "Multiple Proxies"
+
+    The REST API is not tested under multiple sequential or parallel proxies at the same time.
+    For sequential proxies, so long as the `x-forwarded-prefix` is preserved and augmented to represent each layer,
+    the REST API probably will work fine. For 'parallel' proxies (e.g., exposing the service both on `/aiod` and `/rest`)
+    the API likely remains functional, but the OpenAPI spec (and thus swagger pages) will only work for the one which is
+    requested first (see versioning.py::add_version_to_openapi).
