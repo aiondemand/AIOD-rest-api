@@ -23,13 +23,14 @@ from database.model.resource_read_and_create import resource_read, resource_crea
 from versioning import schema_transform
 
 from database.model.agent.network_membership import NetworkMembership
+from database.model.agent.involvement_level import InvolvementLevel
 from database.model.serializers import CastDeserializerList
 
-OrganisationInvolvementLevel: type[Taxonomy] = create_taxonomy(
-    class_name="OrganisationInvolvementLevel",
-    table_name="organisation_involvement_level",
-    plural_name="organisation involvement levels",
-)
+# OrganisationInvolvementLevel: type[Taxonomy] = create_taxonomy(
+#     class_name="OrganisationInvolvementLevel",
+#     table_name="organisation_involvement_level",
+#     plural_name="organisation involvement levels",
+# )
 
 # OrganisationNetworkMembership: type[Taxonomy] = create_taxonomy(
 #     class_name="OrganisationNetworkMembership",
@@ -120,12 +121,11 @@ class Organisation(OrganisationBase, Agent, table=True):  # type: ignore [call-a
     )
     has_activity_type: Optional[OrganisationActivityType] = Relationship()  # type: ignore[valid-type]
 
-    involved_in_area_identifier: int | None = Field(
-        default=None,
-        foreign_key="organisation_involvement_level.identifier",
-        description="The involvement level of the organisation in a specific area.",
+    involved_in_area: list[InvolvementLevel] = Relationship(
+        sa_relationship_kwargs={
+            "primaryjoin": "Organisation.identifier==InvolvementLevel.organisation_identifier"
+        }
     )
-    involved_in_area: Optional[OrganisationInvolvementLevel] = Relationship()  # type: ignore[valid-type]
 
     has_membership_in: list[NetworkMembership] = Relationship(
         sa_relationship_kwargs={
@@ -181,12 +181,11 @@ class Organisation(OrganisationBase, Agent, table=True):  # type: ignore [call-a
             example="Applied research",
         )
 
-        involved_in_area: Optional[str] = ManyToOne(
-            description="The involvement level of the organisation in a specific area.",
-            identifier_name="involved_in_area_identifier",
-            _serializer=AttributeSerializer("name"),
-            deserializer=FindByNameDeserializer(OrganisationInvolvementLevel),
-            example="Strategic Partner",
+        involved_in_area: list[InvolvementLevel] = OneToMany(
+            description="The involvement levels that link this organisation to specific expertise areas.",
+            _serializer=AttributeSerializer("identifier"),
+            deserializer=CastDeserializerList(InvolvementLevel),
+            default_factory_pydantic=list,
         )
 
         has_membership_in: list[NetworkMembership] = OneToMany(
@@ -210,7 +209,7 @@ def organisation_v3_to_v2() -> VersionedResource:
         remove_fields=[
             "has_activity_type",
             "involved_in_area",
-            # "has_membership_in",
+            "has_membership_in",
         ],
     )
 
@@ -220,16 +219,13 @@ def organisation_v3_to_v2() -> VersionedResource:
         remove_fields=[
             "has_activity_type",
             "involved_in_area",
-            # "has_membership_in",
+            "has_membership_in",
         ],
     )
 
     def orm_to_read(org: Organisation) -> OrganisationV2Read:  # type: ignore[valid-type]
         read = resource_read(Organisation).model_validate(org).model_dump()
-        for f in [
-            "has_activity_type",
-            "involved_in_area",
-        ]:  # "has_membership_in"]:
+        for f in ["has_activity_type", "involved_in_area", "has_membership_in"]:
             read.pop(f, None)
         return OrganisationV2Read.model_validate(read)
 
@@ -245,7 +241,7 @@ def organisation_v3_to_v2() -> VersionedResource:
 organisation_versions = VersionedResourceCollection(
     {
         Version.V3: VersionedResource(Organisation),
-        # Version.V2: organisation_v3_to_v2(),
+        Version.V2: organisation_v3_to_v2(),
         Version.LATEST: VersionedResource(Organisation),
     }
 )
