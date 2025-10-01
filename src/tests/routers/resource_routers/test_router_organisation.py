@@ -55,9 +55,19 @@ def test_happy_path(
     body["ai_relevance"] = "Part of CLAIRE"
     body["type"] = "Research Institute"
     body["turnover"] = "<1 million euros"
-    # body["has_activity_type"] = "Research"
-    # body["involved_in_area"] = "Strategic Partner"
-    # body["has_membership_in"] = "CLAIRE Network"
+    body["has_activity_type"] = "Applied research"
+    body["involved_in_area"] = [{
+        "involvement_level": "high",
+        "involvement_area": "Computer Vision"
+    }]
+    body["has_membership_in"] = [{
+        "with_network_role": "Beneficiary",
+        "in_network": "AI4Media"
+    },
+    {
+        "with_network_role": "Associated partner",
+        "in_network": "ELISE"
+    }]
 
     with DbSession() as session:
         session.add(organisation)  # The new organisation will be a member of this organisation

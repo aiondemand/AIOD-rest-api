@@ -15,6 +15,7 @@ from database.model.serializers import (
     FindByNameDeserializer,
     FindByIdentifierDeserializer,
     FindByIdentifierDeserializerList,
+    MultiAttributeSerializer,
 )
 from versioning import Version, VersionedResource, VersionedResourceCollection
 from typing import cast
@@ -26,17 +27,6 @@ from database.model.agent.network_membership import NetworkMembership
 from database.model.agent.involvement_level import InvolvementLevel
 from database.model.serializers import CastDeserializerList
 
-# OrganisationInvolvementLevel: type[Taxonomy] = create_taxonomy(
-#     class_name="OrganisationInvolvementLevel",
-#     table_name="organisation_involvement_level",
-#     plural_name="organisation involvement levels",
-# )
-
-# OrganisationNetworkMembership: type[Taxonomy] = create_taxonomy(
-#     class_name="OrganisationNetworkMembership",
-#     table_name="organisation_network_membership",
-#     plural_name="organisation network memberships",
-# )
 
 OrganisationType: type[Taxonomy] = create_taxonomy(
     class_name="OrganisationType",
@@ -121,17 +111,17 @@ class Organisation(OrganisationBase, Agent, table=True):  # type: ignore [call-a
     )
     has_activity_type: Optional[OrganisationActivityType] = Relationship()  # type: ignore[valid-type]
 
-    involved_in_area: list[InvolvementLevel] = Relationship(
-        sa_relationship_kwargs={
-            "primaryjoin": "Organisation.identifier==InvolvementLevel.organisation_identifier"
-        }
-    )
+    # involved_in_area: list[InvolvementLevel] = Relationship(
+    #     back_populates="organisation",
+    #     sa_relationship_kwargs={
+    #     "lazy": "selectin",
+    #     "primaryjoin": "Organisation.identifier == foreign(InvolvementLevel.organisation_identifier)"
+    # }
+    # )
 
-    has_membership_in: list[NetworkMembership] = Relationship(
-        sa_relationship_kwargs={
-            "primaryjoin": "Organisation.identifier==NetworkMembership.organisation_identifier"
-        }
-    )
+    involved_in_area: list["InvolvementLevel"] = Relationship(back_populates="organisation")
+
+    has_membership_in: list[NetworkMembership] = Relationship(back_populates="organisation")
 
     class RelationshipConfig(Agent.RelationshipConfig):
         contact_details: str | None = OneToOne(
@@ -183,14 +173,15 @@ class Organisation(OrganisationBase, Agent, table=True):  # type: ignore [call-a
 
         involved_in_area: list[InvolvementLevel] = OneToMany(
             description="The involvement levels that link this organisation to specific expertise areas.",
-            _serializer=AttributeSerializer("identifier"),
+            # _serializer=MultiAttributeSerializer({
+            # "involvement_level":"involvement_level", "involvement_area":"involvement_area.name"}),
             deserializer=CastDeserializerList(InvolvementLevel),
             default_factory_pydantic=list,
         )
 
         has_membership_in: list[NetworkMembership] = OneToMany(
             description="The memberships that link this organisation to organisational networks.",
-            _serializer=AttributeSerializer("identifier"),
+            # _serializer=AttributeSerializer("identifier"),
             deserializer=CastDeserializerList(NetworkMembership),
             default_factory_pydantic=list,
         )
@@ -245,3 +236,70 @@ organisation_versions = VersionedResourceCollection(
         Version.LATEST: VersionedResource(Organisation),
     }
 )
+
+# {
+#   "platform": null,
+#   "platform_resource_identifier": null,
+#   "name": "The name of this resource",
+#   "date_published": "2022-01-01T15:15:00.000",
+#   "same_as": "https://www.example.com/resource/this_resource",
+#   "date_founded": "2022-01-01",
+#   "legal_name": "The Organisation Name",
+#   "ai_relevance": "Part of CLAIRE, focussing on explainable AI.",
+#   "aiod_entry": null,
+#   "alternate_name": [
+#     "alias 1",
+#     "alias 2"
+#   ],
+#   "application_area": [
+#     "Fraud Prevention",
+#     "Voice Assistance",
+#     "Disease Classification"
+#   ],
+#   "contact": [],
+#   "contact_details": null,
+#   "creator": [],
+#   "description": null,
+#   "has_activity_type": "Applied research",
+# "has_membership_in": [
+#   {
+#     "with_network_role": "Beneficiary",
+#     "in_network": "AI4Media"
+#   },
+#   {
+#     "with_network_role": "Associated partner",
+#     "in_network": "ELISE"
+#   }
+# ],
+#   "has_part": [],
+#   "industrial_sector": [
+#     "Pharmaceuticals",
+#     "Computer Programming",
+#     "Cybersecurity"
+#   ],
+#   "involved_in_area": [{"involvement_level": "low", "involvement_area": "computervision"}],
+#   "is_part_of": [],
+#   "keyword": [
+#     "keyword1",
+#     "keyword2"
+#   ],
+#   "media": [],
+#   "member": [],
+#   "note": [],
+#   "number_of_employees": "<10",
+#   "relevant_link": [
+#     "https://www.example.com/a_relevant_link",
+#     "https://www.example.com/another_relevant_link"
+#   ],
+#   "relevant_resource": [],
+#   "relevant_to": [],
+#   "research_area": [
+#     "AI Services",
+#     "Multi-agent Systems"
+#   ],
+#   "scientific_domain": [
+#     "Computer and Information Sciences",
+#     "Mathematics"
+#   ],
+#   "turnover": ">5 million euros"
+# }

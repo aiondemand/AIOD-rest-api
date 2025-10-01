@@ -36,6 +36,26 @@ class DeSerializer(abc.ABC, Generic[MODEL]):
         pass
 
 
+class MultiAttributeSerializer(Serializer):
+    """Serialize by using multiple attributes of the object.
+
+    For instance, if using `MultiAttributeSerializer(['identifier', 'name'])`, a dictionary
+    with both the identifier and name of this object will be shown to the user."""
+
+    def __init__(self, attribute_names: dict[str, str]):
+        self.attribute_map = attribute_names
+
+    def serialize(self, model: MODEL) -> Any:
+        attributes = {}
+        for key, path in self.attribute_map.items():
+            obj = model
+            *path_parts, last = path.split(".")
+            for part in path_parts:
+                obj = getattr(obj, part)
+            attributes[key] = getattr(obj, last)
+        return attributes
+
+
 class AttributeSerializer(Serializer):
     """Serialize by using only the value of this attribute.
 
