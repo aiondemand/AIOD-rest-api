@@ -57,4 +57,8 @@ Deploying an update:
  1. Bring down the services: `./scripts/down.sh`
  1. Bring the database back up: `docker compose --env-file=.env --env-file=override.env up sqlserver -d`
 -  Runs the [migrations](schema/migration.md), if any: `docker run -v $(pwd)/alembic:/alembic:ro  -v $(pwd)/src:/app -it --network aiod-rest-api_default  aiod-migration`
+- Start the remainder of the services: `./scripts/up.sh`
+- To make sure the latest taxonomy is also included:
+  - Copy the `export/taxonomies.json` file from the `metadata-schema` repository and have it update on startup, or
+  - run the taxonomy service independently (preferred, but currently broken?)
 - Notify everyone (e.g., in the API channel in Slack).
