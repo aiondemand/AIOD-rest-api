@@ -17,9 +17,9 @@ def setup_logger(config: dict | None = None):
         "Missing `log_level` setting in the [dev] section of the configuration.toml file."
     )
 
-    log_level: str = config["dev"]["log_level"]
+    log_level: str = config["dev"]["log_level"].upper()
     levels = logging.getLevelNamesMapping()
-    assert isinstance(log_level, str) and log_level.upper() in levels, (
+    assert isinstance(log_level, str) and log_level in levels, (
         f"The `dev.log_level` is set to {log_level!r} but should be one of {set(levels)!r}."
     )
 
