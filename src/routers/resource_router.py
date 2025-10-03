@@ -567,6 +567,7 @@ class ResourceRouter(abc.ABC):
                     if not (
                         user_can_write(user, resource.aiod_entry)
                         or user.has_role(f"update_{self.resource_name_plural}")
+                        or user.is_connector_for_platform(resource.platform)
                     ):
                         raise HTTPException(
                             status_code=status.HTTP_403_FORBIDDEN,
@@ -619,6 +620,7 @@ class ResourceRouter(abc.ABC):
                     if not (
                         user_can_administer(user, resource.aiod_entry)
                         or user.has_role(f"delete_{self.resource_name_plural}")
+                        or user.is_connector_for_platform(resource.platform)
                     ):
                         raise HTTPException(
                             status_code=status.HTTP_403_FORBIDDEN,
