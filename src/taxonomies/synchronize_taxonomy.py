@@ -114,7 +114,9 @@ def synchronize(
     logging.info(f"Updating {taxonomy_type.__tablename__!r}")
     # We first invalidate everything, so only what is still in the file will remain 'official'
     db_definitions = {
-        term.name.casefold(): term for term in session.scalars(select(taxonomy_type)).all()
+        term.name.casefold(): term
+        for term in session.scalars(select(taxonomy_type)).all()
+        if term.name  # Due to migrations there may be one term which is null, but this is never in the json
     }
     added_terms = dict()
     for term_object in db_definitions.values():
