@@ -34,6 +34,8 @@ Adding an attribute to an asset requires three things:
 
 This guide will discuss them in order, using the example of adding a `source` attribute to the `News` asset (see also [pull request](https://github.com/aiondemand/AIOD-rest-api/pull/395)).
 
+Updating an existing column/attribute follows similar steps, see for example this [pull request](https://github.com/aiondemand/AIOD-rest-api/pull/635).
+
 ### Updating the schema in Python
 
 Navigate to the asset definition you want to change. For simple attributes this is the class that ends in "Base", e.g., "NewsBase". There, add the attribute and define its metadata through adding type hints and setting it to a [SQLModel Field](https://sqlmodel.tiangolo.com/tutorial/create-db-and-table/#define-the-fields-columns). There are already examples in the code base of many different types of constraints (e.g., string minimum or maximum lengths, specifying defaults, and so on).
