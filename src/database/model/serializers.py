@@ -10,6 +10,7 @@ from starlette.status import HTTP_404_NOT_FOUND
 from authentication import KeycloakUser
 from database.model.helper_functions import get_relationships
 from database.model.named_relation import NamedRelation, Taxonomy
+from sqlalchemy.inspection import inspect
 
 MODEL = TypeVar("MODEL", bound=SQLModel)
 
@@ -240,6 +241,47 @@ class CastDeserializer(DeSerializer[SQLModel]):
         resource = self.clazz.from_orm(serialized)
         deserialize_resource_relationships(session, self.clazz, resource, serialized, user)
         return resource
+
+
+class StrictFindByNameFieldDeserializer:
+    """
+    Deserializer that resolves input values to an existing database record by name.
+
+    - Accepts either a string (e.g. "AI4Media") or a dict with a name field 
+      (e.g. {"name": "AI4Media"}).
+    - Looks up the given name in the specified model's table using a 
+      case-insensitive match.
+    - Raises ValueError if no matching record exists, instead of creating a new one 
+      (strict mode).
+    - Returns either the record identifier (default) or the full ORM instance if 
+      return_instance=True.
+    """
+    
+    def __init__(self, model, field="name", return_instance=False):
+        self.model = model
+        self.field = field
+        self.return_instance = return_instance  
+        
+    def deserialize(self, session, serialized, user=None):
+        # unwrap dict {"name": "..."} to string
+        if isinstance(serialized, dict) and self.field in serialized:
+            serialized = serialized[self.field]
+
+        if not isinstance(serialized, str):
+            raise ValueError(f"Expected {self.field} as string, got {serialized!r}")
+
+        instance = (
+            session.query(self.model)
+            .filter(getattr(self.model, self.field).ilike(serialized))
+            .first()
+        )
+
+        if not instance:
+            raise ValueError(
+                f"{self.model.__name__} with {self.field}='{serialized}' does not exist"
+            )
+
+        return instance if self.return_instance else instance.identifier
 
 
 class CastDeserializerList(CastDeserializer):

@@ -1,9 +1,11 @@
-from typing import Optional, List, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 from sqlmodel import SQLModel, Field, Relationship
-from database.model.concept.concept import AIoDConceptBase, AIoDConcept
 from database.model.agent.organisational_network import OrganisationalNetwork
 from database.model.relationships import ManyToOne
-from database.model.serializers import AttributeSerializer, FindByNameDeserializer
+from database.model.serializers import (
+    AttributeSerializer,
+    StrictFindByNameFieldDeserializer,
+)
 
 if TYPE_CHECKING:
     from database.model.agent.organisation import Organisation
@@ -47,5 +49,5 @@ class NetworkMembership(SQLModel, table=True):  # type: ignore[call-arg]
             description="The organisational network this membership belongs to.",
             identifier_name="in_network_identifier",
             _serializer=AttributeSerializer("identifier"),
-            deserializer=FindByNameDeserializer(OrganisationalNetwork),
+            deserializer=StrictFindByNameFieldDeserializer(OrganisationalNetwork, field="name"),
         )

@@ -27,7 +27,6 @@ from database.model.agent.network_membership import NetworkMembership
 from database.model.agent.involvement_level import InvolvementLevel
 from database.model.serializers import CastDeserializerList
 
-
 OrganisationType: type[Taxonomy] = create_taxonomy(
     class_name="OrganisationType",
     table_name="organisation_type",
@@ -111,14 +110,6 @@ class Organisation(OrganisationBase, Agent, table=True):  # type: ignore [call-a
     )
     has_activity_type: Optional[OrganisationActivityType] = Relationship()  # type: ignore[valid-type]
 
-    # involved_in_area: list[InvolvementLevel] = Relationship(
-    #     back_populates="organisation",
-    #     sa_relationship_kwargs={
-    #     "lazy": "selectin",
-    #     "primaryjoin": "Organisation.identifier == foreign(InvolvementLevel.organisation_identifier)"
-    # }
-    # )
-
     involved_in_area: list["InvolvementLevel"] = Relationship(back_populates="organisation")
 
     has_membership_in: list[NetworkMembership] = Relationship(back_populates="organisation")
@@ -179,9 +170,9 @@ class Organisation(OrganisationBase, Agent, table=True):  # type: ignore [call-a
             default_factory_pydantic=list,
         )
 
+    
         has_membership_in: list[NetworkMembership] = OneToMany(
             description="The memberships that link this organisation to organisational networks.",
-            # _serializer=AttributeSerializer("identifier"),
             deserializer=CastDeserializerList(NetworkMembership),
             default_factory_pydantic=list,
         )

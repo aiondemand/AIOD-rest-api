@@ -1,5 +1,3 @@
-from typing import Optional, TYPE_CHECKING, List
-from sqlmodel import Field, Relationship
 from database.model.agent.agent import Agent, AgentBase
 from versioning import Version, VersionedResource, VersionedResourceCollection
 
@@ -20,6 +18,6 @@ class OrganisationalNetwork(OrganisationalNetworkBase, Agent, table=True):  # ty
 organisational_network_versions = VersionedResourceCollection(
     {
         Version.LATEST: VersionedResource(OrganisationalNetwork),
-        Version.V2: VersionedResource(OrganisationalNetwork),
+        Version.V3: VersionedResource(OrganisationalNetwork),
     }
 )
