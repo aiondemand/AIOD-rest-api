@@ -25,7 +25,7 @@ import os
 from dotenv import load_dotenv
 from fastapi import HTTPException, Security, status
 from fastapi.security import OpenIdConnect
-from keycloak import KeycloakOpenID
+from keycloak import KeycloakOpenID, KeycloakAdmin
 
 from config import KEYCLOAK_CONFIG
 
@@ -158,6 +158,32 @@ async def get_user_or_raise(token=Security(oidc)) -> KeycloakUser:
             detail=f"{err} - This endpoint requires authorization. You need to be logged in.",
             headers={"WWW-Authenticate": "Bearer"},
         ) from err
+
+
+def get_user_by_username(username: str) -> KeycloakUser | None:
+    """Gets the keycloak user by its username. `user.roles` will always be empty."""
+    keycloak_admin = KeycloakAdmin(
+        server_url=KEYCLOAK_CONFIG.get("server_url"),
+        realm_name=KEYCLOAK_CONFIG.get("realm"),
+        client_id=KEYCLOAK_CONFIG.get("admin_client_id"),
+        verify=True,
+        user_realm_name=KEYCLOAK_CONFIG.get("admin_user_realm"),
+        username=KEYCLOAK_CONFIG.get("admin_username"),
+        password=KEYCLOAK_CONFIG.get("admin_password"),
+    )
+    users = keycloak_admin.get_users(query={"username": username})
+    if not users:
+        return None
+    if len(users) > 1:
+        raise NotImplementedError(
+            f"Multiple users with username {username} found, expected behavior undefined."
+        )
+    user = users[0]
+    return KeycloakUser(
+        name=user.get("username"),
+        roles=set(),  # Not included with the call
+        _subject_identifier=user.get("id"),
+    )
 
 
 class InvalidUserError(Exception):
