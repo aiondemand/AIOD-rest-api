@@ -43,6 +43,7 @@ The normal flow for granting individual users permissions for individual assets 
 These are the roles the metadata catalogue uses (`*` in a role indicates its defined for each asset type individually):
 
  * `review_aiod_resources`: identifies the user as having permission to view asset submissions and review them.
+ * `admin_aiod_resources`: treats the user as an owner of every asset on the platform.
  * `read_*`: allows the user read access to all assets on the platform, regardless of the asset-specific permissions.
  * `update_*`: allows the user update permission for all assets on the platform, regardless of the asset-specific permissions.
  * `delete_*`: allows the user delete permission for all assets on the platform, regardless of the asset-specific permissions.
