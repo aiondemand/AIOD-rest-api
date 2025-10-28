@@ -5,7 +5,6 @@ import json
 from contextlib import contextmanager
 from pathlib import Path
 
-import pytest
 import responses
 
 from tests.testutils.paths import path_test_resources

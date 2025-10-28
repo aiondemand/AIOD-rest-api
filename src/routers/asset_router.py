@@ -43,7 +43,8 @@ def create(url_prefix: str = "", version: Version = Version.LATEST) -> APIRouter
                 status_code=HTTPStatus.FORBIDDEN,
                 detail=f"You are not allowed to update permissions for asset {asset_identifier}.",
             )
-        if re.match(r"\S{8}(-\S{4}){3}-\S{12}", user):
+        sub_pattern = r"\S{8}(-\S{4}){3}-\S{12}"
+        if re.match(sub_pattern, user):
             other = KeycloakUser(name="unknown", roles=set(), _subject_identifier=user)
         else:
             other = get_user_by_username(user)  # type: ignore[assignment]
