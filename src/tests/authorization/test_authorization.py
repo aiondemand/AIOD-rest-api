@@ -8,7 +8,7 @@ from starlette.testclient import TestClient
 
 from authentication import KeycloakUser, ADMIN_ROLE
 from database.authorization import (
-    PermissionType, user_can_read, user_can_write, user_can_administer, set_permission,
+    PermissionType, user_can_read, user_can_write, user_can_administer, set_permission, Permission,
 )
 from database.model.concept.aiod_entry import EntryStatus
 from database.review import Decision, ReviewCreate
@@ -29,6 +29,26 @@ def test_admin_can_delete_asset(client, publication):
         assert response.status_code == HTTPStatus.OK, response.json()
 
 
+def test_admin_can_change_permission(client, publication):
+    identifier = register_asset(publication, owner=ALICE, status=EntryStatus.PUBLISHED)
+    _register_user_in_db(BOB)
+
+    with logged_in_user(kc_user_with_roles(ADMIN_ROLE)):
+        response = client.post(
+            f"/assets/permissions",
+            json={
+                "asset_identifier": identifier,
+                "user": BOB._subject_identifier,
+                "permission_type": PermissionType.ADMIN.value,
+            },
+            headers={"Authorization": "Fake token"}
+        )
+        assert response.status_code == HTTPStatus.OK, response.json()
+
+    with DbSession() as session:
+        permission = session.get(Permission, {"user_identifier": BOB._subject_identifier, "aiod_entry_identifier": 1})
+        assert permission is not None
+        assert permission.type_ == PermissionType.ADMIN
 
 
 def test_user_must_be_logged_in_to_publish(client, publication):

@@ -13,11 +13,10 @@ from database.review import Submission, Review, Decision
 from database.session import DbSession
 from database.review import AssetReview
 
-ALICE = KeycloakUser("Alice", set(), "alice-sub")
-BOB = KeycloakUser("Bob", set(), "bob-sub")
-REVIEWER = KeycloakUser("Reviewer", {cast(str, REVIEWER_ROLE)}, "reviewer-sub")
+ALICE = KeycloakUser("Alice", set(), "alice000-0000-0000-0000-000000000000")
+BOB = KeycloakUser("Bob", set(), "bob00000-0000-0000-0000-000000000000")
+REVIEWER = KeycloakUser("Reviewer", {cast(str, REVIEWER_ROLE)}, "reviewer-0000-0000-0000-000000000000")
 CONNECTOR_ROLE = "platform_example"
-
 
 
 def _register_user_in_db(user: KeycloakUser) -> KeycloakUser:
