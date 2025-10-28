@@ -70,24 +70,28 @@ def create(url_prefix: str = "", version: Version = Version.LATEST) -> APIRouter
         asset_identifier: str = Body(
             description="The identifier of the asset for which to remove the permission."
         ),
-        username: str = Body(
-            description="The username of the user for which to remove the permission."
+        user: str = Body(
+            description="The username or subject identifier of the user.",
+            examples=["jsmith01", "4a80f256-3928-4cfa-ba66-5e22bb36fc01"],
         ),
         session: Session = Depends(get_session),
-        user: KeycloakUser = Depends(get_user_or_raise),
+        current_user: KeycloakUser = Depends(get_user_or_raise),
     ):
         _, resource = get_asset_by_identifier(asset_identifier, session)
-        if not user_can_administer(user, resource.aiod_entry):
+        if not user_can_administer(current_user, resource.aiod_entry):
             raise HTTPException(
                 status_code=HTTPStatus.FORBIDDEN,
                 detail=f"You are not allowed to remove permissions for asset {asset_identifier}.",
             )
-        other = get_user_by_username(username)
+        if re.match(r"\S{8}(-\S{4}){3}-\S{12}", user):
+            other = KeycloakUser(name="unknown", roles=set(), _subject_identifier=user)
+        else:
+            other = get_user_by_username(user)  # type: ignore[assignment]
         if not other:
             raise HTTPException(
-                status_code=HTTPStatus.NOT_FOUND, detail=f"User with name {username!r} not found."
+                status_code=HTTPStatus.NOT_FOUND, detail=f"User with name {user!r} not found."
             )
-        if other._subject_identifier == user._subject_identifier:
+        if other._subject_identifier == current_user._subject_identifier:
             # This request is more likely to be an accident that purpose.
             # Additionally, we do not want to allow people to accidentally remove all
             # administrators from an asset which this restriction ensures.
