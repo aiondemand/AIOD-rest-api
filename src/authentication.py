@@ -178,9 +178,10 @@ async def get_user_or_raise(token=Security(oidc)) -> KeycloakUser:
 
 def get_user_by_username(username: str) -> KeycloakUser | None:
     """Gets the keycloak user by its username. `user.roles` will always be empty."""
-    users = keycloak_api().get_users(query={"username": username})
+    users = keycloak_api().get_users(query={"username": username, "exact": True})
     if not users:
         return None
+
     if len(users) > 1:
         raise NotImplementedError(
             f"Multiple users with username {username} found, expected behavior undefined."

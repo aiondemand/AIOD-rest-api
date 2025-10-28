@@ -80,7 +80,7 @@ def test_add_permission_by_name(
         )
         request_mock.add(
             responses.GET,
-            "http://keycloak:8080/aiod-auth/admin/realms/aiod/users?username=Bob&max=100&first=0",
+            "http://keycloak:8080/aiod-auth/admin/realms/aiod/users?username=Bob&exact=True&max=100&first=0",
             json=users_response,
         )
 
