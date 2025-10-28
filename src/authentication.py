@@ -19,6 +19,7 @@ keycloak requests - if that becomes prohibitive in the future, we should reevalu
 """
 
 import dataclasses
+import functools
 import logging
 import os
 
@@ -45,6 +46,16 @@ keycloak_openid = KeycloakOpenID(
     realm_name=KEYCLOAK_CONFIG.get("realm"),
     verify=True,
 )
+
+
+@functools.cache
+def keycloak_api() -> KeycloakAdmin:
+    return KeycloakAdmin(
+        server_url=KEYCLOAK_CONFIG.get("server_url"),
+        realm_name=KEYCLOAK_CONFIG.get("realm"),
+        client_id=KEYCLOAK_CONFIG.get("client_id"),
+        client_secret_key=os.getenv("KEYCLOAK_CLIENT_SECRET"),
+    )
 
 
 def assert_required_settings_configured() -> None:
@@ -167,16 +178,7 @@ async def get_user_or_raise(token=Security(oidc)) -> KeycloakUser:
 
 def get_user_by_username(username: str) -> KeycloakUser | None:
     """Gets the keycloak user by its username. `user.roles` will always be empty."""
-    keycloak_admin = KeycloakAdmin(
-        server_url=KEYCLOAK_CONFIG.get("server_url"),
-        realm_name=KEYCLOAK_CONFIG.get("realm"),
-        client_id=KEYCLOAK_CONFIG.get("admin_client_id"),
-        verify=True,
-        user_realm_name=KEYCLOAK_CONFIG.get("admin_user_realm"),
-        username=KEYCLOAK_CONFIG.get("admin_username"),
-        password=KEYCLOAK_CONFIG.get("admin_password"),
-    )
-    users = keycloak_admin.get_users(query={"username": username})
+    users = keycloak_api().get_users(query={"username": username})
     if not users:
         return None
     if len(users) > 1:

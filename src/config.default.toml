@@ -45,8 +45,3 @@ client_id = "aiod-api"
 client_id_swagger = "aiod-api-swagger"  # a public client, used by the Swagger Frontend
 openid_connect_url = "http://localhost/aiod-auth/realms/aiod/.well-known/openid-configuration"
 scopes = "openid profile roles"
-
-admin_client_id = "admin-cli"
-admin_user_realm = "master"
-admin_username = "admin"
-admin_password = "password"
