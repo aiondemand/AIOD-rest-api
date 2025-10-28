@@ -19,7 +19,7 @@ def create(url_prefix: str = "", version: Version = Version.LATEST) -> APIRouter
     @router.post(
         "/assets/permissions",
         tags=["Assets"],
-        description="Add or update permissions that a user has for an asset.",
+        description="Manage permissions that a user has for an asset.",
     )
     def add_or_update_permission(
         asset_identifier: str = Body(
@@ -29,7 +29,11 @@ def create(url_prefix: str = "", version: Version = Version.LATEST) -> APIRouter
             description="The username or subject identifier of the user.",
             examples=["jsmith01", "4a80f256-3928-4cfa-ba66-5e22bb36fc01"],
         ),
-        permission_type: PermissionType = Body(),
+        permission_type: PermissionType | None = Body(
+            description="The permission to add for the user. "
+            "If not set, their permissions will be removed.",
+            default=None,
+        ),
         session: Session = Depends(get_session),
         current_user: KeycloakUser = Depends(get_user_or_raise),
     ):
@@ -37,7 +41,7 @@ def create(url_prefix: str = "", version: Version = Version.LATEST) -> APIRouter
         if not user_can_administer(current_user, resource.aiod_entry):
             raise HTTPException(
                 status_code=HTTPStatus.FORBIDDEN,
-                detail=f"You are not allowed to grant permissions for asset {asset_identifier}.",
+                detail=f"You are not allowed to update permissions for asset {asset_identifier}.",
             )
         if re.match(r"\S{8}(-\S{4}){3}-\S{12}", user):
             other = KeycloakUser(name="unknown", roles=set(), _subject_identifier=user)
@@ -58,56 +62,18 @@ def create(url_prefix: str = "", version: Version = Version.LATEST) -> APIRouter
                 status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
                 detail="You cannot change permissions that pertain to yourself.",
             )
-        set_permission(other, resource.aiod_entry, session, type_=permission_type)
-        session.commit()
-
-    @router.delete(
-        "/assets/permissions",
-        tags=["Assets"],
-        description="Remove permissions that a user has for an asset.",
-    )
-    def delete_permission(
-        asset_identifier: str = Body(
-            description="The identifier of the asset for which to remove the permission."
-        ),
-        user: str = Body(
-            description="The username or subject identifier of the user.",
-            examples=["jsmith01", "4a80f256-3928-4cfa-ba66-5e22bb36fc01"],
-        ),
-        session: Session = Depends(get_session),
-        current_user: KeycloakUser = Depends(get_user_or_raise),
-    ):
-        _, resource = get_asset_by_identifier(asset_identifier, session)
-        if not user_can_administer(current_user, resource.aiod_entry):
-            raise HTTPException(
-                status_code=HTTPStatus.FORBIDDEN,
-                detail=f"You are not allowed to remove permissions for asset {asset_identifier}.",
-            )
-        if re.match(r"\S{8}(-\S{4}){3}-\S{12}", user):
-            other = KeycloakUser(name="unknown", roles=set(), _subject_identifier=user)
-        else:
-            other = get_user_by_username(user)  # type: ignore[assignment]
-        if not other:
-            raise HTTPException(
-                status_code=HTTPStatus.NOT_FOUND, detail=f"User with name {user!r} not found."
-            )
-        if other._subject_identifier == current_user._subject_identifier:
-            # This request is more likely to be an accident that purpose.
-            # Additionally, we do not want to allow people to accidentally remove all
-            # administrators from an asset which this restriction ensures.
-            raise HTTPException(
-                status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
-                detail="You cannot remove permissions that pertain to yourself.",
-            )
-
-        key = {
-            "user_identifier": other._subject_identifier,
-            "aiod_entry_identifier": resource.aiod_entry.identifier,
-        }
-        permission = session.get(Permission, key)
-        if permission:
-            session.delete(permission)
+        if permission_type:
+            set_permission(other, resource.aiod_entry, session, type_=permission_type)
             session.commit()
+        else:
+            key = {
+                "user_identifier": other._subject_identifier,
+                "aiod_entry_identifier": resource.aiod_entry.identifier,
+            }
+            permission = session.get(Permission, key)
+            if permission:
+                session.delete(permission)
+                session.commit()
 
     @router.get(
         f"/assets/{{identifier}}",

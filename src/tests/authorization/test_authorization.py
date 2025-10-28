@@ -28,6 +28,24 @@ def test_admin_can_delete_asset(client, publication):
         )
         assert response.status_code == HTTPStatus.OK, response.json()
 
+def test_admin_can_remove_permission(client, publication):
+    identifier = register_asset(publication, owner=ALICE, status=EntryStatus.PUBLISHED)
+    with logged_in_user(kc_user_with_roles(ADMIN_ROLE)):
+        response = client.post(
+            f"/assets/permissions",
+            json={
+                "asset_identifier": identifier,
+                "user": ALICE._subject_identifier,
+                "permission_type": None,
+            },
+            headers={"Authorization": "Fake token"}
+        )
+        assert response.status_code == HTTPStatus.OK, response.json()
+
+    with DbSession() as session:
+        permission = session.get(Permission, {"user_identifier": ALICE._subject_identifier, "aiod_entry_identifier": 1})
+        assert permission is None
+
 
 def test_admin_can_change_permission(client, publication):
     identifier = register_asset(publication, owner=ALICE, status=EntryStatus.PUBLISHED)
