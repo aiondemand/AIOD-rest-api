@@ -1,6 +1,26 @@
 {
   "realm" : "aiod",
   "users" : [ {
+    "id" : "ca9c5ba7-0c53-437e-98d0-8bba5eaac5f0",
+    "username" : "admin",
+    "emailVerified" : false,
+    "createdTimestamp" : 1761654821859,
+    "enabled" : true,
+    "totp" : false,
+    "credentials" : [ {
+      "id" : "20e60836-478e-4e77-bfcf-7730324cf1cd",
+      "type" : "password",
+      "userLabel" : "My password",
+      "createdDate" : 1761654837022,
+      "secretData" : "{\"value\":\"YDfyAyfKhCIdefMBzk/aieDFuuaLrhzYtAPPeWlipnLR062Pw+gGO0XfpcZbypiXBsuKI4O5QXmJy6mnwHZWgw==\",\"salt\":\"gQLs0a7jinjZC9V9n7SFdg==\",\"additionalParameters\":{}}",
+      "credentialData" : "{\"hashIterations\":210000,\"algorithm\":\"pbkdf2-sha512\",\"additionalParameters\":{}}"
+    } ],
+    "disableableCredentialTypes" : [ ],
+    "requiredActions" : [ ],
+    "realmRoles" : [ "admin_aiod_resources", "default-roles-aiod" ],
+    "notBefore" : 0,
+    "groups" : [ ]
+  }, {
     "id" : "5e827ac1-259d-406a-b3de-cf4f79f88364",
     "username" : "reviewer",
     "emailVerified" : false,
@@ -33,6 +53,7 @@
     "requiredActions" : [ ],
     "realmRoles" : [ "default-roles-aiod" ],
     "clientRoles" : {
+      "realm-management" : [ "view-users" ],
       "aiod-api" : [ "uma_protection" ]
     },
     "notBefore" : 0,
