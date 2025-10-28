@@ -192,7 +192,7 @@ def _review_resource(
     user: KeycloakUser = Depends(get_user_or_raise),
     session: Session = Depends(get_session),
 ):
-    if not user.is_reviewer:
+    if not (user.is_reviewer or user.is_admin):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You must have reviewing privileges to use this endpoint.",

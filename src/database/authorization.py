@@ -55,7 +55,7 @@ class Permission(SQLModel, table=True):  # type: ignore [call-arg]
 def _user_has_permission(
     user: KeycloakUser, aiod_entry: AIoDEntryORM, *, at_least: PermissionType
 ) -> bool:
-    return any(
+    return user.is_admin or any(
         permission.user_identifier == user._subject_identifier and permission.type_ >= at_least
         for permission in aiod_entry.permissions
     )

@@ -6,7 +6,7 @@ from unittest.mock import Mock
 import pytest
 from starlette.testclient import TestClient
 
-from authentication import KeycloakUser
+from authentication import KeycloakUser, ADMIN_ROLE
 from database.authorization import (
     PermissionType, user_can_read, user_can_write, user_can_administer, set_permission,
 )
@@ -16,8 +16,19 @@ from database.session import DbSession
 from database.model.knowledge_asset.publication import Publication
 from routers.review_router import ListMode
 from tests.testutils.users import ALICE, BOB, REVIEWER, _register_user_in_db, \
-    logged_in_user, register_asset
+    logged_in_user, register_asset, kc_user_with_roles
 from versioning import Version
+
+
+def test_admin_can_delete_asset(client, publication):
+    identifier = register_asset(publication, owner=ALICE, status=EntryStatus.PUBLISHED)
+    with logged_in_user(kc_user_with_roles(ADMIN_ROLE)):
+        response = client.delete(
+            f"/publications/{identifier}",  headers={"Authorization": "Fake token"}
+        )
+        assert response.status_code == HTTPStatus.OK, response.json()
+
+
 
 
 def test_user_must_be_logged_in_to_publish(client, publication):

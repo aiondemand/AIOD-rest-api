@@ -35,6 +35,7 @@ load_dotenv()
 oidc = OpenIdConnect(openIdConnectUrl=KEYCLOAK_CONFIG.get("openid_connect_url"), auto_error=False)
 
 REVIEWER_ROLE = os.getenv("REVIEWER_ROLE_NAME")
+ADMIN_ROLE = os.getenv("ADMIN_ROLE_NAME")
 client_secret = os.getenv("KEYCLOAK_CLIENT_SECRET")
 
 keycloak_openid = KeycloakOpenID(
@@ -74,6 +75,10 @@ class KeycloakUser:
     @property
     def is_reviewer(self):
         return REVIEWER_ROLE in self.roles
+
+    @property
+    def is_admin(self):
+        return ADMIN_ROLE in self.roles
 
     @property
     def is_connector(self) -> bool:
