@@ -38,6 +38,13 @@ from database.model.serializers import (
     FindByNameDeserializerList,
 )
 from database.model.resource_read_and_create import resource_read
+from database.model.named_relation import create_taxonomy
+
+AIParadigm = create_taxonomy(
+    class_name="AIParadigm",
+    table_name="ai_paradigm",
+    plural_name="AI paradigms",
+)
 
 
 class AIResourceBase(AIoDConceptBase, metaclass=abc.ABCMeta):
