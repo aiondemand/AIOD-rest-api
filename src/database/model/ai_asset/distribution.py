@@ -1,8 +1,10 @@
+import base64
 from datetime import datetime
 from typing import Type
 
+from fastapi.encoders import jsonable_encoder
 from pydantic import create_model
-from sqlalchemy import Column, Integer, ForeignKey, String, LargeBinary
+from sqlalchemy import Column, ForeignKey, String, LargeBinary
 from sqlmodel import Field
 
 from database.model.concept.concept import AIoDConceptBase
@@ -61,6 +63,14 @@ class DistributionBase(AIoDConceptBase):
         ),
         sa_column=Column(LargeBinary),
     )
+
+    def dict(self, *args, **kwargs):
+        # Defining it as a `Config` does not work for some reason.
+        item_dict = super().dict(*args, **kwargs)
+        item = jsonable_encoder(
+            item_dict, custom_encoder={bytes: lambda v: base64.b64encode(v).decode("utf-8")}
+        )
+        return item
 
 
 def distribution_factory(table_from: str, distribution_name="distribution") -> Type:
