@@ -61,6 +61,11 @@ def create(url_prefix: str, version: Version) -> APIRouter:
             offset=pagination.offset,
             limit=limit,
         )
+        all_assets = [asset for assets in resources.values() for asset in assets]
+        for resource in [a for a in all_assets if hasattr(a, "media")]:
+            for media in resource.media:
+                media.binary_blob = None
+
         orm_to_read = {
             r.resource_class.__tablename__: r.orm_to_read
             for r in versioned_routers.get(version, [])
