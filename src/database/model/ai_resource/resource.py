@@ -87,6 +87,7 @@ class AIResource(AIResourceBase, AIoDConcept, metaclass=abc.ABCMeta):
     industrial_sector: list[IndustrialSector] = Relationship()  # type: ignore[valid-type]
     research_area: list[ResearchArea] = Relationship()  # type: ignore[valid-type]
     scientific_domain: list[ScientificDomain] = Relationship()  # type: ignore[valid-type]
+    falls_under_paradigm: list[AIParadigm] = Relationship()  # type: ignore[valid-type]
 
     contact: list[Contact] = Relationship()
     contacts: list[Contact] = Relationship(sa_relationship_kwargs=dict(viewonly=True))
@@ -193,6 +194,15 @@ class AIResource(AIResourceBase, AIoDConcept, metaclass=abc.ABCMeta):
             example=["Computer and Information Sciences", "Mathematics"],
             default_factory_pydantic=list,
         )
+        falls_under_paradigm: list[str] = ManyToMany(
+            description="The AI paradigm this project falls under. See"
+            f'<a href="{CONFIG.get("domain")}docs#/Taxonomies/ai_paradigm_AI_paradigms_get">AI Paradigms</a> '  # noqa: E501
+            "for more information.",
+            _serializer=AttributeSerializer("name"),
+            deserializer=FindByNameDeserializerList(AIParadigm),
+            example=["Collaborative AI", "Explainable AI"],
+            default_factory_pydantic=list,
+        )
         # TODO(jos): documentedIn - KnowledgeAsset. This should probably be defined on ResourceTable
         contact: list[str] = ManyToMany(
             description="The identifiers of the contact information of the persons and/or "
@@ -272,8 +282,10 @@ class AIResource(AIResourceBase, AIoDConcept, metaclass=abc.ABCMeta):
             "industrial_sector",
             "research_area",
             "scientific_domain",
+            "ai_paradigm",
         ):
-            relationships[table_to].link_model = many_to_many_link_factory(
+            relationship = "falls_under_paradigm" if table_to == "ai_paradigm" else table_to
+            relationships[relationship].link_model = many_to_many_link_factory(
                 table_from=cls.__tablename__, table_to=table_to, from_identifier_type=str
             )
 

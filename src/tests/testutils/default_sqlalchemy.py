@@ -14,6 +14,7 @@ from starlette.testclient import TestClient
 from authentication import keycloak_openid
 from database.deletion.triggers import create_delete_triggers, \
     create_identifier_synchronization_triggers
+from database.model.ai_resource.resource import AIParadigm
 from database.model.concept.aiod_entry import EntryStatus, AIoDEntryORM
 from database.model.concept.concept import AIoDConcept
 from database.model.platform.platform import Platform
@@ -95,6 +96,10 @@ DEFAULT_EDUCATIONAL_COMPETENCY = [
 DEFAULT_COUNTRY = [
     Term("Spain", "for use in tests", children=[])
 ]
+DEFAULT_AI_PARADIGMS = [
+    Term("Explainable AI", "for use in tests", children=[]),
+    Term("Collaborative AI", "for use in tests", children=[])
+]
 
 @pytest.fixture(scope="session")
 def engine() -> Iterator[Engine]:
@@ -155,6 +160,7 @@ def clear_db(request, engine: Engine):
             (EducationalLevel, DEFAULT_EDUCATIONAL_LEVEL),
             (EducationalCompetency, DEFAULT_EDUCATIONAL_COMPETENCY),
             (Country, DEFAULT_COUNTRY),
+            (AIParadigm, DEFAULT_AI_PARADIGMS),
         ]:
             for term in terms:
                 session.add(taxonomy(**term._asdict(), official=True))
