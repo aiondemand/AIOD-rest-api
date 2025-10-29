@@ -1,8 +1,7 @@
 FROM aiod_metadata_catalogue
 
 USER root
-RUN apt-get update
-RUN apt -y install cron
+RUN apt-get update && apt -y install cron
 
 COPY cron /etc/cron.d/aiod
 COPY mlmodels.sh /opt/connectors/script/mlmodels.sh
