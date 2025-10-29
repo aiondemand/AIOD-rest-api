@@ -168,6 +168,7 @@ class FindByNameDeserializerList(DeSerializer[NamedRelation]):
     """Deserialization of NamedRelations: uniquely identified by their name."""
 
     clazz: type[NamedRelation]
+    case_sensitive: bool = False
 
     def deserialize(
         self, session: Session, name: list[str] | None, user: KeycloakUser | None = None
@@ -176,10 +177,14 @@ class FindByNameDeserializerList(DeSerializer[NamedRelation]):
             return []
         if not isinstance(name, list):
             raise ValueError("Expected a list. Do you need to use FindByNameDeserializer instead?")
-        names = {n.casefold() for n in name}
+        names = {n if self.case_sensitive else n.casefold() for n in name}
         query = select(self.clazz).where(self.clazz.name.in_(names))  # type: ignore[attr-defined]
         existing = list(session.scalars(query).all())
-        names_not_found = names - {e.name.casefold() for e in existing}
+        if self.case_sensitive:
+            # The query above is not case sensitive (MySQL default), so we filter exact matches
+            existing = [e for e in existing if e.name in names]
+        existing_names = {e.name if self.case_sensitive else e.name.casefold() for e in existing}
+        names_not_found = names - existing_names
         enforced_taxonomy = issubclass(self.clazz, Taxonomy) and (
             user is None or not user.is_connector
         )
