@@ -230,13 +230,9 @@ class ResourceRouter(abc.ABC):
                     session, pagination, resource_filters, user, platform
                 )
                 for resource in resources:
-                    if not get_image and hasattr(resource, "media") and resource.media:
+                    if not get_image and hasattr(resource, "media"):
                         for media_obj in resource.media:
                             media_obj.binary_blob = None
-
-                    # Add image blobs if requested
-                    if get_image:
-                        self._add_binary_bytes_to_resource(session, resource)
 
                 return [convert_schema(resource) for resource in resources]
             except Exception as e:
@@ -265,9 +261,6 @@ class ResourceRouter(abc.ABC):
                 if not get_image and hasattr(resource, "media") and resource.media:
                     for media_obj in resource.media:
                         media_obj.binary_blob = None
-
-                if get_image:
-                    resource = self._add_binary_bytes_to_resource(session, resource)
 
                 if resource.aiod_entry.status != EntryStatus.PUBLISHED:
                     if user is None:
@@ -388,18 +381,6 @@ class ResourceRouter(abc.ABC):
             return resources
 
         return get_resources
-
-    def _add_binary_bytes_to_resource(self, session: Session, resource: AIoDConcept):
-        """
-        Attach binary_blob bytes as base64 encoded image from the resource's media.
-        """
-        if hasattr(resource, "media") and resource.media:
-            for media_obj in resource.media:
-                if media_obj.binary_blob:
-                    media_obj.binary_blob = base64.b64encode(media_obj.binary_blob).decode("utf-8")
-                else:
-                    media_obj.binary_blob = None
-        return resource
 
     def get_resource_func(self):
         """

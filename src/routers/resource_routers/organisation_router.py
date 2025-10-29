@@ -5,7 +5,6 @@ from http import HTTPStatus
 from sqlmodel import select, Session
 from database.model.agent.organisation import Organisation
 from database.session import get_session
-import base64
 from authentication import KeycloakUser, get_user_or_none, get_user_or_raise
 from dependencies.filtering import ResourceFiltersParams
 from dependencies.pagination import PaginationParams
@@ -190,13 +189,7 @@ class OrganisationRouter(ResourceRouter):
                     status_code=HTTPStatus.NOT_FOUND, detail=f"Organisation {identifier} not found."
                 )
 
-            org_image_media = []
-            for media in org.media:
-                if media.binary_blob:
-                    media.binary_blob = base64.b64encode(media.binary_blob).decode("utf-8")
-                    org_image_media.append(media)
-
-            return org_image_media
+            return [media for media in org.media if media.binary_blob]
 
         @router.delete(  # type: ignore[no-redef]
             path, tags=[self.resource_name_plural]
