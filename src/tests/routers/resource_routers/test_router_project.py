@@ -40,6 +40,10 @@ def test_happy_path(
     body["coordinator"] = organisation.identifier
     body["produced"] = [dataset.identifier]
     body["used"] = [publication.identifier]
+    funding_link = "https://foo.bar"
+    subtitle = "Foo: Bar"
+    body["funding_link"] = funding_link
+    body["subtitle"] = subtitle
 
     response = client.post("/projects", json=body, headers={"Authorization": "Fake token"})
     assert response.status_code == 200, response.json()
@@ -57,6 +61,8 @@ def test_happy_path(
     assert response_json["coordinator"] == organisation.identifier
     assert response_json["produced"] == [dataset.identifier]
     assert response_json["used"] == [publication.identifier]
+    assert response_json["funding_link"] == funding_link
+    assert response_json["subtitle"] == subtitle
 
     # Cleanup, so that all resources can be deleted in the teardown
     body["funder"] = []

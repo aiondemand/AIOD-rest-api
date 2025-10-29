@@ -13,7 +13,7 @@ from database.model.serializers import (
     AttributeSerializer,
     FindByIdentifierDeserializerList,
 )
-from database.model.field_length import IDENTIFIER_LENGTH
+from database.model.field_length import IDENTIFIER_LENGTH, LONG
 from database.model.resource_read_and_create import resource_read, resource_create
 from versioning import Version, VersionedResource, VersionedResourceCollection, schema_transform
 
@@ -33,6 +33,28 @@ class ProjectBase(AIResourceBase):
         description="The total budget of the project in euros.",
         schema_extra={"example": 1000000},
         default=None,
+    )
+    subtitle: str | None = Field(
+        description="A subtitle or tagline for the project",
+        schema_extra={
+            "examples": [
+                "Development and Deployment of the European AI-on-demand Platform",
+                "Bringing AI Planning to the European AI On-Demand Platform",
+            ]
+        },
+        default=None,
+        max_length=LONG,
+    )
+    funding_link: str | None = Field(
+        description=(
+            "Link with information about the funding, e.g., "
+            "to the project's EU Funding & Tenders portal page."
+        ),
+        schema_extra={
+            "example": "https://cordis.europa.eu/programme/id/HORIZON_HORIZON-CL4-2021-HUMAN-01-02/en"  # noqa: E501
+        },
+        default=None,
+        max_length=LONG,
     )
 
 
