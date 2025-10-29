@@ -3,7 +3,7 @@ from typing import Tuple, ForwardRef, List
 
 from pydantic import create_model
 from sqlalchemy import CheckConstraint, Column, String
-from sqlalchemy.orm import declared_attr, backref
+from sqlalchemy.orm import declared_attr
 from sqlmodel import SQLModel, Field, Relationship
 
 from database.model.field_length import NORMAL, LONG

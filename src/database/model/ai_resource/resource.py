@@ -119,7 +119,7 @@ class AIResource(AIResourceBase, AIoDConcept, metaclass=abc.ABCMeta):
             description="An alias for the item, commonly used for the resource instead of the "
             "name.",
             _serializer=AttributeSerializer("name"),
-            deserializer=FindByNameDeserializerList(AlternateName),
+            deserializer=FindByNameDeserializerList(AlternateName, case_sensitive=True),
             example=["alias 1", "alias 2"],
             default_factory_pydantic=list,
             on_delete_trigger_orphan_deletion=lambda: [
