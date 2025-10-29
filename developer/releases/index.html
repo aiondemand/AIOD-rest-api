@@ -932,15 +932,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#changelog" class="md-nav__link">
-    <span class="md-ellipsis">
-      Changelog
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#creating-a-release" class="md-nav__link">
     <span class="md-ellipsis">
       Creating a release
@@ -1046,15 +1037,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#changelog" class="md-nav__link">
-    <span class="md-ellipsis">
-      Changelog
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#creating-a-release" class="md-nav__link">
     <span class="md-ellipsis">
       Creating a release
@@ -1105,53 +1087,54 @@ as 1) the metadata model wasn't yet matured and 2) the infrastructure for this n
 developed. For now, we make sure all URLs are at least under a version suffix, which makes
 support in the future possible.</p>
 </div>
-<p>Breaking changes of a resource include deleting a field, changing the name of an existing field,
-or changing the datatype of a field. Adding new fields is not a breaking change.</p>
-<p>On a breaking change for a resource (e.g. for Dataset), a new router with a new version should
-be created. The existing router should be deprecated, and rewritten so that it can handle the
-new metadata of the database. This deprecation of a router will be visible in the Swagger
-documentation. Calls to a deprecated router will still work, but a response header "Deprecated"
-will be added with the deprecation date. The deprecated router will then be deleted on the next
-release.</p>
-<p>On non-breaking changes of a resource, a new version is not needed for the corresponding router.</p>
-<p>Example:
-- Start www.aiod.eu/api/datasets/v0
-- Release 1: www.aiod.eu/api/datasets/v0 (no breaking changes)
-- Release 2:
-    - www.aiod.eu/api/datasets/v0 (deprecated)
-    - www.aiod.eu/api/datasets/v1
-- Release 3: www.aiod.eu/api/datasets/v1</p>
-<h2 id="changelog">Changelog</h2>
-<p>As changelog we use the Github tags. For each release, a release branch should be created with a
-bumped version in the pyproject.toml, and merged with the master. The tag should contain a
-message detailing all the breaking and non-breaking changes. This message should adhere to the
-guiding principles as described in https://keepachangelog.com/.</p>
+<p>We do our best to version API changes such that users can opt out of breaking changes.
+We consider the following breaking changes:</p>
 <ul>
-<li>Show all tags: https://github.com/aiondemand/AIOD-rest-api/tags</li>
-<li>Show a specific tag: https://github.com/aiondemand/AIOD-rest-api/releases/tag/0.3.20220501</li>
+<li>removing a field from the input</li>
+<li>changing the name of a field</li>
+<li>changing the datatype of a field</li>
+<li>changing or removing the default of a field</li>
 </ul>
-<p>This information can also be extracted using the Github REST API.</p>
+<p>We generally try to avoid putting breaking changes into already released versions.
+There can be some exceptions based on the developers' judgement, but such a decision should not
+be made lightly and clearly communicated. Once the project matures more, one should avoid these
+changes altogether. Some changes may be backported in a compatible manner,
+for example instead of changing the name for a field, you could add a field with the new name without removing the old one.
+This gives people time to move from one name to the other (<a href="https://github.com/aiondemand/AIOD-rest-api/pull/594">example</a>).</p>
+<p>The entire API is versioned together. This is because of the interconnectedness of assets.
+If one versioned asset types independently, but we return e.g., <code>Person</code>s that are member of an <code>Organisation</code>
+as part of the organisations endpoint, we would need a way to specify versions for both <code>Organisation</code> and <code>Person</code>
+in the request. Because there are many high-level connections (e.g., <code>has_part</code> and <code>is_part_of</code>) we felt it is
+better to version the entire API. However, while we internally have <em>some</em> support for schema migrations (
+<a href="https://github.com/aiondemand/AIOD-rest-api/blob/ff24e3c4278194b405bc49adc93991704e9c0e1d/src/database/model/project/project.py#L122">example</a>
+), there are still issues when they are retrieved through indirect means (<a href="https://github.com/aiondemand/AIOD-rest-api/issues/633">#633</a>).</p>
 <h2 id="creating-a-release">Creating a release</h2>
 <p>To create a new release:</p>
 <ol>
 <li>Make sure all requested functionality is merged with the <code>develop</code> branch.</li>
-<li>Create a release branch from develop: <code>git checkout -b release/[VERSION]</code>. Example of version: <code>1.1.20231129</code></li>
-<li>Update the version in <code>pyproject.toml</code> on the release branch.</li>
-<li>Test all (most of) the functionality. Checkout the project in a new directory and remove all
-   your local images, and make sure it works out-of-the box.</li>
-<li>Go to https://github.com/aiondemand/AIOD-rest-api/releases and draft a new release from the
-   release branch. Look at all closed PRs and create a changelog.</li>
-<li>Create a PR from release branch to develop. Make sure that when it is merged, the release branch is preserved.</li>
-<li>Deploy on the server(s):<ul>
+<li>Make sure the version in <code>pyproject.toml</code> is updated in the <code>develop</code> branch.</li>
+<li>Make a release on GitHub: https://github.com/aiondemand/AIOD-rest-api/releases</li>
+<li>Make sure the release notes follow a similar style, use the merged PRs since last release (use e.g. filter <code>merged:&gt;=2025-08-2</code>).</li>
+</ol>
+<p>Deploy the new release to the test server. If that works (preferably leave it up for a while), then deploy to production.
+Deploying an update:</p>
+<ol>
+<li>Create an additional database backup: <code>./scripts/mysql_dump.sh</code></li>
 <li>Check which services currently work (before the update). It's a sanity check for if a service <em>doesn't</em> work later.</li>
-<li>Bring the services down.</li>
-<li>Update the code on the server by checking out the release.</li>
+<li>See which files, if any, are changed locally: <code>git status</code></li>
+<li>Stash the changes, or keep track of them in some way. Try to make a note to update the software so that local changes are not necessary.</li>
+<li>Check out the release (e.g., <code>git fetch origin &amp;&amp; git checkout v2.0.20250802</code>)</li>
+<li>If absolutely necessary, reapply the changes. Again: make a note to avoid needing any local changes next time.</li>
 <li>If the release contains new configuration options or configuration defaults, make sure that the override files are updated as needed.</li>
-<li>Start the services without connectors.</li>
-<li>Make sure the latest database migrations are applied: see <a href="../schema/migration/#update-the-database">"Schema Migrations"</a></li>
-<li>Restart the services with connectors.</li>
-</ul>
-</li>
+<li>Rebuild the images: <code>./scripts/build.sh</code></li>
+<li>Build the alembic image separately (it's not included in the above script), see <code>docker build -f alembic/Dockerfile . -t aiod-migration</code> (<a href="../schema/migration/">docs</a>.</li>
+<li>Bring down the services: <code>./scripts/down.sh</code></li>
+<li>Bring the database back up: <code>docker compose --env-file=.env --env-file=override.env up sqlserver -d</code></li>
+<li>Runs the <a href="../schema/migration/">migrations</a>, if any: <code>docker run -v $(pwd)/alembic:/alembic:ro  -v $(pwd)/src:/app -it --network aiod-rest-api_default  aiod-migration</code></li>
+<li>Start the remainder of the services: <code>./scripts/up.sh</code></li>
+<li>To make sure the latest taxonomy is also included:</li>
+<li>Copy the <code>export/taxonomies.json</code> file from the <code>metadata-schema</code> repository and have it update on startup, or</li>
+<li>run the taxonomy service independently (preferred, but currently broken?)</li>
 <li>Notify everyone (e.g., in the API channel in Slack).</li>
 </ol>
 
@@ -1174,7 +1157,7 @@ guiding principles as described in https://keepachangelog.com/.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime">May 9, 2025 14:31:13</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime">October 29, 2025 18:13:46</span>
   </span>
 
     
