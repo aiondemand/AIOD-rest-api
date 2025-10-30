@@ -1,5 +1,8 @@
+from functools import cache
+from http import HTTPStatus
 from typing import Type, TYPE_CHECKING
 
+from fastapi import HTTPException
 from pydantic import create_model
 from sqlalchemy import Column, Integer, ForeignKey, String
 from sqlmodel import SQLModel, Field
@@ -7,6 +10,7 @@ from sqlmodel import SQLModel, Field
 from database.model.field_length import IDENTIFIER_LENGTH
 
 if TYPE_CHECKING:
+    from database.model.concept.concept import AIoDConcept
     from database.model.relationships import _ResourceRelationship
 
 
@@ -84,3 +88,27 @@ def non_abstract_subclasses(cls):
             yield grand_child
         if not has_grandchild:
             yield child
+
+
+@cache
+def get_asset_type_by_abbreviation() -> dict[str, type["AIoDConcept"]]:
+    from database.model.concept.concept import AIoDConcept
+
+    return {
+        cls.__abbreviation__: cls
+        for cls in non_abstract_subclasses(AIoDConcept)
+        if hasattr(cls, "__abbreviation__")
+    }
+
+
+def get_asset_by_identifier(identifier, session):
+    asset_type_map = get_asset_type_by_abbreviation()
+    prefix = identifier.split("_")[0]
+    model_class = asset_type_map.get(prefix)
+    if not model_class:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND,
+            detail=f"Unknown asset type with identifier '{identifier}'",
+        )
+    resource = session.get(model_class, identifier)
+    return model_class, resource

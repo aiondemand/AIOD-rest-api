@@ -30,15 +30,6 @@ def get_all_asset_schemas():
 
 
 @cache
-def get_asset_type_by_abbreviation() -> dict[str, type[AIoDConcept]]:
-    return {
-        cls.__abbreviation__: cls
-        for cls in non_abstract_subclasses(AIoDConcept)
-        if hasattr(cls, "__abbreviation__")
-    }
-
-
-@cache
 def get_router_by_type() -> dict[type[AIoDConcept], type["ResourceRouter"]]:
     from routers.resource_routers import versioned_routers  # avoid cyclical import
 

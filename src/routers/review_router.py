@@ -21,7 +21,8 @@ from database.review import (
 )
 from database.model.concept.aiod_entry import EntryStatus, AIoDEntryORM
 from database.model.concept.concept import AIoDConcept
-from routers.helper_functions import get_asset_type_by_abbreviation, get_router_by_type
+from routers.helper_functions import get_router_by_type
+from database.model.helper_functions import get_asset_type_by_abbreviation
 from versioning import Version
 
 

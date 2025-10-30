@@ -6,7 +6,7 @@ from sqlmodel import Session
 from authentication import KeycloakUser, get_user_or_none, get_user_or_raise, get_user_by_username
 from database.authorization import user_can_administer, set_permission, Permission, register_user
 from database.session import get_session
-from routers.helper_functions import get_asset_type_by_abbreviation
+from database.model.helper_functions import get_asset_by_identifier
 from routers.resource_routers import versioned_routers
 from database.model.concept.aiod_entry import EntryStatus
 from database.authorization import user_can_read, PermissionType
@@ -117,17 +117,5 @@ def create(url_prefix: str = "", version: Version = Version.LATEST) -> APIRouter
             status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
             detail=f"No router found to deserialize asset of type '{model_class.__name__}'",
         )
-
-    def get_asset_by_identifier(identifier, session):
-        asset_type_map = get_asset_type_by_abbreviation()
-        prefix = identifier.split("_")[0]
-        model_class = asset_type_map.get(prefix)
-        if not model_class:
-            raise HTTPException(
-                status_code=HTTPStatus.NOT_FOUND,
-                detail=f"Unknown asset type with identifier '{identifier}'",
-            )
-        resource = session.get(model_class, identifier)
-        return model_class, resource
 
     return router

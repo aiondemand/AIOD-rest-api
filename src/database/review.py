@@ -9,7 +9,8 @@ from sqlmodel import SQLModel, Field, Relationship, Session
 from database.model.field_length import NORMAL, LONG
 from database.model.concept.concept import AIoDConcept
 from database.model.helper_functions import non_abstract_subclasses
-from routers.helper_functions import get_all_asset_schemas, get_asset_type_by_abbreviation
+from routers.helper_functions import get_all_asset_schemas
+from database.model.helper_functions import get_asset_type_by_abbreviation
 
 REQUIRED_NUMBER_OF_REVIEWS = 1
 

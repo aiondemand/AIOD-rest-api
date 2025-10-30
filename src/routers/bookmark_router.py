@@ -13,7 +13,7 @@ from http import HTTPStatus
 from datetime import datetime
 
 from dependencies.pagination import PaginationParams
-from routers.helper_functions import get_asset_type_by_abbreviation
+from database.model.helper_functions import get_asset_type_by_abbreviation
 from versioning import Version
 
 

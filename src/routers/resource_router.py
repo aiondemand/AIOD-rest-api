@@ -30,7 +30,7 @@ from dependencies.filtering import ResourceFilters, ResourceFiltersParams
 from dependencies.pagination import Pagination, PaginationParams
 from error_handling import as_http_exception
 from database.model.ai_asset.distribution import Distribution
-from routers.helper_functions import get_asset_type_by_abbreviation
+from database.model.helper_functions import get_asset_type_by_abbreviation
 from versioning import Version, VersionedResource
 
 from http import HTTPStatus

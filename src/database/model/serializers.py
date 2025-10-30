@@ -8,8 +8,11 @@ from sqlmodel import SQLModel, Session, select
 from starlette.status import HTTP_404_NOT_FOUND
 
 from authentication import KeycloakUser
-from database.model.helper_functions import get_relationships
+from database.model.helper_functions import get_relationships, get_asset_by_identifier
 from database.model.named_relation import NamedRelation, Taxonomy
+from database.model.ai_resource.resource_table import AIResourceORM
+from database.session import DbSession
+
 
 MODEL = TypeVar("MODEL", bound=SQLModel)
 
@@ -253,23 +256,30 @@ def create_getter_dict(attribute_serializers: Dict[str, Serializer]):
     object."""
     attribute_names = set(attribute_serializers.keys())
 
+    def is_soft_deleted(item) -> bool:
+        if hasattr(item, "date_deleted") and item.date_deleted:
+            return True
+        if isinstance(item, AIResourceORM):
+            with DbSession() as session:
+                clazz_, resource = get_asset_by_identifier(item.identifier, session)
+                return resource.date_deleted is not None
+
+        return False  # Not sure what cases are not covered here.
+
     class GetterDictSerializer(GetterDict):
         def get(self, key: Any, default: Any = None) -> Any:
             if key in attribute_names:
                 serializer = attribute_serializers[key]
                 attribute_value = serializer.value(model=self._obj, attribute_name=key)
                 if attribute_value is not None:
-                    # if key == "relevant_to" or key == "relevant_resource":
-                    #     breakpoint()
-                    if hasattr(attribute_value, "date_deleted") and attribute_value.date_deleted:
-                        return None
                     if isinstance(attribute_value, list):
-                        vs = [
+                        return [
                             serializer.serialize(v)
                             for v in attribute_value
-                            if not hasattr(v, "date_deleted") or (v.date_deleted is None)
+                            if not is_soft_deleted(v)
                         ]
-                        return vs
+                    if is_soft_deleted(attribute_value):
+                        return None
                     return serializer.serialize(attribute_value)
             return super().get(key, default)
 
