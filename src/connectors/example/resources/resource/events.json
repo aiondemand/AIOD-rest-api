@@ -87,8 +87,8 @@
       "end_date": "2022-02-03T15:15:00",
       "schedule": "10:00-10:30: Opening. 10:30-11:00 ...",
       "registration_link": "https://example.com/registration-form",
-      "status": "scheduled",
-      "mode": "offline"
+      "status": "Planned",
+      "mode": "Physical"
     },
     {
         "platform": "example",
