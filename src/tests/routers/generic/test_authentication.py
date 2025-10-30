@@ -52,7 +52,7 @@ def test_delete_authorized(
 ):
     response = client_test_resource.delete(
         f"/test_resources/{engine_test_resource_filled}",
-        headers={"Authorization": "fake-token"},
+        headers={"Authorization": "Fake token"},
     )
     assert response.status_code == 200, response.json()
 

@@ -99,7 +99,7 @@ class FindByIdentifierDeserializer(DeSerializer[SQLModel]):
 
     @staticmethod
     def deserialize_ids(clazz: type[SQLModel], session: Session, ids: list[int]):
-        query = select(clazz).where(clazz.identifier.in_(ids))  # noqa
+        query = select(clazz).where(clazz.identifier.in_(ids))
         existing = session.scalars(query).all()
         ids_not_found = set(ids) - {e.identifier for e in existing}
         if any(ids_not_found):
@@ -255,14 +255,21 @@ def create_getter_dict(attribute_serializers: Dict[str, Serializer]):
 
     class GetterDictSerializer(GetterDict):
         def get(self, key: Any, default: Any = None) -> Any:
-            # if key == "has_part" and hasattr(self._obj, "ai_resource"):
-            #     return [p.identifier for p in self._obj.ai_resource.has_part]
             if key in attribute_names:
                 serializer = attribute_serializers[key]
                 attribute_value = serializer.value(model=self._obj, attribute_name=key)
                 if attribute_value is not None:
+                    # if key == "relevant_to" or key == "relevant_resource":
+                    #     breakpoint()
+                    if hasattr(attribute_value, "date_deleted") and attribute_value.date_deleted:
+                        return None
                     if isinstance(attribute_value, list):
-                        return [serializer.serialize(v) for v in attribute_value]
+                        vs = [
+                            serializer.serialize(v)
+                            for v in attribute_value
+                            if not hasattr(v, "date_deleted") or (v.date_deleted is None)
+                        ]
+                        return vs
                     return serializer.serialize(attribute_value)
             return super().get(key, default)
 

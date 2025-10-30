@@ -194,7 +194,7 @@ class OneToMany(_ResourceRelationshipList):
 @dataclasses.dataclass
 class ManyToMany(_ResourceRelationshipList):
     """
-    Configuration for handling many-to-one relationships to another table.
+    Configuration for handling many-to-many relationships to another table.
 
     Args:
         on_delete_trigger_orphan_deletion(Callable): automatically delete orphans of the
