@@ -35,8 +35,8 @@ load_dotenv()
 
 oidc = OpenIdConnect(openIdConnectUrl=KEYCLOAK_CONFIG.get("openid_connect_url"), auto_error=False)
 
-REVIEWER_ROLE = os.getenv("REVIEWER_ROLE_NAME")
-ADMIN_ROLE = os.getenv("ADMIN_ROLE_NAME")
+REVIEWER_ROLE = os.getenv("REVIEWER_ROLE_NAME", "review_aiod_resources")
+ADMIN_ROLE = os.getenv("ADMIN_ROLE_NAME", "admin_aiod_resources")
 client_secret = os.getenv("KEYCLOAK_CLIENT_SECRET")
 
 keycloak_openid = KeycloakOpenID(
