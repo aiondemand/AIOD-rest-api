@@ -4,7 +4,7 @@ from unittest.mock import Mock
 from starlette.testclient import TestClient
 
 from database.model.agent.contact import Contact
-from database.model.agent.organisation import Organisation, Turnover,NumberOfEmployees
+from database.model.agent.organisation import Organisation, Turnover,NumberOfEmployees, OrganisationActivityType
 from database.session import DbSession
 
 import pytest
@@ -14,8 +14,10 @@ from routers.resource_routers.organisation_router import ALLOWED_IMAGE_TYPES
 from http import HTTPStatus
 
 from taxonomies.synchronize_taxonomy import synchronize
+from database.model.agent.organisational_network import OrganisationalNetwork
 
 STANDARD_TURNOVER_VALUES = ["<1 million euros", ">1 million euros", ">3 million euros", ">5 million euros", ">50 million euros", ">1.5 billion euros"]
+STANDARD_ACTIVITY_TYPE = ["fundamental research", "applied research", "consultancy", "educational activities", "product/solution development", "other"]
 
 @pytest.fixture
 def with_organisation_taxonomies():
@@ -35,10 +37,19 @@ def with_organisation_taxonomies():
                 for value in STANDARD_TURNOVER_VALUES
             ],
             session
+
+        )
+        synchronize(
+            OrganisationActivityType,
+            [
+                OrganisationActivityType(name=value,definition="", official=True, children=[])
+                for value in STANDARD_ACTIVITY_TYPE
+            ],
+            session
+
         )
         session.commit()
     yield
-
 
 def test_happy_path(
     client: TestClient,
@@ -47,7 +58,8 @@ def test_happy_path(
     contact: Contact,
     body_agent: dict,
     auto_publish: None,
-    with_organisation_taxonomies,
+    with_organisation_taxonomies
+    # organisational_network: OrganisationalNetwork,
 ):
     body = copy.copy(body_agent)
     body["date_founded"] = "2023-01-01"
@@ -55,15 +67,26 @@ def test_happy_path(
     body["ai_relevance"] = "Part of CLAIRE"
     body["type"] = "Research University"
     body["turnover"] = "<1 million euros"
-    with DbSession() as session:
+    body["has_activity_type"] = "applied research"
+    body["involved_in_area"] = [{
+        "involvement_level": "high",
+        "involvement_area": "Computer Vision"
+    }]
+    body["has_membership_in"] = [
+        {"with_network_role": "Beneficiary", "in_network": {"name": "ai4media"}}
+    ]
+
+    with DbSession() as session: 
         session.add(organisation)  # The new organisation will be a member of this organisation
         session.add(contact)
+        
         session.commit()
 
         body["member"] = [organisation.identifier]
         body["contact_details"] = contact.identifier
         body["contact"] = [contact.identifier]
-
+        
+    breakpoint()
     response = client.post("/organisations", json=body, headers={"Authorization": "Fake token"})
     assert response.status_code == 200, response.json()
     identifier = response.json()['identifier']
@@ -92,6 +115,18 @@ def test_happy_path(
             "geo": {"latitude": 37.42242, "longitude": -122.08585, "elevation_millimeters": 2000},
         }
     ]
+    breakpoint()
+    assert response_json["has_activity_type"] == "Applied research"
+    assert response_json["involved_in_area"][0]["involvement_level"] == "high"
+    assert response_json["involved_in_area"][0]["involvement_area_identifier"] == 1
+    # assert response_json["involved_in_area"][0]["involvement_area"] == "Computer Vision"
+    
+    assert {m["with_network_role"] for m in response_json["has_membership_in"]} == {
+    "Beneficiary",
+    "Associated partner"
+    }
+
+
 
     # response = client.delete("/organisations/1", headers={"Authorization": "Fake token"})
     # assert response.status_code == 200
@@ -99,7 +134,7 @@ def test_happy_path(
     # assert response.status_code == 200, response.json()
     # response_json = response.json()
     # TODO(jos): make sure Agent is deleted on CASCADE
-
+    breakpoint()
     body["type"] = "Association"
     response = client.put(f"organisations/{identifier}", json=body, headers={"Authorization": "Fake token"})
     assert response.status_code == 200, response.json()

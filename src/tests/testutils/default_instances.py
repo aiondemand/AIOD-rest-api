@@ -15,6 +15,7 @@ from sqlalchemy.engine import Engine
 
 from database.model.agent.contact import Contact
 from database.model.agent.organisation import Organisation
+from database.model.agent.organisational_network import OrganisationalNetwork
 from database.model.agent.person import Person
 from database.model.dataset.dataset import Dataset
 from database.model.knowledge_asset.publication import Publication
@@ -127,6 +128,16 @@ def organisation(body_agent: dict) -> Organisation:
     body["ai_relevance"] = "Description of relevance in AI"
     return _create_class_with_body(Organisation, body)
 
+@pytest.fixture
+def organisational_network(body_agent: dict) -> list[OrganisationalNetwork]:
+    """Create two organisational networks and return the created model instances."""
+    body = copy.deepcopy(body_agent)
+    nets = []
+    for name in ("AI4Media", "ELISE"):
+        body = {"name": name}
+        net = _create_class_with_body(OrganisationalNetwork, body)
+        nets.append(net)
+    return nets
 
 @pytest.fixture
 def person(body_agent: dict) -> Person:

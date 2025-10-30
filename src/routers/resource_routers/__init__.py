@@ -17,6 +17,10 @@ from .service_router import ServiceRouter, service_routers
 from .team_router import TeamRouter, team_routers
 from .resource_bundle_router import ResourceBundleRouter, resource_bundle_routers
 from .. import ResourceRouter
+from .organisational_network_router import (
+    OrganisationalNetworkRouter,
+    organisational_network_routers,
+)
 
 all_routers = [value for attr, value in locals().items() if attr.endswith("_routers")]
 

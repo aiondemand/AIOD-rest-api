@@ -1,5 +1,5 @@
 from datetime import date
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 
 from sqlmodel import Field, Relationship
 
@@ -9,15 +9,23 @@ from database.model.agent.agent_table import AgentTable
 from database.model.agent.contact import Contact
 from database.model.field_length import NORMAL, LONG
 from database.model.helper_functions import many_to_many_link_factory
-from database.model.relationships import ManyToOne, ManyToMany, OneToOne
+from database.model.relationships import ManyToOne, ManyToMany, OneToOne, OneToMany
 from database.model.serializers import (
     AttributeSerializer,
     FindByNameDeserializer,
     FindByIdentifierDeserializer,
     FindByIdentifierDeserializerList,
+    MultiAttributeSerializer,
 )
 from versioning import Version, VersionedResource, VersionedResourceCollection
+from typing import cast
+from sqlmodel import SQLModel
+from database.model.resource_read_and_create import resource_read, resource_create
+from versioning import schema_transform
 
+from database.model.agent.network_membership import NetworkMembership
+from database.model.agent.involvement_level import InvolvementLevel
+from database.model.serializers import CastDeserializerList
 
 OrganisationType: type[Taxonomy] = create_taxonomy(
     class_name="OrganisationType",
@@ -95,6 +103,17 @@ class Organisation(OrganisationBase, Agent, table=True):  # type: ignore [call-a
     )
     number_of_employees: Optional[NumberOfEmployees] = Relationship()  # type: ignore[valid-type]
 
+    has_activity_type_identifier: int | None = Field(
+        default=None,
+        foreign_key="organisation_activity_type.identifier",
+        description="The activity type of the organisation.",
+    )
+    has_activity_type: Optional[OrganisationActivityType] = Relationship()  # type: ignore[valid-type]
+
+    involved_in_area: list["InvolvementLevel"] = Relationship(back_populates="organisation")
+
+    has_membership_in: list[NetworkMembership] = Relationship(back_populates="organisation")
+
     class RelationshipConfig(Agent.RelationshipConfig):
         contact_details: str | None = OneToOne(
             description="The identifier of the contact details by which this organisation "
@@ -135,13 +154,143 @@ class Organisation(OrganisationBase, Agent, table=True):  # type: ignore [call-a
             example="<10",
         )
 
+        has_activity_type: Optional[str] = ManyToOne(
+            description="The activity type of the organisation.",
+            identifier_name="has_activity_type_identifier",
+            _serializer=AttributeSerializer("name"),
+            deserializer=FindByNameDeserializer(OrganisationActivityType),
+            example="Applied research",
+        )
+
+        involved_in_area: list[InvolvementLevel] = OneToMany(
+            description="The involvement levels that link this organisation to specific expertise areas.",
+            # _serializer=MultiAttributeSerializer({
+            # "involvement_level":"involvement_level", "involvement_area":"involvement_area.name"}),
+            deserializer=CastDeserializerList(InvolvementLevel),
+            default_factory_pydantic=list,
+        )
+
+    
+        has_membership_in: list[NetworkMembership] = OneToMany(
+            description="The memberships that link this organisation to organisational networks.",
+            deserializer=CastDeserializerList(NetworkMembership),
+            default_factory_pydantic=list,
+        )
+
 
 deserializer = FindByIdentifierDeserializer(Organisation)
 Contact.RelationshipConfig.organisation.deserializer = deserializer  # type: ignore
 
+
+def organisation_v3_to_v2() -> VersionedResource:
+    """Drop new fields (has_activity_type, involved_in_area, has_membership_in) for V2 compatibility."""
+
+    OrganisationV2Read = schema_transform(
+        resource_read(Organisation),
+        "OrganisationV2Read",
+        remove_fields=[
+            "has_activity_type",
+            "involved_in_area",
+            "has_membership_in",
+        ],
+    )
+
+    OrganisationV2Create = schema_transform(
+        resource_create(Organisation),
+        "OrganisationV2Create",
+        remove_fields=[
+            "has_activity_type",
+            "involved_in_area",
+            "has_membership_in",
+        ],
+    )
+
+    def orm_to_read(org: Organisation) -> OrganisationV2Read:  # type: ignore[valid-type]
+        read = resource_read(Organisation).model_validate(org).model_dump()
+        for f in ["has_activity_type", "involved_in_area", "has_membership_in"]:
+            read.pop(f, None)
+        return OrganisationV2Read.model_validate(read)
+
+    def create_to_orm(org: OrganisationV2Create) -> Organisation:  # type: ignore[valid-type]
+        fields = cast(SQLModel, org).model_dump()
+        return Organisation.model_validate(fields)
+
+    return VersionedResource(
+        Organisation, OrganisationV2Create, OrganisationV2Read, create_to_orm, orm_to_read
+    )
+
+
 organisation_versions = VersionedResourceCollection(
     {
-        Version.V2: VersionedResource(Organisation),
+        Version.V3: VersionedResource(Organisation),
+        Version.V2: organisation_v3_to_v2(),
         Version.LATEST: VersionedResource(Organisation),
     }
 )
+
+# {
+#   "platform": null,
+#   "platform_resource_identifier": null,
+#   "name": "The name of this resource",
+#   "date_published": "2022-01-01T15:15:00.000",
+#   "same_as": "https://www.example.com/resource/this_resource",
+#   "date_founded": "2022-01-01",
+#   "legal_name": "The Organisation Name",
+#   "ai_relevance": "Part of CLAIRE, focussing on explainable AI.",
+#   "aiod_entry": null,
+#   "alternate_name": [
+#     "alias 1",
+#     "alias 2"
+#   ],
+#   "application_area": [
+#     "Fraud Prevention",
+#     "Voice Assistance",
+#     "Disease Classification"
+#   ],
+#   "contact": [],
+#   "contact_details": null,
+#   "creator": [],
+#   "description": null,
+#   "has_activity_type": "Applied research",
+# "has_membership_in": [
+#   {
+#     "with_network_role": "Beneficiary",
+#     "in_network": "AI4Media"
+#   },
+#   {
+#     "with_network_role": "Associated partner",
+#     "in_network": "ELISE"
+#   }
+# ],
+#   "has_part": [],
+#   "industrial_sector": [
+#     "Pharmaceuticals",
+#     "Computer Programming",
+#     "Cybersecurity"
+#   ],
+#   "involved_in_area": [{"involvement_level": "low", "involvement_area": "computervision"}],
+#   "is_part_of": [],
+#   "keyword": [
+#     "keyword1",
+#     "keyword2"
+#   ],
+#   "media": [],
+#   "member": [],
+#   "note": [],
+#   "number_of_employees": "<10",
+#   "relevant_link": [
+#     "https://www.example.com/a_relevant_link",
+#     "https://www.example.com/another_relevant_link"
+#   ],
+#   "relevant_resource": [],
+#   "relevant_to": [],
+#   "research_area": [
+#     "AI Services",
+#     "Multi-agent Systems"
+#   ],
+#   "scientific_domain": [
+#     "Computer and Information Sciences",
+#     "Mathematics"
+#   ],
+#   "turnover": ">5 million euros"
+# }
