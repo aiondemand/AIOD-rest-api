@@ -1,5 +1,6 @@
 import copy
 import logging
+import os
 import pathlib
 import tomllib
 from collections import deque
@@ -12,11 +13,13 @@ from typing import Any, Sequence
 _log_lines: deque[tuple[int, str]] = deque()
 logger = logging.getLogger(__file__)
 
+_log_lines.append((logging.INFO, f"REVIEWER_ROLE_NAME={os.getenv('REVIEWER_ROLE_NAME')}"))
+_log_lines.append((logging.INFO, f"ADMIN_ROLE_NAME={os.getenv('ADMIN_ROLE_NAME')}"))
+
 default_config_path = pathlib.Path(__file__).parent / "config.default.toml"
 with open(default_config_path, "rb") as fh:
     DEFAULT_CONFIG = tomllib.load(fh)
     _log_lines.append((logging.INFO, f"Loaded default configuration from {default_config_path}"))
-    logger.info("Actually Foo")
 
 OVERRIDE_CONFIG_PATH = pathlib.Path(__file__).parent / "config.override.toml"
 if OVERRIDE_CONFIG_PATH.exists() and OVERRIDE_CONFIG_PATH.is_file():

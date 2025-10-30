@@ -1,6 +1,7 @@
 """extend registration link
 
 Revision ID: 95fa6a3c7eee
+
 Revises: 79b2dda7e3be
 Create Date: 2025-10-30 08:30:38.564333
 

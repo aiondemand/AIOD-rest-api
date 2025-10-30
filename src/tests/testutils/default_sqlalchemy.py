@@ -72,10 +72,10 @@ DEFAULT_ORGANISATION_TYPE = [
     Term("association", "for use in tests", children=[]),
 ]
 DEFAULT_EVENT_MODE = [
-    Term("offline", "for use in tests", children=[]),
+    Term("Physical", "for use in tests", children=[]),
 ]
 DEFAULT_EVENT_STATUS = [
-   Term("scheduled", "for use in tests", children=[]),
+   Term("Planned", "for use in tests", children=[]),
 ]
 DEFAULT_LANGUAGE = [
     Term("nld","for use in tests", children=[]),

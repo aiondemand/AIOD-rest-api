@@ -7,7 +7,7 @@ from database.model.agent.agent_table import AgentTable
 from database.model.agent.location import LocationORM, Location
 from database.model.ai_resource.resource import AIResourceBase, AIResource
 from database.model.ai_resource.text import TextORM, Text
-from database.model.field_length import NORMAL, LONG, IDENTIFIER_LENGTH
+from database.model.field_length import LONG, IDENTIFIER_LENGTH
 from database.model.helper_functions import many_to_many_link_factory
 from database.model.relationships import ManyToMany, ManyToOne, OneToMany, OneToOne
 from database.model.serializers import (
@@ -55,7 +55,7 @@ class EventBase(AIResourceBase):
     )
     registration_link: str | None = Field(
         description="The url of the registration form.",
-        max_length=NORMAL,
+        max_length=LONG,
         default=None,
         schema_extra={"example": "https://example.com/registration-form"},
     )
@@ -122,14 +122,14 @@ class Event(EventBase, AIResource, table=True):  # type: ignore [call-arg]
             identifier_name="status_identifier",
             _serializer=AttributeSerializer("name"),
             deserializer=FindByNameDeserializer(EventStatus),
-            example="scheduled",
+            example="Planned",
         )
         mode: Optional[str] = ManyToOne(
             description="The attendance mode of event.",
             identifier_name="mode_identifier",
             _serializer=AttributeSerializer("name"),
             deserializer=FindByNameDeserializer(EventMode),
-            example="offline",
+            example="Physical",
         )
 
 
