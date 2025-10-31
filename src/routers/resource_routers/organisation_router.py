@@ -65,15 +65,6 @@ class OrganisationRouter(ResourceRouter):
                 detail="You cannot edit an asset under submission.",
             )
 
-    async def read_image_file(self, file: UploadFile) -> bytes:
-        blob = await file.read()
-        if len(blob) > MAX_FILE_SIZE_BYTES:
-            raise HTTPException(
-                status_code=HTTPStatus.REQUEST_ENTITY_TOO_LARGE,
-                detail="File too large (max 1MB).",
-            )
-        return blob
-
     def add_custom_routes(self, router: APIRouter, path: str):
         """ "
         Organisation image endpoints.
@@ -108,7 +99,7 @@ class OrganisationRouter(ResourceRouter):
                         detail=f"An image with the name '{name}' already exists for this organisation.",
                     )
 
-                blob = await self.read_image_file(file)
+                blob = await read_image_file(file)
 
                 media_cls = resource.__class__.media.property.mapper.class_
 
@@ -149,7 +140,7 @@ class OrganisationRouter(ResourceRouter):
                         detail=f"No image with the name '{name}' found in the database.",
                     )
 
-                blob = await self.read_image_file(file)
+                blob = await read_image_file(file)
 
                 existing_media.binary_blob = blob
                 existing_media.encoding_format = file.content_type
@@ -236,6 +227,7 @@ class OrganisationRouter(ResourceRouter):
 
         return router
 
+    # Redefined to add the `get_image` path parameter
     def get_resources_func(self):
         def get_resources(
             pagination: PaginationParams,
@@ -254,13 +246,8 @@ class OrganisationRouter(ResourceRouter):
 
         return get_resources
 
+    # Redefined to add the `get_image` path parameter
     def get_resource_func(self):
-        """
-        Return a function that can be used to retrieve a single resource.
-        This function returns a function (instead of being that function directly) because the
-        docstring and the variables are dynamic, and used in Swagger.
-        """
-
         def get_resource(
             identifier: str,
             schema: self._possible_schemas_type = "aiod",  # type: ignore
@@ -282,6 +269,16 @@ def validate_image_type(file: UploadFile):
             status_code=HTTPStatus.UNSUPPORTED_MEDIA_TYPE,
             detail=f"Unsupported file type {file.content_type}. Allowed image types: {ALLOWED_IMAGE_TYPES}.",
         )
+
+
+async def read_image_file(file: UploadFile) -> bytes:
+    blob = await file.read()
+    if len(blob) > MAX_FILE_SIZE_BYTES:
+        raise HTTPException(
+            status_code=HTTPStatus.REQUEST_ENTITY_TOO_LARGE,
+            detail="File too large (max 1MB).",
+        )
+    return blob
 
 
 organisation_routers = {
