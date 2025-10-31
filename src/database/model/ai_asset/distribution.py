@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import Type
 
 from fastapi.encoders import jsonable_encoder
-from pydantic import create_model
+from pydantic import create_model, validator
 from sqlalchemy import Column, ForeignKey, String, LargeBinary
 from sqlmodel import Field
 
@@ -63,6 +63,14 @@ class DistributionBase(AIoDConceptBase):
         ),
         sa_column=Column(LargeBinary),
     )
+
+    @validator("binary_blob", pre=True, always=True)
+    def decode_string_to_bytes(cls, v) -> bytes | None:
+        if v is None or isinstance(v, bytes):
+            return v
+        if not isinstance(v, str):
+            raise TypeError("`binary_blob` can only be bytes, str, or None.")
+        return base64.b64decode(v)
 
     def dict(self, *args, **kwargs):
         # Defining it as a `Config` does not work for some reason.
