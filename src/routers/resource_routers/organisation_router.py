@@ -40,16 +40,16 @@ class OrganisationRouter(ResourceRouter):
 
     def _get_resource(self, session: Session, identifier: str) -> Organisation:
         resource = session.exec(
-            select(Organisation).where(Organisation.identifier == identifier)
+            select(self.resource_class).where(self.resource_class.identifier == identifier)
         ).one_or_none()
         if not resource:
             raise HTTPException(
                 status_code=HTTPStatus.NOT_FOUND,
-                detail=f"Organisation {identifier} not found in the database.",
+                detail=f"{self.resource_name.capitalize()} {identifier} not found in the database.",
             )
         return resource
 
-    def _check_user_can_edit(self, user: KeycloakUser, resource: Organisation, resource_name: str):
+    def _check_user_can_edit(self, user: KeycloakUser, resource):
         if not (
             user_can_write(user, resource.aiod_entry)
             or user.has_role(f"update_{self.resource_name_plural}")
@@ -87,7 +87,7 @@ class OrganisationRouter(ResourceRouter):
             try:
                 resource = self._get_resource(session, identifier)
 
-                self._check_user_can_edit(user, resource, self.resource_name_plural)
+                self._check_user_can_edit(user, resource)
 
                 # Donot allow image upload with same name.
                 # We do not check for identical image content (only name).
@@ -96,7 +96,7 @@ class OrganisationRouter(ResourceRouter):
                 if any(media.name == name for media in resource.media):
                     raise HTTPException(
                         status_code=HTTPStatus.CONFLICT,
-                        detail=f"An image with the name '{name}' already exists for this organisation.",
+                        detail=f"An image with the name '{name}' already exists for this {self.resource_name}.",
                     )
 
                 blob = await read_image_file(file)
@@ -130,7 +130,7 @@ class OrganisationRouter(ResourceRouter):
             try:
                 resource = self._get_resource(session, identifier)
 
-                self._check_user_can_edit(user, resource, self.resource_name_plural)
+                self._check_user_can_edit(user, resource)
 
                 existing_media = next((m for m in resource.media if m.name == name), None)
 
@@ -164,15 +164,7 @@ class OrganisationRouter(ResourceRouter):
             session=Depends(get_session),
             user: KeycloakUser | None = Depends(get_user_or_none),
         ):
-            org = session.exec(
-                select(Organisation).where(Organisation.identifier == identifier)
-            ).one_or_none()
-
-            if not org:
-                raise HTTPException(
-                    status_code=HTTPStatus.NOT_FOUND, detail=f"Organisation {identifier} not found."
-                )
-
+            org = self._get_resource(session, identifier)
             return [media for media in org.media if media.binary_blob]
 
         @router.delete(  # type: ignore[no-redef]
@@ -185,15 +177,7 @@ class OrganisationRouter(ResourceRouter):
             user: KeycloakUser | None = Depends(get_user_or_raise),
         ):
             try:
-                resource = session.exec(
-                    select(Organisation).where(Organisation.identifier == identifier)
-                ).one_or_none()
-
-                if not resource:
-                    raise HTTPException(
-                        status_code=HTTPStatus.NOT_FOUND,
-                        detail=f"Organisation {identifier} not found in the database.",
-                    )
+                resource = self._get_resource(session, identifier)
 
                 if not (
                     user_can_administer(user, resource.aiod_entry)
@@ -208,7 +192,7 @@ class OrganisationRouter(ResourceRouter):
                 if not existing_media:
                     raise HTTPException(
                         status_code=HTTPStatus.NOT_FOUND,
-                        detail=f"No image with the name '{name}' found for this organisation.",
+                        detail=f"No image with the name '{name}' found for this {self.resource_name}.",
                     )
 
                 resource.media.remove(existing_media)
