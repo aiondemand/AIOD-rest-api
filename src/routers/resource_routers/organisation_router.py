@@ -38,13 +38,6 @@ class OrganisationRouter(ResourceRouter):
     def resource_class(self) -> type[Organisation]:
         return Organisation
 
-    def validate_image_type(self, file: UploadFile):
-        if file.content_type not in ALLOWED_IMAGE_TYPES:
-            raise HTTPException(
-                status_code=HTTPStatus.UNSUPPORTED_MEDIA_TYPE,
-                detail=f"Unsupported file type {file.content_type}. Allowed image types: {ALLOWED_IMAGE_TYPES}.",
-            )
-
     def _get_resource(self, session: Session, identifier: str) -> Organisation:
         resource = session.exec(
             select(Organisation).where(Organisation.identifier == identifier)
@@ -98,7 +91,7 @@ class OrganisationRouter(ResourceRouter):
             session=Depends(get_session),
             user: KeycloakUser | None = Depends(get_user_or_raise),
         ):
-            self.validate_image_type(file)
+            validate_image_type(file)
 
             try:
                 resource = self._get_resource(session, identifier)
@@ -141,7 +134,7 @@ class OrganisationRouter(ResourceRouter):
             session=Depends(get_session),
             user: KeycloakUser | None = Depends(get_user_or_raise),
         ):
-            self.validate_image_type(file)
+            validate_image_type(file)
 
             try:
                 resource = self._get_resource(session, identifier)
@@ -281,6 +274,14 @@ class OrganisationRouter(ResourceRouter):
             return resource
 
         return get_resource
+
+
+def validate_image_type(file: UploadFile):
+    if file.content_type not in ALLOWED_IMAGE_TYPES:
+        raise HTTPException(
+            status_code=HTTPStatus.UNSUPPORTED_MEDIA_TYPE,
+            detail=f"Unsupported file type {file.content_type}. Allowed image types: {ALLOWED_IMAGE_TYPES}.",
+        )
 
 
 organisation_routers = {
