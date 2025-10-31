@@ -544,7 +544,8 @@ class ResourceRouter(abc.ABC):
             with DbSession() as session:
                 try:
                     resource: Any = self._retrieve_resource(session, identifier)
-                    _raise_if_contains_binary_blob(resource_create_instance)
+                    if not user.is_connector:
+                        _raise_if_contains_binary_blob(resource_create_instance)
                     if not (
                         user_can_write(user, resource.aiod_entry)
                         or user.has_role(f"update_{self.resource_name_plural}")
