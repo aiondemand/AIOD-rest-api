@@ -6,7 +6,6 @@ This way you have easy access to, for instance, an AIoDDataset filled with defau
 
 import copy
 import json
-import uuid
 from functools import partial
 from typing import Callable
 
@@ -23,6 +22,7 @@ from database.model.platform.platform import Platform
 from database.model.resource_read_and_create import resource_create
 from database.model.serializers import deserialize_resource_relationships
 from database.session import DbSession
+from database.model.project.project import Project
 from tests.testutils.paths import path_test_resources
 
 
@@ -139,6 +139,10 @@ def person(body_agent: dict) -> Person:
 @pytest.fixture
 def experiment(body_asset: dict) -> Experiment:
     return _create_class_with_body(Experiment, body_asset)
+
+@pytest.fixture
+def project(body_asset: dict) -> Project:
+    return _create_class_with_body(Project, body_asset)
 
 
 @pytest.fixture
