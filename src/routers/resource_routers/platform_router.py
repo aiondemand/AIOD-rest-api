@@ -301,7 +301,12 @@ class PlatformRouter:
         """
         Retrieve a sequence of resources from the database based on the provided identifier.
         """
-        query = select(self.resource_class).offset(pagination.offset).limit(pagination.limit)
+        query = (
+            select(self.resource_class)
+            .order_by(Platform.identifier)
+            .offset(pagination.offset)
+            .limit(pagination.limit)
+        )
         resources: Sequence = session.scalars(query).all()
         return resources
 

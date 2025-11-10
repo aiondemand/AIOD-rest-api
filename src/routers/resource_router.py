@@ -747,6 +747,7 @@ class ResourceRouter(abc.ABC):
             select(self.resource_class)
             .join(self.resource_class.aiod_entry, isouter=True)
             .where(where_clause)
+            .order_by(AIoDEntryORM.date_created)
             .offset(pagination.offset)
             .limit(pagination.limit)
         )

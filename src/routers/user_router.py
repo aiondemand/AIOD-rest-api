@@ -93,6 +93,7 @@ def _get_resources_for_user(
             Permission.user_identifier == user._subject_identifier,
             Permission.type_ == PermissionType.ADMIN,
         )
+        .order_by(AIoDEntryORM.date_created)
         .offset(offset)
     )
     if limit:

@@ -48,6 +48,7 @@ def create(url_prefix: str = "", version: Version = Version.LATEST) -> APIRouter
         stmt = (
             select(Bookmark)
             .where(Bookmark.user_identifier == user._subject_identifier)
+            .order_by(Bookmark.created_at)
             .offset(pagination.offset)
             .limit(pagination.limit)
         )
