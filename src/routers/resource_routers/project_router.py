@@ -4,6 +4,7 @@ from authentication import KeycloakUser, get_user_or_none
 from database.model.project.project import Project, project_versions
 from dependencies.filtering import ResourceFiltersParams
 from dependencies.pagination import PaginationParams
+from dependencies.sorting import SortingParams
 from routers.resource_routers.organisation_router import add_custom_routes
 from routers.resource_router import ResourceRouter
 from versioning import Version
@@ -30,6 +31,7 @@ class ProjectRouter(ResourceRouter):
     def get_resources_func(self):
         def get_resources(
             pagination: PaginationParams,
+            sorting: SortingParams,
             resource_filters: ResourceFiltersParams,
             schema: self._possible_schemas_type = "aiod",  # type:ignore
             get_image: bool = Query(False, description="Include image bytes in response?"),
@@ -38,6 +40,7 @@ class ProjectRouter(ResourceRouter):
             return self.get_resources(
                 schema=schema,
                 pagination=pagination,
+                sorting=sorting,
                 resource_filters=resource_filters,
                 user=user,
                 get_image=get_image,

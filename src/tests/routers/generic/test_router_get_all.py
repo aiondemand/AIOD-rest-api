@@ -19,7 +19,7 @@ def test_get_all_happy_path(client_test_resource: TestClient):
     with DbSession() as session:
         session.add_all(resources)
         session.commit()
-    response = client_test_resource.get("/test_resources")
+    response = client_test_resource.get("/test_resources?direction=asc")
     assert response.status_code == 200, response.json()
     response_json = response.json()
 

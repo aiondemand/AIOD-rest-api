@@ -28,6 +28,7 @@ from database.review import Submission, SubmissionCreateV2, AssetReview
 from database.session import DbSession
 from dependencies.filtering import ResourceFilters, ResourceFiltersParams
 from dependencies.pagination import Pagination, PaginationParams
+from dependencies.sorting import SortingParams, Sorting, SortDirection
 from error_handling import as_http_exception
 from database.model.ai_asset.distribution import Distribution
 from database.model.helper_functions import get_asset_type_by_abbreviation
@@ -210,6 +211,7 @@ class ResourceRouter(abc.ABC):
         self,
         schema: str,
         pagination: Pagination,
+        sorting: Sorting,
         resource_filters: ResourceFilters,
         user: KeycloakUser | None = None,
         platform: str | None = None,
@@ -227,7 +229,7 @@ class ResourceRouter(abc.ABC):
                     else cast(Callable, self.orm_to_read)
                 )
                 resources: Any = self._retrieve_resources_and_post_process(
-                    session, pagination, resource_filters, user, platform
+                    session, pagination, sorting, resource_filters, user, platform
                 )
                 for resource in resources:
                     if not get_image and hasattr(resource, "media"):
@@ -289,6 +291,7 @@ class ResourceRouter(abc.ABC):
 
         def get_resources(
             pagination: PaginationParams,
+            sorting: SortingParams,
             resource_filters: ResourceFiltersParams,
             schema: self._possible_schemas_type = "aiod",  # type:ignore
             user: KeycloakUser | None = Depends(get_user_or_none),
@@ -296,6 +299,7 @@ class ResourceRouter(abc.ABC):
             resources = self.get_resources(
                 schema=schema,
                 pagination=pagination,
+                sorting=sorting,
                 resource_filters=resource_filters,
                 user=user,
                 platform=None,
@@ -367,6 +371,7 @@ class ResourceRouter(abc.ABC):
                 ),
             ],
             pagination: PaginationParams,
+            sorting: SortingParams,
             resource_filters: ResourceFiltersParams,
             schema: self._possible_schemas_type = "aiod",  # type:ignore
             user: KeycloakUser | None = Depends(get_user_or_none),
@@ -374,6 +379,7 @@ class ResourceRouter(abc.ABC):
             resources = self.get_resources(
                 schema=schema,
                 pagination=pagination,
+                sorting=sorting,
                 resource_filters=resource_filters,
                 user=user,
                 platform=platform,
@@ -725,6 +731,7 @@ class ResourceRouter(abc.ABC):
         self,
         session: Session,
         pagination: Pagination,
+        sorting: Sorting,
         resource_filters: ResourceFilters,
         platform: str | None = None,
     ) -> Sequence[type[RESOURCE_MODEL]]:
@@ -743,11 +750,17 @@ class ResourceRouter(abc.ABC):
             else True,
             AIoDEntryORM.status == EntryStatus.PUBLISHED,
         )
+        sort_attribute = getattr(AIoDEntryORM, sorting.sort.lower())
+        sort = (
+            sort_attribute.asc()
+            if sorting.direction == SortDirection.ASC
+            else sort_attribute.desc()
+        )
         query = (
             select(self.resource_class)
             .join(self.resource_class.aiod_entry, isouter=True)
             .where(where_clause)
-            .order_by(AIoDEntryORM.date_created)
+            .order_by(sort, AIoDEntryORM.identifier.asc())  # type: ignore[attr-defined]
             .offset(pagination.offset)
             .limit(pagination.limit)
         )
@@ -774,6 +787,7 @@ class ResourceRouter(abc.ABC):
         self,
         session: Session,
         pagination: Pagination,
+        sorting: Sorting,
         resource_filters: ResourceFilters,
         user: KeycloakUser | None = None,
         platform: str | None = None,
@@ -784,7 +798,7 @@ class ResourceRouter(abc.ABC):
         implement further verification on user access to the resource.
         """
         resources: Sequence[type[RESOURCE_MODEL]] = self._retrieve_resources(
-            session, pagination, resource_filters, platform
+            session, pagination, sorting, resource_filters, platform
         )
         return self._mask_or_filter(resources, session, user)
 

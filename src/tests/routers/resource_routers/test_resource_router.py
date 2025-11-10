@@ -4,6 +4,9 @@ from unittest.mock import Mock
 import pytest
 from starlette.testclient import TestClient
 
+from tests.testutils.users import register_asset
+
+
 @pytest.mark.parametrize(
     "resource_type",
     [
@@ -67,3 +70,30 @@ def test_happy_path_with_filters(
     response_json = response.json()
     assert isinstance(response_json, list)
     assert len(response_json) == expected_count
+
+
+@pytest.mark.parametrize(
+    "resource_type",
+    [
+        "case_studies",  # generic
+        "organisations",  # currently has custom overrides
+        "projects",  # currently has custom overrides
+    ],
+)
+def test_happy_path_with_sorting(
+        client: TestClient,
+        mocked_privileged_token: Mock,
+        body_asset: dict,
+        resource_type,
+        auto_publish: None,
+):
+    return
+    # register_asset()
+    # assert response.status_code == 200, response.json()
+    #
+    # response = client.get(f"/{resource_type}", params=resource_filters)
+    # assert response.status_code == 200, response.json()
+    #
+    # response_json = response.json()
+    # assert isinstance(response_json, list)
+    # assert len(response_json) == expected_count

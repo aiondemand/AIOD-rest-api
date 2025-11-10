@@ -181,7 +181,7 @@ def test_get_happy_path(test_objects: list[TestObject], client_with_testobject: 
 
 
 def test_get_all_happy_path(client_with_testobject: TestClient):
-    response = client_with_testobject.get("/test_resources")
+    response = client_with_testobject.get("/test_resources?direction=asc")
     assert response.status_code == 200, response.json()
     response_json = response.json()
     assert "deprecated" not in response.headers
@@ -213,7 +213,7 @@ def test_post_happy_path(client_with_testobject: TestClient, auto_publish: None)
             headers={"Authorization": "Fake token"},
         )
     assert response.status_code == 200, response.json()
-    objects = client_with_testobject.get("/test_resources").json()
+    objects = client_with_testobject.get("/test_resources?direction=asc").json()
     obj = objects[-1]
     assert obj["title"] == "title"
     assert obj["named_string"] == "named_string1"

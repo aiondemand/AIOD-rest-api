@@ -161,7 +161,7 @@ def test_email_mask_for_authenticated_user(
         session.commit()
         session.refresh(contact2)
 
-    response = client.get("/contacts", headers=headers)
+    response = client.get("/contacts?direction=asc", headers=headers)
     response_json = response.json()
     assert response.status_code == 200, response_json
     assert len(response_json) == 2, response_json
@@ -172,8 +172,8 @@ def test_email_mask_for_authenticated_user(
     assert response.status_code == 200, response.json()
     response_json = response.json()
     assert set(response_json["email"]) == {"fake2@email.com", "fake@email.com"}
-    response = client.get("/platforms/aiod/contacts/", headers=headers)
 
+    response = client.get("/platforms/aiod/contacts?direction=asc", headers=headers)
     response_json = response.json()
     assert response.status_code == 200, response_json
 

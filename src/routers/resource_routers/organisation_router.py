@@ -1,4 +1,5 @@
 from database.model.agent.organisation import Organisation, organisation_versions
+from dependencies.sorting import SortingParams
 from routers.resource_router import ResourceRouter
 from fastapi import UploadFile, File, HTTPException, Query, status, APIRouter, Depends
 from http import HTTPStatus
@@ -43,6 +44,7 @@ class OrganisationRouter(ResourceRouter):
     def get_resources_func(self):
         def get_resources(
             pagination: PaginationParams,
+            sorting: SortingParams,
             resource_filters: ResourceFiltersParams,
             schema: self._possible_schemas_type = "aiod",  # type:ignore
             get_image: bool = Query(False, description="Include image bytes in response?"),
@@ -51,6 +53,7 @@ class OrganisationRouter(ResourceRouter):
             return self.get_resources(
                 schema=schema,
                 pagination=pagination,
+                sorting=sorting,
                 resource_filters=resource_filters,
                 user=user,
                 get_image=get_image,
