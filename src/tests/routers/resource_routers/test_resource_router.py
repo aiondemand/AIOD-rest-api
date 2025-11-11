@@ -1,9 +1,11 @@
+import itertools
 from datetime import datetime, timedelta
 from unittest.mock import Mock
 
 import pytest
 from starlette.testclient import TestClient
 
+from dependencies.sorting import SortDirection, Sort
 from tests.testutils.users import register_asset
 
 
@@ -87,13 +89,37 @@ def test_happy_path_with_sorting(
         resource_type,
         auto_publish: None,
 ):
-    return
-    # register_asset()
-    # assert response.status_code == 200, response.json()
-    #
-    # response = client.get(f"/{resource_type}", params=resource_filters)
-    # assert response.status_code == 200, response.json()
-    #
-    # response_json = response.json()
-    # assert isinstance(response_json, list)
-    # assert len(response_json) == expected_count
+    # We set up the resources so that the order of `date_created` and `date_modified` are
+    # different, to assess if the `sort` (by property) parameter works later
+    first = client.post(
+        f"/{resource_type}", json=body_asset, headers={"Authorization": "Fake token"}
+    ).json()["identifier"]
+    second = client.post(
+        f"/{resource_type}", json=body_asset, headers={"Authorization": "Fake token"}
+    ).json()["identifier"]
+    client.put(
+        f"/{resource_type}/{first}",
+        json=body_asset,
+        headers={"Authorization": "Fake token"},
+    )
+
+    for sort, direction in itertools.product(list(Sort), list(SortDirection)):
+        resources = client.get(
+            f"/{resource_type}",
+            params={
+                "direction": str(direction),
+                "sort": str(sort),
+            },
+        ).json()
+
+        match sort, direction:
+            case Sort.DATE_MODIFIED, SortDirection.ASC:
+                assert [r["identifier"] for r in resources] == [second, first]
+            case Sort.DATE_MODIFIED, SortDirection.DESC:
+                assert [r["identifier"] for r in resources] == [first, second]
+            case Sort.DATE_CREATED, SortDirection.ASC:
+                assert [r["identifier"] for r in resources] == [first, second]
+            case Sort.DATE_CREATED, SortDirection.DESC:
+                assert [r["identifier"] for r in resources] == [second, first]
+            case _:
+                assert False, f"Unknown sort strategy: ({sort}, {direction})"
