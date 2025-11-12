@@ -26,7 +26,7 @@ import os
 from dotenv import load_dotenv
 from fastapi import HTTPException, Security, status
 from fastapi.security import OpenIdConnect
-from keycloak import KeycloakOpenID, KeycloakAdmin
+from keycloak import KeycloakOpenID, KeycloakAdmin, KeycloakGetError
 
 from config import KEYCLOAK_CONFIG
 
@@ -177,16 +177,24 @@ async def get_user_or_raise(token=Security(oidc)) -> KeycloakUser:
 
 
 def get_user_by_username(username: str) -> KeycloakUser | None:
-    """Gets the keycloak user by its username. `user.roles` will always be empty."""
-    users = keycloak_api().get_users(query={"username": username, "exact": True})
-    if not users:
-        return None
-
-    if len(users) > 1:
-        raise NotImplementedError(
-            f"Multiple users with username {username} found, expected behavior undefined."
+    """Gets the keycloak user by their username. `user.roles` will always be empty."""
+    if sub := keycloak_api().get_user_id(username):
+        return KeycloakUser(
+            name=username,
+            roles=set(),  # Not included with the call
+            _subject_identifier=sub,
         )
-    user = users[0]
+    return None
+
+
+def get_user_by_sub(sub: str) -> KeycloakUser | None:
+    """Gets the keycloak user by their sub. `user.roles` will always be empty."""
+    try:
+        user = keycloak_api().get_user(sub)
+    except KeycloakGetError as e:
+        if e.error_message == "User not found":
+            return None
+        raise
     return KeycloakUser(
         name=user.get("username"),
         roles=set(),  # Not included with the call

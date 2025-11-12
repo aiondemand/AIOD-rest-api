@@ -1,0 +1,1 @@
+[{"id": "alice000-0000-0000-0000-000000000000", "username": "Alice", "emailVerified": "False", "createdTimestamp": 1739270119298, "enabled": "True", "totp": "False", "disableableCredentialTypes": [], "requiredActions": [], "notBefore": 0, "access": {"manageGroupMembership": "False", "view": "True", "mapRoles": "False", "impersonate": "False", "manage": "False"}}]

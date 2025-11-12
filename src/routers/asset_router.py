@@ -1,9 +1,16 @@
 import re
 from http import HTTPStatus
 from fastapi import APIRouter, Depends, HTTPException, Body
-from sqlmodel import Session
+from sqlmodel import Session, select
+import logging
 
-from authentication import KeycloakUser, get_user_or_none, get_user_or_raise, get_user_by_username
+from authentication import (
+    KeycloakUser,
+    get_user_or_none,
+    get_user_or_raise,
+    get_user_by_username,
+    get_user_by_sub,
+)
 from database.authorization import user_can_administer, set_permission, Permission, register_user
 from database.session import get_session
 from database.model.helper_functions import get_asset_by_identifier
@@ -11,6 +18,8 @@ from routers.resource_routers import versioned_routers
 from database.model.concept.aiod_entry import EntryStatus
 from database.authorization import user_can_read, PermissionType
 from versioning import Version
+
+logger = logging.getLogger(__file__)
 
 
 def create(url_prefix: str = "", version: Version = Version.LATEST) -> APIRouter:
@@ -75,6 +84,34 @@ def create(url_prefix: str = "", version: Version = Version.LATEST) -> APIRouter
             if permission:
                 session.delete(permission)
                 session.commit()
+
+    @router.get(
+        "/assets/permissions/{identifier}",
+        tags=["Assets"],
+        description="Show the permissions for this asset. Requires admin rights of the asset.",
+    )
+    def show_permission(
+        identifier: str,
+        session: Session = Depends(get_session),
+        current_user: KeycloakUser = Depends(get_user_or_raise),
+    ):
+        _, resource = get_asset_by_identifier(identifier, session)
+        if not user_can_administer(current_user, resource.aiod_entry):
+            raise HTTPException(
+                status_code=HTTPStatus.FORBIDDEN,
+                detail=f"You are not allowed to see permissions for asset {identifier}.",
+            )
+
+        permissions = select(Permission).where(
+            Permission.aiod_entry_identifier == resource.aiod_entry.identifier
+        )
+        users = []
+        for permission in session.scalars(permissions).all():
+            if (user := get_user_by_sub(permission.user_identifier)) is not None:
+                users.append({"name": user.name, "permission": permission.type_})
+            else:
+                logger.warning(f"Could not find user for sub {permission.user_identifier}.")
+        return users
 
     @router.get(
         f"/assets/{{identifier}}",

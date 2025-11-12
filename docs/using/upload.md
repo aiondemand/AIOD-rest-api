@@ -201,6 +201,16 @@ their submission. An example body of the `POST` request to `/reviews` could look
 ```
 The comment may be up to 1800 characters long, so detailed feedback can be given.
 
+## Sharing Access
+By default, items are private when they are in draft or under submission.
+When items are published, they are publicly readable.
+However, you are the only person with the ability to edit or remove them.
+
+You can allow others to see assets which are still private, or give users administrator
+or write permissions for individual assets. For more information, see the `/assets/permissions`
+endpoints.
+
+
 ## Notes
 Assets registered by users will automatically be associated with the "AIoD" platform,
 indicating that it's a direct registration. Users cannot associate their registered

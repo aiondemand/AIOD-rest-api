@@ -3,10 +3,12 @@ import json
 
 import pytest
 from http import HTTPStatus
+
+from sqlmodel import select
 from starlette.testclient import TestClient
 import responses
 
-from database.authorization import register_user, PermissionType, Permission
+from database.authorization import register_user, PermissionType, Permission, set_permission
 from database.model.agent.organisation import Organisation
 from database.session import DbSession
 
@@ -80,7 +82,7 @@ def test_add_permission_by_name(
         )
         request_mock.add(
             responses.GET,
-            "http://keycloak:8080/aiod-auth/admin/realms/aiod/users?username=Bob&exact=True&max=100&first=0",
+            "http://keycloak:8080/aiod-auth/admin/realms/aiod/users?username=bob&max=1&exact=True",
             json=users_response,
         )
 
@@ -96,3 +98,57 @@ def test_add_permission_by_name(
             permission = session.get(Permission, {"aiod_entry_identifier": 1 , "user_identifier": BOB._subject_identifier})
         assert permission is not None
         assert permission.type_ == PermissionType.WRITE
+
+
+def test_show_permission(
+        client: TestClient,
+        publication: Publication,
+):
+    identifier = register_asset(publication, owner=ALICE)
+    with DbSession() as session:
+        register_user(BOB, session)
+        publication = session.scalar(select(Publication))
+        set_permission(BOB, publication.aiod_entry, session, type_=PermissionType.WRITE)
+        session.commit()
+
+    cached_api_token = path_test_resources() / "authentication" / "admin_connect.json"
+    with cached_api_token.open("r") as f:
+        connect_response = json.load(f)
+
+    cached_user_response = path_test_resources() / "authentication" / "query_alice.json"
+    with cached_user_response.open("r") as f:
+        alice_response = json.load(f)
+        alice_response = alice_response[0]  # default json returns "multiple" user response
+
+    cached_user_response = path_test_resources() / "authentication" / "query_bob.json"
+    with cached_user_response.open("r") as f:
+        bob_response = json.load(f)
+        bob_response = bob_response[0]  # default json returns "multiple" user response
+
+    # The second time around the cached KeycloakAdmin is used, so the connect is not called
+    with responses.RequestsMock(assert_all_requests_are_fired=False) as request_mock:
+        request_mock.add(
+            responses.POST,
+            "http://keycloak:8080/aiod-auth/realms/aiod/protocol/openid-connect/token",
+            json=connect_response,
+        )
+        request_mock.add(
+            responses.GET,
+            "http://keycloak:8080/aiod-auth/admin/realms/aiod/users/bob00000-0000-0000-0000-000000000000",
+            json=bob_response,
+        )
+
+        request_mock.add(
+            responses.GET,
+            "http://keycloak:8080/aiod-auth/admin/realms/aiod/users/alice000-0000-0000-0000-000000000000",
+            json=alice_response,
+        )
+
+        with logged_in_user(ALICE):
+            response = client.get(
+                f"/assets/permissions/{identifier}",
+                headers={"Authorization": "fake-token"},
+            )
+        assert response.status_code == HTTPStatus.OK
+        server_permissions = {p["name"]: p["permission"] for p in response.json()}
+        assert server_permissions == {"Alice": "admin", "Bob": "write"}
