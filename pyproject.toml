@@ -1,7 +1,7 @@
 [project]
 name = "aiod_metadata_catalogue"
 description = "A Metadata Catalogue for AI on Demand "
-version = "2.0.20251105"
+version = "2.0.20251113"
 requires-python = ">=3.11"
 authors = [
     { name = "Adrián Alcolea" },
