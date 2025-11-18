@@ -1,0 +1,146 @@
+name: ✨ Feature Request
+description: Propose a new feature or enhancement for the AIOD REST API
+title: "[Feature]: "
+labels: ["enhancement", "triage"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a new feature! Please provide as much detail as possible to help us evaluate and prioritize your request.
+
+  - type: textarea
+    id: feature-description
+    attributes:
+      label: Feature Description
+      description: A clear and concise description of the feature you'd like to see
+      placeholder: Describe the feature...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: feature-category
+    attributes:
+      label: Feature Category
+      description: What type of feature is this?
+      options:
+        - API Endpoint - New resource or method
+        - API Endpoint - Enhancement to existing
+        - Authentication/Authorization
+        - Performance Improvement
+        - Data Model/Schema
+        - Search/Filtering
+        - Integration/Connector
+        - Documentation
+        - Developer Experience
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem-statement
+    attributes:
+      label: Problem Statement
+      description: What problem does this feature solve? What is the current pain point?
+      placeholder: Describe the problem or limitation you're facing...
+    validations:
+      required: true
+
+  - type: textarea
+    id: use-case
+    attributes:
+      label: Use Case
+      description: Describe how you or others would use this feature
+      placeholder: |
+        As a [role/user type]...
+        I want to [action]...
+        So that [benefit]...
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed-solution
+    attributes:
+      label: Proposed Solution
+      description: How do you envision this feature working?
+      placeholder: Describe your proposed implementation or approach...
+    validations:
+      required: true
+
+  - type: textarea
+    id: api-example
+    attributes:
+      label: API Example (Optional)
+      description: If applicable, provide an example of how the API should work
+      placeholder: |
+        GET /api/v2/new-endpoint?param=value
+        Response: { ... }
+      render: shell
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Have you considered any alternative solutions or workarounds?
+      placeholder: Describe any alternatives you've thought about...
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority/Importance
+      description: How important is this feature to you or your project?
+      options:
+        - Critical - Blocking our usage
+        - High - Significant impact on workflow
+        - Medium - Would improve experience
+        - Low - Nice to have
+    validations:
+      required: true
+
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Estimated Scope
+      description: How complex do you think this feature would be to implement?
+      options:
+        - Small - Minor change or addition
+        - Medium - Moderate development effort
+        - Large - Significant development effort
+        - Unknown - Not sure
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: willingness
+    attributes:
+      label: Contribution
+      description: Would you be willing to contribute to this feature?
+      options:
+        - label: I would be willing to submit a pull request for this feature
+        - label: I can help with testing/validation
+        - label: I can provide additional requirements/specifications
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: |
+        Add any other context, screenshots, links to similar features, or references:
+        - Related issues or discussions
+        - Examples from other APIs
+        - Screenshots or mockups
+        - Technical constraints
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-submission Checklist
+      description: Please confirm the following
+      options:
+        - label: I have searched existing issues and discussions to ensure this is not a duplicate
+          required: true
+        - label: I have clearly described the problem and proposed solution
+          required: true
+        - label: This feature aligns with the AIOD project goals
+          required: false

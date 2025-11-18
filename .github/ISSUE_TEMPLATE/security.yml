@@ -1,0 +1,162 @@
+name: 🔒 Security Vulnerability Report
+description: Report a security vulnerability (private and confidential)
+title: "[Security]: "
+labels: ["security", "triage"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## ⚠️ Security Disclosure Guidelines
+        
+        Thank you for helping keep AIOD secure! Please follow these guidelines:
+        
+        - **DO NOT** disclose security vulnerabilities publicly until they are resolved
+        - For critical vulnerabilities, consider using GitHub Security Advisories (private)
+        - Provide as much detail as possible to help us reproduce and fix the issue
+        - Allow reasonable time for the team to address the vulnerability before public disclosure
+        
+        **Note:** This issue will be made private if it contains sensitive information.
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity Level
+      description: How severe is this vulnerability?
+      options:
+        - Critical - Immediate action required
+        - High - Significant security risk
+        - Medium - Moderate security concern
+        - Low - Minor security issue
+    validations:
+      required: true
+
+  - type: dropdown
+    id: vulnerability-type
+    attributes:
+      label: Vulnerability Type
+      description: What type of security issue is this?
+      options:
+        - Authentication/Authorization Bypass
+        - SQL Injection
+        - Cross-Site Scripting (XSS)
+        - Cross-Site Request Forgery (CSRF)
+        - Sensitive Data Exposure
+        - Broken Access Control
+        - Security Misconfiguration
+        - Insecure Dependencies
+        - API Security Issue
+        - Denial of Service (DoS)
+        - Other (specify below)
+    validations:
+      required: true
+
+  - type: textarea
+    id: vulnerability-description
+    attributes:
+      label: Vulnerability Description
+      description: Describe the security vulnerability in detail
+      placeholder: Provide a clear description of the security issue...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: affected-component
+    attributes:
+      label: Affected Component
+      description: Which part of the system is affected?
+      options:
+        - API Endpoints
+        - Authentication System
+        - Database Layer
+        - Frontend/UI
+        - Connectors/Integrations
+        - Infrastructure/Configuration
+        - Dependencies
+        - Multiple Components
+        - Unknown
+    validations:
+      required: true
+
+  - type: textarea
+    id: affected-versions
+    attributes:
+      label: Affected Versions
+      description: Which versions of the API are affected?
+      placeholder: e.g., v1, v2, all versions, specific commit/tag
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction-steps
+    attributes:
+      label: Steps to Reproduce
+      description: |
+        Provide detailed steps to reproduce the vulnerability.
+        **IMPORTANT:** Redact any actual credentials, tokens, or sensitive data.
+      placeholder: |
+        1. Navigate to...
+        2. Send request to...
+        3. Observe that...
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: proof-of-concept
+    attributes:
+      label: Proof of Concept
+      description: |
+        Provide a proof of concept (if applicable).
+        **IMPORTANT:** Do not include actual exploits that could harm the system.
+      render: shell
+
+  - type: textarea
+    id: impact
+    attributes:
+      label: Impact Assessment
+      description: What is the potential impact of this vulnerability?
+      placeholder: |
+        Describe the potential consequences:
+        - Data that could be accessed/modified
+        - Systems that could be compromised
+        - Users that could be affected
+    validations:
+      required: true
+
+  - type: textarea
+    id: mitigation
+    attributes:
+      label: Suggested Mitigation
+      description: If you have suggestions for fixing this vulnerability, please share them
+      placeholder: Describe potential fixes or workarounds...
+
+  - type: checkboxes
+    id: exploitation
+    attributes:
+      label: Exploitation Status
+      description: Please indicate the current status
+      options:
+        - label: This vulnerability has NOT been exploited to my knowledge
+        - label: I have NOT shared this vulnerability publicly
+        - label: I am willing to work with the team to resolve this issue
+
+  - type: textarea
+    id: additional-info
+    attributes:
+      label: Additional Information
+      description: |
+        Any additional context:
+        - Related CVEs or security advisories
+        - References to similar vulnerabilities
+        - Timeline constraints for disclosure
+        - Contact information for follow-up (if different from GitHub)
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        **Privacy Notice:** After submission, a maintainer may convert this to a private security advisory for sensitive vulnerabilities.
+        
+        **Disclosure Timeline:** We aim to acknowledge security reports within 48 hours and provide updates on resolution timeline.
