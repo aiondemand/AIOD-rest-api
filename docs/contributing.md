@@ -71,7 +71,7 @@ git clone https://github.com/USERNAME/AIOD-rest-api.git
 Always make sure to install your dependencies in a local environment, for example with the built in `venv` module:
 
 ```commandline
-python -m pip venv venv
+python -m venv venv
 source venv/bin/activate
 ```
 
