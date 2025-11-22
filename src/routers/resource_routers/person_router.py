@@ -1,7 +1,6 @@
 from typing import Sequence
 from sqlmodel import Session
 from database.model.agent.person import Person, person_versions
-from database.model.platform.platform_names import PlatformName
 from routers.resource_router import ResourceRouter
 from authentication import KeycloakUser
 
@@ -28,16 +27,9 @@ class PersonRouter(ResourceRouter):
         resources: Sequence[type[Person]], session: Session, user: KeycloakUser | None
     ) -> Sequence[type[Person]]:
         """
-        For the old ai4europe_cms platform, only users with "full_view_ai4europe_cms_resources"
-        role can see the person's sensitive information.
+        Personal details are visible to all users.
+        Email addresses are handled by the ContactRouter and are only visible to authenticated users.
         """
-        for person in resources:
-            if (person.platform == PlatformName.ai4europe_cms) and not (
-                user and user.has_role("full_view_ai4europe_cms_resources")
-            ):
-                person.name = "******"
-                person.given_name = "******"
-                person.surname = "******"
         return resources
 
 

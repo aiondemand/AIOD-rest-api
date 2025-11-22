@@ -4,7 +4,6 @@ from database.model.agent.contact import Contact, contact_versions
 from database.model.agent.email import Email
 from database.model.agent.organisation import Organisation
 from database.model.agent.person import Person
-from database.model.platform.platform_names import PlatformName
 from routers.resource_router import ResourceRouter
 
 from sqlmodel import Session
@@ -45,14 +44,9 @@ class ContactRouter(ResourceRouter):
     ) -> Sequence[type[Contact]]:
         """
         Only authenticated users can see the contact email.
-        For the old ai4europe_cms platform, only users with "full_view_ai4europe_cms_resources" role
-        can view the contact emails.
         """
         for contact in resources:
-            if not user or (
-                (contact.platform == PlatformName.ai4europe_cms)
-                and not user.has_role("full_view_ai4europe_cms_resources")
-            ):
+            if not user and contact.email:
                 contact.email = [Email(name="******")]
         return resources
 
