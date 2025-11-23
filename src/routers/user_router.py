@@ -182,11 +182,16 @@ def create(url_prefix: str, version: Version) -> APIRouter:
 
         # Check if the role is already assigned - saves us a Keycloak API call
         try:
-            user_roles = kc_admin.get_user_realm_roles(user_id=target_user._subject_identifier)
+            user_roles = kc_admin.get_user_realm_roles(
+                user_id=target_user._subject_identifier
+            )
             existing_role_names = {r.get("name") for r in user_roles if r.get("name")}
             if request.role_name in existing_role_names:
                 return RoleAssignmentResponse(
-                    message=f"Role '{request.role_name}' is already assigned to user '{target_user.name}'.",
+                    message=(
+                        f"Role '{request.role_name}' is already assigned to "
+                        f"user '{target_user.name}'."
+                    ),
                     user=target_user.name,
                     role_name=request.role_name,
                 )
@@ -206,7 +211,10 @@ def create(url_prefix: str, version: Version) -> APIRouter:
             error_msg = str(e).lower()
             if "already" in error_msg or "duplicate" in error_msg:
                 return RoleAssignmentResponse(
-                    message=f"Role '{request.role_name}' is already assigned to user '{target_user.name}'.",
+                    message=(
+                        f"Role '{request.role_name}' is already assigned to "
+                        f"user '{target_user.name}'."
+                    ),
                     user=target_user.name,
                     role_name=request.role_name,
                 )
@@ -216,7 +224,10 @@ def create(url_prefix: str, version: Version) -> APIRouter:
             ) from e
 
         return RoleAssignmentResponse(
-            message=f"Role '{request.role_name}' successfully assigned to user '{target_user.name}'.",
+            message=(
+                f"Role '{request.role_name}' successfully assigned to "
+                f"user '{target_user.name}'."
+            ),
             user=target_user.name,
             role_name=request.role_name,
         )
