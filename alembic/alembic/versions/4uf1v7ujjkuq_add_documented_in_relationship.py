@@ -68,12 +68,8 @@ def upgrade() -> None:
         )
 
         # Create indexes for better query performance
-        op.create_index(
-            f"ix_{link_table_name}_from", link_table_name, ["from_identifier"]
-        )
-        op.create_index(
-            f"ix_{link_table_name}_linked", link_table_name, ["linked_identifier"]
-        )
+        op.create_index(f"ix_{link_table_name}_from", link_table_name, ["from_identifier"])
+        op.create_index(f"ix_{link_table_name}_linked", link_table_name, ["linked_identifier"])
 
 
 def downgrade() -> None:

@@ -1,6 +1,7 @@
 """
 Test the documented_in relationship on AIResource
 """
+
 import copy
 
 import pytest
@@ -32,9 +33,7 @@ def test_documented_in_relationship(
 
     # Create the dataset
     with logged_in_user():
-        response = client.post(
-            "/datasets", json=body, headers={"Authorization": "Fake token"}
-        )
+        response = client.post("/datasets", json=body, headers={"Authorization": "Fake token"})
     assert response.status_code == 200, response.json()
     dataset_identifier = response.json()["identifier"]
 
@@ -85,9 +84,7 @@ def test_documented_in_multiple_publications(
     body["documented_in"] = [pub1_id, pub2_id]
 
     with logged_in_user():
-        response = client.post(
-            "/datasets", json=body, headers={"Authorization": "Fake token"}
-        )
+        response = client.post("/datasets", json=body, headers={"Authorization": "Fake token"})
     assert response.status_code == 200, response.json()
     dataset_identifier = response.json()["identifier"]
 
