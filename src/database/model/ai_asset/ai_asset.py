@@ -116,7 +116,7 @@ class AIAsset(AIAssetBase, AIResource, metaclass=abc.ABCMeta):
             _serializer=AttributeSerializer("name"),
             deserializer=FindByNameDeserializerList(Approach),
             default_factory_pydantic=list,
-            example=["Supervised Learning", "Deep Learning"],
+            example=["Deep Learning Theory", "Representation Learning"],
         )
 
     @classmethod
