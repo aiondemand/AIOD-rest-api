@@ -97,7 +97,7 @@ class AIResource(AIResourceBase, AIoDConcept, metaclass=abc.ABCMeta):
     media: list = Relationship(sa_relationship_kwargs={"cascade": "all, delete"})
     note: list = Relationship(sa_relationship_kwargs={"cascade": "all, delete"})
 
-    documented_in: list = Relationship()
+    documented_in: list[KnowledgeAssetTable] = Relationship()
 
     def __init_subclass__(cls):
         """
