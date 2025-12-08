@@ -6,13 +6,11 @@ from unittest.mock import Mock
 
 from starlette.testclient import TestClient
 
-from authentication import keycloak_openid
 from database.model.agent.contact import Contact
 from database.model.agent.email import Email
 from database.model.platform.platform import Platform
 from database.session import DbSession
 from tests.testutils.default_instances import _create_class_with_body
-from tests.testutils.default_sqlalchemy import AI4EUROPE_CMS_TOKEN
 from tests.testutils.users import logged_in_user
 
 
@@ -204,6 +202,9 @@ def test_email_privacy_for_ai4europe_cms(
     endpoint: str,
     auto_publish: None,
 ):
+    """Test that ai4europe_cms contacts now follow the same privacy rules as other platforms:
+    emails are masked for guests but visible to authenticated users.
+    """
 
     with DbSession() as session:
         contact.platform = "ai4europe_cms"
@@ -218,7 +219,9 @@ def test_email_privacy_for_ai4europe_cms(
     headers = {"Authorization": "Fake token"}
 
     endpoint = endpoint.replace("/1", f"/{contact.identifier}")
-    response = client.get(endpoint, headers=headers)
+
+    # Guest users should see masked emails
+    response = client.get(endpoint)
     response_json = response.json()
     if isinstance(response_json, list):
         response_json = response_json[0]
@@ -227,8 +230,7 @@ def test_email_privacy_for_ai4europe_cms(
     assert len(response_json) > 0, response_json
     assert response_json["email"] == ["******"]
 
-    keycloak_openid.introspect = AI4EUROPE_CMS_TOKEN
-
+    # Authenticated users should see real emails
     response = client.get(endpoint, headers=headers)
     response_json = response.json()
     if isinstance(response_json, list):

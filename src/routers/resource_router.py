@@ -742,10 +742,12 @@ class ResourceRouter(abc.ABC):
         where_clause = and_(
             is_(self.resource_class.date_deleted, None),
             (self.resource_class.platform == platform) if platform is not None else True,
-            AIoDEntryORM.date_modified >= resource_filters.date_modified_after
+            AIoDEntryORM.date_modified
+            >= datetime.datetime.combine(resource_filters.date_modified_after, datetime.time.min)
             if resource_filters.date_modified_after is not None
             else True,
-            AIoDEntryORM.date_modified < resource_filters.date_modified_before
+            AIoDEntryORM.date_modified
+            < datetime.datetime.combine(resource_filters.date_modified_before, datetime.time.min)
             if resource_filters.date_modified_before is not None
             else True,
             AIoDEntryORM.status == EntryStatus.PUBLISHED,

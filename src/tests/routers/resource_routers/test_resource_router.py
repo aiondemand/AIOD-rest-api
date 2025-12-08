@@ -1,5 +1,5 @@
 import itertools
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from unittest.mock import Mock
 
 import pytest
@@ -32,21 +32,21 @@ from tests.testutils.users import register_asset
 @pytest.mark.parametrize(
     "resource_filters,expected_count",
     [
-        ({"date_modified_after": datetime.today().strftime("%Y-%m-%d")}, 1),
-        ({"date_modified_before": datetime.today().strftime("%Y-%m-%d")}, 0),
-        ({"date_modified_after": (datetime.today() + timedelta(days=1)).strftime("%Y-%m-%d")}, 0),
-        ({"date_modified_before": (datetime.today() + timedelta(days=1)).strftime("%Y-%m-%d")}, 1),
+        ({"date_modified_after": datetime.now(timezone.utc).date().strftime("%Y-%m-%d")}, 1),
+        ({"date_modified_before": datetime.now(timezone.utc).date().strftime("%Y-%m-%d")}, 0),
+        ({"date_modified_after": (datetime.now(timezone.utc).date() + timedelta(days=1)).strftime("%Y-%m-%d")}, 0),
+        ({"date_modified_before": (datetime.now(timezone.utc).date() + timedelta(days=1)).strftime("%Y-%m-%d")}, 1),
         (
             {
-                "date_modified_after": datetime.today().strftime("%Y-%m-%d"),
-                "date_modified_before": datetime.today().strftime("%Y-%m-%d"),
+                "date_modified_after": datetime.now(timezone.utc).date().strftime("%Y-%m-%d"),
+                "date_modified_before": datetime.now(timezone.utc).date().strftime("%Y-%m-%d"),
             },
             0,
         ),
         (
             {
-                "date_modified_after": datetime.today().strftime("%Y-%m-%d"),
-                "date_modified_before": (datetime.today() + timedelta(days=1)).strftime("%Y-%m-%d"),
+                "date_modified_after": datetime.now(timezone.utc).date().strftime("%Y-%m-%d"),
+                "date_modified_before": (datetime.now(timezone.utc).date() + timedelta(days=1)).strftime("%Y-%m-%d"),
             },
             1,
         ),
