@@ -109,14 +109,14 @@ class AIAsset(AIAssetBase, AIResource, metaclass=abc.ABCMeta):
             _serializer=AttributeSerializer("name"),
             deserializer=FindByNameDeserializerList(Solution),
             default_factory_pydantic=list,
-            example=["Machine Learning Model", "Data Processing Pipeline"],
+            example=["machine learning model", "data processing pipeline"],
         )
         approach: list[str] = ManyToMany(
             description="The methodological approaches or techniques employed by this asset.",
             _serializer=AttributeSerializer("name"),
             deserializer=FindByNameDeserializerList(Approach),
             default_factory_pydantic=list,
-            example=["Deep Learning Theory", "Representation Learning"],
+            example=["deep learning theory", "representation learning"],
         )
 
     @classmethod
