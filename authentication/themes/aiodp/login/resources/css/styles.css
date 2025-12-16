@@ -1,0 +1,130 @@
+.login-pf body {
+    background: #0A1121; 
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.login-pf-page {
+    flex: 1 0 auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.card-pf {
+    margin: 0 auto;
+    padding: 0 20px;
+    max-width: 500px;
+    border: 1px solid rgba(255, 255, 255, 0.1490196078);
+    border-radius: 20px;
+    background-color: #020C20;
+    color: white;
+}
+
+    #kc-header-wrapper img {
+    padding: 20px 40px 30px 40px;
+    width: 100%;
+    height: auto;
+    max-width: 400px;
+    margin: auto;
+    display: block;
+}
+
+
+#social-oidc {
+  display: inline-block;
+  width: auto;
+  padding: 20px 30px 20px 80px;
+  border: 2px solid #005faa;
+  border-radius: 100vw;
+  background-color: #005faa;
+  background-image: url(../img/egi-logo-white.svg);
+  background-position: 30px 43%;
+  background-size: 36px;
+  background-repeat: no-repeat;
+  -webkit-transition: all 200ms ease-in-out;
+  transition: all 200ms ease-in-out;
+  font-family: 'DM Sans', sans-serif;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 700;
+  --pf-c-button--after--BorderColor: transparent;
+  /* Add demo ribbon */
+  position: relative;
+  overflow: hidden;
+}
+
+#social-oidc:hover {
+  background-color: #fff;
+  background-image: url(../img/egi-logo-color.svg);
+  color: #005faa;
+}
+
+#social-oidc::after {
+  content: "Demo";
+  position: absolute;
+  width: 100px;
+  height: 24px;
+  background-color: red;
+  color: white;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: bold;
+  text-align: center;
+  line-height: 24px;
+  top: 5px;
+  left: -30px;
+  transform: rotate(-45deg);
+}
+
+.kc-login-footer-wrapper {
+  margin-top: auto;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+
+.kc-login-footer-top {
+  width: 100%;                 
+  display: flex;
+  align-items: center;
+  justify-content: space-between; 
+}
+
+
+.kc-login-footer-top img {
+  height: 24px;
+  display: block;
+}
+
+
+.kc-login-footer-support {
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+  text-decoration: none;
+}
+
+.kc-login-footer-support:hover {
+  text-decoration: underline;
+}
+
+
+#kc-login-footer {
+  display: flex;
+  justify-content: center;
+}
+
+#kc-login-footer-links {
+  display: flex;
+  gap: 8px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+#kc-login-footer-links span {
+  color: white;
+}
