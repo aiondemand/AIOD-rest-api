@@ -3,7 +3,7 @@ import datetime
 import traceback
 from functools import partial
 from typing import Annotated, Any, Literal, Sequence, Type, TypeVar, Union, Callable, cast
-from fastapi import APIRouter, Depends, HTTPException, status, Query, Path
+from fastapi import APIRouter, Depends, HTTPException, status, Query, Path, Request
 from sqlalchemy import and_, func
 from sqlalchemy.sql.operators import is_
 from sqlmodel import SQLModel, Session, select
@@ -463,8 +463,16 @@ class ResourceRouter(abc.ABC):
 
         def register_resource(
             resource_create: clz_create,  # type: ignore
+            request: Request,
             user: KeycloakUser = Depends(get_user_or_raise),
         ):
+            content_type = request.headers.get("content-type", "")
+            if not content_type.startswith("application/json"):
+                raise HTTPException(
+                    status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+                    detail="Content-Type header must be application/json",
+                )
+
             platform = getattr(resource_create, "platform", None)
             platform_resource_identifier = getattr(
                 resource_create, "platform_resource_identifier", None
@@ -544,8 +552,16 @@ class ResourceRouter(abc.ABC):
         def put_resource(
             identifier: str,
             resource_create_instance: clz_create,  # type: ignore
+            request: Request,
             user: KeycloakUser = Depends(get_user_or_raise),
         ):
+            content_type = request.headers.get("content-type", "")
+            if not content_type.startswith("application/json"):
+                raise HTTPException(
+                    status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+                    detail="Content-Type header must be application/json",
+                )
+
             self._raise_if_identifier_is_wrong_type(identifier)
             with DbSession() as session:
                 try:
