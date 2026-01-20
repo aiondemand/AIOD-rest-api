@@ -38,6 +38,7 @@ services:
     volumes:
       - ${DATA_PATH}/connectors:/opt/connectors/data
       - ./src/config.override.toml:/app/config.override.toml:ro
+      - ./connectors:/opt/connectors/script:ro
     command: >
       /bin/bash -c "/opt/connectors/script/fill-examples.sh"
     depends_on:
