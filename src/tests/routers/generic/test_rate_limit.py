@@ -26,10 +26,14 @@ def rate_limit_one_per_hour():
 def test_rate_limit_reached(client_test_resource: TestClient, rate_limit_one_per_hour):
     headers = {"Authorization": "Fake token"}
     with logged_in_user():
-        first = client_test_resource.post("/test_resources", json={"title": "title1"}, headers=headers)
+        first = client_test_resource.post(
+            "/test_resources", json={"title": "title1"}, headers=headers
+        )
         assert first.status_code == HTTPStatus.OK, first.json()
 
-        second = client_test_resource.post("/test_resources", json={"title": "title2"}, headers=headers)
+        second = client_test_resource.post(
+            "/test_resources", json={"title": "title2"}, headers=headers
+        )
         assert second.status_code == HTTPStatus.TOO_MANY_REQUESTS, second.json()
         assert "Upload rate limit exceeded" in second.json()["detail"]
 
@@ -38,15 +42,21 @@ def test_rate_limit_resets_after_window(client_test_resource: TestClient, rate_l
     headers = {"Authorization": "Fake token"}
     with freeze_time("2026-02-07T10:00:00Z"):
         with logged_in_user():
-            first = client_test_resource.post("/test_resources", json={"title": "title1"}, headers=headers)
+            first = client_test_resource.post(
+                "/test_resources", json={"title": "title1"}, headers=headers
+            )
             assert first.status_code == HTTPStatus.OK, first.json()
 
-            second = client_test_resource.post("/test_resources", json={"title": "title2"}, headers=headers)
+            second = client_test_resource.post(
+                "/test_resources", json={"title": "title2"}, headers=headers
+            )
             assert second.status_code == HTTPStatus.TOO_MANY_REQUESTS, second.json()
 
     with freeze_time("2026-02-07T11:00:01Z"):
         with logged_in_user():
-            third = client_test_resource.post("/test_resources", json={"title": "title3"}, headers=headers)
+            third = client_test_resource.post(
+                "/test_resources", json={"title": "title3"}, headers=headers
+            )
             assert third.status_code == HTTPStatus.OK, third.json()
 
 

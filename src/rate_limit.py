@@ -3,6 +3,7 @@
 Uses database-backed rolling time windows to limit user uploads. Connectors are
 exempted. Rate limits are global across all asset types.
 """
+
 from __future__ import annotations
 
 import logging
@@ -78,14 +79,12 @@ def enforce_upload_rate_limit(user: KeycloakUser | None, resource_type: str) -> 
                     AssetUploadLog.user_identifier == user._subject_identifier,
                     AssetUploadLog.created_at >= window_start,
                 )
-                .order_by(AssetUploadLog.created_at.asc())
+                .order_by(AssetUploadLog.created_at.asc())  # type: ignore[attr-defined]
                 .limit(1)
             ).first()
             retry_after = window_seconds
             if oldest:
-                retry_after = max(
-                    0, int(window_seconds - (now - oldest).total_seconds())
-                )
+                retry_after = max(0, int(window_seconds - (now - oldest).total_seconds()))
 
             logger.warning(
                 "Upload rate limit exceeded: user=%s resource_type=%s count=%s window_seconds=%s",
