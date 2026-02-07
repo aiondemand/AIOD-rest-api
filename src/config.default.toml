@@ -37,6 +37,14 @@ disable_reviews = false  # set to true to automatically publish submissions
 url_prefix = ""
 taxonomy = ""  # Set to a JSON file containing a taxonomy to put into the database on startup
 
+[rate_limit]
+# User-scoped upload rate limiting. Connectors are automatically exempted.
+enabled = true
+# Maximum uploads per user within the rolling time window.
+uploads_per_window = 100
+# Rolling time window in seconds (e.g., 3600 = 1 hour, 86400 = 1 day).
+window_seconds = 3600
+
 # Authentication and authorization
 [keycloak]
 server_url = "http://keycloak:8080/aiod-auth/"

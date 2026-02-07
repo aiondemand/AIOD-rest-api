@@ -26,6 +26,7 @@ import database.authorization  # noqa  # Trigger registration of User, Permissio
 from database.model.concept.concept import AIoDConcept
 from database.model.platform.platform import Platform
 from database.model.platform.platform_names import PlatformName
+from database.model.access.upload_log import AssetUploadLog
 from database.session import EngineSingleton, DbSession
 from database.setup import create_database, database_exists
 from routers.resource_routers import versioned_routers

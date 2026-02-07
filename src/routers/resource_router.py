@@ -33,6 +33,7 @@ from error_handling import as_http_exception
 from database.model.ai_asset.distribution import Distribution
 from database.model.helper_functions import get_asset_type_by_abbreviation
 from versioning import Version, VersionedResource
+from rate_limit import enforce_upload_rate_limit, record_successful_upload
 
 from http import HTTPStatus
 import base64
@@ -465,6 +466,7 @@ class ResourceRouter(abc.ABC):
             resource_create: clz_create,  # type: ignore
             user: KeycloakUser = Depends(get_user_or_raise),
         ):
+            enforce_upload_rate_limit(user, self.resource_name_plural)
             platform = getattr(resource_create, "platform", None)
             platform_resource_identifier = getattr(
                 resource_create, "platform_resource_identifier", None
@@ -503,6 +505,7 @@ class ResourceRouter(abc.ABC):
                         if user.is_connector:
                             resource.aiod_entry.status = EntryStatus.PUBLISHED
                         session.commit()
+                        record_successful_upload(user, self.resource_name_plural)
                         return {"identifier": resource.identifier}
                     except Exception as e:
                         self._raise_clean_http_exception(e, session, resource_create)
