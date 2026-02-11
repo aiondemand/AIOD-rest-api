@@ -40,3 +40,8 @@ jobs:
       run: |
         source venv/bin/activate
         pre-commit run --all
+
+    - name: Run pytest
+      run: |
+        source venv/bin/activate
+        pytest src/tests
