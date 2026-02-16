@@ -1,6 +1,3 @@
-pytest_plugins = ["tests.testutils.default_instances", "tests.testutils.default_sqlalchemy"]
-
-
 def pytest_generate_tests(metafunc):
     from versioning import Version
     # We want to automatically test endpoints on all supported versions,

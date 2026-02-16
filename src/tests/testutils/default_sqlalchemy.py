@@ -106,7 +106,7 @@ def engine() -> Iterator[Engine]:
     """
     Create a SqlAlchemy engine for tests, backed by a temporary sqlite file.
     """
-    temporary_file = tempfile.NamedTemporaryFile()
+    temporary_file = tempfile.NamedTemporaryFile(delete=False)
     engine = create_engine(f"sqlite:///{temporary_file.name}?check_same_thread=False")
     AIoDConcept.metadata.create_all(engine)
     with Session(engine) as session:
