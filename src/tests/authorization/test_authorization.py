@@ -411,7 +411,7 @@ def test_user_needs_only_one_asset_to_retract(client, publication_factory):
 
 
 @pytest.mark.parametrize("status", EntryStatus)
-def test_user_can_always_delete_asset(status: EntryStatus, publication, client):
+def test_user_cannot_delete_submitted_asset(status: EntryStatus, publication, client):
     identifier = register_asset(publication, owner=ALICE, status=status)
 
     with logged_in_user(ALICE):
@@ -419,7 +419,13 @@ def test_user_can_always_delete_asset(status: EntryStatus, publication, client):
             f"/publications/{identifier}",
             headers={"Authorization": "Fake token"},
         )
-        assert response.status_code == HTTPStatus.OK, response.json()
+        if status == EntryStatus.SUBMITTED:
+            assert response.status_code == HTTPStatus.FORBIDDEN, response.json()
+            assert "submission" in response.json()["detail"].lower(), (
+                "Error message should mention the submission."
+            )
+        else:
+            assert response.status_code == HTTPStatus.OK, response.json()
 
 
 def test_user_can_edit_asset_in_draft(publication, client):

@@ -623,6 +623,17 @@ class ResourceRouter(abc.ABC):
                             status_code=status.HTTP_403_FORBIDDEN,
                             detail=f"You do not have permission to delete {self.resource_name_plural}.",
                         )
+                    if resource.aiod_entry.status == EntryStatus.SUBMITTED:
+                        query = select(AssetReview.review_identifier).where(
+                            AssetReview.aiod_entry_identifier == resource.aiod_entry.identifier
+                        )
+                        submission_id = session.scalars(query).first()
+                        msg = "This asset is part of an active review submission"
+                        if submission_id:
+                            msg += f" (submission_id: {submission_id})"
+                        msg += ". Please retract the submission before deleting the asset."
+                        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=msg)
+
                     if (
                         hasattr(self.resource_class, "__deletion_config__")
                         and not self.resource_class.__deletion_config__["soft_delete"]
