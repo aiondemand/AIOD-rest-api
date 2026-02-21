@@ -58,6 +58,7 @@ def many_to_many_link_factory(
                         onupdate="CASCADE",
                     ),
                     primary_key=True,
+                    index=True,
                 )
             ),
         ),
