@@ -4,6 +4,19 @@ Defines Rest API endpoints.
 Note: order matters for overloaded paths
 (https://fastapi.tiangolo.com/tutorial/path-params/#order-matters).
 """
+import uuid
+from starlette.middleware.base import BaseHTTPMiddleware
+from fastapi import Request
+class CorrelationIdMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        #1.it  generate the unique id i  tried to use only single id for the request and response cycle, so that we can easily trace the logs and the response for a particular request.
+        correlation_id = str(uuid.uuid4())
+        request.state.correlation_id = correlation_id
+        #2.pass the request to the next person in line
+        response = await call_next(request)
+        #3.inject the correlation id into response headers for client side tracking (Egress) stamped the id on the way out so the user sees it
+        response.headers["X-Correlation-ID"] = getattr(request.state, "correlation_id", "not-started")
+        return response
 
 import argparse
 import logging
@@ -12,6 +25,9 @@ from pathlib import Path
 from importlib.metadata import version as pkg_version, PackageNotFoundError
 import uvicorn
 from fastapi import Depends, FastAPI, HTTPException
+from starlette.exceptions import HTTPException as StarletteHTTPException
+from fastapi.exceptions import HTTPException as FastAPIHTTPException
+from error_handling.error_handling import http_exception_handler
 from fastapi.responses import HTMLResponse
 from sqlmodel import select, SQLModel
 from starlette.requests import Request
@@ -33,7 +49,7 @@ from routers.resource_routers import versioned_routers
 from setup_logger import setup_logger
 from taxonomies.synchronize_taxonomy import synchronize_taxonomy_from_file
 from triggers import disable_review_process, enable_review_process
-from error_handling import http_exception_handler
+from error_handling.error_handling import http_exception_handler
 from routers import (
     resource_routers,
     parent_routers,
@@ -52,6 +68,16 @@ from versioning import (
     add_version_to_openapi,
     add_deprecation_and_sunset_middleware,
     Version,
+)
+import logging
+import sys
+
+#just to be sure we can look for particular correlation ids in the logs without having to parse the entire log line
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(levelname)s: %(message)s",
+    stream=sys.stdout, 
+    force=True  #this overrides any existing hidden configs
 )
 
 
@@ -133,6 +159,8 @@ def create_app() -> FastAPI:
     except PackageNotFoundError:
         dist_version = "dev"
     app = build_app(url_prefix=DEV_CONFIG.get("url_prefix", ""), version=dist_version)
+    
+    
     return app
 
 
@@ -159,6 +187,7 @@ def build_app(*, url_prefix: str = "", version: str = "dev"):
         version="latest",
         **kwargs,
     )
+    main_app.add_middleware(CorrelationIdMiddleware)
     versioned_apps = [
         (
             FastAPI(
@@ -173,15 +202,20 @@ def build_app(*, url_prefix: str = "", version: str = "dev"):
     ]
     for app, version in [(main_app, Version.LATEST)] + versioned_apps:
         add_routes(app, version=version)
-        app.add_exception_handler(HTTPException, http_exception_handler)
+        
+        app.exception_handlers[FastAPIHTTPException] = http_exception_handler
+        #this is needed to catch exceptions raised by Starlette, such as 404s for non existent endpoints which are not caught by FastAPI HTTPException handler
+        app.exception_handlers[StarletteHTTPException] = http_exception_handler
+        app.add_exception_handler(404, http_exception_handler)
+        
         add_deprecation_and_sunset_middleware(app)
         add_version_to_openapi(app)
 
     Instrumentator().instrument(main_app).expose(
         main_app, endpoint="/metrics", include_in_schema=False
     )
-    # Since all traffic goes through the main app, this middleware only
-    # needs to be registered with the main app and not the mounted apps.
+    #Since all traffic goes through the main app this middleware only
+    #needs to be registered with the main app and not the mounted apps
     main_app.add_middleware(AccessLogMiddleware)
 
     for app, _ in versioned_apps:
