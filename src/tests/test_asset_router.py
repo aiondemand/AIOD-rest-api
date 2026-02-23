@@ -95,7 +95,12 @@ def test_add_permission_by_name(
         assert response.status_code == HTTPStatus.OK
 
         with DbSession() as session:
-            permission = session.get(Permission, {"aiod_entry_identifier": 1 , "user_identifier": BOB._subject_identifier})
+            permission = session.scalars(
+                select(Permission).where(
+                    Permission.aiod_entry_identifier == 1,
+                    Permission.user_identifier == BOB._subject_identifier,
+                )
+            ).first()
         assert permission is not None
         assert permission.type_ == PermissionType.WRITE
 
