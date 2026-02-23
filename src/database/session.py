@@ -33,8 +33,8 @@ def db_url(including_db=True):
     port = DB_CONFIG.get("port", 3306)
     database = DB_CONFIG.get("database", "aiod")
     if including_db:
-        return f"mysql://{username}:{password}@{host}:{port}/{database}"
-    return f"mysql://{username}:{password}@{host}:{port}"
+        return f"mysql+mysqlconnector://{username}:{password}@{host}:{port}/{database}"
+    return f"mysql+mysqlconnector://{username}:{password}@{host}:{port}"
 
 
 @contextmanager
