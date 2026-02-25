@@ -16,7 +16,7 @@ class AIResourcePartLink(SQLModel, table=True):  # type: ignore [call-arg]
         sa_column_args=[
             ForeignKey("ai_resource.identifier", onupdate="CASCADE", ondelete="CASCADE")
         ],
-        sa_column_kwargs=dict(nullable=True, index=True),
+        sa_column_kwargs={"nullable": True, "index": True},
         primary_key=True,
     )
     child_identifier: str = Field(
@@ -24,7 +24,7 @@ class AIResourcePartLink(SQLModel, table=True):  # type: ignore [call-arg]
         sa_column_args=[
             ForeignKey("ai_resource.identifier", onupdate="CASCADE", ondelete="CASCADE")
         ],
-        sa_column_kwargs=dict(nullable=True, index=True),
+        sa_column_kwargs={"nullable": True, "index": True},
         primary_key=True,
     )
 
@@ -36,7 +36,7 @@ class AIResourceRelevantLink(SQLModel, table=True):  # type: ignore [call-arg]
         sa_column_args=[
             ForeignKey("ai_resource.identifier", onupdate="CASCADE", ondelete="CASCADE")
         ],
-        sa_column_kwargs=dict(nullable=True, index=True),
+        sa_column_kwargs={"nullable": True, "index": True},
         primary_key=True,
     )
     relevant_identifier: str = Field(
@@ -44,7 +44,7 @@ class AIResourceRelevantLink(SQLModel, table=True):  # type: ignore [call-arg]
         sa_column_args=[
             ForeignKey("ai_resource.identifier", onupdate="CASCADE", ondelete="CASCADE")
         ],
-        sa_column_kwargs=dict(nullable=True, index=True),
+        sa_column_kwargs={"nullable": True, "index": True},
         primary_key=True,
     )
 

@@ -35,7 +35,6 @@ from database.model.helper_functions import get_asset_type_by_abbreviation
 from versioning import Version, VersionedResource
 
 from http import HTTPStatus
-import base64
 
 RESOURCE = TypeVar("RESOURCE", bound=AIResource)
 RESOURCE_CREATE = TypeVar("RESOURCE_CREATE", bound=SQLModel)
@@ -238,7 +237,7 @@ class ResourceRouter(abc.ABC):
 
                 return [convert_schema(resource) for resource in resources]
             except Exception as e:
-                raise as_http_exception(e)
+                raise as_http_exception(e)  # noqa: B904
 
     def get_resource(
         self,
@@ -268,7 +267,7 @@ class ResourceRouter(abc.ABC):
                     if user is None:
                         raise HTTPException(
                             status_code=HTTPStatus.UNAUTHORIZED,
-                            detail="This asset is not published. It requires authentication to access.",
+                            detail="This asset is not published. It requires authentication to access.",  # noqa: E501
                         )
                     if not user_can_read(user, resource.aiod_entry):
                         raise HTTPException(
@@ -280,7 +279,7 @@ class ResourceRouter(abc.ABC):
                     return self.schema_converters[schema].convert(session, resource)
                 return self.orm_to_read(resource)
         except Exception as e:
-            raise as_http_exception(e)
+            raise as_http_exception(e)  # noqa: B904
 
     def get_resources_func(self):
         """
@@ -294,7 +293,7 @@ class ResourceRouter(abc.ABC):
             sorting: SortingParams,
             resource_filters: ResourceFiltersParams,
             schema: self._possible_schemas_type = "aiod",  # type:ignore
-            user: KeycloakUser | None = Depends(get_user_or_none),
+            user: KeycloakUser | None = Depends(get_user_or_none),  # noqa: B008
         ):
             resources = self.get_resources(
                 schema=schema,
@@ -351,7 +350,7 @@ class ResourceRouter(abc.ABC):
                             for platform, count in count_list
                         }
             except Exception as e:
-                raise as_http_exception(e)
+                raise as_http_exception(e)  # noqa: B904
 
         return get_resource_count
 
@@ -374,7 +373,7 @@ class ResourceRouter(abc.ABC):
             sorting: SortingParams,
             resource_filters: ResourceFiltersParams,
             schema: self._possible_schemas_type = "aiod",  # type:ignore
-            user: KeycloakUser | None = Depends(get_user_or_none),
+            user: KeycloakUser | None = Depends(get_user_or_none),  # noqa: B008
         ):
             resources = self.get_resources(
                 schema=schema,
@@ -398,7 +397,7 @@ class ResourceRouter(abc.ABC):
         def get_resource(
             identifier: str,
             schema: self._possible_schemas_type = "aiod",  # type: ignore
-            user: KeycloakUser | None = Depends(get_user_or_none),
+            user: KeycloakUser | None = Depends(get_user_or_none),  # noqa: B008
         ):
             self._raise_if_identifier_is_wrong_type(identifier)
             resource = self.get_resource(
@@ -445,7 +444,7 @@ class ResourceRouter(abc.ABC):
                 ),
             ],
             schema: self._possible_schemas_type = "aiod",  # type:ignore
-            user: KeycloakUser | None = Depends(get_user_or_none),
+            user: KeycloakUser | None = Depends(get_user_or_none),  # noqa: B008
         ):
             return self.get_resource(
                 identifier=identifier, schema=schema, user=user, platform=platform
@@ -463,14 +462,14 @@ class ResourceRouter(abc.ABC):
 
         def register_resource(
             resource_create: clz_create,  # type: ignore
-            user: KeycloakUser = Depends(get_user_or_raise),
+            user: KeycloakUser = Depends(get_user_or_raise),  # noqa: B008
         ):
             platform = getattr(resource_create, "platform", None)
             platform_resource_identifier = getattr(
                 resource_create, "platform_resource_identifier", None
             )
             if user.is_connector:
-                # Check if connector belongs to the specific platform it is registering the resource for.
+                # Check if connector belongs to the specific platform it is registering the resource for.  # noqa: E501
                 if platform is None or not user.is_connector_for_platform(platform):
                     raise HTTPException(
                         status_code=HTTPStatus.FORBIDDEN,
@@ -479,7 +478,7 @@ class ResourceRouter(abc.ABC):
                 if platform_resource_identifier is None:
                     raise HTTPException(
                         status_code=HTTPStatus.FORBIDDEN,
-                        detail=f"Platform resource identifier may not be none.",
+                        detail="Platform resource identifier may not be none.",
                     )
 
             # Normal user: must NOT provide platform/platform_resource_identifier
@@ -507,7 +506,7 @@ class ResourceRouter(abc.ABC):
                     except Exception as e:
                         self._raise_clean_http_exception(e, session, resource_create)
             except Exception as e:
-                raise as_http_exception(e)
+                raise as_http_exception(e)  # noqa: B904
 
         return register_resource
 
@@ -533,7 +532,7 @@ class ResourceRouter(abc.ABC):
         session.commit()
         return resource
 
-    def put_resource_func(self):
+    def put_resource_func(self):  # noqa: C901
         """
         Return a function that can be used to update a resource.
         This function returns a function (instead of being that function directly) because the
@@ -541,10 +540,10 @@ class ResourceRouter(abc.ABC):
         """
         clz_create = self.resource_class_create
 
-        def put_resource(
+        def put_resource(  # noqa: C901
             identifier: str,
             resource_create_instance: clz_create,  # type: ignore
-            user: KeycloakUser = Depends(get_user_or_raise),
+            user: KeycloakUser = Depends(get_user_or_raise),  # noqa: B008
         ):
             self._raise_if_identifier_is_wrong_type(identifier)
             with DbSession() as session:
@@ -553,11 +552,11 @@ class ResourceRouter(abc.ABC):
                     if not user.is_connector:
                         if hasattr(resource_create_instance, "media"):
                             if not resource_create_instance.media:  # type: ignore[attr-defined]
-                                # This does create the problem that a user cannot remove all media through this endpoint :/
+                                # This does create the problem that a user cannot remove all media through this endpoint :/  # noqa: E501
                                 resource_create_instance.media = resource.media  # type: ignore[attr-defined]
-                            elif set(m.binary_blob for m in resource_create_instance.media) != set(  # type: ignore[attr-defined]
+                            elif {m.binary_blob for m in resource_create_instance.media} != {  # type: ignore[attr-defined]
                                 m.binary_blob for m in resource.media
-                            ):
+                            }:
                                 _raise_if_contains_binary_blob(resource_create_instance)
                         else:
                             _raise_if_contains_binary_blob(resource_create_instance)
@@ -568,7 +567,7 @@ class ResourceRouter(abc.ABC):
                     ):
                         raise HTTPException(
                             status_code=status.HTTP_403_FORBIDDEN,
-                            detail=f"You do not have permission to edit {self.resource_name_plural}.",
+                            detail=f"You do not have permission to edit {self.resource_name_plural}.",  # noqa: E501
                         )
 
                     if resource.aiod_entry.status == EntryStatus.SUBMITTED:
@@ -594,7 +593,7 @@ class ResourceRouter(abc.ABC):
                         self._raise_clean_http_exception(e, session, resource_create_instance)
                     return None
                 except Exception as e:
-                    raise self._raise_clean_http_exception(e, session, resource_create_instance)
+                    raise self._raise_clean_http_exception(e, session, resource_create_instance)  # noqa: B904
 
         return put_resource
 
@@ -607,7 +606,7 @@ class ResourceRouter(abc.ABC):
 
         def delete_resource(
             identifier: str,
-            user: KeycloakUser = Depends(get_user_or_raise),
+            user: KeycloakUser = Depends(get_user_or_raise),  # noqa: B008
         ):
             self._raise_if_identifier_is_wrong_type(identifier)
             with DbSession() as session:
@@ -621,7 +620,7 @@ class ResourceRouter(abc.ABC):
                     ):
                         raise HTTPException(
                             status_code=status.HTTP_403_FORBIDDEN,
-                            detail=f"You do not have permission to delete {self.resource_name_plural}.",
+                            detail=f"You do not have permission to delete {self.resource_name_plural}.",  # noqa: E501
                         )
                     if (
                         hasattr(self.resource_class, "__deletion_config__")
@@ -634,7 +633,7 @@ class ResourceRouter(abc.ABC):
                     session.commit()
                     return None
                 except Exception as e:
-                    raise as_http_exception(e)
+                    raise as_http_exception(e)  # noqa: B904
 
         return delete_resource
 
@@ -644,7 +643,7 @@ class ResourceRouter(abc.ABC):
         def submit_resource(
             identifier: str,
             submission: SubmissionCreateV2 | None = None,
-            user: KeycloakUser = Depends(get_user_or_raise),
+            user: KeycloakUser = Depends(get_user_or_raise),  # noqa: B008
         ):
             self._raise_if_identifier_is_wrong_type(identifier)
             with DbSession() as session:
@@ -826,7 +825,7 @@ class ResourceRouter(abc.ABC):
             ),
         ]
 
-    def _raise_clean_http_exception(
+    def _raise_clean_http_exception(  # noqa: C901
         self, e: Exception, session: Session, resource_create: AIoDConcept
     ):
         """Raise an understandable exception based on this SQL IntegrityError."""
@@ -852,10 +851,10 @@ class ResourceRouter(abc.ABC):
         if "_same_platform_and_platform_id" in error:
             query = select(self.resource_class).where(
                 and_(
-                    getattr(self.resource_class, "platform") == resource_create.platform,
-                    getattr(self.resource_class, "platform_resource_identifier")
+                    self.resource_class.platform == resource_create.platform,
+                    self.resource_class.platform_resource_identifier
                     == resource_create.platform_resource_identifier,
-                    is_(getattr(self.resource_class, "date_deleted"), None),
+                    is_(self.resource_class.date_deleted, None),
                 )
             )
             existing_resource = session.scalars(query).first()
@@ -910,9 +909,9 @@ def _raise_error_on_invalid_schema(possible_schemas, schema):
 
 def _raise_if_contains_binary_blob(item):
     distributions = []
-    if hasattr(item, "distribution") and (distribution := getattr(item, "distribution")):
+    if hasattr(item, "distribution") and (distribution := item.distribution):
         distributions += distribution
-    if hasattr(item, "media") and (media := getattr(item, "media")):
+    if hasattr(item, "media") and (media := item.media):
         distributions += media
 
     if any((isinstance(item, Distribution) and item.binary_blob) for item in distributions):

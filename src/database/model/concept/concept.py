@@ -1,7 +1,7 @@
 import copy
 import datetime
 import os
-from typing import Optional, Tuple, Any, Callable
+from typing import Optional, Tuple, Callable
 
 from pydantic import validator
 from sqlalchemy import CheckConstraint, Index
@@ -25,7 +25,7 @@ class AIoDConceptBase(SQLModel):
     platform: str | None = Field(
         max_length=SHORT,
         default=None,
-        schema_extra=dict(examples=[None, "aiod", "huggingface", "zenodo"]),
+        schema_extra={"examples": [None, "aiod", "huggingface", "zenodo"]},
         description="The platform from which this resource originates. "
         "Defaults to `aiod` for assets registered directly on AI-on-Demand. "
         "This field should only be set by connectors, "
@@ -37,15 +37,15 @@ class AIoDConceptBase(SQLModel):
     platform_resource_identifier: str | None = Field(
         max_length=NORMAL,
         default=None,
-        schema_extra=dict(
-            examples=[
+        schema_extra={
+            "examples": [
                 None,
                 "data_rPQvKrL8cgXhtL4HEHijXSiC",
                 "621ffdd236468d709f181d58",
                 "zenodo.org:10000008",
             ]
-        ),
-        description="The identifier by which the external platform (from `platform`) identifies the asset. "
+        },
+        description="The identifier by which the external platform (from `platform`) identifies the asset. "  # noqa: E501
         "Defaults to the asset identifier for assets registered directly on AIoD. "
         "This field should only be set by connectors, "
         "leave empty for users submitting assets. ",
@@ -106,7 +106,7 @@ class AIoDConcept(AIoDConceptBase):
                 )
             if not isinstance(abbreviation, str) or len(abbreviation) > 4:
                 raise ValueError(
-                    f"{cls}.__abbreviation__ must be a string of at most 4 characters, is {abbreviation!r}"
+                    f"{cls}.__abbreviation__ must be a string of at most 4 characters, is {abbreviation!r}"  # noqa: E501
                 )
             cls._id_generator = create_id_generator(prefix=abbreviation)
         return cls._id_generator()

@@ -42,8 +42,8 @@ def create(url_prefix: str = "", version: Version = Version.LATEST) -> APIRouter
     )
     def list_bookmarks(
         pagination: PaginationParams,
-        user: KeycloakUser = Depends(get_user_or_raise),
-        session: Session = Depends(get_session),
+        user: KeycloakUser = Depends(get_user_or_raise),  # noqa: B008
+        session: Session = Depends(get_session),  # noqa: B008
     ) -> List[BookmarkRead]:
         stmt = (
             select(Bookmark)
@@ -64,8 +64,8 @@ def create(url_prefix: str = "", version: Version = Version.LATEST) -> APIRouter
     )
     def create_bookmark(
         resource_identifier: str,
-        user: KeycloakUser = Depends(get_user_or_raise),
-        session: Session = Depends(get_session),
+        user: KeycloakUser = Depends(get_user_or_raise),  # noqa: B008
+        session: Session = Depends(get_session),  # noqa: B008
     ) -> BookmarkRead:
         if not resource_identifier_exists_in_database(resource_identifier, session):
             raise HTTPException(
@@ -87,9 +87,9 @@ def create(url_prefix: str = "", version: Version = Version.LATEST) -> APIRouter
             bookmark = session.get(Bookmark, (user._subject_identifier, resource_identifier))
             if not bookmark:
                 logger.warning(f"Unexpected error creating bookmark: {e}")
-                raise HTTPException(
+                raise HTTPException(  # noqa: B904
                     status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
-                    detail=f"Unexpected error creating bookmark ({user}, {resource_identifier!r}): {e}",
+                    detail=f"Unexpected error creating bookmark ({user}, {resource_identifier!r}): {e}",  # noqa: E501
                 )
         return cast(BookmarkRead, bookmark)
 
@@ -102,8 +102,8 @@ def create(url_prefix: str = "", version: Version = Version.LATEST) -> APIRouter
     )
     def delete_bookmark(
         resource_identifier: str,
-        user: KeycloakUser = Depends(get_user_or_raise),
-        session: Session = Depends(get_session),
+        user: KeycloakUser = Depends(get_user_or_raise),  # noqa: B008
+        session: Session = Depends(get_session),  # noqa: B008
     ):
         bookmark = session.get(Bookmark, (user._subject_identifier, resource_identifier))
         if bookmark:

@@ -6,7 +6,7 @@ request.
 """
 
 import functools
-from typing import Type, Tuple, TYPE_CHECKING, Optional
+from typing import Type, Tuple, TYPE_CHECKING
 
 from pydantic import create_model
 from sqlmodel import SQLModel, Field
@@ -79,7 +79,7 @@ def resource_create(resource_class: Type["AIoDConcept"] | Type["Platform"]) -> T
     return model
 
 
-# We cache this not for performance reason, but because if the model would be created multiple times,
+# We cache this not for performance reason, but because if the model would be created multiple times,  # noqa: E501
 # this leads to a conflicting state in the Pydantic model map, erasing the older model.
 # Related to https://github.com/fastapi/fastapi/issues/4191 and might be fixed by upgrading to the
 # latest Pydantic version
@@ -120,7 +120,7 @@ def resource_read(resource_class: Type["AIoDConcept"] | Type["Platform"]) -> Typ
         resource_class.__name__ + "Read", __base__=resource_class.__base__, **field_definitions
     )
 
-    # Attach a `GetterDict` to the Pydantic model based on the relationships defined on `resource_class`,
+    # Attach a `GetterDict` to the Pydantic model based on the relationships defined on `resource_class`,  # noqa: E501
     # dict[attr name, serializer]. This will take care to serialize the attribute accordingly.
     _update_model_serialization(resource_class, model)
     return model

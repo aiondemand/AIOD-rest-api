@@ -6,30 +6,26 @@ a user changes their username or the dataset name. The `_id` field is persistent
 so can be used to avoid indexing the same dataset twice under a different platform identifier.
 
 To be run once (around sometime Nov 2024), likely not needed after that. See also #385, 392.
-"""
+"""  # noqa: E501
 
 import logging
 import os
 import string
 from http import HTTPStatus
-import time
 from pathlib import Path
 
 from sqlalchemy import select
 from database.session import DbSession, EngineSingleton
 from database.model.dataset.dataset import Dataset
-from database.model.platform.platform import Platform
 from database.model.platform.platform_names import PlatformName
 from database.model.concept.concept import AIoDConcept
 
 # Magic import which triggers ORM setup
-import database.setup
 
 import requests
 import json
 
 import re
-from http import HTTPStatus
 
 
 def fetch_huggingface_metadata() -> list[dict]:
@@ -86,9 +82,10 @@ def main():
         datasets = session.scalars(datasets_query).all()
 
     logging.info(f"Found {len(datasets)} huggingface datasets.")
-    is_old_style_identifier = lambda identifier: any(
-        char not in string.hexdigits for char in identifier
-    )
+
+    def is_old_style_identifier(identifier):
+        return any(char not in string.hexdigits for char in identifier)
+
     datasets = [
         dataset
         for dataset in datasets

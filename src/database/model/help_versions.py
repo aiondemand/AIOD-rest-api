@@ -1,20 +1,3 @@
-from database.model.agent.person import person_versions
-from database.model.agent.team import team_versions
-from database.model.agent.contact import contact_versions
-from database.model.agent.organisation import organisation_versions
-from database.model.case_study.case_study import case_study_versions
-from database.model.computational_asset.computational_asset import computational_asset_versions
-from database.model.dataset.dataset import dataset_versions
-from database.model.educational_resource.educational_resource import educational_resource_versions
-from database.model.event.event import event_versions
-from database.model.knowledge_asset.publication import publication_versions
-from database.model.models_and_experiments.experiment import experiment_versions
-from database.model.models_and_experiments.ml_model import ml_model_versions
-from database.model.news.news import news_versions
-from database.model.project.project import project_versions
-from database.model.resource_bundle.resource_bundle import resource_bundle_versions
-from database.model.service.service import service_versions
-
 from database.model.concept.concept import AIoDConcept
 from versioning import VersionedResource, Version
 

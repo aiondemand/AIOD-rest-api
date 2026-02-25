@@ -22,7 +22,7 @@ from versioning import Version
 logger = logging.getLogger(__file__)
 
 
-def create(url_prefix: str = "", version: Version = Version.LATEST) -> APIRouter:
+def create(url_prefix: str = "", version: Version = Version.LATEST) -> APIRouter:  # noqa: C901
     router = APIRouter()
 
     @router.post(
@@ -38,13 +38,13 @@ def create(url_prefix: str = "", version: Version = Version.LATEST) -> APIRouter
             description="The username or subject identifier of the user.",
             examples=["jsmith01", "4a80f256-3928-4cfa-ba66-5e22bb36fc01"],
         ),
-        permission_type: PermissionType | None = Body(
+        permission_type: PermissionType | None = Body(  # noqa: B008
             description="The permission to add for the user. "
             "If not set, their permissions will be removed.",
             default=None,
         ),
-        session: Session = Depends(get_session),
-        current_user: KeycloakUser = Depends(get_user_or_raise),
+        session: Session = Depends(get_session),  # noqa: B008
+        current_user: KeycloakUser = Depends(get_user_or_raise),  # noqa: B008
     ):
         _, resource = get_asset_by_identifier(asset_identifier, session)
         if not user_can_administer(current_user, resource.aiod_entry):
@@ -92,8 +92,8 @@ def create(url_prefix: str = "", version: Version = Version.LATEST) -> APIRouter
     )
     def show_permission(
         identifier: str,
-        session: Session = Depends(get_session),
-        current_user: KeycloakUser = Depends(get_user_or_raise),
+        session: Session = Depends(get_session),  # noqa: B008
+        current_user: KeycloakUser = Depends(get_user_or_raise),  # noqa: B008
     ):
         _, resource = get_asset_by_identifier(identifier, session)
         if not user_can_administer(current_user, resource.aiod_entry):
@@ -114,14 +114,14 @@ def create(url_prefix: str = "", version: Version = Version.LATEST) -> APIRouter
         return users
 
     @router.get(
-        f"/assets/{{identifier}}",
+        "/assets/{identifier}",
         tags=["Assets"],
         description="Fetch any asset by its identifier.",
     )
     def asset(
         identifier: str,
-        session: Session = Depends(get_session),
-        user: KeycloakUser = Depends(get_user_or_none),
+        session: Session = Depends(get_session),  # noqa: B008
+        user: KeycloakUser = Depends(get_user_or_none),  # noqa: B008
     ):
         """
         Get the resource identified by AIoD identifier, return in aiod schema.

@@ -78,7 +78,7 @@ class EducationalResource(EducationalResourceBase, AIResource, table=True):  # t
         "textual content. ",
     )
     content: TextORM | None = Relationship(
-        sa_relationship_kwargs=dict(foreign_keys="[EducationalResource.content_identifier]")
+        sa_relationship_kwargs={"foreign_keys": "[EducationalResource.content_identifier]"}
     )
     educational_level: list[EducationalLevel] = Relationship(  # type: ignore[valid-type]
         link_model=many_to_many_link_factory(

@@ -1,10 +1,8 @@
 import dataclasses
 import json
-import sys
 import argparse
 from pathlib import Path
 
-import pandas as pd
 
 from schema_inspector import get_initial_schema
 
@@ -118,13 +116,13 @@ def load_implemented_schema(source_path) -> dict:
             metadata["parents"][parent] = implemented_classes[parent]
             parents.extend(class_hierarchy.get(parent, []))
 
-        all_properties = {name: property for name, property in metadata["properties"].items()}
+        all_properties = dict(metadata["properties"].items())
         inherited_properties = {
             name: property
             for parent_name, parent in metadata["parents"].items()
             for name, property in parent["properties"].items()
             # If the name matches with a Base suffix, it should be considered as a direct definition
-            # The structure of the code base has ItemBase defining properties which will be properties
+            # The structure of the code base has ItemBase defining properties which will be properties  # noqa: E501
             # of the table in the database, and Item defines the relationships to other tables.
             if parent_name != f"{clazz}Base"
         }
@@ -155,34 +153,18 @@ def report_differences(implementation: dict, definition: dict, class_name=None):
         only_implementation = set(only_implementation) & {normalize(class_name)}
         only_definition = set(only_definition) & {normalize(class_name)}
         if not (matching | only_definition | only_implementation):
-            print(f"Class '{class_name}' not found in either implementation or definition.")
             return
-
-    print("Classes only in the implementation:")
-    print(only_implementation)
-
-    print("Classes only in the definition:")
-    print(only_definition)
-
-    print("Classes in both")
-    print(matching)
 
     for clazz in matching:
         impl = implementation[names_implementation[clazz]]
         if "Taxonomy" in impl["parents"]:
             continue
 
-        print("\n", clazz)
         diffs = report_difference(
             implementation[names_implementation[clazz]], definition[names_definition[clazz]], clazz
         )
         if diffs:
-            records = [dataclasses.asdict(d) for d in diffs]
-            print(
-                pd.DataFrame.from_records(records).loc[
-                    :, ["defined_as", "implemented_as", "defined_type", "implemented_type"]
-                ]
-            )
+            [dataclasses.asdict(d) for d in diffs]
 
 
 @dataclasses.dataclass
@@ -235,7 +217,7 @@ def report_difference(implementation: dict, definition: dict, clazz: str) -> lis
             return ord(comparison.defined_as[0]) + 26
         if comparison.implemented_as:
             return ord(comparison.implemented_as[0]) + 26 * 2
-        raise NotImplemented
+        raise NotImplementedError
 
     return sorted(property_map, key=sort_properties)
 

@@ -22,7 +22,7 @@ depends_on: Union[str, Sequence[str], None] = None
 def upgrade() -> None:
     # Migrate existing countries to country table as unofficial
     op.execute(
-        "insert into country(name, definition, official) SELECT distinct(country), '', false from address;"
+        "insert into country(name, definition, official) SELECT distinct(country), '', false from address;"  # noqa: E501
     )
     # Create new column that references the identifier
     op.add_column("address", Column("country_identifier", sa.Integer(), nullable=True))

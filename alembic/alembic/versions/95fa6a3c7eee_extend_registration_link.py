@@ -10,7 +10,6 @@ Create Date: 2025-10-30 08:30:38.564333
 from typing import Sequence, Union
 
 from alembic import op
-import sqlalchemy as sa
 from sqlalchemy import String
 
 # revision identifiers, used by Alembic.
@@ -22,7 +21,7 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def upgrade() -> None:
     op.alter_column(
-        f"event",
+        "event",
         "registration_link",
         type_=String(1800),
     )
@@ -30,7 +29,7 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     op.alter_column(
-        f"event",
+        "event",
         "registration_link",
         type_=String(256),
     )

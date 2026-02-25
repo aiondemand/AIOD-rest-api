@@ -129,7 +129,7 @@ def upgrade() -> None:
                 END WHILE;
                 RETURN result;
             END;
-            """
+            """  # noqa: E501
         )
     )
     # We store a map for the old->new identifiers so we can support backwards compatibility (maybe)
@@ -145,7 +145,7 @@ def upgrade() -> None:
             Column("new", String(30), index=True),
         )
         op.execute(
-            f"INSERT INTO {map_table} SELECT identifier, CONCAT('{abbreviations[child]}', '_', rand_id()) FROM {child} "
+            f"INSERT INTO {map_table} SELECT identifier, CONCAT('{abbreviations[child]}', '_', rand_id()) FROM {child} "  # noqa: E501
         )
 
     for parent in [ai_resource, ai_asset, agent]:
@@ -157,7 +157,7 @@ def upgrade() -> None:
             Column("new", String(30), index=True),
         )
         child_data = "UNION ".join(
-            f"SELECT child.{parent.fk_identifier} as parent_identifier, child_map_table.new as new_identifier "
+            f"SELECT child.{parent.fk_identifier} as parent_identifier, child_map_table.new as new_identifier "  # noqa: E501
             f"FROM {child_table} as child "
             f"JOIN _{child_table}_identifier_map as child_map_table "
             f"ON child_map_table.old=child.identifier "

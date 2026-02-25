@@ -10,7 +10,6 @@ import logging
 from typing import Sequence, Union
 
 from alembic import op
-import sqlalchemy as sa
 from sqlalchemy import String
 
 logger = logging.getLogger("alembic")

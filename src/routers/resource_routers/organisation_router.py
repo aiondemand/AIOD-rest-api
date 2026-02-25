@@ -4,7 +4,6 @@ from routers.resource_router import ResourceRouter
 from fastapi import UploadFile, File, HTTPException, Query, status, APIRouter, Depends
 from http import HTTPStatus
 from sqlmodel import select, Session
-from database.model.agent.organisation import Organisation
 from database.session import get_session
 from authentication import KeycloakUser, get_user_or_none, get_user_or_raise
 from dependencies.filtering import ResourceFiltersParams
@@ -13,7 +12,6 @@ from database.model.concept.aiod_entry import EntryStatus
 from database.authorization import (
     user_can_administer,
     user_can_write,
-    user_can_read,
 )
 import datetime
 from error_handling import as_http_exception
@@ -48,7 +46,7 @@ class OrganisationRouter(ResourceRouter):
             resource_filters: ResourceFiltersParams,
             schema: self._possible_schemas_type = "aiod",  # type:ignore
             get_image: bool = Query(False, description="Include image bytes in response?"),
-            user: KeycloakUser | None = Depends(get_user_or_none),
+            user: KeycloakUser | None = Depends(get_user_or_none),  # noqa: B008
         ):
             return self.get_resources(
                 schema=schema,
@@ -67,7 +65,7 @@ class OrganisationRouter(ResourceRouter):
             identifier: str,
             schema: self._possible_schemas_type = "aiod",  # type: ignore
             get_image: bool = Query(False, description="Include image bytes in response?"),
-            user: KeycloakUser | None = Depends(get_user_or_none),
+            user: KeycloakUser | None = Depends(get_user_or_none),  # noqa: B008
         ):
             resource = self.get_resource(
                 identifier=identifier, schema=schema, user=user, platform=None, get_image=get_image
@@ -86,7 +84,7 @@ class OrganisationRouter(ResourceRouter):
         return router
 
 
-def add_custom_routes(router_type: ResourceRouter, router: APIRouter, path: str):
+def add_custom_routes(router_type: ResourceRouter, router: APIRouter, path: str):  # noqa: C901
     """ "
     Add image endpoints to a resource.
 
@@ -103,7 +101,7 @@ def add_custom_routes(router_type: ResourceRouter, router: APIRouter, path: str)
         if not resource:
             raise HTTPException(
                 status_code=HTTPStatus.NOT_FOUND,
-                detail=f"{router_type.resource_name.capitalize()} {identifier} not found in the database.",
+                detail=f"{router_type.resource_name.capitalize()} {identifier} not found in the database.",  # noqa: E501
             )
         return resource
 
@@ -126,10 +124,10 @@ def add_custom_routes(router_type: ResourceRouter, router: APIRouter, path: str)
     @router.post(path, tags=[router_type.resource_name_plural])
     async def post_image(
         identifier: str,
-        file: UploadFile = File(...),
+        file: UploadFile = File(...),  # noqa: B008
         name: str = Query(..., description="Uploaded image filename", example="logo"),
-        session=Depends(get_session),
-        user: KeycloakUser = Depends(get_user_or_raise),
+        session=Depends(get_session),  # noqa: B008
+        user: KeycloakUser = Depends(get_user_or_raise),  # noqa: B008
     ):
         validate_image_type(file)
 
@@ -145,7 +143,7 @@ def add_custom_routes(router_type: ResourceRouter, router: APIRouter, path: str)
             if any(media.name == name for media in resource.media):
                 raise HTTPException(
                     status_code=HTTPStatus.CONFLICT,
-                    detail=f"An image with the name '{name}' already exists for this {router_type.resource_name}.",
+                    detail=f"An image with the name '{name}' already exists for this {router_type.resource_name}.",  # noqa: E501
                 )
 
             blob = await read_image_file(file)
@@ -164,15 +162,15 @@ def add_custom_routes(router_type: ResourceRouter, router: APIRouter, path: str)
             return {"identifier": resource.identifier}
 
         except Exception as e:
-            raise router_type._raise_clean_http_exception(e, session, resource)
+            raise router_type._raise_clean_http_exception(e, session, resource)  # noqa: B904
 
     @router.put(path, tags=[router_type.resource_name_plural])  # type: ignore[no-redef]
     async def replace_image(
         identifier: str,
-        file: UploadFile = File(...),
+        file: UploadFile = File(...),  # noqa: B008
         name: str = Query(...),
-        session=Depends(get_session),
-        user: KeycloakUser = Depends(get_user_or_raise),
+        session=Depends(get_session),  # noqa: B008
+        user: KeycloakUser = Depends(get_user_or_raise),  # noqa: B008
     ):
         validate_image_type(file)
 
@@ -205,13 +203,13 @@ def add_custom_routes(router_type: ResourceRouter, router: APIRouter, path: str)
             return None
 
         except Exception as e:
-            raise router_type._raise_clean_http_exception(e, session, resource)
+            raise router_type._raise_clean_http_exception(e, session, resource)  # noqa: B904
 
     @router.get(path, tags=[router_type.resource_name_plural])  # type: ignore[no-redef]
     async def get_images(
         identifier: str,
-        session=Depends(get_session),
-        user: KeycloakUser | None = Depends(get_user_or_none),
+        session=Depends(get_session),  # noqa: B008
+        user: KeycloakUser | None = Depends(get_user_or_none),  # noqa: B008
     ):
         org = _get_resource(session, identifier)
         # if not user_can_read(user, org.aiod_entry):
@@ -226,8 +224,8 @@ def add_custom_routes(router_type: ResourceRouter, router: APIRouter, path: str)
     async def delete_image(
         identifier: str,
         name: str = Query(..., description="Name of the image to delete"),
-        session=Depends(get_session),
-        user: KeycloakUser = Depends(get_user_or_raise),
+        session=Depends(get_session),  # noqa: B008
+        user: KeycloakUser = Depends(get_user_or_raise),  # noqa: B008
     ):
         try:
             resource = _get_resource(session, identifier)
@@ -238,14 +236,14 @@ def add_custom_routes(router_type: ResourceRouter, router: APIRouter, path: str)
             ):
                 raise HTTPException(
                     status_code=status.HTTP_403_FORBIDDEN,
-                    detail=f"You do not have permission to delete {router_type.resource_name_plural}.",
+                    detail=f"You do not have permission to delete {router_type.resource_name_plural}.",  # noqa: E501
                 )
 
             existing_media = next((m for m in resource.media if m.name == name), None)
             if not existing_media:
                 raise HTTPException(
                     status_code=HTTPStatus.NOT_FOUND,
-                    detail=f"No image with the name '{name}' found for this {router_type.resource_name}.",
+                    detail=f"No image with the name '{name}' found for this {router_type.resource_name}.",  # noqa: E501
                 )
 
             resource.media.remove(existing_media)
@@ -254,14 +252,14 @@ def add_custom_routes(router_type: ResourceRouter, router: APIRouter, path: str)
             session.commit()
             return None
         except Exception as e:
-            raise as_http_exception(e)
+            raise as_http_exception(e)  # noqa: B904
 
 
 def validate_image_type(file: UploadFile):
     if file.content_type not in ALLOWED_IMAGE_TYPES:
         raise HTTPException(
             status_code=HTTPStatus.UNSUPPORTED_MEDIA_TYPE,
-            detail=f"Unsupported file type {file.content_type}. Allowed image types: {ALLOWED_IMAGE_TYPES}.",
+            detail=f"Unsupported file type {file.content_type}. Allowed image types: {ALLOWED_IMAGE_TYPES}.",  # noqa: E501
         )
 
 

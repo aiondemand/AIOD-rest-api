@@ -53,7 +53,7 @@ class DistributionBase(AIoDConceptBase):
         "stands for 'actual system proven in operational environment'.",
         schema_extra={"example": 1},
     )
-    # Currently, only organisation accepts this field, potentially to store images (ex. organisation logo).
+    # Currently, only organisation accepts this field, potentially to store images (ex. organisation logo).  # noqa: E501
     binary_blob: bytes | None = Field(
         default=None,
         description=(
@@ -86,7 +86,7 @@ def distribution_factory(table_from: str, distribution_name="distribution") -> T
     DistributionORM = create_model(
         name,
         __base__=(DistributionBase,),
-        __cls_kwargs__=dict(table=True),
+        __cls_kwargs__={"table": True},
         identifier=(int | None, Field(primary_key=True)),
         asset_identifier=(
             str | None,

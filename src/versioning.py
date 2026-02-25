@@ -1,6 +1,6 @@
 import dataclasses
 from enum import StrEnum, auto
-from typing import Callable, cast, TypeVar, Generic
+from typing import Callable, TypeVar, Generic
 
 from pydantic import create_model
 from pydantic.fields import FieldInfo
@@ -89,7 +89,7 @@ def add_deprecation_and_sunset_middleware(app: FastAPI):
         add_sunset_header_middleware(app, date=info.sunset, link=info.link)
 
 
-def add_version_to_openapi(versioned_api: FastAPI):
+def add_version_to_openapi(versioned_api: FastAPI):  # noqa: C901
     """Adds the version prefix to all paths in the schema."""
     if versioned_api.version == "latest":
         version_prefix = ""
@@ -184,7 +184,7 @@ def add_version_to_openapi(versioned_api: FastAPI):
 def generate_version_menu(all_versions: dict[str, str], selected: str) -> str:
     DARK_BLUE = "#0047BB"
     LIGHT_BLUE = "#41B6E6"
-    button = '<a href={dest} style="background: {bg_color}; color: white; text-decoration: none; font-weight: bold; border-radius: 0.5em; padding: .5em 1em;">{alias}</a>'
+    button = '<a href={dest} style="background: {bg_color}; color: white; text-decoration: none; font-weight: bold; border-radius: 0.5em; padding: .5em 1em;">{alias}</a>'  # noqa: E501
     buttons = []
     for name, url in all_versions.items():
         bg_color = LIGHT_BLUE if name == selected else DARK_BLUE

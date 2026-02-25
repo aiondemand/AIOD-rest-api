@@ -9,7 +9,6 @@ Create Date: 2024-11-21 09:36:49.556254
 from typing import Sequence, Union
 
 from alembic import op
-import sqlalchemy as sa
 from sqlalchemy import Column, String
 
 from database.model.field_length import LONG
