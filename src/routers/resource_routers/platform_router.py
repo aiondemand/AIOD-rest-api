@@ -3,13 +3,14 @@ from typing import Any, Sequence
 
 from fastapi import Depends, HTTPException, status, APIRouter
 from sqlmodel import SQLModel, Session, select
+from sqlalchemy import func
 
 from authentication import KeycloakUser, get_user_or_raise
 from database.model.platform.platform import Platform
 from database.model.resource_read_and_create import resource_create, resource_read
 from database.model.serializers import deserialize_resource_relationships
 from database.session import DbSession
-from dependencies.pagination import Pagination, PaginationParams
+from dependencies.pagination import Pagination, PaginationParams, PaginatedResponse
 from error_handling import as_http_exception
 from versioning import Version
 
@@ -55,7 +56,7 @@ class PlatformRouter:
             "tags": [self.resource_name_plural],
         }
         response_model = self.resource_class_read  # type:ignore
-        response_model_plural = list[self.resource_class_read]  # type:ignore
+        response_model_plural = PaginatedResponse[self.resource_class_read]  # type:ignore
 
         router.add_api_route(
             path=f"/{self.resource_name_plural}",
@@ -116,8 +117,15 @@ class PlatformRouter:
         """Fetch all resources."""
         with DbSession(autoflush=False) as session:
             try:
+                total_count = session.query(self.resource_class).count()
                 resources: Any = self._retrieve_resources(session, pagination)
-                return [self.resource_class_read.model_validate(resource) for resource in resources]
+                data = [self.resource_class_read.model_validate(resource) for resource in resources]
+                return PaginatedResponse(
+                    offset=pagination.offset,
+                    limit=pagination.limit,
+                    total_count=total_count,
+                    data=data,
+                )
             except Exception as e:
                 raise as_http_exception(e)
 

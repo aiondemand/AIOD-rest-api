@@ -102,7 +102,7 @@ def test_get_bookmarks(client: TestClient, person: Person, contact: Contact) -> 
         )
 
         assert response.status_code == HTTPStatus.OK
-        bookmarks = response.json()
+        bookmarks = response.json()["data"]
         assert len(bookmarks) == 2
 
 
@@ -140,7 +140,7 @@ def test_delete_bookmark(
             headers={"Authorization": "fake token"},
         )
     assert response.status_code == HTTPStatus.OK
-    assert all(b["resource_identifier"] != identifier for b in response.json())
+    assert all(b["resource_identifier"] != identifier for b in response.json().get("data", []))
 
 
 @pytest.mark.versions(Version.V2, Version.LATEST)
@@ -161,25 +161,25 @@ def test_get_bookmark_pagination(client: TestClient, publication_factory) -> Non
             headers={"Authorization": "fake token"},
         )
         assert response.status_code == HTTPStatus.OK
-        assert len(response.json()) == PAGINATION_DEFAULT_LIMIT
+        assert len(response.json()["data"]) == PAGINATION_DEFAULT_LIMIT
 
         response = client.get(
             "/bookmarks?limit=100",
             headers={"Authorization": "fake token"},
         )
         assert response.status_code == HTTPStatus.OK
-        assert len(response.json()) == PAGINATION_DEFAULT_LIMIT + 1
+        assert len(response.json()["data"]) == PAGINATION_DEFAULT_LIMIT + 1
 
         response = client.get(
             "/bookmarks?offset=10",
             headers={"Authorization": "fake token"},
         )
         assert response.status_code == HTTPStatus.OK
-        assert len(response.json()) == 1
+        assert len(response.json()["data"]) == 1
 
         response = client.get(
             "/bookmarks?offset=8&limit=2",
             headers={"Authorization": "fake token"},
         )
         assert response.status_code == HTTPStatus.OK
-        assert len(response.json()) == 2
+        assert len(response.json()["data"]) == 2

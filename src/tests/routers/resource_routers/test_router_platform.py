@@ -15,7 +15,7 @@ def test_happy_path(mocked_token: Mock, client: TestClient, auto_publish: None):
     assert response.status_code == 200, response.json()
     response = client.get("/platforms")
     assert response.status_code == 200, response.json()
-    platforms = {p["name"] for p in response.json()}
+    platforms = {p["name"] for p in response.json()["data"]}
     assert platforms == {p.name for p in PlatformName}.union(["my_favourite_platform"])
 
 

@@ -21,7 +21,7 @@ def test_get_all_happy_path(client_test_resource: TestClient):
         session.commit()
     response = client_test_resource.get("/test_resources?direction=asc")
     assert response.status_code == 200, response.json()
-    response_json = response.json()
+    response_json = response.json()["data"]
 
     assert len(response_json) == 2, "Expecting only two published assets"
     response_1, response_2 = response_json

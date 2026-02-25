@@ -4,6 +4,7 @@ import sqlalchemy.exc
 from fastapi import APIRouter, Depends, HTTPException
 from typing import List, cast
 from sqlmodel import Session, select, Field, SQLModel
+from sqlalchemy import func
 
 from authentication import KeycloakUser, get_user_or_raise
 from database.session import get_session
@@ -12,7 +13,7 @@ from database.model.bookmark.bookmark import Bookmark
 from http import HTTPStatus
 from datetime import datetime
 
-from dependencies.pagination import PaginationParams
+from dependencies.pagination import PaginationParams, PaginatedResponse
 from database.model.helper_functions import get_asset_type_by_abbreviation
 from versioning import Version
 
@@ -38,21 +39,23 @@ def create(url_prefix: str = "", version: Version = Version.LATEST) -> APIRouter
         path,
         tags=["User"],
         description="Return all your bookmarks.",
-        response_model=List[BookmarkRead],
+        response_model=PaginatedResponse[BookmarkRead],
     )
     def list_bookmarks(
         pagination: PaginationParams,
         user: KeycloakUser = Depends(get_user_or_raise),
-        session: Session = Depends(get_session),
-    ) -> List[BookmarkRead]:
+    ) -> PaginatedResponse[BookmarkRead]:
+        base_stmt = select(Bookmark).where(Bookmark.user_identifier == user._subject_identifier)
+        total_count = session.scalar(select(func.count()).select_from(base_stmt.subquery())) or 0
         stmt = (
-            select(Bookmark)
-            .where(Bookmark.user_identifier == user._subject_identifier)
-            .order_by(Bookmark.created_at)
+            base_stmt.order_by(Bookmark.created_at)
             .offset(pagination.offset)
             .limit(pagination.limit)
         )
-        return session.exec(stmt).all()
+        data = session.exec(stmt).all()
+        return PaginatedResponse(
+            offset=pagination.offset, limit=pagination.limit, total_count=total_count, data=data
+        )
 
     @router.post(
         path,

@@ -27,7 +27,7 @@ from database.model.serializers import deserialize_resource_relationships
 from database.review import Submission, SubmissionCreateV2, AssetReview
 from database.session import DbSession
 from dependencies.filtering import ResourceFilters, ResourceFiltersParams
-from dependencies.pagination import Pagination, PaginationParams
+from dependencies.pagination import Pagination, PaginationParams, PaginatedResponse
 from dependencies.sorting import SortingParams, Sorting, SortDirection
 from error_handling import as_http_exception
 from database.model.ai_asset.distribution import Distribution
@@ -112,9 +112,7 @@ class ResourceRouter(abc.ABC):
         }
         available_schemas: list[Type] = [c.to_class for c in self.schema_converters.values()]
         response_model = Union[self.resource_class_read, *available_schemas]  # type:ignore
-        response_model_plural = Union[  # type:ignore
-            list[self.resource_class_read], *[list[s] for s in available_schemas]  # type:ignore
-        ]
+        response_model_plural = PaginatedResponse[response_model]  # type:ignore
 
         router.add_api_route(
             path=f"/{self.resource_name_plural}",
@@ -231,12 +229,20 @@ class ResourceRouter(abc.ABC):
                 resources: Any = self._retrieve_resources_and_post_process(
                     session, pagination, sorting, resource_filters, user, platform
                 )
+                total_count = self._retrieve_resources_count(session, resource_filters, platform)
+
                 for resource in resources:
                     if not get_image and hasattr(resource, "media"):
                         for media_obj in resource.media:
                             media_obj.binary_blob = None
 
-                return [convert_schema(resource) for resource in resources]
+                data = [convert_schema(resource) for resource in resources]
+                return PaginatedResponse(
+                    offset=pagination.offset,
+                    limit=pagination.limit,
+                    total_count=total_count,
+                    data=data,
+                )
             except Exception as e:
                 raise as_http_exception(e)
 
@@ -766,6 +772,34 @@ class ResourceRouter(abc.ABC):
         )
         resources: Sequence = session.scalars(query).all()
         return resources
+
+    def _retrieve_resources_count(
+        self,
+        session: Session,
+        resource_filters: ResourceFilters,
+        platform: str | None = None,
+    ) -> int:
+        """
+        Retrieve the total count of published resources from the database based on the
+        provided platform and resource filters (if applicable).
+        """
+        where_clause = and_(
+            is_(self.resource_class.date_deleted, None),
+            (self.resource_class.platform == platform) if platform is not None else True,
+            AIoDEntryORM.date_modified >= resource_filters.date_modified_after
+            if resource_filters.date_modified_after is not None
+            else True,
+            AIoDEntryORM.date_modified < resource_filters.date_modified_before
+            if resource_filters.date_modified_before is not None
+            else True,
+            AIoDEntryORM.status == EntryStatus.PUBLISHED,
+        )
+        query = (
+            select(func.count(self.resource_class.identifier))
+            .join(self.resource_class.aiod_entry, isouter=True)
+            .where(where_clause)
+        )
+        return session.scalar(query) or 0
 
     def _retrieve_resource_and_post_process(
         self,
