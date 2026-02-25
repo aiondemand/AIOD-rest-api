@@ -17,6 +17,11 @@ class AgentBase(AIResourceBase):
     Shared fields can be defined on this class.
     """
 
+    has_platform_account: bool = Field(
+        description="Whether this agent has an account on the AIoD platform.",
+        default=False,
+    )
+
 
 class Agent(AgentBase, AIResource):
     agent_id: str | None = Field(
