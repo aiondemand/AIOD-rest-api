@@ -13,7 +13,7 @@ from tests.testutils.paths import path_test_resources
 
 def test_aiod_to_dcatap_happy_path(dataset: Dataset):
     dataset.identifier = "data_"
-    dataset.license = License(name="a license")
+    dataset.license = License(name="a license")  # type: ignore[assignment]
     dataset.alternate_name = [AlternateName(name="alias1"), AlternateName(name="alias2")]
     dataset.size = DatasetSizeORM(value=1, unit="Rows")
     dataset.keyword = [AlternateName(name="keyword1"), AlternateName(name="keyword2")]

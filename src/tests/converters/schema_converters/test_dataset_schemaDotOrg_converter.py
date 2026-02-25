@@ -15,7 +15,7 @@ from tests.testutils.paths import path_test_resources
 
 def test_aiod_to_schema_dot_org_happy_path(dataset: Dataset):
     dataset.identifier = "data_identifier"
-    dataset.license = License(name="a license")
+    dataset.license = License(name="a license")  # type: ignore[assignment]
     dataset.alternate_name = [AlternateName(name="alias1"), AlternateName(name="alias2")]
     dataset.size = DatasetSizeORM(value=1, unit="Rows")
     dataset.keyword = [AlternateName(name="keyword1"), AlternateName(name="keyword2")]
