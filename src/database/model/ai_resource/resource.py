@@ -24,6 +24,7 @@ from database.model.ai_resource.note import note_factory, Note
 from database.model.ai_resource.relevantlink import RelevantLink
 from database.model.ai_resource.research_area import ResearchArea
 from database.model.ai_resource.resource_table import AIResourceORM
+from database.model.knowledge_asset.knowledge_asset_table import KnowledgeAssetTable
 from database.model.ai_resource.scientific_domain import ScientificDomain
 from database.model.ai_resource.text import TextORM, Text
 from database.model.concept.concept import AIoDConceptBase, AIoDConcept
@@ -95,6 +96,8 @@ class AIResource(AIResourceBase, AIoDConcept, metaclass=abc.ABCMeta):
 
     media: list = Relationship(sa_relationship_kwargs={"cascade": "all, delete"})
     note: list = Relationship(sa_relationship_kwargs={"cascade": "all, delete"})
+
+    documented_in: list[KnowledgeAssetTable] = Relationship()
 
     def __init_subclass__(cls):
         """
@@ -203,7 +206,13 @@ class AIResource(AIResourceBase, AIoDConcept, metaclass=abc.ABCMeta):
             example=["Collaborative AI", "Explainable AI"],
             default_factory_pydantic=list,
         )
-        # TODO(jos): documentedIn - KnowledgeAsset. This should probably be defined on ResourceTable
+        documented_in: list[str] = ManyToMany(
+            description="The identifiers of Knowledge Assets (e.g., Publications) that document "
+            "this resource.",
+            _serializer=AttributeSerializer("identifier"),
+            deserializer=FindByIdentifierDeserializerList(KnowledgeAssetTable),
+            default_factory_pydantic=list,
+        )
         contact: list[str] = ManyToMany(
             description="The identifiers of the contact information of the persons and/or "
             "organisations that can be contacted about this resource.",
@@ -306,6 +315,15 @@ class AIResource(AIResourceBase, AIoDConcept, metaclass=abc.ABCMeta):
         relationships["contact"].link_model = link_model_contact
         relationships["contacts"].link_model = link_model_contact
         relationships["creator"].link_model = link_model_creator
+
+        link_model_documented_in = many_to_many_link_factory(
+            table_from=cls.__tablename__,
+            table_to=KnowledgeAssetTable.__tablename__,
+            table_prefix="documented_in",
+            from_identifier_type=str,
+            to_identifier_type=str,
+        )
+        relationships["documented_in"].link_model = link_model_documented_in
 
         relationships["description"].sa_relationship_kwargs = dict(
             foreign_keys=f"[{cls.__name__}.description_identifier]"
