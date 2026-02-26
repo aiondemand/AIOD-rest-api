@@ -44,6 +44,7 @@ def create(url_prefix: str = "", version: Version = Version.LATEST) -> APIRouter
     def list_bookmarks(
         pagination: PaginationParams,
         user: KeycloakUser = Depends(get_user_or_raise),
+        session: Session = Depends(get_session),
     ) -> PaginatedResponse[BookmarkRead]:
         base_stmt = select(Bookmark).where(Bookmark.user_identifier == user._subject_identifier)
         total_count = session.scalar(select(func.count()).select_from(base_stmt.subquery())) or 0

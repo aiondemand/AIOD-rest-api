@@ -37,7 +37,7 @@ def test_happy_path(
     assert response.status_code == 200, response.json()
     response = client_test_resource.get("/test_resources/")
     assert response.status_code == 200, response.json()
-    response_json = response.json()
+    response_json = response.json()["data"]
     assert len(response_json) == 1
     assert {r["identifier"] for r in response_json} == set(identifiers) - {identifier}
 
