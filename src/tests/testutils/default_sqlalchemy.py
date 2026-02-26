@@ -1,3 +1,4 @@
+import os
 import sqlite3
 import tempfile
 from typing import Iterator, Any
@@ -10,6 +11,17 @@ from sqlalchemy import event, text
 from sqlalchemy.engine import Engine
 from sqlmodel import create_engine, SQLModel, Session, select
 from starlette.testclient import TestClient
+
+# --- WINDOWS COMPATIBILITY FIX ---
+try:
+    import MySQLdb
+except ImportError:
+    try:
+        import pymysql
+        pymysql.install_as_MySQLdb()
+    except ImportError:
+        pass
+# ---------------------------------
 
 from authentication import keycloak_openid
 from database.deletion.triggers import create_delete_triggers, \
@@ -106,7 +118,10 @@ def engine() -> Iterator[Engine]:
     """
     Create a SqlAlchemy engine for tests, backed by a temporary sqlite file.
     """
+    # WINDOWS FIX: Use delete=False, close file, let SQLAlchemy open it, delete later.
     temporary_file = tempfile.NamedTemporaryFile(delete=False)
+    temporary_file.close()
+    
     engine = create_engine(f"sqlite:///{temporary_file.name}?check_same_thread=False")
     AIoDConcept.metadata.create_all(engine)
     with Session(engine) as session:
@@ -116,8 +131,13 @@ def engine() -> Iterator[Engine]:
             session.execute(trigger)
     EngineSingleton().patch(engine)
 
-    # Yielding is essential, the temporary file will be closed after the engine is used
     yield engine
+
+    # WINDOWS FIX: Manual cleanup of the temp file
+    try:
+        os.remove(temporary_file.name)
+    except OSError:
+        pass
 
 
 @pytest.fixture
@@ -141,7 +161,7 @@ def clear_db(request, engine: Engine):
         session.add_all([Platform(name=name) for name in PlatformName])
         if any("engine" in fixture and "filled" in fixture for fixture in request.fixturenames):
             test_resource = factory_test_resource(title="A title", platform="example",
-                                  platform_resource_identifier="1")
+                                                  platform_resource_identifier="1")
             test_resource.identifier = DEFAULT_TEST_RESOURCE_IDENTIFIER
             session.add(test_resource)
         session.commit()
@@ -180,14 +200,18 @@ def clear_db(request, engine: Engine):
 
 
 @event.listens_for(Engine, "connect")
-def sqlite_enable_foreign_key_constraints(dbapi_connection, connection_record):
+def sqlite_setup_connection(dbapi_connection, connection_record):
     """
-    On default, sqlite disables foreign key constraints
+    On default, sqlite disables foreign key constraints.
+    WINDOWS FIX: Register dummy BINARY function.
     """
     if isinstance(dbapi_connection, sqlite3.Connection):
         cursor = dbapi_connection.cursor()
         cursor.execute("PRAGMA foreign_keys=ON")
         cursor.close()
+        
+        # Register BINARY function for MySQL compatibility in SQLite
+        dbapi_connection.create_function("BINARY", 1, lambda x: x)
 
 
 @pytest.fixture(scope="session")
