@@ -16,7 +16,7 @@ jobs:
   build:
     strategy:
       matrix:
-        python-version: ["3.11"]
+        python-version: ["3.11", "3.12", "3.13"]
     runs-on: ubuntu-latest
 
     steps:
@@ -27,7 +27,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Setup Python virtual environment
       run: |
-        python3.11 -m venv venv
+        python${{ matrix.python-version }} -m venv venv
         source venv/bin/activate
 
     - name: Install dependencies
