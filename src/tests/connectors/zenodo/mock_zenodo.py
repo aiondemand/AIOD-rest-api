@@ -5,10 +5,10 @@ from tests.testutils.paths import path_test_resources
 
 TOKEN_EXPIRATION_DATETIME = "2024-02-08T17:40:07Z"
 
-with open(path_test_resources() / "connectors" / "zenodo" / "list_records_1.xml", "r") as f:
+with open(path_test_resources() / "connectors" / "zenodo" / "list_records_1.xml", "r", encoding="utf-8") as f:
     records_list_1 = f.read()
 
-with open(path_test_resources() / "connectors" / "zenodo" / "list_records_2.xml", "r") as f:
+with open(path_test_resources() / "connectors" / "zenodo" / "list_records_2.xml", "r", encoding="utf-8") as f:
     records_list_2 = f.read()
 
 
@@ -77,7 +77,7 @@ def response_with_no_records(mocked_requests: responses.RequestsMock):
 
 
 def record_response(mocked_requests: responses.RequestsMock, id_: int):
-    with open(path_test_resources() / "connectors" / "zenodo" / f"{id_}.json", "r") as f:
+    with open(path_test_resources() / "connectors" / "zenodo" / f"{id_}.json", "r", encoding="utf-8") as f:
         body = f.read()
     mocked_requests.add(
         responses.GET, f"https://zenodo.org/api/records/{id_}/files", body=body, status=200
