@@ -63,6 +63,9 @@ py-modules = []
 
 [tool.ruff]
 line-length = 100
+exclude = [
+    "src/tests",
+]
 
 [tool.codespell]
 ignore-words-list = "checkin"
