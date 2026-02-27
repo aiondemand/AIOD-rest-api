@@ -75,6 +75,7 @@ class AIBuilderMLModelConnector(ResourceConnectorByDate[MLModel]):
             response = requests.get(url, timeout=REQUEST_TIMEOUT)
         except Exception as e:
             return RecordError(identifier=None, error=e)
+        safe_url = _sanitize_url(url, self.token)
         if response.status_code == status.HTTP_200_OK:
             return response.json()
         else:
@@ -83,7 +84,7 @@ class AIBuilderMLModelConnector(ResourceConnectorByDate[MLModel]):
                 msg = "Unauthorized token."
             else:
                 msg = response.reason
-            err_msg = f"Error while fetching {url} from AIBuilder: ({status_code}) {msg}"
+            err_msg = f"Error while fetching {safe_url} from AIBuilder: ({status_code}) {msg}"
             logging.error(err_msg)
             err = HTTPError(err_msg)
             return RecordError(identifier=None, error=err)
@@ -100,13 +101,12 @@ class AIBuilderMLModelConnector(ResourceConnectorByDate[MLModel]):
         attributes received in a `dict`.
         """
 
-        if not set(mlmodel_mapping.values()) <= set(solution.keys()):
+        required_fields = ["platform_resource_identifier", "name"]
+        if any(_mapped_value(solution, key) is None for key in required_fields):
             err_msg = "Bad structure on the received solution."
             return RecordError(identifier=id, error=err_msg)
 
-        identifier = ""
-        if "platform_resource_identifier" in mlmodel_mapping.keys():
-            identifier = solution[mlmodel_mapping["platform_resource_identifier"]]
+        identifier = _mapped_value(solution, "platform_resource_identifier", "")
 
         if not identifier:
             err_msg = "The platform identifier is mandatory."
@@ -116,56 +116,40 @@ class AIBuilderMLModelConnector(ResourceConnectorByDate[MLModel]):
             err_msg = f"The identifier {identifier} does not correspond with the fetched solution."
             return RecordError(identifier=id, error=err_msg)
 
-        name = ""
-        if "name" in mlmodel_mapping.keys():
-            name = solution[mlmodel_mapping["name"]]
+        name = _mapped_value(solution, "name", "")
 
         if not name:
             err_msg = "The name field is mandatory."
             return RecordError(identifier=id, error=err_msg)
 
-        date_published = ""
-        if "date_published" in mlmodel_mapping.keys():
-            date_published = solution[mlmodel_mapping["date_published"]]
+        date_published = _mapped_value(solution, "date_published", "")
 
-        # TODO: Review the AIBuilder schema to map version
-        version = ""
-        if "version" in mlmodel_mapping.keys():
-            version = solution[mlmodel_mapping["version"]]
+        version = _mapped_value(solution, "version") or _version_from_artifacts(solution)
 
-        description = ""
-        if "description" in mlmodel_mapping.keys():
-            description = _description_format(solution[mlmodel_mapping["description"]])
+        description_raw = _mapped_value(solution, "description", "")
+        description = _description_format(description_raw)
 
-        # TODO: Review the AIBuilder schema to map distribution
-        distribution = []
-        if "distribution" in mlmodel_mapping.keys():
-            distribution = _distribution_format(solution[mlmodel_mapping["distribution"]])
+        distribution = _distribution_format(_mapped_value(solution, "distribution"))
 
-        tags = []
-        if "keyword" in mlmodel_mapping.keys():
-            tags = solution[mlmodel_mapping["keyword"]]
+        tags = _as_list(_mapped_value(solution, "keyword"))
 
-        # TODO: Review the AIBuilder schema to map license
-        license = ""
-        if "license" in mlmodel_mapping.keys():
-            license = solution[mlmodel_mapping["license"]]
+        license = _mapped_value(solution, "license", "")
 
         related_resources = {}
 
-        if "contact" in mlmodel_mapping.keys():
+        if _mapped_value(solution, "contact") is not None:
             pydantic_class_contact = resource_create(Contact)
             contact_names = [
                 pydantic_class_contact(name=name)
-                for name in _as_list(solution[mlmodel_mapping["contact"]])
+                for name in _as_list(_mapped_value(solution, "contact"))
             ]
             related_resources["contact"] = contact_names
 
-        if "creator" in mlmodel_mapping.keys():
+        if _mapped_value(solution, "creator") is not None:
             pydantic_class_creator = resource_create(Contact)
             creator_names = [
                 pydantic_class_creator(name=name)
-                for name in _as_list(solution[mlmodel_mapping["creator"]])
+                for name in _as_list(_mapped_value(solution, "creator"))
             ]
             related_resources["creator"] = creator_names
 
@@ -175,7 +159,7 @@ class AIBuilderMLModelConnector(ResourceConnectorByDate[MLModel]):
             platform_resource_identifier=identifier,
             name=name,
             date_published=date_published,
-            same_as=url,  # TODO: Review the concept of having the TOKEN inside the url!!!
+            same_as=url,
             is_accessible_for_free=True,
             version=version,
             aiod_entry=AIoDEntryCreate(),
@@ -213,6 +197,13 @@ class AIBuilderMLModelConnector(ResourceConnectorByDate[MLModel]):
             self.is_concluded = True
             yield None, response
             return
+        if not isinstance(response, list):
+            self.is_concluded = True
+            yield (
+                None,
+                RecordError(identifier=None, error="Bad structure on the received catalog list."),
+            )
+            return
 
         try:
             catalog_list = [catalog["catalogId"] for catalog in response]
@@ -235,6 +226,15 @@ class AIBuilderMLModelConnector(ResourceConnectorByDate[MLModel]):
                 self.is_concluded = num_catalog == len(catalog_list) - 1
                 yield None, response
                 continue
+            if not isinstance(response, list):
+                self.is_concluded = num_catalog == len(catalog_list) - 1
+                yield (
+                    None,
+                    RecordError(
+                        identifier=None, error="Bad structure on the received solution list."
+                    ),
+                )
+                continue
 
             try:
                 solutions_list = [
@@ -254,9 +254,7 @@ class AIBuilderMLModelConnector(ResourceConnectorByDate[MLModel]):
 
             for num_solution, solution in enumerate(solutions_list):
                 url_get_solution = f"{API_URL}/get_solution?fullId={solution}&apiToken={self.token}"
-                url_to_show = (
-                    f"{API_URL}/get_solution?fullId={solution}&apiToken=AIBUILDER_API_TOKEN"
-                )
+                url_to_show = _public_solution_url(solution)
                 response = self.get_response(url_get_solution)
                 if isinstance(response, RecordError):
                     self.is_concluded = (
@@ -264,6 +262,18 @@ class AIBuilderMLModelConnector(ResourceConnectorByDate[MLModel]):
                         and num_solution == len(solutions_list) - 1
                     )
                     yield None, response
+                    continue
+                if not isinstance(response, dict):
+                    self.is_concluded = (
+                        num_catalog == len(catalog_list) - 1
+                        and num_solution == len(solutions_list) - 1
+                    )
+                    yield (
+                        None,
+                        RecordError(
+                            identifier=solution, error="Bad structure on the received solution."
+                        ),
+                    )
                     continue
 
                 try:
@@ -293,9 +303,64 @@ def _description_format(description: str) -> Text:
     return Text(plain=description)
 
 
-# TODO: Review the AIBuilder schema to map distribution
-def _distribution_format(distribution) -> list[RunnableDistribution]:
-    return []
+def _distribution_format(distribution: Any) -> list[RunnableDistribution]:
+    if not isinstance(distribution, list):
+        return []
+    formatted: list[RunnableDistribution] = []
+    for artifact in distribution:
+        if not isinstance(artifact, dict):
+            continue
+        content_size_kb = None
+        size = artifact.get("size")
+        if isinstance(size, int):
+            content_size_kb = size
+        elif isinstance(size, str) and size.isdigit():
+            content_size_kb = int(size)
+        formatted.append(
+            RunnableDistribution(
+                checksum=None,
+                checksum_algorithm=None,
+                copyright=None,
+                name=artifact.get("name"),
+                description=artifact.get("description"),
+                content_url=artifact.get("uri") or artifact.get("filename"),
+                content_size_kb=content_size_kb,
+                encoding_format=artifact.get("artifactTypeCode"),
+                technology_readiness_level=None,
+                installation_time_milliseconds=None,
+                deployment_time_milliseconds=None,
+            )
+        )
+    return formatted
+
+
+def _public_solution_url(solution_id: str) -> str:
+    return f"{API_URL}/get_solution?fullId={solution_id}"
+
+
+def _sanitize_url(url: str, token: str) -> str:
+    if token:
+        return url.replace(token, "AIBUILDER_API_TOKEN")
+    return url
+
+
+def _mapped_value(solution: dict, field: str, default: Any = None) -> Any:
+    key = mlmodel_mapping.get(field)
+    if key is None:
+        return default
+    return solution.get(key, default)
+
+
+def _version_from_artifacts(solution: dict) -> str | None:
+    artifacts = solution.get("artifacts")
+    if not isinstance(artifacts, list):
+        return None
+    for artifact in artifacts:
+        if isinstance(artifact, dict):
+            version = artifact.get("version")
+            if isinstance(version, str) and version:
+                return version
+    return None
 
 
 def _as_list(value: Any | list[Any]) -> list[Any]:
