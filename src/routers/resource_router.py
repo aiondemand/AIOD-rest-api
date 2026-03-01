@@ -43,6 +43,10 @@ RESOURCE_READ = TypeVar("RESOURCE_READ", bound=SQLModel)
 RESOURCE_MODEL = TypeVar("RESOURCE_MODEL", bound=SQLModel)
 
 
+class ResourceExistsResponse(SQLModel):
+    exists: bool
+
+
 class ResourceRouter(abc.ABC):
     """
     Abstract class for FastAPI resource router.
@@ -168,6 +172,16 @@ class ResourceRouter(abc.ABC):
         )
 
         router.add_api_route(
+            path=f"/{self.resource_name_plural}/exists/v{self.version}/{{identifier}}",
+            endpoint=self.get_resource_exists_func(),
+            response_model=ResourceExistsResponse,
+            name=f"{self.resource_name} exists",
+            description=f"Check whether the {self.resource_name} identified by the AIoD identifier "
+            "exists.",
+            **default_kwargs,
+        )
+
+        router.add_api_route(
             path=f"/{self.resource_name_plural}/{{identifier}}",
             methods={"PUT"},
             endpoint=self.put_resource_func(),
@@ -264,17 +278,7 @@ class ResourceRouter(abc.ABC):
                     for media_obj in resource.media:
                         media_obj.binary_blob = None
 
-                if resource.aiod_entry.status != EntryStatus.PUBLISHED:
-                    if user is None:
-                        raise HTTPException(
-                            status_code=HTTPStatus.UNAUTHORIZED,
-                            detail="This asset is not published. It requires authentication to access.",
-                        )
-                    if not user_can_read(user, resource.aiod_entry):
-                        raise HTTPException(
-                            status_code=HTTPStatus.FORBIDDEN,
-                            detail="You are not allowed to view this resource.",
-                        )
+                self._ensure_resource_is_accessible(resource, user)
 
                 if schema != "aiod":
                     return self.schema_converters[schema].convert(session, resource)
@@ -409,6 +413,21 @@ class ResourceRouter(abc.ABC):
 
         return get_resource
 
+    def get_resource_exists_func(self):
+        """
+        Returns a function that can be used to check whether a resource exists.
+        """
+
+        def resource_exists(
+            identifier: str,
+            user: KeycloakUser | None = Depends(get_user_or_none),
+        ) -> ResourceExistsResponse:
+            self._raise_if_identifier_is_wrong_type(identifier)
+            exists = self.resource_exists(identifier=identifier, user=user, platform=None)
+            return ResourceExistsResponse(exists=exists)
+
+        return resource_exists
+
     def _raise_if_identifier_is_wrong_type(self, identifier: str):
         if not identifier.startswith(self.resource_class.__abbreviation__):
             hint = ""
@@ -422,6 +441,21 @@ class ResourceRouter(abc.ABC):
                     f"{self.resource_class.__abbreviation__!r}." + hint
                 ),
             )
+
+    def _ensure_resource_is_accessible(
+        self, resource: type[RESOURCE_MODEL], user: KeycloakUser | None
+    ) -> None:
+        if resource.aiod_entry.status != EntryStatus.PUBLISHED:
+            if user is None:
+                raise HTTPException(
+                    status_code=HTTPStatus.UNAUTHORIZED,
+                    detail="This asset is not published. It requires authentication to access.",
+                )
+            if not user_can_read(user, resource.aiod_entry):
+                raise HTTPException(
+                    status_code=HTTPStatus.FORBIDDEN,
+                    detail="You are not allowed to view this resource.",
+                )
 
     def get_platform_resource_func(self):
         """
@@ -510,6 +544,26 @@ class ResourceRouter(abc.ABC):
                 raise as_http_exception(e)
 
         return register_resource
+
+    def resource_exists(
+        self,
+        identifier: str,
+        user: KeycloakUser | None = None,
+        platform: str | None = None,
+    ) -> bool:
+        try:
+            with DbSession(autoflush=False) as session:
+                resource: type[RESOURCE_MODEL] = self._retrieve_resource(
+                    session, identifier, platform
+                )
+                self._ensure_resource_is_accessible(resource, user)
+                return True
+        except HTTPException as exc:
+            if exc.status_code == status.HTTP_404_NOT_FOUND:
+                return False
+            raise
+        except Exception as exc:
+            raise as_http_exception(exc)
 
     def create_resource(
         self,

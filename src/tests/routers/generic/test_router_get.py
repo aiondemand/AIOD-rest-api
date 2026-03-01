@@ -48,3 +48,33 @@ def test_get_draft_with_permission_is_allowed(client_test_resource: TestClient):
     with logged_in_user(ALICE):
         response = client_test_resource.get(f"/test_resources/{identifier}", headers={"Authorization": "fake-token"})
     assert response.status_code == HTTPStatus.OK
+
+
+def test_exists_returns_true_for_published_resource(
+    client_test_resource: TestClient, engine_test_resource_filled: str
+):
+    response = client_test_resource.get(f"/test_resources/exists/v0/{engine_test_resource_filled}")
+    assert response.status_code == HTTPStatus.OK, response.json()
+    assert response.json() == {"exists": True}
+
+
+def test_exists_returns_false_when_resource_missing(client_test_resource: TestClient):
+    response = client_test_resource.get("/test_resources/exists/v0/test_missing")
+    assert response.status_code == HTTPStatus.OK, response.json()
+    assert response.json() == {"exists": False}
+
+
+def test_exists_draft_requires_authentication(client_test_resource: TestClient):
+    identifier = register_asset(factory_test_resource(), owner=ALICE, status=EntryStatus.DRAFT)
+    response = client_test_resource.get(f"/test_resources/exists/v0/{identifier}")
+    assert response.status_code == HTTPStatus.UNAUTHORIZED, response.json()
+
+
+def test_exists_draft_with_permission_allowed(client_test_resource: TestClient):
+    identifier = register_asset(factory_test_resource(), owner=ALICE, status=EntryStatus.DRAFT)
+    with logged_in_user(ALICE):
+        response = client_test_resource.get(
+            f"/test_resources/exists/v0/{identifier}", headers={"Authorization": "fake-token"}
+        )
+    assert response.status_code == HTTPStatus.OK, response.json()
+    assert response.json() == {"exists": True}
