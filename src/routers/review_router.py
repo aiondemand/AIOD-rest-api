@@ -23,6 +23,7 @@ from database.model.concept.aiod_entry import EntryStatus, AIoDEntryORM
 from database.model.concept.concept import AIoDConcept
 from routers.helper_functions import get_router_by_type
 from database.model.helper_functions import get_asset_type_by_abbreviation
+from dependencies.rate_limiter import check_submission_rate_limit
 from versioning import Version
 
 
@@ -141,6 +142,7 @@ def get_submission(
 def _submit_resource(
     submission: SubmissionCreate,
     user: KeycloakUser = Depends(get_user_or_raise),
+    _rate_check: None = Depends(check_submission_rate_limit),
 ):
     id_to_type = {
         identifier: get_asset_type_by_abbreviation().get(identifier.split("_")[0])
