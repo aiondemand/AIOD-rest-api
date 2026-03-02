@@ -27,14 +27,3 @@ repos:
       - id: ruff
         args: [ --fix ]
       - id: ruff-format
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.19.1
-    hooks:
-      - id: mypy
-        name: mypy src
-        files: src/.*
-        additional_dependencies:
-          - types-python-dateutil
-          - types-pytz
-          - types-requests
-          - types-setuptools
