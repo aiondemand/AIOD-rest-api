@@ -1,11 +1,11 @@
-# This workflow will install Python dependencies, run tests and pre-commit hook with a single version of Python
+# This workflow will install Python dependencies, run tests and pre-commit hook
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
 
-name:  Run Unit Test via Pytest
+name: Run Unit Test via Pytest
 
 on:
   pull_request:
-    branches: [ "develop" ]
+    branches: ["develop"]
   # allows to manually start a workflow run from the GitHub UI or using the GitHub API.
   workflow_dispatch:
 
@@ -15,33 +15,31 @@ permissions:
 jobs:
   build:
     strategy:
+      fail-fast: false
       matrix:
+        os: [ubuntu-latest, windows-latest]
         python-version: ["3.11"]
-    runs-on: ubuntu-latest
+
+    runs-on: ${{ matrix.os }}
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v3
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Setup Python virtual environment
-      run: |
-        python3.11 -m venv venv
-        source venv/bin/activate
+      - uses: actions/checkout@v3
 
-    - name: Install dependencies
-      run: |
-        source venv/bin/activate
-        python -m pip install ".[dev]"
-        pre-commit install
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python-version }}
 
-    - name: pre-commit check
-      run: |
-        source venv/bin/activate
-        pre-commit run --all
+      # Removed manual venv creation (was Linux-only and breaks on Windows)
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install ".[dev]"
 
-    - name: Run pytest
-      run: |
-        source venv/bin/activate
-        pytest src/tests
+      - name: Run pre-commit
+        run: |
+          pre-commit run --all-files
+
+      - name: Run tests
+        run: |
+          pytest src/tests
