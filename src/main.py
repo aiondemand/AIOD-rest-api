@@ -43,6 +43,7 @@ from routers import (
     user_router,
     bookmark_router,
     asset_router,
+    user_group_router,
 )
 from prometheus_fastapi_instrumentator import Instrumentator
 from middleware.access_log import AccessLogMiddleware
@@ -98,7 +99,7 @@ def add_routes(app: FastAPI, version: Version, url_prefix=""):
         parent_routers.router_list
         + enum_routers.router_list
         + search_routers.router_list
-        + [review_router, user_router, bookmark_router, asset_router]
+        + [review_router, user_router, bookmark_router, asset_router, user_group_router]
         + resource_routers.router_list
     ):
         app.include_router(router.create(url_prefix, version))

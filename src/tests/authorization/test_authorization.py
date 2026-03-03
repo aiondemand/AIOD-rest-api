@@ -14,6 +14,7 @@ from database.model.concept.aiod_entry import EntryStatus
 from database.review import Decision, ReviewCreate
 from database.session import DbSession
 from database.model.knowledge_asset.publication import Publication
+from sqlmodel import select
 from routers.review_router import ListMode
 from tests.testutils.users import ALICE, BOB, REVIEWER, _register_user_in_db, \
     logged_in_user, register_asset, kc_user_with_roles
@@ -43,7 +44,12 @@ def test_admin_can_remove_permission(client, publication):
         assert response.status_code == HTTPStatus.OK, response.json()
 
     with DbSession() as session:
-        permission = session.get(Permission, {"user_identifier": ALICE._subject_identifier, "aiod_entry_identifier": 1})
+        permission = session.scalars(
+            select(Permission).where(
+                Permission.user_identifier == ALICE._subject_identifier,
+                Permission.aiod_entry_identifier == 1,
+            )
+        ).first()
         assert permission is None
 
 
@@ -64,7 +70,12 @@ def test_admin_can_change_permission(client, publication):
         assert response.status_code == HTTPStatus.OK, response.json()
 
     with DbSession() as session:
-        permission = session.get(Permission, {"user_identifier": BOB._subject_identifier, "aiod_entry_identifier": 1})
+        permission = session.scalars(
+            select(Permission).where(
+                Permission.user_identifier == BOB._subject_identifier,
+                Permission.aiod_entry_identifier == 1,
+            )
+        ).first()
         assert permission is not None
         assert permission.type_ == PermissionType.ADMIN
 

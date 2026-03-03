@@ -52,13 +52,33 @@ class Permission(SQLModel, table=True):  # type: ignore [call-arg]
     )
 
 
+from sqlalchemy.orm import object_session
+
 def _user_has_permission(
     user: KeycloakUser, aiod_entry: AIoDEntryORM, *, at_least: PermissionType
 ) -> bool:
-    return user.is_admin or any(
-        permission.user_identifier == user._subject_identifier and permission.type_ >= at_least
-        for permission in aiod_entry.permissions
+    if user.is_admin:
+        return True
+    
+    for permission in aiod_entry.permissions:
+        if permission.user_identifier == user._subject_identifier and permission.type_ >= at_least:
+            return True
+
+    group_permissions = [p for p in aiod_entry.permissions if p.user_group_identifier is not None and p.type_ >= at_least]
+    if not group_permissions:
+        return False
+        
+    session = object_session(aiod_entry)
+    if session is None:
+        return False
+        
+    group_ids = [p.user_group_identifier for p in group_permissions]
+    stmt = select(UserGroupMembership).where(
+        UserGroupMembership.user_identifier == user._subject_identifier,
+        UserGroupMembership.user_group_identifier.in_(group_ids)
     )
+    membership = session.scalars(stmt).first()
+    return membership is not None
 
 
 def user_can_read(user: KeycloakUser, aiod_entry) -> bool:

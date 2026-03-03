@@ -10,7 +10,7 @@ from dependencies.pagination import PaginationParams
 from dependencies.sorting import SortingParams, SortDirection, Sort
 from routers.resource_routers import versioned_routers
 from authentication import KeycloakUser, get_user_or_raise
-from database.authorization import Permission, PermissionType
+from database.authorization import Permission, PermissionType, UserGroupMembership
 from database.session import get_session
 from database.model.concept.aiod_entry import AIoDEntryORM
 from database.model.concept.concept import AIoDConcept
@@ -104,11 +104,18 @@ def _get_resources_for_user(
     # "Ownership" is currently equivalent to having ADMIN permissions
     sort_attribute = getattr(AIoDEntryORM, sort_by.lower())
     sort = sort_attribute.asc() if sort_direction == SortDirection.ASC else sort_attribute.desc()
+    import sqlalchemy as sa
     stmt = (
         select(AIoDEntryORM)
         .join(Permission.aiod_entry)
         .where(
-            Permission.user_identifier == user._subject_identifier,
+            sa.or_(
+                Permission.user_identifier == user._subject_identifier,
+                Permission.user_group_identifier.in_(
+                    select(UserGroupMembership.user_group_identifier)
+                    .where(UserGroupMembership.user_identifier == user._subject_identifier)
+                )
+            ),
             Permission.type_ == PermissionType.ADMIN,
         )
         .order_by(sort, AIoDEntryORM.identifier.asc())  # type: ignore[attr-defined]
