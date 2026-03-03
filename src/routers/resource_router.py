@@ -913,7 +913,10 @@ def _raise_error_on_invalid_schema(possible_schemas, schema):
 def _raise_if_contact_person_and_organisation_are_both_filled(resource):
     if not (hasattr(resource, "person") and hasattr(resource, "organisation")):
         return
-    if getattr(resource, "person", None) is not None and getattr(resource, "organisation", None) is not None:
+    if (
+        getattr(resource, "person", None) is not None
+        and getattr(resource, "organisation", None) is not None
+    ):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Person and organisation cannot be both filled.",
