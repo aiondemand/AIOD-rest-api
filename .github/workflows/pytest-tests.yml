@@ -44,10 +44,12 @@ jobs:
           echo "CHANGED_FILES=${CHANGED_FILES}" >> $GITHUB_ENV
 
       - name: Print changed files
+        shell: bash
         run: |
           echo "Changed files:" && echo "$CHANGED_FILES" | tr ' ' '\n'
 
       - name: Run pre-commit on changed files
+        shell: bash
         run: |
           if [ -n "$CHANGED_FILES" ]; then
             pre-commit run --color always --files $CHANGED_FILES --show-diff-on-failure
