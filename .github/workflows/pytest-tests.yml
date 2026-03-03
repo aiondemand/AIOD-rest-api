@@ -37,6 +37,7 @@ jobs:
           pip install ".[dev]"
 
       - name: Get changed files
+        shell: bash
         id: changed-files
         run: |
           CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.sha }} | tr '\n' ' ')
