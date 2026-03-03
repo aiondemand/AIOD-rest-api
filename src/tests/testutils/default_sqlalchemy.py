@@ -1,3 +1,4 @@
+import os
 import sqlite3
 import tempfile
 from typing import Iterator, Any
@@ -106,8 +107,11 @@ def engine() -> Iterator[Engine]:
     """
     Create a SqlAlchemy engine for tests, backed by a temporary sqlite file.
     """
-    temporary_file = tempfile.NamedTemporaryFile()
-    engine = create_engine(f"sqlite:///{temporary_file.name}?check_same_thread=False")
+    temporary_file = tempfile.NamedTemporaryFile(delete=False, suffix=".db")
+    temp_path = temporary_file.name
+    temporary_file.close()
+
+    engine = create_engine(f"sqlite:///{temp_path}?check_same_thread=False")
     AIoDConcept.metadata.create_all(engine)
     with Session(engine) as session:
         for trigger in create_delete_triggers(AIoDConcept):
@@ -116,8 +120,11 @@ def engine() -> Iterator[Engine]:
             session.execute(trigger)
     EngineSingleton().patch(engine)
 
-    # Yielding is essential, the temporary file will be closed after the engine is used
     yield engine
+
+    engine.dispose()
+    if os.path.exists(temp_path):
+        os.unlink(temp_path)
 
 
 @pytest.fixture
