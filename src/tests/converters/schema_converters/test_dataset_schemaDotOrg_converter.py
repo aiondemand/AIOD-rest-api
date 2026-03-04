@@ -39,7 +39,7 @@ def test_aiod_to_schema_dot_org_happy_path(dataset: Dataset):
         expected = f.read()
     for i, (row_actual, row_expected) in enumerate(
         zip(actual.split("\n"), expected.split("\n"), strict=False)
-        ):
+    ):
         assert row_actual == row_expected, f"Line {i}: {row_actual} != {row_expected}"  # noqa: S101
     # Checked-in files have a newline at end of file, which we do not care for here:
     assert actual == expected[:-1]  # noqa: S101
