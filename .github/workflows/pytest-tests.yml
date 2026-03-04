@@ -23,6 +23,9 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
+      - name: Disable Git AutoCRLF
+        run: git config --global core.autocrlf false
+
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
