@@ -18,6 +18,7 @@ from database.model.platform.platform_names import PlatformName
 
 RESOURCE = TypeVar("RESOURCE", bound=SQLModel)
 
+
 class BaseEnum(ResourceConnectorOnStartUp[RESOURCE]):
     @property
     def platform_name(self) -> PlatformName:
