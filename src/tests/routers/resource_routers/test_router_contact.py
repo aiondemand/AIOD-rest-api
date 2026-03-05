@@ -135,6 +135,8 @@ def test_email_mask_for_not_authenticated_user(
     guest_response = client.get(endpoint)
     assert guest_response.status_code == 200, guest_response.json()
     guest_response_json = guest_response.json()
+    if isinstance(guest_response_json, dict) and "data" in guest_response_json:
+        guest_response_json = guest_response_json["data"]
     if not isinstance(guest_response_json, list):
         guest_response_json = [guest_response_json]
 
@@ -164,9 +166,10 @@ def test_email_mask_for_authenticated_user(
     response = client.get("/contacts?direction=asc", headers=headers)
     response_json = response.json()
     assert response.status_code == 200, response_json
-    assert len(response_json) == 2, response_json
-    assert response_json[0]["email"] == ["a@b.com"]
-    assert set(response_json[1]["email"]) == {"fake2@email.com", "fake@email.com"}
+    data = response_json["data"] if isinstance(response_json, dict) else response_json
+    assert len(data) == 2, response_json
+    assert data[0]["email"] == ["a@b.com"]
+    assert set(data[1]["email"]) == {"fake2@email.com", "fake@email.com"}
 
     response = client.get(f"/contacts/{contact2.identifier}", headers=headers)
     assert response.status_code == 200, response.json()
@@ -177,9 +180,10 @@ def test_email_mask_for_authenticated_user(
     response_json = response.json()
     assert response.status_code == 200, response_json
 
-    assert len(response_json) == 2, response_json
-    assert response_json[0]["email"] == ["a@b.com"]
-    assert set(response_json[1]["email"]) == {"fake2@email.com", "fake@email.com"}
+    data = response_json["data"] if isinstance(response_json, dict) else response_json
+    assert len(data) == 2, response_json
+    assert data[0]["email"] == ["a@b.com"]
+    assert set(data[1]["email"]) == {"fake2@email.com", "fake@email.com"}
 
     response = client.get("/platforms/aiod/contacts/fake:100", headers=headers)
     response_json = response.json()
@@ -220,6 +224,8 @@ def test_email_privacy_for_ai4europe_cms(
     endpoint = endpoint.replace("/1", f"/{contact.identifier}")
     response = client.get(endpoint, headers=headers)
     response_json = response.json()
+    if isinstance(response_json, dict) and "data" in response_json:
+        response_json = response_json["data"]
     if isinstance(response_json, list):
         response_json = response_json[0]
 
@@ -229,8 +235,11 @@ def test_email_privacy_for_ai4europe_cms(
 
     keycloak_openid.introspect = AI4EUROPE_CMS_TOKEN
 
+    endpoint = endpoint.replace("/1", f"/{contact.identifier}")
     response = client.get(endpoint, headers=headers)
     response_json = response.json()
+    if isinstance(response_json, dict) and "data" in response_json:
+        response_json = response_json["data"]
     if isinstance(response_json, list):
         response_json = response_json[0]
 

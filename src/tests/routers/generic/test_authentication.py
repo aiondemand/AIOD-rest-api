@@ -12,7 +12,7 @@ def test_get_all_unauthenticated(
     """You don't need authentication for GET"""
     response = client_test_resource.get("/test_resources")
     assert response.status_code == 200, response.json()
-    assert len(response.json()) == 1
+    assert len(response.json()["data"]) == 1
 
 
 def test_get_unauthenticated(client_test_resource: TestClient, auto_publish: None, engine_test_resource_filled: Engine):
@@ -27,7 +27,7 @@ def test_platform_get_all_unauthenticated(
     """You don't need authentication for GET"""
     response = client_test_resource.get("/platforms/example/test_resources")
     assert response.status_code == 200, response.json()
-    assert len(response.json()) == 1
+    assert len(response.json()["data"]) == 1
 
 
 def test_platform_get_unauthenticated(
@@ -36,7 +36,7 @@ def test_platform_get_unauthenticated(
     """You don't need authentication for GET"""
     response = client_test_resource.get("/platforms/example/test_resources")
     assert response.status_code == 200, response.json()
-    assert len(response.json()) == 1
+    assert len(response.json()["data"]) == 1
 
 
 @pytest.mark.parametrize(

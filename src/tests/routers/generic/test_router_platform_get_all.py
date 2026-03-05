@@ -24,7 +24,7 @@ def test_get_all_happy_path(client_test_resource: TestClient, auto_publish):
         session.commit()
     response = client_test_resource.get("/platforms/example/test_resources?direction=asc")
     assert response.status_code == 200, response.json()
-    response_json = response.json()
+    response_json = response.json()["data"]
 
     assert len(response_json) == 2
     response_1, response_2 = response_json

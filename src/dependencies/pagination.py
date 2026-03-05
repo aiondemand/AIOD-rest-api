@@ -1,7 +1,8 @@
-from typing import Annotated
+from typing import Annotated, Sequence, TypeVar, Generic
 
 from fastapi import Query, Depends
 from pydantic import BaseModel
+from pydantic.generics import GenericModel
 from sqlmodel import Field
 
 
@@ -25,3 +26,11 @@ class Pagination(BaseModel):
 
 
 PaginationParams = Annotated[Pagination, Depends(Pagination)]
+
+T = TypeVar("T")
+
+class PaginatedResponse(GenericModel, Generic[T]):
+    offset: int
+    limit: int
+    total_count: int
+    data: Sequence[T]

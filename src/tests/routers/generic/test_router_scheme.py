@@ -56,7 +56,7 @@ def test_resources_aiod(
     for client in [client_test_resource_other_schema, client_test_resource]:
         response = client.get("/test_resources" + schema_string)
         assert response.status_code == 200, response.json()
-        json_ = response.json()
+        json_ = response.json()["data"]
         assert len(json_) == 1
         assert json_[0]["title"] == "A title"
         assert "title_with_alternative_name" not in json_[0]
@@ -89,7 +89,7 @@ def test_resources_other_schema(
 ):
     response = client_test_resource_other_schema.get("/test_resources?schema=other-schema")
     assert response.status_code == 200, response.json()
-    json_ = response.json()
+    json_ = response.json()["data"]
     assert len(json_) == 1
     assert json_[0]["title_with_alternative_name"] == "A title"
     assert "title" not in json_[0]

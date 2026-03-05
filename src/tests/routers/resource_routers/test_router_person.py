@@ -101,6 +101,8 @@ def test_privacy_for_ai4europe_cms(
     endpoint = endpoint.replace("/1", f"/{person.identifier}")
     response = client.get(endpoint, headers=headers)
     response_json = response.json()
+    if isinstance(response_json, dict) and "data" in response_json:
+        response_json = response_json["data"]
     response_json = [response_json] if isinstance(response_json, dict) else response_json
     assert response.status_code == 200, response_json
     for person_dict in response_json:
@@ -111,6 +113,8 @@ def test_privacy_for_ai4europe_cms(
     keycloak_openid.introspect = AI4EUROPE_CMS_TOKEN
     response = client.get(endpoint, headers=headers)
     response_json = response.json()
+    if isinstance(response_json, dict) and "data" in response_json:
+        response_json = response_json["data"]
     response_json = [response_json] if isinstance(response_json, dict) else response_json
     assert response.status_code == 200, response_json
     for person_dict in response_json:

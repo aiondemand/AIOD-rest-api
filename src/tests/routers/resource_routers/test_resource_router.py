@@ -70,8 +70,8 @@ def test_happy_path_with_filters(
     assert response.status_code == 200, response.json()
 
     response_json = response.json()
-    assert isinstance(response_json, list)
-    assert len(response_json) == expected_count
+    assert "data" in response_json
+    assert len(response_json["data"]) == expected_count
 
 
 @pytest.mark.parametrize(
@@ -104,13 +104,14 @@ def test_happy_path_with_sorting(
     )
 
     for sort, direction in itertools.product(list(Sort), list(SortDirection)):
-        resources = client.get(
+        resources_json = client.get(
             f"/{resource_type}",
             params={
                 "direction": str(direction),
                 "sort": str(sort),
             },
         ).json()
+        resources = resources_json["data"]
 
         match sort, direction:
             case Sort.DATE_MODIFIED, SortDirection.ASC:
