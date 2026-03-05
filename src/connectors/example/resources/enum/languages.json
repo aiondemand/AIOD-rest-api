@@ -1,0 +1,27 @@
+[
+  {
+    "name": "english",
+    "definition": "English language",
+    "official": true
+  },
+  {
+    "name": "german",
+    "definition": "German language",
+    "official": true
+  },
+  {
+    "name": "french",
+    "definition": "French language",
+    "official": true
+  },
+  {
+    "name": "spanish",
+    "definition": "Spanish language",
+    "official": true
+  },
+  {
+    "name": "italian",
+    "definition": "Italian language",
+    "official": true
+  }
+]

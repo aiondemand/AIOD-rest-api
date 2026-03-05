@@ -1,0 +1,22 @@
+[
+  {
+    "name": "course",
+    "definition": "A structured educational program or series of lessons",
+    "official": true
+  },
+  {
+    "name": "tutorial",
+    "definition": "Step-by-step instructional content",
+    "official": true
+  },
+  {
+    "name": "documentation",
+    "definition": "Technical documentation and guides",
+    "official": true
+  },
+  {
+    "name": "video",
+    "definition": "Video-based educational content",
+    "official": true
+  }
+]

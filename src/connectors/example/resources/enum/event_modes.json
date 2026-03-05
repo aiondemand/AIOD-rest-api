@@ -1,0 +1,17 @@
+[
+  {
+    "name": "online",
+    "definition": "Virtual events conducted over the internet",
+    "official": true
+  },
+  {
+    "name": "offline",
+    "definition": "In-person events at physical locations",
+    "official": true
+  },
+  {
+    "name": "hybrid",
+    "definition": "Events combining both online and offline participation",
+    "official": true
+  }
+]

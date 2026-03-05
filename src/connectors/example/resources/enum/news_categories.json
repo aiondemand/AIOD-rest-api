@@ -1,0 +1,27 @@
+[
+  {
+    "name": "research",
+    "definition": "News related to research developments and findings",
+    "official": true
+  },
+  {
+    "name": "technology",
+    "definition": "Technology-related news and updates",
+    "official": true
+  },
+  {
+    "name": "events",
+    "definition": "Announcements and coverage of events",
+    "official": true
+  },
+  {
+    "name": "funding",
+    "definition": "News about funding opportunities and grants",
+    "official": true
+  },
+  {
+    "name": "partnerships",
+    "definition": "News about collaborations and partnerships",
+    "official": true
+  }
+]

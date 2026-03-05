@@ -1,0 +1,27 @@
+[
+  {
+    "name": "mit",
+    "definition": "MIT License - permissive open source license",
+    "official": true
+  },
+  {
+    "name": "apache-2.0",
+    "definition": "Apache License 2.0 - permissive open source license",
+    "official": true
+  },
+  {
+    "name": "gpl-3.0",
+    "definition": "GNU General Public License v3.0 - copyleft license",
+    "official": true
+  },
+  {
+    "name": "bsd-3-clause",
+    "definition": "BSD 3-Clause License - permissive open source license",
+    "official": true
+  },
+  {
+    "name": "cc-by-4.0",
+    "definition": "Creative Commons Attribution 4.0 International",
+    "official": true
+  }
+]

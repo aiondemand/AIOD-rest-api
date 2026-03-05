@@ -1,0 +1,27 @@
+[
+  {
+    "name": "university",
+    "definition": "Academic institution providing higher education",
+    "official": true
+  },
+  {
+    "name": "research institute",
+    "definition": "Organization focused on research activities",
+    "official": true
+  },
+  {
+    "name": "company",
+    "definition": "Commercial business organization",
+    "official": true
+  },
+  {
+    "name": "non-profit",
+    "definition": "Non-profit organization",
+    "official": true
+  },
+  {
+    "name": "government",
+    "definition": "Government agency or department",
+    "official": true
+  }
+]

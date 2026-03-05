@@ -1,0 +1,22 @@
+[
+  {
+    "name": "machine learning",
+    "definition": "Applications involving machine learning algorithms and techniques",
+    "official": true
+  },
+  {
+    "name": "natural language processing",
+    "definition": "Applications focused on processing and understanding human language",
+    "official": true
+  },
+  {
+    "name": "computer vision",
+    "definition": "Applications involving image and video analysis",
+    "official": true
+  },
+  {
+    "name": "robotics",
+    "definition": "Applications in robotics and autonomous systems",
+    "official": true
+  }
+]

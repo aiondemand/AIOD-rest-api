@@ -1,0 +1,22 @@
+[
+  {
+    "name": "upcoming",
+    "definition": "Events scheduled for the future",
+    "official": true
+  },
+  {
+    "name": "ongoing",
+    "definition": "Events currently taking place",
+    "official": true
+  },
+  {
+    "name": "completed",
+    "definition": "Events that have finished",
+    "official": true
+  },
+  {
+    "name": "cancelled",
+    "definition": "Events that have been cancelled",
+    "official": true
+  }
+]
