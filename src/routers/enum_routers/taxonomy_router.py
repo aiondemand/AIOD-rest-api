@@ -14,11 +14,35 @@ class TaxonomyRead(BaseModel):
     term: str = Field(description="A short, unique name for the term.")
     definition: str = Field(description="The definition of the term.")
 
+    @classmethod
+    def from_db_model(cls, db_taxonomy: Taxonomy) -> "TaxonomyRead":
+        """Create TaxonomyRead from database model.
+        
+        Note: When migrating to Pydantic v2, this can be replaced with 
+        Field(serialization_alias="name") for the term field.
+        """
+        return cls(term=db_taxonomy.name, definition=db_taxonomy.definition)
+
 
 class TaxonomyHierarchy(TaxonomyRead):
     subterms: list["TaxonomyHierarchy"] = Field(
         description="Direct subterms of this term.", default_factory=list
     )
+
+    @classmethod
+    def from_db_model(cls, db_taxonomy: Taxonomy) -> "TaxonomyHierarchy":
+        """Create TaxonomyHierarchy from database model with children.
+        
+        Note: When migrating to Pydantic v2, this can be replaced with 
+        Field(serialization_alias="name") for the term field and automatic
+        serialization of nested relationships.
+        """
+        children = [cls.from_db_model(child) for child in db_taxonomy.children]
+        return cls(
+            term=db_taxonomy.name, 
+            definition=db_taxonomy.definition, 
+            subterms=children
+        )
 
 
 class TaxonomyRouter(EnumRouter):
@@ -56,17 +80,14 @@ class TaxonomyRouter(EnumRouter):
         return router
 
     def get_official_terms_func(self):
-        def create_hierarchical_representation(term):
-            children = [create_hierarchical_representation(t) for t in term.children]
-            return TaxonomyHierarchy(term=term.name, definition=term.definition, subterms=children)
-
         def get_official():
             with DbSession() as session:
                 query = select(self.resource_class)
                 resources = session.scalars(query).all()
-                # TODO: With Pydantic V2 this can be 'automatic' by using `serialization_alias`
+                # Use the new class method for cleaner, more maintainable code
+                # This replaces the manual field mapping and prepares for Pydantic v2 migration
                 taxonomies = [
-                    create_hierarchical_representation(term)
+                    TaxonomyHierarchy.from_db_model(term)
                     for term in resources
                     if term.official and term.parent is None
                 ]
