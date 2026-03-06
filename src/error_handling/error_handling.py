@@ -38,13 +38,13 @@ async def http_exception_handler(request, exc):
         body_content = json.dumps(json.loads(body)) if body else ""
 
     log_message = str(
-        dict(
-            reference=reference,
-            exception=f"{str(exc)!r}",
-            method=request.scope["method"],
-            path=request.scope["path"],
-            body=body_content,
-        )
+        {
+            "reference": reference,
+            "exception": f"{str(exc)!r}",
+            "method": request.scope["method"],
+            "path": request.scope["path"],
+            "body": body_content,
+        }
     )
     log_level = logging.DEBUG
     if exc.status_code == HTTPStatus.INTERNAL_SERVER_ERROR:

@@ -58,7 +58,7 @@ class SubmissionCreateV2(SQLModel):
     """User provided information to submit a review request."""
 
     comment: str = Field(
-        description="Optional. Comment to the reviewer to motivate the submission or provide clarification.",
+        description="Optional. Comment to the reviewer to motivate the submission or provide clarification.",  # noqa: E501
         max_length=NORMAL,
         default="",
         schema_extra={"example": "'IA' is not a typo, it's for L'intelligence artificielle."},
@@ -74,7 +74,7 @@ class SubmissionCreate(SQLModel):
         schema_extra={"example": ["case_n8DhfFgMYv4beBnVurHa13ZS"]},
     )
     comment: str = Field(
-        description="Optional. Comment to the reviewer to motivate the submission or provide clarification.",
+        description="Optional. Comment to the reviewer to motivate the submission or provide clarification.",  # noqa: E501
         max_length=NORMAL,
         default="",
         schema_extra={"example": "'IA' is not a typo, it's for L'intelligence artificielle."},
@@ -87,7 +87,7 @@ class SubmissionBase(SQLModel):
     identifier: int = Field(primary_key=True, default=None)
     request_date: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     comment: str = Field(
-        description="Optional. Comment to the reviewer to motivate the submission or provide clarification.",
+        description="Optional. Comment to the reviewer to motivate the submission or provide clarification.",  # noqa: E501
         max_length=NORMAL,
         default="",
         schema_extra={"example": "'IA' is not a typo, it's for L'intelligence artificielle."},

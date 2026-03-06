@@ -23,7 +23,12 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
+      - name: Disable Git AutoCRLF
+        run: git config --global core.autocrlf false
+
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v3
@@ -36,9 +41,26 @@ jobs:
           python -m pip install --upgrade pip
           pip install ".[dev]"
 
-      - name: Run pre-commit
+      - name: Get changed files
+        shell: bash
+        id: changed-files
         run: |
-          pre-commit run --all-files
+          CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.sha }} | tr '\n' ' ')
+          echo "CHANGED_FILES=${CHANGED_FILES}" >> $GITHUB_ENV
+
+      - name: Print changed files
+        shell: bash
+        run: |
+          echo "Changed files:" && echo "$CHANGED_FILES" | tr ' ' '\n'
+
+      - name: Run pre-commit on changed files
+        shell: bash
+        run: |
+          if [ -n "$CHANGED_FILES" ]; then
+            pre-commit run --color always --files $CHANGED_FILES --show-diff-on-failure
+          else
+            echo "No changed files to check."
+          fi
 
       - name: Run tests
         run: |

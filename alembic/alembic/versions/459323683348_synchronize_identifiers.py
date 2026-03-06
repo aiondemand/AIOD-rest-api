@@ -113,25 +113,25 @@ def upgrade() -> None:
         logger.info("Fetching existing foreign key constraints.")
         constraints = session.execute(
             text(
-                "SELECT refs.CONSTRAINT_NAME, refs.DELETE_RULE, kcu.TABLE_NAME, kcu.COLUMN_NAME, kcu.REFERENCED_TABLE_NAME, kcu.REFERENCED_COLUMN_NAME "
+                "SELECT refs.CONSTRAINT_NAME, refs.DELETE_RULE, kcu.TABLE_NAME, kcu.COLUMN_NAME, kcu.REFERENCED_TABLE_NAME, kcu.REFERENCED_COLUMN_NAME "  # noqa: E501
                 "FROM information_schema.REFERENTIAL_CONSTRAINTS as refs "
                 "JOIN information_schema.KEY_COLUMN_USAGE as kcu "
                 "ON refs.CONSTRAINT_NAME=kcu.CONSTRAINT_NAME "
-                f"WHERE refs.REFERENCED_TABLE_NAME IN ({', '.join(map(repr, tables_with_referenced_key))});"
+                f"WHERE refs.REFERENCED_TABLE_NAME IN ({', '.join(map(repr, tables_with_referenced_key))});"  # noqa: E501
             )
         )
     constraints = list(constraints)
     logger.info(f"Dropping {len(constraints)} foreign key constraints.")
-    for constraint, delete_rule, from_table, from_column, to_table, to_column in constraints:
+    for constraint, delete_rule, from_table, from_column, to_table, to_column in constraints:  # noqa: B007
         op.execute(f"ALTER TABLE {from_table} DROP FOREIGN KEY {constraint}")
 
     updated_columns = set()
-    for constraint, delete_rule, from_table, from_column, to_table, to_column in constraints:
+    for constraint, delete_rule, from_table, from_column, to_table, to_column in constraints:  # noqa: B007
         for table, column in [(to_table, to_column), (from_table, from_column)]:
             if (table, column) not in updated_columns:
                 logger.info(f"Altering {table}.{column} to VARCHAR(30) COLLATE utf8_bin.")
                 op.execute(
-                    f"ALTER TABLE {table} CHANGE COLUMN {column} {column} VARCHAR(30) COLLATE utf8_bin;"
+                    f"ALTER TABLE {table} CHANGE COLUMN {column} {column} VARCHAR(30) COLLATE utf8_bin;"  # noqa: E501
                 )
                 updated_columns.add((table, column))
 

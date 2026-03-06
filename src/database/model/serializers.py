@@ -195,7 +195,7 @@ class FindByNameDeserializerList(DeSerializer[NamedRelation]):
             illegal_names = names_not_found | {e.name for e in existing if not e.official}
             if illegal_names:
                 raise ValueError(
-                    f"The terms {illegal_names!r} are not part of the taxonomy for {self.clazz.__tablename__}. "
+                    f"The terms {illegal_names!r} are not part of the taxonomy for {self.clazz.__tablename__}. "  # noqa: E501
                     "Please see the endpoint for the taxonomy to see a list of allowed terms."
                 )
         new_objects = [self.clazz(name=name) for name in names_not_found]
@@ -286,7 +286,7 @@ def create_getter_dict(attribute_serializers: Dict[str, Serializer]):
     return GetterDictSerializer
 
 
-def deserialize_resource_relationships(
+def deserialize_resource_relationships(  # noqa: C901
     session: Session,
     resource_class: Type[SQLModel],
     resource: SQLModel,
@@ -377,7 +377,7 @@ def deserialize_object_relationship(
         children = [children]
         children_create = [children_create]
     child_class = type(children[0])
-    for child, child_create in zip(children, children_create):
+    for child, child_create in zip(children, children_create, strict=False):
         for child_attribute in child_class.schema()["properties"]:
             if hasattr(child_create, child_attribute):
                 child_value = getattr(child_create, child_attribute)

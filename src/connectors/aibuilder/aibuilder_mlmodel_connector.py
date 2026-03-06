@@ -92,7 +92,7 @@ class AIBuilderMLModelConnector(ResourceConnectorByDate[MLModel]):
         """Returns True if `date` is a timezone-aware `datetime`."""
         return date.tzinfo is not None and date.tzinfo.utcoffset(date) is not None
 
-    def _mlmodel_from_solution(
+    def _mlmodel_from_solution(  # noqa: C901
         self, solution: dict, id: str, url: str
     ) -> ResourceWithRelations[MLModel] | RecordError:
         """
@@ -191,7 +191,7 @@ class AIBuilderMLModelConnector(ResourceConnectorByDate[MLModel]):
             related_resources=related_resources,
         )
 
-    def fetch(
+    def fetch(  # noqa: C901
         self, from_incl: datetime, to_excl: datetime
     ) -> Iterator[Tuple[datetime | None, MLModel | ResourceWithRelations[MLModel] | RecordError]]:
         """

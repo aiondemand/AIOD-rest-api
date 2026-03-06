@@ -9,7 +9,7 @@ from database.session import DbSession
 from versioning import Version
 
 
-class EnumRouter(abc.ABC):
+class EnumRouter(abc.ABC):  # noqa: B024
     """
     Abstract class for FastAPI enum routers. These are routers for, for example, Language,
     making it possible to get all existing values of the Language.

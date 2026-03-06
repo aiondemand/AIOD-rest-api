@@ -1,7 +1,5 @@
 from sqlmodel import SQLModel, Field
-from typing import Optional
 from datetime import datetime
-from sqlalchemy import Column, String
 
 
 class Bookmark(SQLModel, table=True):  # type: ignore [call-arg]

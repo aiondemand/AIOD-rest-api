@@ -35,7 +35,7 @@ class ProjectRouter(ResourceRouter):
             resource_filters: ResourceFiltersParams,
             schema: self._possible_schemas_type = "aiod",  # type:ignore
             get_image: bool = Query(False, description="Include image bytes in response?"),
-            user: KeycloakUser | None = Depends(get_user_or_none),
+            user: KeycloakUser | None = Depends(get_user_or_none),  # noqa: B008
         ):
             return self.get_resources(
                 schema=schema,
@@ -54,7 +54,7 @@ class ProjectRouter(ResourceRouter):
             identifier: str,
             schema: self._possible_schemas_type = "aiod",  # type: ignore
             get_image: bool = Query(False, description="Include image bytes in response?"),
-            user: KeycloakUser | None = Depends(get_user_or_none),
+            user: KeycloakUser | None = Depends(get_user_or_none),  # noqa: B008
         ):
             resource = self.get_resource(
                 identifier=identifier, schema=schema, user=user, platform=None, get_image=get_image

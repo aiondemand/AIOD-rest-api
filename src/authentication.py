@@ -135,14 +135,14 @@ async def _get_user(token) -> KeycloakUser:
         raise
     except Exception as e:
         logging.error(f"Error while checking the access token: '{e}'")
-        raise HTTPException(
+        raise HTTPException(  # noqa: B904
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid authentication token",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
 
-async def get_user_or_none(token=Security(oidc)) -> KeycloakUser | None:
+async def get_user_or_none(token=Security(oidc)) -> KeycloakUser | None:  # noqa: B008
     """
     Use this function in Depends() to ask for authentication.
     This method should be only used to get the current user
@@ -155,7 +155,7 @@ async def get_user_or_none(token=Security(oidc)) -> KeycloakUser | None:
         return None
 
 
-async def get_user_or_raise(token=Security(oidc)) -> KeycloakUser:
+async def get_user_or_raise(token=Security(oidc)) -> KeycloakUser:  # noqa: B008
     """
     Use this function in Depends() to force authentication. Check the roles of the user for
     authorization.

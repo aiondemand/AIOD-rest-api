@@ -15,7 +15,7 @@ from tests.testutils.paths import path_test_resources
 
 def test_aiod_to_schema_dot_org_happy_path(dataset: Dataset):
     dataset.identifier = "data_identifier"
-    dataset.license = License(name="a license")
+    dataset.license = License(name="a license")  # type: ignore[assignment]
     dataset.alternate_name = [AlternateName(name="alias1"), AlternateName(name="alias2")]
     dataset.size = DatasetSizeORM(value=1, unit="Rows")
     dataset.keyword = [AlternateName(name="keyword1"), AlternateName(name="keyword2")]
@@ -37,7 +37,9 @@ def test_aiod_to_schema_dot_org_happy_path(dataset: Dataset):
     actual = result.json(by_alias=True, indent=4)
     with open(path_test_resources() / "schemes" / "schema_dot_org" / "dataset.json", "r") as f:
         expected = f.read()
-    for i, (row_actual, row_expected) in enumerate(zip(actual.split("\n"), expected.split("\n"))):
-        assert row_actual == row_expected, f"Line {i}: {row_actual} != {row_expected}"
+    for i, (row_actual, row_expected) in enumerate(
+        zip(actual.split("\n"), expected.split("\n"), strict=False)
+    ):
+        assert row_actual == row_expected, f"Line {i}: {row_actual} != {row_expected}"  # noqa: S101
     # Checked-in files have a newline at end of file, which we do not care for here:
-    assert actual == expected[:-1]
+    assert actual == expected[:-1]  # noqa: S101

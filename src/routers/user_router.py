@@ -43,7 +43,7 @@ def create(url_prefix: str, version: Version) -> APIRouter:
         )
 
     @router.get(
-        f"/user/resources",
+        "/user/resources",
         description=resources_for_user_description,
         tags=["User"],
         response_model=Catalogue,
@@ -51,8 +51,8 @@ def create(url_prefix: str, version: Version) -> APIRouter:
     def get_versioned_resources_for_user(
         pagination: PaginationParams,
         sorting: SortingParams,
-        user: KeycloakUser = Depends(get_user_or_raise),
-        session: Session = Depends(get_session),
+        user: KeycloakUser = Depends(get_user_or_raise),  # noqa: B008
+        session: Session = Depends(get_session),  # noqa: B008
     ) -> dict[str, list[AIoDConcept]]:
         limit: int | None = pagination.limit
         if limit == 10 and version == Version.V2:

@@ -56,7 +56,7 @@ class ResourceAIAssetRouter(ResourceRouter):
                 int,
                 Path(description=f"The index of the distribution within the {self.resource_name}"),
             ],
-            user: KeycloakUser | None = Depends(get_user_or_none),
+            user: KeycloakUser | None = Depends(get_user_or_none),  # noqa: B008
         ):
             metadata: AIAsset = self.get_resource(
                 identifier=identifier,
@@ -92,7 +92,7 @@ class ResourceAIAssetRouter(ResourceRouter):
             identifier: Annotated[
                 str, Path(description=f"The identifier of the {self.resource_name}")
             ],
-            user: KeycloakUser | None = Depends(get_user_or_none),
+            user: KeycloakUser | None = Depends(get_user_or_none),  # noqa: B008
         ):
             return get_resource_content(identifier=identifier, distribution_idx=0, user=user)
 

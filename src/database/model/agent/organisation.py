@@ -118,7 +118,7 @@ class Organisation(OrganisationBase, Agent, table=True):  # type: ignore [call-a
         )
 
         turnover: Optional[str] = ManyToOne(
-            description="The approximate revenue bracket of the organisation in euros, see the taxonomy for more details.",
+            description="The approximate revenue bracket of the organisation in euros, see the taxonomy for more details.",  # noqa: E501
             identifier_name="turnover_identifier",
             _serializer=AttributeSerializer("name"),
             deserializer=FindByNameDeserializer(Turnover),

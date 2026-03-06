@@ -72,7 +72,7 @@ class AIResource(AIResourceBase, AIoDConcept, metaclass=abc.ABCMeta):
         max_length=IDENTIFIER_LENGTH,
         # Initializing `sa_column` instead doesn't work. Perhaps because it'd be used twice?
         sa_column_args=[ForeignKey("ai_resource.identifier", onupdate="CASCADE")],
-        sa_column_kwargs=dict(nullable=True, index=True, unique=True),
+        sa_column_kwargs={"nullable": True, "index": True, "unique": True},
     )
     ai_resource_identifier: AIResourceORM | None = Relationship()
 
@@ -90,7 +90,7 @@ class AIResource(AIResourceBase, AIoDConcept, metaclass=abc.ABCMeta):
     falls_under_paradigm: list[AIParadigm] = Relationship()  # type: ignore[valid-type]
 
     contact: list[Contact] = Relationship()
-    contacts: list[Contact] = Relationship(sa_relationship_kwargs=dict(viewonly=True))
+    contacts: list[Contact] = Relationship(sa_relationship_kwargs={"viewonly": True})
     creator: list[Contact] = Relationship()
 
     media: list = Relationship(sa_relationship_kwargs={"cascade": "all, delete"})
@@ -307,6 +307,6 @@ class AIResource(AIResourceBase, AIoDConcept, metaclass=abc.ABCMeta):
         relationships["contacts"].link_model = link_model_contact
         relationships["creator"].link_model = link_model_creator
 
-        relationships["description"].sa_relationship_kwargs = dict(
-            foreign_keys=f"[{cls.__name__}.description_identifier]"
-        )
+        relationships["description"].sa_relationship_kwargs = {
+            "foreign_keys": f"[{cls.__name__}.description_identifier]"
+        }

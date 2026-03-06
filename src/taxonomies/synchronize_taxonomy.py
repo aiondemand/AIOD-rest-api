@@ -118,9 +118,9 @@ def synchronize(
     db_definitions = {
         term.name.casefold(): term
         for term in session.scalars(select(taxonomy_type)).all()
-        if term.name  # Due to migrations there may be one term which is null, but this is never in the json
+        if term.name  # Due to migrations there may be one term which is null, but this is never in the json  # noqa: E501
     }
-    added_terms = dict()
+    added_terms = {}
     for term_object in db_definitions.values():
         term_object.official = False
 

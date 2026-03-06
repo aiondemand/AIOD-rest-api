@@ -6,6 +6,6 @@ def throw_error_on_invalid_identifier(platform_resource_identifier: str):
     try:
         openml_identifier = int(platform_resource_identifier)
     except ValueError:
-        raise ValueError(MSG)
+        raise ValueError(MSG)  # noqa: B904
     if openml_identifier < 0:
         raise ValueError(MSG)

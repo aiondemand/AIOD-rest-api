@@ -33,12 +33,12 @@ def many_to_many_link_factory(
     LinkTable = create_model(
         name,
         __base__=(SQLModel,),
-        __cls_kwargs__=dict(table=True),
+        __cls_kwargs__={"table": True},
         from_identifier=(
             from_identifier_type,
             Field(
                 sa_column=Column(
-                    str_type if from_identifier_type == str else int_type,
+                    str_type if from_identifier_type == str else int_type,  # noqa: E721
                     ForeignKey(
                         f"{table_from}.{table_from_identifier}",
                         ondelete="CASCADE",
@@ -52,7 +52,7 @@ def many_to_many_link_factory(
             to_identifier_type,
             Field(
                 sa_column=Column(
-                    str_type if to_identifier_type == str else int_type,
+                    str_type if to_identifier_type == str else int_type,  # noqa: E721
                     ForeignKey(
                         f"{table_to}.{table_to_identifier}",
                         onupdate="CASCADE",

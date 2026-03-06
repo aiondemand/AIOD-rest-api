@@ -1,4 +1,4 @@
-from typing import Type, Union
+from typing import Type
 
 from fastapi import APIRouter
 from pydantic import BaseModel, Field
@@ -38,7 +38,7 @@ class TaxonomyRouter(EnumRouter):
         new_path = f"/{self.resource_class.__plural__.replace(' ', '_')}"
         router.add_api_route(
             path=new_path,
-            description=f"List definitions and descriptions of all valid {self.resource_class.__plural__}.",
+            description=f"List definitions and descriptions of all valid {self.resource_class.__plural__}.",  # noqa: E501
             **default_kwargs,
         )
         old_path = f"/{self.resource_name_plural}"

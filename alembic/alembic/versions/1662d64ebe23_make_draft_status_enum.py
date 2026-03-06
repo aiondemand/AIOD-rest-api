@@ -9,7 +9,6 @@ Create Date: 2024-12-17 09:02:30.480835
 from typing import Sequence, Union
 
 from alembic import op
-import sqlalchemy as sa
 from sqlalchemy import Column, INT, String, Enum
 
 from database.model.field_length import NORMAL

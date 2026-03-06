@@ -71,7 +71,7 @@ class ZenodoDatasetConnector(ResourceConnectorByDate[Dataset]):
         )
         return response
 
-    def _dataset_from_record(
+    def _dataset_from_record(  # noqa: C901
         self, identifier: str, record: dict
     ) -> ResourceWithRelations[Dataset] | RecordError:
         """

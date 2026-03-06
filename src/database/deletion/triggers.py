@@ -38,7 +38,7 @@ def create_identifier_synchronization_triggers(dialect: str = "mysql"):
         parent_table_name = reference_table.__tablename__  # type: ignore[attr-defined]
         for cls in non_abstract_subclasses(parent_class):
             reference_column = f"{parent_table_name}_id"
-            msg = f"Cannot create trigger to update {reference_column} on {parent_class} since the column is not defined."
+            msg = f"Cannot create trigger to update {reference_column} on {parent_class} since the column is not defined."  # noqa: E501
             assert reference_column in parent_class.__fields__, msg  # noqa: S101  # We *want* the server to not start if there are issues here
             sqlite_ddl = DDL(
                 f"""
@@ -59,7 +59,7 @@ def create_identifier_synchronization_triggers(dialect: str = "mysql"):
                 BEGIN
                     UPDATE {parent_table_name} SET {parent_table_name}.identifier = NEW.identifier WHERE {parent_table_name}.identifier = NEW.{reference_column};
                 END;
-                """  # noqa: S608  # never user input
+                """  # noqa: E501, S608
             )
             triggers.append(mysql_ddl if dialect == "mysql" else sqlite_ddl)
     return triggers

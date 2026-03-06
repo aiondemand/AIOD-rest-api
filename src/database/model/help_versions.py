@@ -1,3 +1,4 @@
+# ruff: noqa: F401
 from database.model.agent.person import person_versions
 from database.model.agent.team import team_versions
 from database.model.agent.contact import contact_versions
@@ -14,7 +15,6 @@ from database.model.news.news import news_versions
 from database.model.project.project import project_versions
 from database.model.resource_bundle.resource_bundle import resource_bundle_versions
 from database.model.service.service import service_versions
-
 from database.model.concept.concept import AIoDConcept
 from versioning import VersionedResource, Version
 

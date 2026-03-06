@@ -24,7 +24,7 @@ class Agent(AgentBase, AIResource):
         # default_factory=generate_id_with_prefix(),
         max_length=IDENTIFIER_LENGTH,
         sa_column_args=[ForeignKey(AgentTable.__tablename__ + ".identifier", onupdate="CASCADE")],
-        sa_column_kwargs=dict(nullable=True, index=True),
+        sa_column_kwargs={"nullable": True, "index": True},
     )
     agent_identifier: AgentTable | None = Relationship()
 

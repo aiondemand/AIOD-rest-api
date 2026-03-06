@@ -43,7 +43,7 @@ class AIAsset(AIAssetBase, AIResource, metaclass=abc.ABCMeta):
         max_length=IDENTIFIER_LENGTH,
         # Initializing `sa_column` instead doesn't work. Perhaps because it'd be used twice?
         sa_column_args=[ForeignKey("ai_asset.identifier", onupdate="CASCADE")],
-        sa_column_kwargs=dict(nullable=True, index=True, unique=True),
+        sa_column_kwargs={"nullable": True, "index": True, "unique": True},
     )
     ai_asset_identifier: AIAssetTable | None = Relationship()
 
@@ -116,9 +116,11 @@ class AIAsset(AIAssetBase, AIResource, metaclass=abc.ABCMeta):
 
                 return Publication.identifier
 
-            relationships["citation"].sa_relationship_kwargs = dict(
-                primaryjoin=lambda: get_identifier()
-                == relationships["citation"].link_model.from_identifier,
-                secondaryjoin=lambda: get_identifier()
-                == relationships["citation"].link_model.linked_identifier,
-            )
+            relationships["citation"].sa_relationship_kwargs = {
+                "primaryjoin": lambda: (
+                    get_identifier() == relationships["citation"].link_model.from_identifier
+                ),
+                "secondaryjoin": lambda: (
+                    get_identifier() == relationships["citation"].link_model.linked_identifier
+                ),
+            }

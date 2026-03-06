@@ -1,7 +1,7 @@
 from typing import Type
 
 from pydantic import create_model
-from sqlalchemy import Column, Integer, ForeignKey, String
+from sqlalchemy import Column, ForeignKey, String
 from sqlmodel import Field
 
 from database.model.ai_asset.distribution import DistributionBase
@@ -79,7 +79,7 @@ def runnable_distribution_factory(table_from: str, distribution_name="distributi
     RunnableDistributionORM = create_model(
         f"{distribution_name}_{table_from}",
         __base__=(RunnableDistributionBase,),
-        __cls_kwargs__=dict(table=True),
+        __cls_kwargs__={"table": True},
         identifier=(int | None, Field(primary_key=True)),
         asset_identifier=(
             str | None,

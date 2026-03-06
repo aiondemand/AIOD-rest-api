@@ -20,9 +20,9 @@ class User(SQLModel, table=True):  # type: ignore [call-arg]
 class PermissionType(enum.Enum):
     # Enum instead of StrEnum because we *never* want to do str-comparison.
     # Definition order is important: permissions defined later include earlier ones
-    READ: str = "read"
-    WRITE: str = "write"
-    ADMIN: str = "admin"
+    READ = "read"
+    WRITE = "write"
+    ADMIN = "admin"
 
     def __lt__(self, other: "PermissionType") -> bool:
         if not isinstance(other, PermissionType):

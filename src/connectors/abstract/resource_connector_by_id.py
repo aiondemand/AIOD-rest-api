@@ -25,7 +25,7 @@ class ResourceConnectorById(ResourceConnector, Generic[RESOURCE]):
     ) -> Iterator[RESOURCE | ResourceWithRelations[RESOURCE] | RecordError]:
         """Retrieve information of resources"""
 
-    def run(
+    def run(  # noqa: C901
         self, state: dict, from_identifier: int | None = None, limit: int | None = None, **kwargs
     ) -> Iterator[RESOURCE | ResourceWithRelations[RESOURCE] | RecordError]:
         if limit is not None:

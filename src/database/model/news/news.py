@@ -53,7 +53,7 @@ class News(NewsBase, AIResource, table=True):  # type: ignore [call-arg]
         foreign_key="text.identifier",
     )
     content: TextORM | None = Relationship(
-        sa_relationship_kwargs=dict(foreign_keys="[News.content_identifier]")
+        sa_relationship_kwargs={"foreign_keys": "[News.content_identifier]"}
     )
 
     class RelationshipConfig(AIResource.RelationshipConfig):

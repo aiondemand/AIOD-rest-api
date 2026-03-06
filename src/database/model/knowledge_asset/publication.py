@@ -54,7 +54,7 @@ class Publication(PublicationBase, KnowledgeAsset, table=True):  # type: ignore 
         "textual content. ",
     )
     content: TextORM | None = Relationship(
-        sa_relationship_kwargs=dict(foreign_keys="[Publication.content_identifier]")
+        sa_relationship_kwargs={"foreign_keys": "[Publication.content_identifier]"}
     )
     type_identifier: int | None = Field(foreign_key=PublicationType.__tablename__ + ".identifier")
     type: Optional[PublicationType] = Relationship()  # type: ignore[valid-type]

@@ -63,15 +63,12 @@ py-modules = []
 
 [tool.ruff]
 line-length = 100
-exclude = [
-    "src/tests",
-]
 
 [tool.codespell]
 ignore-words-list = "checkin"
 
 [tool.ruff.lint]
-select = ["S"]
+select = ["S", "B", "C", "E", "F", "T", "W"]
 
 [tool.pytest.ini_options]
 filterwarnings = [
