@@ -59,8 +59,10 @@ def logged_in_user(user: KeycloakUser | None = None):
             "sub": user._subject_identifier,
         }
     )
-    yield
-    keycloak_openid.introspect = original
+    try:
+        yield
+    finally:
+        keycloak_openid.introspect = original
 
 
 def register_asset(asset: AIoDConcept, /, *, owner: KeycloakUser | None = None, status: EntryStatus = EntryStatus.PUBLISHED):

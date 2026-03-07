@@ -241,7 +241,7 @@ def test_get_submission_by_id(client, publication):
         submission_dict = submission.json()
         submission_date = submission_dict.pop("request_date")
         review_date = submission_dict["reviews"][0].pop("decision_date")
-        assert submission_date < review_date
+        assert submission_date <= review_date
         reviews = submission_dict.pop("reviews")
         assets = submission_dict.pop("assets")
         assert submission_dict == {

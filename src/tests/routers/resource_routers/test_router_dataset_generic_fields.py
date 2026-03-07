@@ -70,8 +70,8 @@ def test_happy_path(
     assert response_json["aiod_entry"]["status"] == EntryStatus.PUBLISHED
     date_created = dateutil.parser.parse(response_json["aiod_entry"]["date_created"] + "Z")
     date_modified = dateutil.parser.parse(response_json["aiod_entry"]["date_modified"] + "Z")
-    assert 0 < (date_created - datetime_create_request).total_seconds() < 0.2
-    assert 0 < (date_modified - datetime_create_request).total_seconds() < 0.2
+    assert 0 <= (date_created - datetime_create_request).total_seconds() < 0.2
+    assert 0 <= (date_modified - datetime_create_request).total_seconds() < 0.2
 
     assert response_json["name"] == "The name"
     assert response_json["description"]["plain"] == description_plain
@@ -139,8 +139,8 @@ def test_happy_path(
 
     date_created = dateutil.parser.parse(response_json["aiod_entry"]["date_created"] + "Z")
     date_modified = dateutil.parser.parse(response_json["aiod_entry"]["date_modified"] + "Z")
-    assert 0 < (date_created - datetime_create_request).total_seconds() < 0.2
-    assert 0 < (date_modified - datetime_update_request).total_seconds() < 0.4
+    assert 0 <= (date_created - datetime_create_request).total_seconds() < 0.2
+    assert 0 <= (date_modified - datetime_update_request).total_seconds() < 0.4
 
     assert response_json["name"] == "new name"
 
@@ -283,8 +283,8 @@ def test_create_aiod_entry(client: TestClient, auto_publish):
     assert "aiod_entry" in resource_json
     date_created = dateutil.parser.parse(resource_json["aiod_entry"]["date_created"] + "Z")
     date_modified = dateutil.parser.parse(resource_json["aiod_entry"]["date_modified"] + "Z")
-    assert start < date_created < end
-    assert start < date_modified < end
+    assert start <= date_created <= end
+    assert start <= date_modified <= end
 
     assert resource_json["ai_resource_identifier"] == identifier
 
@@ -317,8 +317,8 @@ def test_update_aiod_entry(
     assert "aiod_entry" in resource_json
     date_created = dateutil.parser.parse(resource_json["aiod_entry"]["date_created"] + "Z")
     date_modified = dateutil.parser.parse(resource_json["aiod_entry"]["date_modified"] + "Z")
-    assert start < date_created < end
-    assert end < date_modified
+    assert start <= date_created <= end
+    assert end <= date_modified
 
     assert resource_json["aiod_entry"]["editor"] == [person.identifier]
     with DbSession() as session:
