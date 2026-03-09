@@ -5,8 +5,8 @@ import responses
 from datetime import datetime
 from requests.exceptions import HTTPError
 
+from config import CONFIG
 from connectors.aibuilder.aibuilder_mlmodel_connector import AIBuilderMLModelConnector
-from connectors.aibuilder.aibuilder_mlmodel_connector import API_URL
 from connectors.resource_with_relations import ResourceWithRelations
 from connectors.record_error import RecordError
 from database.model.models_and_experiments.ml_model import MLModel
@@ -17,10 +17,11 @@ from database.model.ai_resource.text import Text
 TOKEN = "TEST_AIBUILDER_API_TOKEN"
 connector = AIBuilderMLModelConnector(f"{TOKEN}")
 test_resources_path = os.path.join(path_test_resources(), "connectors", "aibuilder")
-catalog_list_url = f"{API_URL}/get_catalog_list?apiToken={TOKEN}"
-catalog_solutions_url = f"{API_URL}/get_catalog_solutions?catalogId=1&apiToken={TOKEN}"
-solution_1_url = f"{API_URL}/get_solution?fullId=1&apiToken={TOKEN}"
-solution_2_url = f"{API_URL}/get_solution?fullId=2&apiToken={TOKEN}"
+api_url = CONFIG["aibuilder"]["api_url"]
+catalog_list_url = f"{api_url}/get_catalog_list?apiToken={TOKEN}"
+catalog_solutions_url = f"{api_url}/get_catalog_solutions?catalogId=1&apiToken={TOKEN}"
+solution_1_url = f"{api_url}/get_solution?fullId=1&apiToken={TOKEN}"
+solution_2_url = f"{api_url}/get_solution?fullId=2&apiToken={TOKEN}"
 mocked_datetime_from = datetime.fromisoformat("2023-09-01T00:00:00Z")
 mocked_datetime_to = datetime.fromisoformat("2023-09-01T00:00:01Z")
 

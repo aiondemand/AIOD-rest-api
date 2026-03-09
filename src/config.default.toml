@@ -45,3 +45,8 @@ client_id = "aiod-api"  # a private client, used by the backend
 client_id_swagger = "aiod-api-swagger"  # a public client, used by the Swagger Frontend
 openid_connect_url = "http://localhost/aiod-auth/realms/aiod/.well-known/openid-configuration"
 scopes = "openid profile roles"
+
+# AI Builder connector settings
+[aibuilder]
+api_url = "https://aiexp-dev.ai4europe.eu/federation"
+request_timeout = 30 # seconds

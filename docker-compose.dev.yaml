@@ -80,3 +80,7 @@ services:
       - GRAFANA_MYSQL_PASSWORD=${MYSQL_ROOT_PASSWORD}
     volumes:
       - ${GRAFANA_DATA_PATH:-./data/grafana}:/var/lib/grafana
+
+  aibuilder-connector:
+    volumes:
+      - ./src:/app:ro
