@@ -142,7 +142,14 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
                 bool,
                 Query(
                     description="If true, the results are sorted by id."
-                    "By default they are sorted by best score.",
+                    " By default they are sorted by best score.",
+                ),
+            ] = False,
+            sort_by_date_modified: Annotated[
+                bool,
+                Query(
+                    description="If true, the results are sorted by date_modified (newest first)."
+                    " By default they are sorted by best score.",
                 ),
             ] = False,
             limit: Annotated[int, Query(ge=1, le=LIMIT_MAX)] = 10,
@@ -196,6 +203,8 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
             sort: dict[str, str | dict[str, str]] = {}
             if sort_by_id:
                 sort = {"identifier": "asc"}
+            elif sort_by_date_modified:
+                sort = {"date_modified": "desc"}
             else:
                 sort = {"_score": {"order": "desc"}}
 
