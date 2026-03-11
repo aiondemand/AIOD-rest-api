@@ -95,6 +95,37 @@ Finally, configure your [pre-commit](https://pre-commit.com) hooks using `pre-co
 This will install some hooks to run before a commit can be made, these hooks will run various checks such as a code formatter, linter, file validation, and unit tests.
 These hooks help make sure formatting is more homogeneous across the project, and that no breaking changes are accidentally committed.
 
+### Windows-specific Setup
+
+Contributors on Windows may encounter additional setup steps not required on Linux or macOS.
+
+#### Microsoft C++ Build Tools
+Some dependencies (notably `mysqlclient`) require Microsoft C++ Build Tools to compile from source.
+If you see an error like `Microsoft Visual C++ 14.0 or greater is required`, follow these steps:
+
+1. Download the installer from [Microsoft C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/)
+2. Run the installer and select **"Desktop development with C++"**
+3. Click **Install** and wait for completion (~10 minutes)
+4. Restart your computer and retry the installation
+
+Alternatively, install the pre-built binary to skip compilation entirely:
+```commandline
+pip install mysqlclient --only-binary=mysqlclient
+```
+
+#### Activating Virtual Environment
+On Windows, the activation command differs from Linux/macOS:
+```commandline
+venv\Scripts\activate
+```
+
+#### Docker Compose
+The project uses `docker-compose.yaml` (note: `.yaml` not `.yml`).
+Start the project on Windows using:
+```commandline
+docker compose -f docker-compose.yaml up app sqlserver keycloak elasticsearch --build
+```
+
 ## Making a Code Changes
 See the ["Developer Documentation"](developer/index.md) for the technical documentation of this project.
 More to be added.
