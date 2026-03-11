@@ -4,7 +4,7 @@ import traceback
 from functools import partial
 from typing import Annotated, Any, Literal, Sequence, Type, TypeVar, Union, Callable, cast
 from fastapi import APIRouter, Depends, HTTPException, status, Query, Path
-from sqlalchemy import and_, func
+from sqlalchemy import and_, func, or_, delete
 from sqlalchemy.sql.operators import is_
 from sqlmodel import SQLModel, Session, select
 
@@ -23,6 +23,11 @@ from database.model.concept.aiod_entry import AIoDEntryORM, EntryStatus
 from database.model.concept.concept import AIoDConcept
 from database.model.platform.platform import Platform
 from database.model.platform.platform_names import PlatformName
+from database.model.ai_resource.resource_table import (
+    AIResourceORM,
+    AIResourcePartLink,
+    AIResourceRelevantLink,
+)
 from database.model.serializers import deserialize_resource_relationships
 from database.review import Submission, SubmissionCreateV2, AssetReview
 from database.session import DbSession
@@ -629,6 +634,28 @@ class ResourceRouter(abc.ABC):
                         session.delete(resource)
                     else:
                         resource.date_deleted = datetime.datetime.utcnow()
+                        if isinstance(resource, AIResource) and resource.ai_resource_id:
+                            # Sever all relationships immediately on soft delete
+                            session.execute(
+                                delete(AIResourcePartLink).where(
+                                    or_(
+                                        AIResourcePartLink.parent_identifier
+                                        == resource.ai_resource_id,
+                                        AIResourcePartLink.child_identifier
+                                        == resource.ai_resource_id,
+                                    )
+                                )
+                            )
+                            session.execute(
+                                delete(AIResourceRelevantLink).where(
+                                    or_(
+                                        AIResourceRelevantLink.parent_identifier
+                                        == resource.ai_resource_id,
+                                        AIResourceRelevantLink.relevant_identifier
+                                        == resource.ai_resource_id,
+                                    )
+                                )
+                            )
                         session.add(resource)
                     session.commit()
                     return None

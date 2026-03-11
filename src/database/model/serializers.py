@@ -8,7 +8,7 @@ from sqlmodel import SQLModel, Session, select
 from starlette.status import HTTP_404_NOT_FOUND
 
 from authentication import KeycloakUser
-from database.model.helper_functions import get_relationships, get_asset_by_identifier
+from database.model.helper_functions import get_relationships
 from database.model.named_relation import NamedRelation, Taxonomy
 from database.model.ai_resource.resource_table import AIResourceORM
 from database.session import DbSession
@@ -259,12 +259,45 @@ def create_getter_dict(attribute_serializers: Dict[str, Serializer]):
     def is_soft_deleted(item) -> bool:
         if hasattr(item, "date_deleted") and item.date_deleted:
             return True
-        if isinstance(item, AIResourceORM):
-            with DbSession() as session:
-                clazz_, resource = get_asset_by_identifier(item.identifier, session)
-                return resource.date_deleted is not None
+        if isinstance(item, AIResourceORM) or item.__class__.__name__ in (
+            "AIAssetTable",
+            "AgentTable",
+            "KnowledgeAssetTable",
+        ):
+            from sqlalchemy.orm import object_session
+            from database.model.helper_functions import get_asset_type_by_abbreviation
 
-        return False  # Not sure what cases are not covered here.
+            session = object_session(item)
+
+            def check_deletion(sess):
+                asset_type_map = get_asset_type_by_abbreviation()
+                model_class = next(
+                    (cls for cls in asset_type_map.values() if cls.__tablename__ == item.type),
+                    None,
+                )
+                if model_class:
+                    match item.__class__.__name__:
+                        case "AIAssetTable":
+                            id_field_name = "ai_asset_id"
+                        case "AgentTable":
+                            id_field_name = "agent_id"
+                        case "KnowledgeAssetTable":
+                            id_field_name = "knowledge_asset_id"
+                        case _:
+                            id_field_name = "ai_resource_id"
+
+                    resource = sess.query(model_class).filter(
+                        getattr(model_class, id_field_name) == item.identifier
+                    ).first()
+                    return resource is None or resource.date_deleted is not None
+                return False
+
+            if session is not None:
+                return check_deletion(session)
+            else:
+                with DbSession() as new_session:
+                    return check_deletion(new_session)
+        return False
 
     class GetterDictSerializer(GetterDict):
         def get(self, key: Any, default: Any = None) -> Any:

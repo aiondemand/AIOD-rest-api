@@ -191,21 +191,20 @@ def create_deletion_trigger_many_to_many(
         f"""
         NOT EXISTS (
                 SELECT 1 FROM {link_name}
-                WHERE {link_name}.{link_to_identifier} = {delete_name}.{to_delete_identifier}
+                WHERE {link_name}.{link_to_identifier} = OLD.{link_to_identifier}
         )
         """  # noqa: S608  # never user input
         for link_name in link_names
     )
     return DDL(
         f"""
-        CREATE TRIGGER IF NOT EXISTS delete_{link_name}
-        AFTER DELETE ON {trigger_name}
+        CREATE TRIGGER IF NOT EXISTS delete_orphan_{link_name}
+        AFTER DELETE ON {link_name}
         FOR EACH ROW
         BEGIN
-            DELETE FROM {link_name}
-            WHERE {link_name}.{link_from_identifier} = OLD.{trigger_identifier};
             DELETE FROM {delete_name}
-            WHERE {links_clause};
+            WHERE {delete_name}.{to_delete_identifier} = OLD.{link_to_identifier}
+            AND {links_clause};
         END;
         """  # noqa: S608  # never user input
     )
