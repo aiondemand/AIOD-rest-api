@@ -3,18 +3,36 @@ from unittest.mock import Mock
 
 from starlette.testclient import TestClient
 
+from database.model.dataset.dataset import Dataset
+from database.model.models_and_experiments.ml_model import MLModel
+from database.session import DbSession
+
 
 def test_happy_path(
     client: TestClient,
     mocked_privileged_token: Mock,
     body_asset: dict,
+    dataset: Dataset,
+    ml_model: MLModel,
     auto_publish: None,
 ):
+    with DbSession() as session:
+        session.add(dataset)
+        session.commit()
+        session.refresh(dataset)
+
+    with DbSession() as session:
+        session.add(ml_model)
+        session.commit()
+        session.refresh(ml_model)
+
     body = copy.copy(body_asset)
     body["pid"] = "https://doi.org/10.1000/182"
     body["experimental_workflow"] = "Example workflow."
     body["execution_settings"] = "Example execution settings."
     body["reproducibility_explanation"] = "Example reproducibility explanation."
+    body["uses_model"] = [ml_model.identifier]
+    body["uses_dataset"] = [dataset.identifier]
 
     distribution = {
         "checksum": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
@@ -41,7 +59,7 @@ def test_happy_path(
 
     response = client.post("/experiments", json=body, headers={"Authorization": "Fake token"})
     assert response.status_code == 200, response.json()
-    identifier = response.json()['identifier']
+    identifier = response.json()["identifier"]
 
     response = client.get(f"/experiments/{identifier}")
     assert response.status_code == 200, response.json()
@@ -52,3 +70,5 @@ def test_happy_path(
     assert response_json["execution_settings"] == "Example execution settings."
     assert response_json["reproducibility_explanation"] == "Example reproducibility explanation."
     assert response_json["distribution"] == [distribution]
+    assert response_json["uses_model"] == [ml_model.identifier]
+    assert response_json["uses_dataset"] == [dataset.identifier]

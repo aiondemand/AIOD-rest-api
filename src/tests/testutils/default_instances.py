@@ -18,6 +18,7 @@ from database.model.agent.person import Person
 from database.model.dataset.dataset import Dataset
 from database.model.knowledge_asset.publication import Publication
 from database.model.models_and_experiments.experiment import Experiment
+from database.model.models_and_experiments.ml_model import MLModel
 from database.model.platform.platform import Platform
 from database.model.resource_read_and_create import resource_create
 from database.model.serializers import deserialize_resource_relationships
@@ -76,7 +77,9 @@ def body_agent(body_resource: dict, load_body_agent: dict) -> dict:
     return copy.deepcopy(body)
 
 
-def make_publication(body_asset: dict, with_random_platform_identifier: bool = False) -> Publication:
+def make_publication(
+    body_asset: dict, with_random_platform_identifier: bool = False
+) -> Publication:
     body = copy.deepcopy(body_asset)
     body["permanent_identifier"] = "http://dx.doi.org/10.1093/ajae/aaq063"
     body["isbn"] = "9783161484100"
@@ -139,6 +142,12 @@ def person(body_agent: dict) -> Person:
 @pytest.fixture
 def experiment(body_asset: dict) -> Experiment:
     return _create_class_with_body(Experiment, body_asset)
+
+
+@pytest.fixture
+def ml_model(body_asset: dict) -> MLModel:
+    return _create_class_with_body(MLModel, body_asset)
+
 
 @pytest.fixture
 def project(body_asset: dict) -> Project:
