@@ -102,11 +102,15 @@ For example, if the submission identifier we received was '1', we can query
   "comment": "Clarification the reviewer should be aware of.",
   "identifier": 1,
   "request_date": "2025-03-20T09:09:54",
-  "aiod_entry_identifier": 212,
   "reviews": [],
-  "assets": [{
-    ...
-  }]
+  "assets": [
+    {
+      "name": "The name of this resource",
+      "aiod_entry": { "status": "published", ... },
+      "keyword": ["AI", "Research"],
+      ...
+    }
+  ]
 }
 ```
 No reviews have yet been performed on the submission, as indicated by the empty list
@@ -155,7 +159,6 @@ endpoint will provide you with the reviewer feedback, e.g.:
   "comment": "Clarification the reviewer should be aware of.",
   "identifier": 1,
   "request_date": "2025-03-20T09:09:54",
-  "aiod_entry_identifier": 212,
   "reviews": [
     {
       "comment": "Several critical fields have incomplete information. Please improve the description, and add a house number to the address.",
@@ -165,7 +168,14 @@ endpoint will provide you with the reviewer feedback, e.g.:
       "submission_identifier": 1
     }
   ],
-  "assets": [{ ... }]
+  "assets": [
+    {
+      "name": "The name of this resource",
+      "aiod_entry": { "status": "draft", ... },
+      "keyword": ["AI", "Research"],
+      ...
+    }
+  ]
 }
 ```
 You'll find reviewer comments under "reviews".
