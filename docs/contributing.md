@@ -95,12 +95,42 @@ Finally, configure your [pre-commit](https://pre-commit.com) hooks using `pre-co
 This will install some hooks to run before a commit can be made, these hooks will run various checks such as a code formatter, linter, file validation, and unit tests.
 These hooks help make sure formatting is more homogeneous across the project, and that no breaking changes are accidentally committed.
 
-## Making a Code Changes
-See the ["Developer Documentation"](developer/index.md) for the technical documentation of this project.
-More to be added.
 
-Note that when using our convenience scripts to launch docker containers (see ["Shorthands"](hosting/index.md#shorthands)),
+Making a Code Changes
+
+See the ["Developer Documentation"](developer/index.md) for the technical documentation of this project.
+
+Code Change Workflow
+
+1. Create a branch from the latest `main` branch for your changes.
+2. Make your changes following the project's code style and conventions.
+3. Test locally using the development setup as described above.
+4. Commit your changes with clear, descriptive commit messages.
+5. Push your branch to your fork and create a Pull Request against the `main` branch.
+
+Testing Requirements
+
+Before submitting a Pull Request, ensure:
+
+- All unit tests pass: Run the test suite locally with `pytest`
+- Pre-commit hooks pass: These are configured automatically with `pre-commit install` and will run:
+  - Code formatter (to ensure consistent style)
+  - Linter (to catch common issues)
+  - File validation
+  - Unit tests
+- Your code changes do not break existing functionality
+- For new features, consider adding tests to verify the functionality
+
+Pull Request Process
+
+- Create a Pull Request with a clear title and description explaining what your changes do
+- Reference any related issues (e.g., "Closes #123")
+- Ensure all CI checks pass before requesting review
+- Be responsive to any feedback during the review process
+- The core team will review your contribution and provide feedback
+
+Important Notes
+
+When using our convenience scripts to launch docker containers (see ["Shorthands"](hosting/index.md#shorthands)),
 local code changes are not mounted to the docker containers unless `USE_LOCAL_DEV` is set to `true`. You should configure this
 variable in your `override.env`.
-
-[//]: # (## Setting up a pull request)

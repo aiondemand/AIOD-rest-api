@@ -52,15 +52,13 @@ From the root of the project directory (i.e., the directory with the `docker-com
 This will start a number of services running within one docker network:
 
  * Database: a [MySQL](https://dev.mysql.com) database that contains the metadata.
- * Keycloak: an authentication service, provides login functionality.
+ * [Keycloak](authentication.md): an authentication service, provides login functionality.
  * Metadata Catalogue REST API: The main API service for managing and accessing metadata.
- * Elastic Search: indexes metadata catalogue data for faster keyword searches.
- * Logstash: Loads data into Elastic Search.
+ * [Elastic Search & Logstash](elastic_search.md): Indexes metadata catalogue data for faster keyword searches.
  * Deletion: Takes care of cleaning up deleted data.
- * nginx: Redirects network traffic within the docker network.
+ * [nginx](proxy.md): Redirects network traffic within the docker network and handles proxying.
  * es_logstash_setup: Generates scripts for Logstash and creates Elastic Search indices.
 
-[//]: # (TODO: Make list items link to dedicated pages.)
 These services are described in more detail in their dedicated pages.
 After the previous command was executed successfully, you can navigate to [localhost](http://localhost.com)
 and see the REST API documentation. This should look similar to the [api.aiod.eu](https://api.aiod.eu) page,
