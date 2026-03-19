@@ -63,15 +63,6 @@ class Project(ProjectBase, AIResource, table=True):  # type: ignore [call-arg]
     __abbreviation__ = "proj"
     __plural__ = "projects"
 
-    funder: list[Organisation] = Relationship(
-        link_model=many_to_many_link_factory(
-            "project",
-            Organisation.__tablename__,
-            table_prefix="funder",
-            from_identifier_type=str,
-            to_identifier_type=str,
-        ),
-    )
     participant: list[Organisation] = Relationship(
         link_model=many_to_many_link_factory(
             "project",
@@ -105,14 +96,6 @@ class Project(ProjectBase, AIResource, table=True):  # type: ignore [call-arg]
     )
 
     class RelationshipConfig(AIResource.RelationshipConfig):
-        funder: list[str] = ManyToMany(
-            description="Identifiers of organizations that support this project through some kind "
-            "of financial contribution. ",
-            _serializer=AttributeSerializer("identifier"),
-            deserializer=FindByIdentifierDeserializerList(Organisation),
-            default_factory_pydantic=list,
-            example=[],
-        )
         participant: list[str] = ManyToMany(
             description="Identifiers of members of this project. ",
             _serializer=AttributeSerializer("identifier"),
