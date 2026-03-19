@@ -46,6 +46,7 @@ from routers import (
 )
 from prometheus_fastapi_instrumentator import Instrumentator
 from middleware.access_log import AccessLogMiddleware
+from middleware.json_content_type import JsonContentTypeMiddleware
 from routers.access_stats_router import create as create_access_stats_router
 from versioning import (
     versions,
@@ -182,6 +183,7 @@ def build_app(*, url_prefix: str = "", version: str = "dev"):
     )
     # Since all traffic goes through the main app, this middleware only
     # needs to be registered with the main app and not the mounted apps.
+    main_app.add_middleware(JsonContentTypeMiddleware)
     main_app.add_middleware(AccessLogMiddleware)
 
     for app, _ in versioned_apps:
