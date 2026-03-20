@@ -193,7 +193,7 @@ def add_custom_routes(router_type: ResourceRouter, router: APIRouter, path: str)
             existing_media.encoding_format = file.content_type
             try:
                 if hasattr(resource, "aiod_entry"):
-                    resource.aiod_entry.date_modified = datetime.datetime.utcnow()
+                    resource.aiod_entry.date_modified = datetime.datetime.now(datetime.UTC)
                     session.merge(resource.aiod_entry)
 
                 session.merge(existing_media)
