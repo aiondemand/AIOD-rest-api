@@ -1,6 +1,5 @@
 import json
 import logging
-import traceback
 import uuid
 from http import HTTPStatus
 
