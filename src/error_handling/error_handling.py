@@ -1,6 +1,5 @@
 import json
 import logging
-import traceback
 import uuid
 from http import HTTPStatus
 
@@ -12,7 +11,7 @@ from starlette.responses import JSONResponse
 def as_http_exception(exception: Exception) -> HTTPException:
     if isinstance(exception, HTTPException):
         return exception
-    traceback.print_exc()
+    logging.exception("Unexpected exception while processing request")
     return HTTPException(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         detail=(

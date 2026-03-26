@@ -1,6 +1,6 @@
 import abc
 import datetime
-import traceback
+import logging
 from functools import partial
 from typing import Annotated, Any, Literal, Sequence, Type, TypeVar, Union, Callable, cast
 from fastapi import APIRouter, Depends, HTTPException, status, Query, Path
@@ -833,7 +833,7 @@ class ResourceRouter(abc.ABC):
         if isinstance(e, HTTPException):
             raise e
         if len(e.args) == 0:
-            traceback.print_exc()
+            logging.exception("Unexpected exception with no args during resource operation")
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="Unexpected exception while processing your request. Please "
