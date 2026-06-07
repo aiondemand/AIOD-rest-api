@@ -122,7 +122,6 @@ services:
       - KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET
       - AIBUILDER_API_TOKEN=$AIBUILDER_API_TOKEN
     volumes:
-      - ./src:/app
       - ${DATA_PATH}/connectors:/opt/connectors/data
     command: >
       /bin/bash -c "/opt/connectors/script/entry.sh"

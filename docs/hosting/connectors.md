@@ -47,6 +47,14 @@ AI Builder's models are only accessible with authentication, and for this the AP
 Because we do not want to expose the API key, we obfuscate it and use `AIBUILDER_API_TOKEN` in URLs.
 This means that for using the url of the `same_as` field of the AIBuilder models, you will need to substitute `AIBUILDER_API_TOKEN` on the url for your actual API token value.
 
+Separately, you can configure the AI Builder API URL and the request timeout in `src/config.default.toml` (or `config.override.toml`):
+
+```toml
+[aibuilder]
+api_url = "https://aiexp-dev.ai4europe.eu/federation"
+request_timeout = 30 # seconds
+```
+
 ## HuggingFace
 
 **Profile**: `huggingface-datasets`
