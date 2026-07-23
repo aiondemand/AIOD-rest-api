@@ -33,7 +33,10 @@ from routers.resource_routers import versioned_routers
 from setup_logger import setup_logger
 from taxonomies.synchronize_taxonomy import synchronize_taxonomy_from_file
 from triggers import disable_review_process, enable_review_process
-from error_handling import http_exception_handler
+from error_handling.error_handling import (
+    http_exception_handler,
+    validation_exception_handler,
+)
 from routers import (
     resource_routers,
     parent_routers,
@@ -53,6 +56,7 @@ from versioning import (
     add_deprecation_and_sunset_middleware,
     Version,
 )
+from fastapi.exceptions import RequestValidationError
 
 
 def add_routes(app: FastAPI, version: Version, url_prefix=""):
@@ -174,6 +178,7 @@ def build_app(*, url_prefix: str = "", version: str = "dev"):
     for app, version in [(main_app, Version.LATEST)] + versioned_apps:
         add_routes(app, version=version)
         app.add_exception_handler(HTTPException, http_exception_handler)
+        app.add_exception_handler(RequestValidationError, validation_exception_handler)
         add_deprecation_and_sunset_middleware(app)
         add_version_to_openapi(app)
 
