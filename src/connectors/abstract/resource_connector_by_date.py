@@ -43,7 +43,7 @@ class ResourceConnectorByDate(ResourceConnector, Generic[RESOURCE]):
             logging.warning("to_excl should only be set in (unit) tests")
             to_excl = to_excl.replace(tzinfo=timezone.utc)
         else:
-            to_excl = datetime.utcnow().replace(tzinfo=timezone.utc)
+            to_excl = datetime.now(timezone.utc)
 
         first_run = not state
         if first_run:
@@ -53,7 +53,7 @@ class ResourceConnectorByDate(ResourceConnector, Generic[RESOURCE]):
             from_incl = from_incl.replace(tzinfo=timezone.utc)
         else:
             last = state["last"] if state["last"] is not None else state["to_excl"]
-            from_incl = datetime.utcfromtimestamp(last + 0.001).replace(tzinfo=timezone.utc)
+            from_incl = datetime.fromtimestamp(last + 0.001, timezone.utc)
 
         while from_incl < to_excl:
             to_excl_current = min(from_incl + time_per_loop, to_excl)
@@ -67,7 +67,7 @@ class ResourceConnectorByDate(ResourceConnector, Generic[RESOURCE]):
             from_incl = (
                 to_excl_current
                 if self.is_concluded or state["last"] is None
-                else datetime.utcfromtimestamp(state["last"] + 0.001).replace(tzinfo=timezone.utc)
+                else datetime.fromtimestamp(state["last"] + 0.001, timezone.utc)
             )
 
         state["result"] = "Complete run done (although there might be errors)."

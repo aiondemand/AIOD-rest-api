@@ -246,7 +246,7 @@ class ZenodoDatasetConnector(ResourceConnectorByDate[Dataset]):
                 seconds=10
             )
         else:
-            current_date_time = datetime.utcnow().replace(tzinfo=timezone.utc)
+            current_date_time = datetime.now(timezone.utc)
             expiration_date = current_date_time + timedelta(seconds=110)
 
         records_list = []
@@ -256,7 +256,7 @@ class ZenodoDatasetConnector(ResourceConnectorByDate[Dataset]):
                 i += 1
                 records_list.append(record)
                 if batchsize and (i % batchsize) == 0:
-                    now = datetime.utcnow().replace(tzinfo=timezone.utc)
+                    now = datetime.now(timezone.utc)
                     if now >= expiration_date:
                         logging.info(f"Resumption token expired at {expiration_date}!")
                         break
