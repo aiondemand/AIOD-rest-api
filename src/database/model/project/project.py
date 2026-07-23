@@ -11,6 +11,7 @@ from database.model.helper_functions import many_to_many_link_factory
 from database.model.relationships import ManyToMany, ManyToOne
 from database.model.serializers import (
     AttributeSerializer,
+    VersionAwareAttributeSerializer,
     FindByIdentifierDeserializerList,
 )
 from database.model.field_length import IDENTIFIER_LENGTH, LONG

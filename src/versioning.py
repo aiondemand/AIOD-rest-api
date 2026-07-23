@@ -232,6 +232,8 @@ class VersionedResource(Generic[T]):
         and produces an `resource_class_read` corresponding object (e.g., CaseStudyRead).
         If not supplied, uses the `model_validate` function from `resource_read_class`.
         This breaks if there is a mismatch between fields of the read class and the orm class.
+    version: Version, optional
+        The API version this resource is for. Used for version-aware serialization of nested resources.
     """
 
     orm_class: type[T]  #: type[AIoDConcept]
@@ -240,12 +242,34 @@ class VersionedResource(Generic[T]):
     resource_class_read: type[SQLModel] = None  # type: ignore[assignment]
     create_to_orm: Callable[[SQLModel], T] = None  # type: ignore[assignment]
     orm_to_read: Callable[[T], SQLModel] = None  # type: ignore[assignment]
+    version: Version = Version.LATEST
 
     def __post_init__(self):
         self.resource_class_create = self.resource_class_create or resource_create(self.orm_class)
         self.resource_class_read = self.resource_class_read or resource_read(self.orm_class)
         self.create_to_orm = self.create_to_orm or self.orm_class.model_validate
-        self.orm_to_read = self.orm_to_read or self.resource_class_read.model_validate
+        
+        # If orm_to_read is not provided, create a version-aware wrapper
+        if self.orm_to_read is None:
+            self.orm_to_read = self._create_version_aware_orm_to_read()
+        else:
+            # Wrap the provided orm_to_read to inject version context
+            original_orm_to_read = self.orm_to_read
+            self.orm_to_read = lambda orm: self._inject_version_context(original_orm_to_read(orm))
+    
+    def _create_version_aware_orm_to_read(self) -> Callable[[T], SQLModel]:
+        """Create a version-aware orm_to_read function that injects version context."""
+        def orm_to_read_with_version(orm: T) -> SQLModel:
+            result = self.resource_class_read.model_validate(orm)
+            return self._inject_version_context(result)
+        return orm_to_read_with_version
+    
+    def _inject_version_context(self, read_model: SQLModel) -> SQLModel:
+        """Inject version context into the read model's getter_dict if it exists."""
+        # Store version in the model instance for access during serialization
+        if hasattr(read_model, '__dict__'):
+            read_model.__dict__['_api_version'] = self.version
+        return read_model
 
 
 def load_version_metadata(file_path: Path) -> dict[Version, VersionMetadata]:
@@ -325,6 +349,11 @@ def schema_transform(
 class VersionedResourceCollection(dict):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        # Set the version on each VersionedResource
+        for version_key, versioned_resource in self.items():
+            if isinstance(versioned_resource, VersionedResource):
+                versioned_resource.version = version_key
 
         # If a version is not defined, we assume no changes happened.
         # We still want this version to be accessible for general use,
