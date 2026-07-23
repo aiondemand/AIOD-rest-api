@@ -46,6 +46,30 @@ import aiod
 aiod.datasets.get_list()
 ```
 
+## Schema Note: Contact Metadata
+
+Earlier versions of the metadata schema included a `contact_details`
+field on the `Person` and `Organisation` entities which represented
+a one-to-one relationship with a contact.
+
+This field is now deprecated and has been removed from the data model.
+
+Instead, contacts should be defined using the generic contact mapping
+available at the `AIResource` level. This mapping allows multiple
+contacts to be associated with a resource using a list of contact
+identifiers.
+
+**Recommended approach**
+
+Use the `contacts` list defined on the AIResource level.
+level rather than defining contacts directly on `Person` or
+`Organisation`.
+
+**Compatibility**
+
+This change is treated as non-breaking. Existing one-to-one
+`contact_details` mappings are migrated automatically to the
+many-to-many contact link table during database migrations.
 
 ## Exploring REST API Endpoints
 By navigating to the [Swagger documentation](https://api.aiod.eu/docs), you can find information and examples on how to access the different endpoints.

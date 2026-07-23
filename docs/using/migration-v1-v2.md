@@ -109,3 +109,41 @@ Most crucially, there may be cases when a user wants to link assets by identifie
 While we can support them under different endpoints, there is no way for use to ensure a user does not (accidentally) link assets referencing old identifiers on a new endpoint, or vice versa.
 Maintaining the integrity of the data in the metadata catalogue is our highest priority, and so we decided that unfortunately we cannot support a grace period.
 We hope for your understanding and will do our best to avoid such a scenario in the future.
+
+## Contact Metadata Changes
+
+### What changed
+
+The `contact_details` field previously present on the `Person`
+and `Organisation` entities has been removed.
+
+### Why
+
+The field duplicated functionality already available through the
+generic `AIResource` contact mapping and was not part of the
+official AI-on-Demand metadata metamodel.
+
+Maintaining both systems created unnecessary redundancy and
+potential inconsistencies.
+
+### Migration behaviour
+
+Existing one-to-one `contact_details` mappings are migrated
+automatically to the many-to-many contact relationship used
+by `AIResource`.
+
+During migration:
+
+- Existing `contact_details` references are copied into the
+  AIResource contact link table.
+- The `contact_details` column is then removed.
+
+### Compatibility
+
+This change is considered non-breaking because:
+
+- Only one instance currently exists in the test server
+- The field is not used in production environments
+
+Applications should update their integrations to use the
+generic contact list instead.
