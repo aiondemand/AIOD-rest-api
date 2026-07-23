@@ -1427,6 +1427,14 @@ When using the <code>./scripts/up.sh</code> script to launch your services, thes
 <span class="n">url_prefix</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;&quot;</span>
 <span class="n">taxonomy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="w">  </span><span class="c1"># Set to a JSON file containing a taxonomy to put into the database on startup</span>
 
+<span class="k">[rate_limit]</span>
+<span class="c1"># User-scoped upload rate limiting. Connectors are automatically exempted.</span>
+<span class="n">enabled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="c1"># Maximum uploads per user within the rolling time window.</span>
+<span class="n">uploads_per_window</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">100</span>
+<span class="c1"># Rolling time window in seconds (e.g., 3600 = 1 hour, 86400 = 1 day).</span>
+<span class="n">window_seconds</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3600</span>
+
 <span class="c1"># Authentication and authorization</span>
 <span class="k">[keycloak]</span>
 <span class="n">server_url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;http://keycloak:8080/aiod-auth/&quot;</span>
