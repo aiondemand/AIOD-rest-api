@@ -9,7 +9,6 @@ Create Date: 2025-08-19 08:43:51.774262
 from typing import Sequence, Union
 
 from alembic import op
-import sqlalchemy as sa
 from sqlalchemy.dialects.mysql import DECIMAL
 
 # revision identifiers, used by Alembic.

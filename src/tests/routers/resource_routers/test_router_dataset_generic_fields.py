@@ -52,7 +52,7 @@ def test_happy_path(
     description_html = f"<p>{'a' * (field_length.MAX_TEXT - 7)}</p>"
     body["description"] = {"plain": description_plain, "html": description_html}
 
-    datetime_create_request = datetime.utcnow().replace(tzinfo=pytz.utc)
+    datetime_create_request = datetime.now(pytz.utc)
     with logged_in_user():
         response = client.post("/datasets", json=body, headers={"Authorization": "Fake token"})
     assert response.status_code == 200, response.json()
@@ -126,7 +126,7 @@ def test_happy_path(
     ]
 
     time.sleep(0.15)
-    datetime_update_request = datetime.utcnow().replace(tzinfo=pytz.utc)
+    datetime_update_request = datetime.now(pytz.utc)
     with logged_in_user():
         response = client.put(f"/datasets/{identifier}", json=body, headers={"Authorization": "Fake token"})
     assert response.status_code == 200, response.json()

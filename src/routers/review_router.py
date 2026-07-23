@@ -58,9 +58,9 @@ def create(url_prefix: str, version: Version) -> APIRouter:
     )(_review_resource)
 
     router.post(
-        path=f"/submissions",
+        path="/submissions",
         tags=["Reviewing"],
-        description=f"Submit an asset for review.",
+        description="Submit an asset for review.",
     )(_submit_resource)
 
     return router
@@ -108,7 +108,8 @@ def _get_submissions_by_state(
 
 
 def list_submissions(
-    mode: ListMode = ListMode.NEWEST, user: KeycloakUser = Depends(get_user_or_raise)
+    mode: ListMode = ListMode.NEWEST,
+    user: KeycloakUser = Depends(get_user_or_raise),  # noqa: B008
 ) -> Sequence[Submission]:
     # mypy does not do type narrowing properly: https://github.com/python/mypy/issues/12535
     user_filter = None if user.is_reviewer else user._subject_identifier
@@ -122,8 +123,8 @@ def list_submissions(
 
 def get_submission(
     identifier: int,
-    user: KeycloakUser = Depends(get_user_or_raise),
-    session: Session = Depends(get_session),
+    user: KeycloakUser = Depends(get_user_or_raise),  # noqa: B008
+    session: Session = Depends(get_session),  # noqa: B008
 ) -> Submission:
     submission = session.get(Submission, identifier)
     if not submission:
@@ -192,8 +193,8 @@ def _submit_resource(
 
 def _review_resource(
     review: ReviewCreate,
-    user: KeycloakUser = Depends(get_user_or_raise),
-    session: Session = Depends(get_session),
+    user: KeycloakUser = Depends(get_user_or_raise),  # noqa: B008
+    session: Session = Depends(get_session),  # noqa: B008
 ):
     if not (user.is_reviewer or user.is_admin):
         raise HTTPException(
@@ -246,7 +247,7 @@ def _review_resource(
 
 def retract_submission(
     submission_identifier: str,
-    user: KeycloakUser = Depends(get_user_or_raise),
+    user: KeycloakUser = Depends(get_user_or_raise),  # noqa: B008
 ):
     with DbSession() as session:
         submission = session.get(Submission, submission_identifier)
@@ -266,7 +267,7 @@ def retract_submission(
             user_can_administer(user, session.get(AIoDEntryORM, a.aiod_entry_identifier))
             for a in submission._assets
         ):
-            msg = f"You must be administrator of at least one asset in the review to retract the submission."
+            msg = "You must be administrator of at least one asset in the review to retract the submission."  # noqa: E501
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=msg)
 
         retraction = Review(

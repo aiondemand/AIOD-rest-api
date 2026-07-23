@@ -39,7 +39,7 @@ def parse_asset_from_path(path: str) -> Optional[tuple[str, str]]:
 
     version_match = r"v\d+"
     asset_type_match = "|".join(f"(?:{asset_type})" for asset_type in INCLUDE)
-    identifier_match = "\w{3,4}_[a-zA-Z0-9]{24}"
+    identifier_match = r"\w{3,4}_[a-zA-Z0-9]{24}"
     path_match = f"({version_match})?/?({asset_type_match})/({identifier_match})"
     if (match := re.match(path_match, path)) is None:
         return None

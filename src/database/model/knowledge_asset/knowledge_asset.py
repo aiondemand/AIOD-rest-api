@@ -23,7 +23,7 @@ class KnowledgeAsset(KnowledgeAssetBase, AIAsset):
         sa_column_args=[
             ForeignKey(KnowledgeAssetTable.__tablename__ + ".identifier", onupdate="CASCADE")
         ],
-        sa_column_kwargs=dict(nullable=True, index=True, unique=True),
+        sa_column_kwargs={"nullable": True, "index": True, "unique": True},
     )
     knowledge_asset_identifier: KnowledgeAssetTable | None = Relationship()
 

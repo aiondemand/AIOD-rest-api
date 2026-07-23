@@ -49,5 +49,5 @@ class ResourceWithRelations(Generic[RESOURCE]):
                 if name_expected != name_actual:
                     raise ValueError(
                         f"Type mismatch for field '{self.resource_ORM_class.__name__ + '.' + name}'. \
-                            Expected {name_expected}, got {name_actual}."
+                            Expected {name_expected}, got {name_actual}."  # noqa: E501
                     )

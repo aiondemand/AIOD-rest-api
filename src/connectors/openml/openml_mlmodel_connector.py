@@ -83,7 +83,7 @@ class OpenMlMLModelConnector(ResourceConnectorById[MLModel]):
             license=mlmodel_json.get("licence", None),
             distribution=distribution,
             is_accessible_for_free=True,
-            keyword=[tag for tag in tags] if tags else [],
+            keyword=list(tags) if tags else [],
             version=mlmodel_json["version"],
         )
 

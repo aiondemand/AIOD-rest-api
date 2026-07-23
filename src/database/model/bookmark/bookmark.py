@@ -1,7 +1,5 @@
 from sqlmodel import SQLModel, Field
-from typing import Optional
-from datetime import datetime
-from sqlalchemy import Column, String
+from datetime import datetime, UTC
 
 
 class Bookmark(SQLModel, table=True):  # type: ignore [call-arg]
@@ -18,5 +16,5 @@ class Bookmark(SQLModel, table=True):  # type: ignore [call-arg]
         primary_key=True, description="The identifier of the resource being bookmarked."
     )
     created_at: datetime = Field(
-        default_factory=datetime.utcnow, description="The time when the bookmark was created."
+        default_factory=lambda: datetime.now(UTC), description="The time when the bookmark was created."
     )

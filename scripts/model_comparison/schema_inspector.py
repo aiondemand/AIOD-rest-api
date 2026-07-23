@@ -98,7 +98,6 @@ def get_initial_schema(source_path: Path) -> dict:
                 class_parents[attr.__name__] = parent_classes
 
         except Exception as e:
-            print(f"Error processing {path.stem}: {e}")
             read_error.update({path.stem: e})
 
     return all_schemas, read_error, class_parents

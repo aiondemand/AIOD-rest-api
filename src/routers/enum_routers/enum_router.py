@@ -4,12 +4,13 @@ from typing import Type
 from fastapi import APIRouter
 from sqlmodel import select, Session
 
+from authentication import KeycloakUser
 from database.model.named_relation import NamedRelation
 from database.session import DbSession
 from versioning import Version
 
 
-class EnumRouter(abc.ABC):
+class EnumRouter(abc.ABC):  # noqa: B024
     """
     Abstract class for FastAPI enum routers. These are routers for, for example, Language,
     making it possible to get all existing values of the Language.
@@ -47,8 +48,14 @@ class EnumRouter(abc.ABC):
 
         return get_resources
 
-    def create_resource(self, session: Session, resource_create_instance: str):
+    def create_resource(
+        self,
+        session: Session,
+        resource_create_instance: str,
+        user: KeycloakUser | None = None,
+    ):
         # Used by synchronization.py: router.create_resource
+        # user parameter is ignored for enum/taxonomy types
         resource = self.resource_class(name=resource_create_instance)
         session.add(resource)
         session.commit()

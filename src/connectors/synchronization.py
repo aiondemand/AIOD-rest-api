@@ -1,4 +1,5 @@
 import argparse
+import csv
 import importlib
 import json
 import logging
@@ -201,8 +202,6 @@ def main():
 
     if first_run or db_empty:
         state = {}
-        state_path.unlink(missing_ok=True)
-        error_path.unlink(missing_ok=True)
     else:
         with open(state_path, "r") as f:
             state = json.load(f)
@@ -240,11 +239,9 @@ def main():
                         logging.error(
                             f"Error on identifier {error.identifier}", exc_info=error.error
                         )
-                    with open(error_path, "a") as f:
-                        error_cleaned = "".join(
-                            c if c.isalnum() or c == "" else "_" for c in str(error.error)
-                        )
-                        f.write(f'"{error.identifier}","{error_cleaned}"\n')  # noqa: E231
+                    with open(error_path, "a", newline="") as f:
+                        writer = csv.writer(f)
+                        writer.writerow([error.identifier, str(error.error)])
             if args.save_every and i > 0 and i % args.save_every == 0:
                 logging.info(f"Saving state after handling {i}th result: {json.dumps(state)}")
                 with open(state_path, "w") as f:

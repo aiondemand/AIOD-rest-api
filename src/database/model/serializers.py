@@ -1,6 +1,6 @@
 import abc
 import dataclasses
-from typing import Any, TypeVar, Generic, Dict, List, Type
+from typing import Any, TypeVar, Generic, Dict, List, Type, TYPE_CHECKING
 
 from fastapi import HTTPException
 from pydantic.utils import GetterDict
@@ -13,6 +13,9 @@ from database.model.named_relation import NamedRelation, Taxonomy
 from database.model.ai_resource.resource_table import AIResourceORM
 from database.session import DbSession
 
+if TYPE_CHECKING:
+    from versioning import Version, VersionedResourceCollection
+
 
 MODEL = TypeVar("MODEL", bound=SQLModel)
 
@@ -21,7 +24,13 @@ class Serializer(abc.ABC, Generic[MODEL]):
     """Serialization from Pydantic class to ORM class"""
 
     @abc.abstractmethod
-    def serialize(self, model: MODEL) -> Any:
+    def serialize(self, model: MODEL, version: "Version | None" = None) -> Any:
+        """Serialize the model, optionally using version-specific transformation.
+        
+        Args:
+            model: The model to serialize
+            version: Optional API version for version-aware serialization
+        """
         pass
 
     def value(self, model: SQLModel, attribute_name):
@@ -48,7 +57,7 @@ class AttributeSerializer(Serializer):
     def __init__(self, attribute_name: str):
         self.attribute_name = attribute_name
 
-    def serialize(self, model: MODEL) -> Any:
+    def serialize(self, model: MODEL, version: "Version | None" = None) -> Any:
         return getattr(model, self.attribute_name)
 
 
@@ -63,13 +72,56 @@ class GetPathSerializer(Serializer):
         self.path = path
         self.other_serializer = inner_serializer
 
-    def serialize(self, model: MODEL) -> Any:
-        return self.other_serializer.serialize(model)
+    def serialize(self, model: MODEL, version: "Version | None" = None) -> Any:
+        return self.other_serializer.serialize(model, version=version)
 
     def value(self, model: SQLModel, attribute_name):
         """Return the value: model.[self.path].attribute_name"""
         inner_model = getattr(model, self.path)
         return getattr(inner_model, attribute_name)
+
+
+class VersionAwareAttributeSerializer(Serializer):
+    """Serialize using version-specific transformation for versioned resources.
+    
+    This serializer applies version-specific transformations to related resources,
+    ensuring that nested resources are serialized according to the requested API version.
+    
+    Example:
+        If a Project has a coordinator (Organisation), and we're serving v2 API,
+        the coordinator will be serialized using OrganisationV2Read schema.
+    """
+
+    def __init__(self, attribute_name: str, versioned_resource_collection: "VersionedResourceCollection | None" = None):
+        """Initialize the version-aware serializer.
+        
+        Args:
+            attribute_name: The attribute to extract (e.g., 'identifier')
+            versioned_resource_collection: Optional collection of versioned resources
+                If provided, enables full object serialization with version transformation
+        """
+        self.attribute_name = attribute_name
+        self.versioned_resource_collection = versioned_resource_collection
+
+    def serialize(self, model: MODEL, version: "Version | None" = None) -> Any:
+        """Serialize the model using version-specific transformation if available.
+        
+        Args:
+            model: The model to serialize
+            version: The API version to use for transformation
+            
+        Returns:
+            If versioned_resource_collection is provided and version is specified,
+            returns the full object serialized with version-specific schema.
+            Otherwise, returns just the attribute value (e.g., identifier).
+        """
+        if self.versioned_resource_collection and version:
+            # Import here to avoid circular dependency
+            from versioning import Version
+            versioned_resource = self.versioned_resource_collection.get(version, self.versioned_resource_collection.get(Version.LATEST))
+            if versioned_resource:
+                return versioned_resource.orm_to_read(model)
+        return getattr(model, self.attribute_name)
 
 
 @dataclasses.dataclass
@@ -195,7 +247,7 @@ class FindByNameDeserializerList(DeSerializer[NamedRelation]):
             illegal_names = names_not_found | {e.name for e in existing if not e.official}
             if illegal_names:
                 raise ValueError(
-                    f"The terms {illegal_names!r} are not part of the taxonomy for {self.clazz.__tablename__}. "
+                    f"The terms {illegal_names!r} are not part of the taxonomy for {self.clazz.__tablename__}. "  # noqa: E501
                     "Please see the endpoint for the taxonomy to see a list of allowed terms."
                 )
         new_objects = [self.clazz(name=name) for name in names_not_found]
@@ -247,13 +299,18 @@ class CastDeserializerList(CastDeserializer):
         return [self._deserialize_single_resource(v, session, user) for v in serialized]
 
 
-def create_getter_dict(attribute_serializers: Dict[str, Serializer]):
+def create_getter_dict(attribute_serializers: Dict[str, Serializer], version: "Version | None" = None):
     """Based on a dictionary of `variable_name, Serializer`, generate a `getter_dict`. A
     `getter_dict` is used by Pydantic to perform serialization.
 
     We have added a layer of Serializers instead of directly using a getter_dict, to make it
     easier to configure the serialization per object attribute, instead of for each complete
-    object."""
+    object.
+    
+    Args:
+        attribute_serializers: Dictionary mapping attribute names to their serializers
+        version: Optional API version for version-aware serialization
+    """
     attribute_names = set(attribute_serializers.keys())
 
     def is_soft_deleted(item) -> bool:
@@ -272,21 +329,26 @@ def create_getter_dict(attribute_serializers: Dict[str, Serializer]):
                 serializer = attribute_serializers[key]
                 attribute_value = serializer.value(model=self._obj, attribute_name=key)
                 if attribute_value is not None:
+                    # Extract version from parent model if not explicitly provided
+                    effective_version = version
+                    if effective_version is None and hasattr(self._obj, '__dict__'):
+                        effective_version = self._obj.__dict__.get('_api_version')
+                    
                     if isinstance(attribute_value, list):
                         return [
-                            serializer.serialize(v)
+                            serializer.serialize(v, version=effective_version)
                             for v in attribute_value
                             if not is_soft_deleted(v)
                         ]
                     if is_soft_deleted(attribute_value):
                         return None
-                    return serializer.serialize(attribute_value)
+                    return serializer.serialize(attribute_value, version=effective_version)
             return super().get(key, default)
 
     return GetterDictSerializer
 
 
-def deserialize_resource_relationships(
+def deserialize_resource_relationships(  # noqa: C901
     session: Session,
     resource_class: Type[SQLModel],
     resource: SQLModel,
@@ -377,7 +439,7 @@ def deserialize_object_relationship(
         children = [children]
         children_create = [children_create]
     child_class = type(children[0])
-    for child, child_create in zip(children, children_create):
+    for child, child_create in zip(children, children_create, strict=False):
         for child_attribute in child_class.schema()["properties"]:
             if hasattr(child_create, child_attribute):
                 child_value = getattr(child_create, child_attribute)

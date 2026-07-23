@@ -1,4 +1,3 @@
-import datetime
 from typing import List
 
 from fastapi import APIRouter, Depends
@@ -43,7 +42,7 @@ def create(url_prefix: str, version: Version) -> APIRouter:
         )
 
     @router.get(
-        f"/user/resources",
+        "/user/resources",
         description=resources_for_user_description,
         tags=["User"],
         response_model=Catalogue,
@@ -51,8 +50,8 @@ def create(url_prefix: str, version: Version) -> APIRouter:
     def get_versioned_resources_for_user(
         pagination: PaginationParams,
         sorting: SortingParams,
-        user: KeycloakUser = Depends(get_user_or_raise),
-        session: Session = Depends(get_session),
+        user: KeycloakUser = Depends(get_user_or_raise),  # noqa: B008
+        session: Session = Depends(get_session),  # noqa: B008
     ) -> dict[str, list[AIoDConcept]]:
         limit: int | None = pagination.limit
         if limit == 10 and version == Version.V2:
@@ -76,16 +75,9 @@ def create(url_prefix: str, version: Version) -> APIRouter:
             for r in versioned_routers.get(version, [])
         }
 
-        def sort_function(asset):
-            value = getattr(asset.aiod_entry, sorting.sort)
-            direction = -1 if sorting.direction == SortDirection.DESC else 1
-            return direction * datetime.datetime.timestamp(value)
-
+        # Assets are already sorted by _get_resources_for_user, just transform them
         return {
-            asset_name: sorted(
-                (orm_to_read[asset_name](asset) for asset in assets),
-                key=sort_function,
-            )
+            asset_name: [orm_to_read[asset_name](asset) for asset in assets]
             for asset_name, assets in resources.items()
         }
 
@@ -117,12 +109,17 @@ def _get_resources_for_user(
     if limit:
         stmt = stmt.limit(limit)
     entries = session.scalars(stmt).all()
-    assets_to_fetch = [entry.identifier for entry in entries]
+
+    # Create a mapping of entry_identifier -> sort_order to preserve database ordering
+    entry_order = {entry.identifier: idx for idx, entry in enumerate(entries)}
+    assets_to_fetch = list(entry_order.keys())
+
     # We have AIoD entries, but want their respective asset information (e.g. publication).
     # We lack the information about what the type of the asset is, so unfortunately we
     # have to check all tables:
     asset_types = list(non_abstract_subclasses(AIoDConcept))
     found_assets: dict[str, list[AIoDConcept]] = {type_.__tablename__: [] for type_ in asset_types}
+
     for asset_type in asset_types:
         query = (
             select(asset_type)
@@ -130,7 +127,14 @@ def _get_resources_for_user(
             .where(asset_type.date_deleted.is_(None))
         )
         assets = session.scalars(query).all()
-        found_assets[asset_type.__tablename__] = list(assets)
+
+        # Sort assets by the original database order before adding to results
+        sorted_assets = sorted(
+            assets, key=lambda asset: entry_order.get(asset.aiod_entry_identifier, float("inf"))
+        )
+        found_assets[asset_type.__tablename__] = sorted_assets
+
         if sum(map(len, found_assets.values())) == len(assets_to_fetch):
             break
-    return found_assets  # minor optimization since queries may be expensive
+
+    return found_assets

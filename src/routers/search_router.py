@@ -79,7 +79,7 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
         """The set of linked fields (those with aiod 'link' relations)"""
         return set()
 
-    def create(self, url_prefix: str, version: Version) -> APIRouter:
+    def create(self, url_prefix: str, version: Version) -> APIRouter:  # noqa: C901
         router = APIRouter()
         versioned_resource = get_versioned_resource(self.resource_class, version)
         read_class = versioned_resource.resource_class_read  # type: ignore
@@ -90,7 +90,7 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
             tags=["search"],
             description=f"""Search for {self.resource_name_plural}.""",
         )
-        def search(
+        def search(  # noqa: C901
             search_query: Annotated[
                 str,
                 Query(
@@ -161,7 +161,7 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
                     database_platforms = session.scalars(query).all()
                     platform_names = {p.name for p in database_platforms}
             except Exception as e:
-                raise as_http_exception(e)
+                raise as_http_exception(e)  # noqa: B904
 
             if platforms and not set(platforms).issubset(platform_names):
                 raise HTTPException(
@@ -245,7 +245,7 @@ class SearchRouter(Generic[RESOURCE], abc.ABC):
                     )
                 return [orm_to_read(resource) for resource in resources]
         except Exception as e:
-            raise as_http_exception(e)
+            raise as_http_exception(e)  # noqa: B904
 
     def _cast_resource(
         self, read_class: Type[SQLModel], resource_dict: dict[str, Any]

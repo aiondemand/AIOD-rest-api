@@ -1,5 +1,5 @@
 import enum
-from datetime import datetime
+from datetime import datetime, UTC
 from typing import TYPE_CHECKING
 
 import sqlalchemy
@@ -50,8 +50,8 @@ class AIoDEntryORM(AIoDEntryBase, table=True):  # type: ignore [call-arg]
     )
 
     # date_modified is updated in the resource_router
-    date_modified: datetime = Field(default_factory=datetime.utcnow)
-    date_created: datetime = Field(default_factory=datetime.utcnow)
+    date_modified: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    date_created: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
     permissions: list["Permission"] = Relationship(
         back_populates="aiod_entry",

@@ -11,6 +11,7 @@ from database.model.helper_functions import many_to_many_link_factory
 from database.model.relationships import ManyToMany, ManyToOne
 from database.model.serializers import (
     AttributeSerializer,
+    VersionAwareAttributeSerializer,
     FindByIdentifierDeserializerList,
 )
 from database.model.field_length import IDENTIFIER_LENGTH, LONG
@@ -143,8 +144,8 @@ class Project(ProjectBase, AIResource, table=True):  # type: ignore [call-arg]
 
 def project_v3_to_v2() -> VersionedResource:
     """Name change: total_cost_euro -> total_cost_euros"""
-    old_parameter = dict(
-        total_cost_euro=(
+    old_parameter = {
+        "total_cost_euro": (
             condecimal(max_digits=12, decimal_places=2) | None,
             Field(  # type: ignore
                 description="The total budget of the project in euros.",
@@ -152,7 +153,7 @@ def project_v3_to_v2() -> VersionedResource:
                 default=None,
             ),
         ),
-    )
+    }
     ProjectV2Read = schema_transform(
         resource_read(Project),
         "ProjectV2Read",
@@ -176,7 +177,7 @@ def project_v3_to_v2() -> VersionedResource:
 
         if (old and new) and old != new:
             raise ValueError(
-                "'total_cost_euro' and 'total_cost_euros' are both specified, but with different values. Please only use one or the other."
+                "'total_cost_euro' and 'total_cost_euros' are both specified, but with different values. Please only use one or the other."  # noqa: E501
             )
 
         fields["total_cost_euros"] = new or old

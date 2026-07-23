@@ -74,7 +74,7 @@ class Event(EventBase, AIResource, table=True):  # type: ignore [call-arg]
         "textual content. ",
     )
     content: TextORM | None = Relationship(
-        sa_relationship_kwargs=dict(foreign_keys="[Event.content_identifier]")
+        sa_relationship_kwargs={"foreign_keys": "[Event.content_identifier]"}
     )
     location: list[LocationORM] = Relationship(sa_relationship_kwargs={"cascade": "all, delete"})
     performer: list["AgentTable"] = Relationship(

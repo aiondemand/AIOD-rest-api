@@ -119,7 +119,7 @@ class PlatformRouter:
                 resources: Any = self._retrieve_resources(session, pagination)
                 return [self.resource_class_read.model_validate(resource) for resource in resources]
             except Exception as e:
-                raise as_http_exception(e)
+                raise as_http_exception(e)  # noqa: B904
 
     def get_resource(self, identifier: str):
         """Get the resource identified by AIoD identifier."""
@@ -128,7 +128,7 @@ class PlatformRouter:
                 resource: Any = self._retrieve_resource(session, identifier)
                 return self.resource_class_read.model_validate(resource)
         except Exception as e:
-            raise as_http_exception(e)
+            raise as_http_exception(e)  # noqa: B904
 
     def get_resources_func(self):
         """
@@ -156,7 +156,7 @@ class PlatformRouter:
                     return session.query(self.resource_class).count()
 
             except Exception as e:
-                raise as_http_exception(e)
+                raise as_http_exception(e)  # noqa: B904
 
         return get_resource_count
 
@@ -179,7 +179,7 @@ class PlatformRouter:
 
         def register_resource(
             resource_create: clz_create,  # type: ignore
-            user: KeycloakUser = Depends(get_user_or_raise),
+            user: KeycloakUser = Depends(get_user_or_raise),  # noqa: B008
         ):
             if not user.has_role("create_platforms"):
                 raise HTTPException(
@@ -194,7 +194,7 @@ class PlatformRouter:
                     except Exception as e:
                         self._raise_clean_http_exception(e, session)
             except Exception as e:
-                raise as_http_exception(e)
+                raise as_http_exception(e)  # noqa: B904
 
         return register_resource
 
@@ -221,7 +221,7 @@ class PlatformRouter:
         def put_resource(
             identifier: int,
             resource_create_instance: clz_create,  # type: ignore
-            user: KeycloakUser = Depends(get_user_or_raise),
+            user: KeycloakUser = Depends(get_user_or_raise),  # noqa: B008
         ):
             if not user.has_role("update_platforms"):
                 raise HTTPException(
@@ -246,7 +246,7 @@ class PlatformRouter:
                         self._raise_clean_http_exception(e, session)
                     return None
                 except Exception as e:
-                    raise self._raise_clean_http_exception(e, session)
+                    raise self._raise_clean_http_exception(e, session)  # noqa: B904
 
         return put_resource
 
@@ -259,7 +259,7 @@ class PlatformRouter:
 
         def delete_resource(
             identifier: str,
-            user: KeycloakUser = Depends(get_user_or_raise),
+            user: KeycloakUser = Depends(get_user_or_raise),  # noqa: B008
         ):
             with DbSession() as session:
                 if not user.has_role("delete_platforms"):
@@ -274,7 +274,7 @@ class PlatformRouter:
                     session.commit()
                     return None
                 except Exception as e:
-                    raise as_http_exception(e)
+                    raise as_http_exception(e)  # noqa: B904
 
         return delete_resource
 

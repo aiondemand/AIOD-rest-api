@@ -95,7 +95,7 @@ class OpenMlDatasetConnector(ResourceConnectorById[Dataset]):
             ],
             is_accessible_for_free=True,
             size=size,
-            keyword=[tag for tag in dataset_json["tag"]] if "tag" in dataset_json else [],
+            keyword=list(dataset_json["tag"]) if "tag" in dataset_json else [],
             version=dataset_json["version"],
         )
 

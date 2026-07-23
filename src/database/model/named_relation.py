@@ -46,7 +46,7 @@ class Taxonomy(NamedRelation):
         description="If true, indicates this term is part of the official AIoD taxonomy.",
     )
     # nb. `official` is a stopgap to support the fact that terms already
-    # existed in the database prior to defining the taxonomies. The long-term plan is to evaluate the
+    # existed in the database prior to defining the taxonomies. The long-term plan is to evaluate the  # noqa: E501
     # unofficial terms and map them to official ones or add them to the taxonomy, which results in
     # all terms being official, at which point this can be deleted.
 
@@ -54,7 +54,7 @@ class Taxonomy(NamedRelation):
     def __table_args__(cls) -> Tuple:
         # `NamedRelation` would enforce lower-case to help normalize,
         # which we do not want for predefined terms as we assume capitalization to be correct.
-        return tuple()
+        return ()
 
 
 def create_taxonomy(
@@ -65,7 +65,7 @@ def create_taxonomy(
     clazz = create_model(
         __model_name=class_name,
         __base__=Taxonomy,
-        __cls_kwargs__=dict(table=True),
+        __cls_kwargs__={"table": True},
         __tablename__=(str, table_name),
         __plural__=(str, plural_name),
         # Taxonomies are hierarchical, e.g., a Cow is also a Mammal.
@@ -78,7 +78,7 @@ def create_taxonomy(
             ForwardRef(class_name) | None,
             Relationship(
                 back_populates="children",
-                sa_relationship_kwargs=dict(remote_side=f"{class_name}.identifier"),
+                sa_relationship_kwargs={"remote_side": f"{class_name}.identifier"},
             ),
         ),
         children=(
