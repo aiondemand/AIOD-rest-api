@@ -1435,6 +1435,13 @@ When using the <code>./scripts/up.sh</code> script to launch your services, thes
 <span class="n">client_id_swagger</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;aiod-api-swagger&quot;</span><span class="w">  </span><span class="c1"># a public client, used by the Swagger Frontend</span>
 <span class="n">openid_connect_url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;http://localhost/aiod-auth/realms/aiod/.well-known/openid-configuration&quot;</span>
 <span class="n">scopes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;openid profile roles&quot;</span>
+
+<span class="c1"># Rate limiting configuration</span>
+<span class="k">[rate_limits]</span>
+<span class="c1"># Maximum number of review submissions per user within the time window</span>
+<span class="n">max_submissions_per_user</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10</span>
+<span class="c1"># Time window in seconds (default: 3600 = 1 hour)</span>
+<span class="n">submission_window_seconds</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3600</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
