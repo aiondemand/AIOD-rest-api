@@ -1,6 +1,8 @@
 import enum
+from routers.resource_routers import versioned_routers
+
 from http import HTTPStatus
-from typing import Sequence, Literal, cast
+from typing import Sequence, Literal, cast, Any
 
 from fastapi import APIRouter, HTTPException, Depends
 from sqlmodel import select, Session
@@ -36,12 +38,52 @@ def create(url_prefix: str, version: Version) -> APIRouter:
         description="Retract an asset under review, setting its status to 'draft'.",
     )(retract_submission)
 
-    router.get(
+    @router.get(
         "/submissions/{identifier}",
         tags=["Reviewing"],
         description="Retrieve a specific submission.",
         response_model=SubmissionView,
-    )(get_submission)
+    )
+    def get_submission(
+        identifier: int,
+        user: KeycloakUser = Depends(get_user_or_raise),  # noqa: B008
+        session: Session = Depends(get_session),  # noqa: B008
+    ) -> Any:
+        submission = session.get(Submission, identifier)
+        if not submission:
+            raise HTTPException(
+                status_code=HTTPStatus.NOT_FOUND,
+                detail=f"No submission with identifier {identifier} found.",
+            )
+        if not user.is_reviewer and submission.requestee_identifier != user._subject_identifier:
+            raise HTTPException(
+                status_code=HTTPStatus.FORBIDDEN,
+                detail=f"You do not have permission to view submission "
+                f"with identifier {identifier}.",
+            )
+
+        # GET THE CONVERTERS FOR THIS VERSION
+        orm_to_read = {
+            r.resource_class.__tablename__: r.orm_to_read
+            for r in versioned_routers.get(version, [])
+        }
+
+        # APPLY CONVERTERS TO EACH ASSET
+        deserialized_assets = []
+        for asset in submission.assets:
+            converter = orm_to_read.get(asset.__tablename__)
+            if converter:
+                deserialized_assets.append(converter(asset))
+            else:
+                deserialized_assets.append(asset)
+
+        return SubmissionView(
+            identifier=submission.identifier,
+            request_date=submission.request_date,
+            comment=submission.comment,
+            reviews=submission.reviews,
+            assets=deserialized_assets,
+        )
 
     router.get(
         "/submissions",
@@ -120,23 +162,6 @@ def list_submissions(
         return _get_submissions_by_state(which=mode, from_requestee=user_filter)  # type: ignore[arg-type]
     raise ValueError(f"`mode` should be one of {ListMode!r} but is {mode!r}.")
 
-
-def get_submission(
-    identifier: int,
-    user: KeycloakUser = Depends(get_user_or_raise),  # noqa: B008
-    session: Session = Depends(get_session),  # noqa: B008
-) -> Submission:
-    submission = session.get(Submission, identifier)
-    if not submission:
-        raise HTTPException(
-            status_code=HTTPStatus.NOT_FOUND,
-            detail=f"No submission with identifier {identifier} found.",
-        )
-    if not user.is_reviewer and submission.requestee_identifier != user._subject_identifier:
-        raise HTTPException(
-            status_code=HTTPStatus.FORBIDDEN,
-            detail=f"You do not have permission to view submission with identifier {identifier}.",
-        )
     return submission
 
 
