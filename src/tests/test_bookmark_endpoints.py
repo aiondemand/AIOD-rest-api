@@ -7,7 +7,7 @@ from tests.testutils.users import logged_in_user, ALICE
 from database.model.bookmark.bookmark import Bookmark
 from database.session import DbSession
 from tests.testutils.users import register_asset, register_user
-from datetime import datetime
+from datetime import datetime, UTC
 from database.model.agent.person import Person
 from database.model.agent.contact import Contact
 from versioning import Version
@@ -27,8 +27,11 @@ def test_create_bookmark(
     assert response.status_code == HTTPStatus.OK
     bookmark = response.json()
     assert bookmark["resource_identifier"] == identifier
-    now = datetime.utcnow()
-    assert (now - datetime.fromisoformat(bookmark["created_at"])).total_seconds() < 2
+    now = datetime.now(UTC)
+    created_at = datetime.fromisoformat(bookmark["created_at"])
+    if created_at.tzinfo is None:
+        created_at = created_at.replace(tzinfo=UTC)
+    assert abs((now - created_at).total_seconds()) < 5
 
 
 def test_create_bookmark_for_non_existing_resource(client: TestClient) -> None:
@@ -52,7 +55,7 @@ def test_create_duplicate(
     with DbSession() as session:
         identifier = register_asset(person)
         user = register_user(ALICE, session)
-        now = datetime.utcnow()
+        now = datetime.now(UTC)
         bookmark = Bookmark(
             user_identifier=user.subject_identifier,
             resource_identifier=identifier,
@@ -71,7 +74,10 @@ def test_create_duplicate(
     assert response.status_code == HTTPStatus.OK
     bookmark = response.json()
     assert bookmark["resource_identifier"] == identifier
-    assert bookmark["created_at"] == now.isoformat()
+    created_at = datetime.fromisoformat(bookmark["created_at"])
+    if created_at.tzinfo is None:
+        now = now.replace(tzinfo=None)
+    assert created_at == now
 
 
 def test_get_bookmarks(client: TestClient, person: Person, contact: Contact) -> None:

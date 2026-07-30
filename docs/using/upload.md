@@ -55,6 +55,29 @@ Take a note of the identifier assigned to the asset, as you will need it to requ
 The asset is now in draft mode, which means that other users cannot see it but you can, and you may still edit it.
 To edit the asset, use the `PUT` endpoints for `/ASSET`.
 
+### Contact Metadata
+
+Contacts should be associated with assets using the generic
+contact mapping provided at the `AIResource` level.
+
+Earlier schema versions allowed defining a `contact_details`
+field on `Person` and `Organisation`. This field is now removed
+and should no longer be used when uploading metadata.
+
+Instead, contacts should be provided as a list of identifiers.
+
+Example:
+
+```json
+{
+  "name": "Example Dataset",
+  "contacts": [
+    "contact_identifier_1",
+    "contact_identifier_2"
+  ]
+}
+```
+
 ### Requesting a Review
 When you want to publish the asset, you can submit it for review. You
 can do this by making a `POST` request to the `/submissions` endpoint.

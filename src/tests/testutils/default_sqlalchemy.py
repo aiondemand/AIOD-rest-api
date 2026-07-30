@@ -181,7 +181,7 @@ def clear_db(request, engine: Engine):
             try:
                 connection.execute(table.delete())
             except Exception as e:
-                print(f"Error while clearing table {table.name}: {e}")
+                logging.exception(f"Error while clearing table {table.name}")
                 raise
         transaction.commit()
 
