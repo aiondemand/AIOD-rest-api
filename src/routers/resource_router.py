@@ -464,6 +464,7 @@ class ResourceRouter(abc.ABC):
             resource_create: clz_create,  # type: ignore
             user: KeycloakUser = Depends(get_user_or_raise),  # noqa: B008
         ):
+            _raise_if_contact_person_and_organisation_are_both_filled(resource_create)
             platform = getattr(resource_create, "platform", None)
             platform_resource_identifier = getattr(
                 resource_create, "platform_resource_identifier", None
@@ -545,6 +546,7 @@ class ResourceRouter(abc.ABC):
             resource_create_instance: clz_create,  # type: ignore
             user: KeycloakUser = Depends(get_user_or_raise),  # noqa: B008
         ):
+            _raise_if_contact_person_and_organisation_are_both_filled(resource_create_instance)
             self._raise_if_identifier_is_wrong_type(identifier)
             with DbSession() as session:
                 try:
@@ -917,6 +919,19 @@ def _raise_error_on_invalid_schema(possible_schemas, schema):
         raise HTTPException(
             detail=f"Invalid schema {schema}. Expected {' or '.join(possible_schemas)}",
             status_code=status.HTTP_400_BAD_REQUEST,
+        )
+
+
+def _raise_if_contact_person_and_organisation_are_both_filled(resource):
+    if not (hasattr(resource, "person") and hasattr(resource, "organisation")):
+        return
+    if (
+        getattr(resource, "person", None) is not None
+        and getattr(resource, "organisation", None) is not None
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Person and organisation cannot be both filled.",
         )
 
 
