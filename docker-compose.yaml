@@ -202,6 +202,7 @@ services:
 
   es_logstash_setup:
     image: aiod_metadata_catalogue
+    user: "0:0"
     container_name:  es_logstash_setup
     environment:
       - MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD
