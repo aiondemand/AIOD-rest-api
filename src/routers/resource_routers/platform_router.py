@@ -1,4 +1,4 @@
-import traceback
+import logging
 from typing import Any, Sequence
 
 from fastapi import Depends, HTTPException, status, APIRouter
@@ -316,7 +316,7 @@ class PlatformRouter:
         if isinstance(e, HTTPException):
             raise e
         if len(e.args) == 0:
-            traceback.print_exc()
+            logging.exception("Unexpected exception with no args during platform operation")
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="Unexpected exception while processing your request. Please "
