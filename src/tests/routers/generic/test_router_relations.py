@@ -227,6 +227,26 @@ def test_post_happy_path(client_with_testobject: TestClient, auto_publish: None)
     assert related_objects[1]["field2"] == "val2.2"
 
 
+def test_post_empty_enum_values_are_rejected(
+    client_with_testobject: TestClient, auto_publish: None
+):
+    with logged_in_user():
+        response = client_with_testobject.post(
+            "/test_resources",
+            json={
+                "title": "title",
+                "named_string": "",
+                "named_string_list": ["", "1", "  ", ""],
+                "related_objects": [],
+            },
+            headers={"Authorization": "Fake token"},
+        )
+    assert response.status_code == 200, response.json()
+    obj = client_with_testobject.get("/test_resources?direction=asc").json()[-1]
+    assert "named_string" not in obj
+    assert obj["named_string_list"] == ["1"]
+
+
 def test_put_happy_path(test_objects: list[TestObject], client_with_testobject: TestClient, auto_publish: None):
     identifier = test_objects[3].identifier
     with logged_in_user(kc_user_with_roles("update_test_resources")):

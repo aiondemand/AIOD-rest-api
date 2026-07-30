@@ -200,6 +200,9 @@ class FindByNameDeserializer(DeSerializer[NamedRelation]):
             raise ValueError(
                 "Expected a single value. Do you need to use FindByNameDeserializerList instead?"
             )
+        if not name.strip():
+            # Silently reject empty values instead of storing them as a term.
+            return None
         name = name.lower()
         query = select(self.clazz).where(self.clazz.name == name)
         item = session.scalars(query).first()
@@ -232,7 +235,8 @@ class FindByNameDeserializerList(DeSerializer[NamedRelation]):
             return []
         if not isinstance(name, list):
             raise ValueError("Expected a list. Do you need to use FindByNameDeserializer instead?")
-        names = {n if self.case_sensitive else n.casefold() for n in name}
+        # Empty values are silently rejected instead of being stored as a term.
+        names = {n if self.case_sensitive else n.casefold() for n in name if n.strip()}
         query = select(self.clazz).where(self.clazz.name.in_(names))  # type: ignore[attr-defined]
         existing = list(session.scalars(query).all())
         if self.case_sensitive:
