@@ -1,13 +1,14 @@
 from typing import Optional, TYPE_CHECKING
 
-from sqlalchemy import Column, ForeignKey, String
+from sqlalchemy import Column, ForeignKey
 from sqlmodel import Field, Relationship
 
 from database.model.agent.email import Email
 from database.model.agent.location import LocationORM, Location
 from database.model.agent.telephone import Telephone
 from database.model.concept.concept import AIoDConceptBase, AIoDConcept
-from database.model.field_length import NORMAL, IDENTIFIER_LENGTH
+from database.identifiers import IDENTIFIER_TYPE
+from database.model.field_length import NORMAL
 from database.model.helper_functions import many_to_many_link_factory
 from database.model.relationships import ManyToMany, OneToMany, OneToOne
 from database.model.serializers import (
@@ -52,13 +53,13 @@ class Contact(ContactBase, AIoDConcept, table=True):  # type: ignore [call-arg]
         )
     )
     organisation_identifier: str | None = Field(
-        sa_column=Column(String(IDENTIFIER_LENGTH), ForeignKey("organisation.identifier"))
+        sa_column=Column(IDENTIFIER_TYPE, ForeignKey("organisation.identifier"))
     )
     organisation: Optional["Organisation"] = Relationship(
         back_populates="contact_details", sa_relationship_kwargs={"uselist": False}
     )
     person_identifier: str | None = Field(
-        sa_column=Column(String(IDENTIFIER_LENGTH), ForeignKey("person.identifier"))
+        sa_column=Column(IDENTIFIER_TYPE, ForeignKey("person.identifier"))
     )
     person: Optional["Person"] = Relationship(
         back_populates="contact_details", sa_relationship_kwargs={"uselist": False}

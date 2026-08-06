@@ -9,6 +9,7 @@ from database.model.ai_resource.resource import AIResourceBase, AIResource
 from database.model.helper_functions import many_to_many_link_factory
 from database.model.relationships import ManyToOne, ManyToMany
 from database.model.serializers import AttributeSerializer, FindByIdentifierDeserializerList
+from database.identifiers import IDENTIFIER_TYPE
 from database.model.field_length import IDENTIFIER_LENGTH
 from versioning import Version, VersionedResource, VersionedResourceCollection
 
@@ -32,7 +33,9 @@ class Team(TeamBase, AIResource, table=True):  # type: ignore [call-arg]
     __plural__ = "teams"
 
     organisation_identifier: str | None = Field(
-        max_length=IDENTIFIER_LENGTH, foreign_key=Organisation.__tablename__ + ".identifier"
+        max_length=IDENTIFIER_LENGTH,
+        sa_type=IDENTIFIER_TYPE,
+        foreign_key=Organisation.__tablename__ + ".identifier",
     )
     organisation: Optional[Organisation] = Relationship()
     member: list[Person] = Relationship(

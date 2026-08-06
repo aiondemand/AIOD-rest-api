@@ -27,6 +27,7 @@ from database.model.ai_resource.resource_table import AIResourceORM
 from database.model.ai_resource.scientific_domain import ScientificDomain
 from database.model.ai_resource.text import TextORM, Text
 from database.model.concept.concept import AIoDConceptBase, AIoDConcept
+from database.identifiers import IDENTIFIER_TYPE
 from database.model.field_length import NORMAL, IDENTIFIER_LENGTH
 from database.model.helper_functions import many_to_many_link_factory, non_abstract_subclasses
 from database.model.relationships import OneToMany, OneToOne, ManyToMany
@@ -70,6 +71,7 @@ class AIResourceBase(AIoDConceptBase, metaclass=abc.ABCMeta):
 class AIResource(AIResourceBase, AIoDConcept, metaclass=abc.ABCMeta):
     ai_resource_id: str | None = Field(
         max_length=IDENTIFIER_LENGTH,
+        sa_type=IDENTIFIER_TYPE,
         # Initializing `sa_column` instead doesn't work. Perhaps because it'd be used twice?
         sa_column_args=[ForeignKey("ai_resource.identifier", onupdate="CASCADE")],
         sa_column_kwargs={"nullable": True, "index": True, "unique": True},

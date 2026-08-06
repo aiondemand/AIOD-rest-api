@@ -10,6 +10,7 @@ from database.model.ai_asset.ai_asset_table import AIAssetTable
 from database.model.ai_asset.distribution import Distribution, distribution_factory
 from database.model.ai_asset.license import License
 from database.model.ai_resource.resource import AIResourceBase, AIResource
+from database.identifiers import IDENTIFIER_TYPE
 from database.model.field_length import NORMAL, IDENTIFIER_LENGTH
 from database.model.helper_functions import many_to_many_link_factory
 from database.model.models_and_experiments.runnable_distribution import (
@@ -41,6 +42,7 @@ class AIAssetBase(AIResourceBase, metaclass=abc.ABCMeta):
 class AIAsset(AIAssetBase, AIResource, metaclass=abc.ABCMeta):
     ai_asset_id: str | None = Field(
         max_length=IDENTIFIER_LENGTH,
+        sa_type=IDENTIFIER_TYPE,
         # Initializing `sa_column` instead doesn't work. Perhaps because it'd be used twice?
         sa_column_args=[ForeignKey("ai_asset.identifier", onupdate="CASCADE")],
         sa_column_kwargs={"nullable": True, "index": True, "unique": True},

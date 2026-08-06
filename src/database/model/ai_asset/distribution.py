@@ -4,12 +4,12 @@ from typing import Type
 
 from fastapi.encoders import jsonable_encoder
 from pydantic import create_model, validator
-from sqlalchemy import Column, ForeignKey, String, LargeBinary
+from sqlalchemy import Column, ForeignKey, LargeBinary
 from sqlmodel import Field
 
 from database.model.concept.concept import AIoDConceptBase
 from database.model.field_length import LONG, NORMAL, SHORT
-from database.model.field_length import IDENTIFIER_LENGTH
+from database.identifiers import IDENTIFIER_TYPE
 
 
 class DistributionBase(AIoDConceptBase):
@@ -92,7 +92,7 @@ def distribution_factory(table_from: str, distribution_name="distribution") -> T
             str | None,
             Field(
                 sa_column=Column(
-                    String(IDENTIFIER_LENGTH),
+                    IDENTIFIER_TYPE,
                     ForeignKey(table_from + ".identifier", ondelete="CASCADE"),
                 )
             ),

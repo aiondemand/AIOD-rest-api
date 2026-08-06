@@ -1,10 +1,11 @@
 from typing import Optional
 
 from pydantic import validator
-from sqlalchemy import Column, Integer, ForeignKey, String
+from sqlalchemy import Column, Integer, ForeignKey
 from sqlmodel import SQLModel, Field, Relationship
 
-from database.model.field_length import NORMAL, SHORT, IDENTIFIER_LENGTH
+from database.identifiers import IDENTIFIER_TYPE
+from database.model.field_length import NORMAL, SHORT
 from database.model.relationships import OneToOne, ManyToOne
 from database.model.serializers import CastDeserializer, AttributeSerializer, FindByNameDeserializer
 from database.model.named_relation import create_taxonomy
@@ -137,14 +138,10 @@ class LocationORM(LocationBase, table=True):  # type: ignore [call-arg]
         back_populates="location", sa_relationship_kwargs={"uselist": False}
     )
     contact_identifier: str | None = Field(
-        sa_column=Column(
-            String(IDENTIFIER_LENGTH), ForeignKey("contact.identifier", ondelete="CASCADE")
-        )
+        sa_column=Column(IDENTIFIER_TYPE, ForeignKey("contact.identifier", ondelete="CASCADE"))
     )
     event_identifier: str | None = Field(
-        sa_column=Column(
-            String(IDENTIFIER_LENGTH), ForeignKey("event.identifier", ondelete="CASCADE")
-        )
+        sa_column=Column(IDENTIFIER_TYPE, ForeignKey("event.identifier", ondelete="CASCADE"))
     )
 
     class RelationshipConfig:

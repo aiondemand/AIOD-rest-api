@@ -14,6 +14,7 @@ from database.model.serializers import (
     VersionAwareAttributeSerializer,
     FindByIdentifierDeserializerList,
 )
+from database.identifiers import IDENTIFIER_TYPE
 from database.model.field_length import IDENTIFIER_LENGTH, LONG
 from database.model.resource_read_and_create import resource_read, resource_create
 from versioning import Version, VersionedResource, VersionedResourceCollection, schema_transform
@@ -83,7 +84,9 @@ class Project(ProjectBase, AIResource, table=True):  # type: ignore [call-arg]
         ),
     )
     coordinator_identifier: str | None = Field(
-        max_length=IDENTIFIER_LENGTH, foreign_key=Organisation.__tablename__ + ".identifier"
+        max_length=IDENTIFIER_LENGTH,
+        sa_type=IDENTIFIER_TYPE,
+        foreign_key=Organisation.__tablename__ + ".identifier",
     )
     coordinator: Optional[Organisation] = Relationship()
     produced: list[AIAssetTable] = Relationship(

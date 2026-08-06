@@ -2,6 +2,18 @@ import random
 import string
 from typing import Callable
 
+from sqlalchemy import String
+from sqlalchemy.dialects import mysql
+
+from database.model.field_length import IDENTIFIER_LENGTH
+
+# The type of every column that holds an identifier. Identifiers must be matched case-sensitively:
+# SQLite is case-sensitive by default, MySQL is not, so there we ask for a binary collation
+# explicitly. The same collation is set on existing databases by the identifier migrations.
+IDENTIFIER_TYPE = String(length=IDENTIFIER_LENGTH).with_variant(
+    mysql.VARCHAR(length=IDENTIFIER_LENGTH, collation="utf8mb3_bin"), "mysql"
+)
+
 
 def create_id_generator(
     prefix: str = "temp", seperator: str = "_", n: int = 24

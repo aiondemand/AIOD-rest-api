@@ -9,6 +9,7 @@ from database.model.helper_functions import many_to_many_link_factory
 from database.model.knowledge_asset.knowledge_asset_table import KnowledgeAssetTable
 from database.model.relationships import ManyToMany, OneToOne
 from database.model.serializers import AttributeSerializer, FindByIdentifierDeserializerList
+from database.identifiers import IDENTIFIER_TYPE
 from database.model.field_length import IDENTIFIER_LENGTH
 
 
@@ -19,6 +20,7 @@ class KnowledgeAssetBase(AIAssetBase):
 class KnowledgeAsset(KnowledgeAssetBase, AIAsset):
     knowledge_asset_id: str | None = Field(
         max_length=IDENTIFIER_LENGTH,
+        sa_type=IDENTIFIER_TYPE,
         # Initializing `sa_column` instead doesn't work. Perhaps because it'd be used twice?
         sa_column_args=[
             ForeignKey(KnowledgeAssetTable.__tablename__ + ".identifier", onupdate="CASCADE")

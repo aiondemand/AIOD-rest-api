@@ -4,10 +4,10 @@ from typing import Type, TYPE_CHECKING
 
 from fastapi import HTTPException
 from pydantic import create_model
-from sqlalchemy import Column, Integer, ForeignKey, String
+from sqlalchemy import Column, Integer, ForeignKey
 from sqlmodel import SQLModel, Field
 
-from database.model.field_length import IDENTIFIER_LENGTH
+from database.identifiers import IDENTIFIER_TYPE
 
 if TYPE_CHECKING:
     from database.model.concept.concept import AIoDConcept
@@ -28,7 +28,7 @@ def many_to_many_link_factory(
     """
     prefix = "" if table_prefix is None else f"{table_prefix}_"
     name = f"{prefix}{table_from}_{table_to}_link"
-    str_type = String(IDENTIFIER_LENGTH)
+    str_type = IDENTIFIER_TYPE
     int_type = Integer
     LinkTable = create_model(
         name,

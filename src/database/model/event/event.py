@@ -7,6 +7,7 @@ from database.model.agent.agent_table import AgentTable
 from database.model.agent.location import LocationORM, Location
 from database.model.ai_resource.resource import AIResourceBase, AIResource
 from database.model.ai_resource.text import TextORM, Text
+from database.identifiers import IDENTIFIER_TYPE
 from database.model.field_length import LONG, IDENTIFIER_LENGTH
 from database.model.helper_functions import many_to_many_link_factory
 from database.model.relationships import ManyToMany, ManyToOne, OneToMany, OneToOne
@@ -87,7 +88,9 @@ class Event(EventBase, AIResource, table=True):  # type: ignore [call-arg]
         ),
     )
     organiser_identifier: str | None = Field(
-        max_length=IDENTIFIER_LENGTH, foreign_key=AgentTable.__tablename__ + ".identifier"
+        max_length=IDENTIFIER_LENGTH,
+        sa_type=IDENTIFIER_TYPE,
+        foreign_key=AgentTable.__tablename__ + ".identifier",
     )
     organiser: Optional[AgentTable] = Relationship()
     status_identifier: int | None = Field(foreign_key=EventStatus.__tablename__ + ".identifier")

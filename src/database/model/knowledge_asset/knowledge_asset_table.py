@@ -1,13 +1,14 @@
 from sqlmodel import Field, SQLModel
 
 from database.model.field_length import IDENTIFIER_LENGTH
-from database.identifiers import create_id_generator
+from database.identifiers import create_id_generator, IDENTIFIER_TYPE
 
 
 class KnowledgeAssetTable(SQLModel, table=True):  # type: ignore [call-arg]
     __tablename__ = "knowledge_asset"
     identifier: str = Field(
         max_length=IDENTIFIER_LENGTH,
+        sa_type=IDENTIFIER_TYPE,
         default_factory=create_id_generator(),
         primary_key=True,
     )

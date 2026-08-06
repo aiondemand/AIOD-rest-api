@@ -15,7 +15,7 @@ from database.model.platform.platform_names import PlatformName
 from database.model.relationships import OneToOne
 from database.model.serializers import CastDeserializer
 from database.validators import huggingface_validators, openml_validators, zenodo_validators
-from database.identifiers import create_id_generator
+from database.identifiers import create_id_generator, IDENTIFIER_TYPE
 
 IS_SQLITE = os.getenv("DB") == "SQLite"
 CONSTRAINT_LOWERCASE = f"{'platform' if IS_SQLITE else 'BINARY(platform)'} = LOWER(platform)"
@@ -80,6 +80,7 @@ class AIoDConceptBase(SQLModel):
 class AIoDConcept(AIoDConceptBase):
     identifier: str = Field(
         max_length=IDENTIFIER_LENGTH,
+        sa_type=IDENTIFIER_TYPE,
         default=None,
         primary_key=True,
     )
