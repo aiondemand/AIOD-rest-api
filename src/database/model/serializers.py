@@ -4,6 +4,7 @@ from typing import Any, TypeVar, Generic, Dict, List, Type, TYPE_CHECKING
 
 from fastapi import HTTPException
 from pydantic.utils import GetterDict
+from sqlalchemy.exc import IntegrityError
 from sqlmodel import SQLModel, Session, select
 from starlette.status import HTTP_404_NOT_FOUND
 
@@ -185,6 +186,37 @@ class FindByIdentifierDeserializerList(DeSerializer[SQLModel]):
         return sorted(existing, key=lambda o: o.identifier)
 
 
+def create_terms(
+    session: Session, clazz: type[NamedRelation], names: set[str]
+) -> list[NamedRelation]:
+    """
+    Create the terms with these names and return them.
+
+    Another request may create a term with the same name concurrently, which makes our insert
+    fail with an IntegrityError. In that case we use the term of the other request, and only
+    insert the terms that are still missing. Note that the terms of the other request can only be
+    read with a locking read: a regular read would not see rows that were committed after this
+    transaction started.
+    """
+    if not names:
+        return []
+    try:
+        with session.begin_nested():
+            # Always insert in the same order: concurrent requests that insert the same terms in a
+            # different order would deadlock while waiting for each other's locks.
+            new_terms = [clazz(name=name) for name in sorted(names)]
+            session.add_all(new_terms)
+        return new_terms
+    except IntegrityError:
+        query = select(clazz).where(clazz.name.in_(names)).with_for_update()  # type: ignore[attr-defined]  # noqa: E501
+        created_elsewhere = list(session.scalars(query).all())
+        found = {term.name.casefold() for term in created_elsewhere}
+        missing = {name for name in names if name.casefold() not in found}
+        if missing == names:
+            raise  # The conflict was not caused by a term that another request created.
+        return created_elsewhere + create_terms(session, clazz, missing)
+
+
 @dataclasses.dataclass
 class FindByNameDeserializer(DeSerializer[NamedRelation]):
     """Deserialization of NamedRelations: uniquely identified by their name."""
@@ -215,9 +247,7 @@ class FindByNameDeserializer(DeSerializer[NamedRelation]):
                 "Please see the endpoint for the taxonomy to see a list of allowed terms."
             )
         if item is None:
-            item = self.clazz(name=name)
-            session.add(item)
-            session.flush()
+            item = create_terms(session, self.clazz, {name})[0]
         return item.identifier
 
 
@@ -254,10 +284,7 @@ class FindByNameDeserializerList(DeSerializer[NamedRelation]):
                     f"The terms {illegal_names!r} are not part of the taxonomy for {self.clazz.__tablename__}. "  # noqa: E501
                     "Please see the endpoint for the taxonomy to see a list of allowed terms."
                 )
-        new_objects = [self.clazz(name=name) for name in names_not_found]
-        if any(names_not_found):
-            session.add_all(new_objects)
-            session.flush()
+        new_objects = create_terms(session, self.clazz, names_not_found)
         return sorted(existing + new_objects, key=lambda o: o.identifier)
 
 
