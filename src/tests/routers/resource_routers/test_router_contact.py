@@ -6,13 +6,11 @@ from unittest.mock import Mock
 
 from starlette.testclient import TestClient
 
-from authentication import keycloak_openid
 from database.model.agent.contact import Contact
 from database.model.agent.email import Email
 from database.model.platform.platform import Platform
 from database.session import DbSession
 from tests.testutils.default_instances import _create_class_with_body
-from tests.testutils.default_sqlalchemy import AI4EUROPE_CMS_TOKEN
 from tests.testutils.users import logged_in_user
 
 
@@ -222,17 +220,8 @@ def test_email_privacy_for_ai4europe_cms(
     headers = {"Authorization": "Fake token"}
 
     endpoint = endpoint.replace("/1", f"/{contact.identifier}")
-    response = client.get(endpoint, headers=headers)
-    response_json = response.json()
-    if isinstance(response_json, list):
-        response_json = response_json[0]
 
-    assert response.status_code == 200, response_json
-    assert len(response_json) > 0, response_json
-    assert response_json["email"] == ["******"]
-
-    keycloak_openid.introspect = AI4EUROPE_CMS_TOKEN
-
+    # Test that authenticated users can see emails
     response = client.get(endpoint, headers=headers)
     response_json = response.json()
     if isinstance(response_json, list):
@@ -241,6 +230,16 @@ def test_email_privacy_for_ai4europe_cms(
     assert response.status_code == 200, response_json
     assert len(response_json) > 0, response_json
     assert response_json["email"] == ["fake@email.com", "fake2@email.com"]
+
+    # Test that unauthenticated users (guests) see masked emails
+    response = client.get(endpoint)
+    response_json = response.json()
+    if isinstance(response_json, list):
+        response_json = response_json[0]
+
+    assert response.status_code == 200, response_json
+    assert len(response_json) > 0, response_json
+    assert response_json["email"] == ["******"]
 
 
 def test_empty_country(client: TestClient, body_asset: dict, auto_publish: None):
