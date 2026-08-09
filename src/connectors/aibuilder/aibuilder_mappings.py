@@ -6,4 +6,7 @@ mlmodel_mapping = {
     "creator": "publisher",
     "description": "description",
     "keyword": "tags",
+    "version": "version",
+    "distribution": "artifacts",
+    "license": "license",
 }

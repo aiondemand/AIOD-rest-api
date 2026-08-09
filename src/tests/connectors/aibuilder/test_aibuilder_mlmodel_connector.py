@@ -21,6 +21,11 @@ catalog_list_url = f"{API_URL}/get_catalog_list?apiToken={TOKEN}"
 catalog_solutions_url = f"{API_URL}/get_catalog_solutions?catalogId=1&apiToken={TOKEN}"
 solution_1_url = f"{API_URL}/get_solution?fullId=1&apiToken={TOKEN}"
 solution_2_url = f"{API_URL}/get_solution?fullId=2&apiToken={TOKEN}"
+catalog_list_url_safe = f"{API_URL}/get_catalog_list?apiToken=AIBUILDER_API_TOKEN"
+catalog_solutions_url_safe = (
+    f"{API_URL}/get_catalog_solutions?catalogId=1&apiToken=AIBUILDER_API_TOKEN"
+)
+solution_1_url_safe = f"{API_URL}/get_solution?fullId=1&apiToken=AIBUILDER_API_TOKEN"
 mocked_datetime_from = datetime.fromisoformat("2023-09-01T00:00:00Z")
 mocked_datetime_to = datetime.fromisoformat("2023-09-01T00:00:01Z")
 
@@ -55,6 +60,11 @@ def test_fetch_happy_path():
         assert resource.resource.platform_resource_identifier == str(i + 1)
         assert resource.resource.name == f"Mocking Full Solution {i + 1}"
         assert resource.resource.date_published == mocked_datetime_from
+        assert resource.resource.version == "1.0.0"
+        assert resource.resource.same_as == f"{API_URL}/get_solution?fullId={i + 1}"
+        assert len(resource.resource.distribution) == 1
+        assert resource.resource.distribution[0].name == f"Mocking artifact {i + 1}"
+        assert resource.resource.distribution[0].encoding_format == "PJ"
         assert resource.resource.description == Text(plain=f"The mocked full solution {i + 1}.")
         assert set(resource.resource.keyword) == {f"Mocked tag {i + 1}."}
         assert resource.resource.is_accessible_for_free
@@ -94,6 +104,11 @@ def test_fetch_happy_path_unaware_datetime():
         assert resource.resource.platform_resource_identifier == str(i + 1)
         assert resource.resource.name == f"Mocking Full Solution {i + 1}"
         assert resource.resource.date_published == mocked_datetime_from
+        assert resource.resource.version == "1.0.0"
+        assert resource.resource.same_as == f"{API_URL}/get_solution?fullId={i + 1}"
+        assert len(resource.resource.distribution) == 1
+        assert resource.resource.distribution[0].name == f"Mocking artifact {i + 1}"
+        assert resource.resource.distribution[0].encoding_format == "PJ"
         assert resource.resource.description == Text(plain=f"The mocked full solution {i + 1}.")
         assert set(resource.resource.keyword) == {f"Mocked tag {i + 1}."}
         assert resource.resource.is_accessible_for_free
@@ -101,7 +116,9 @@ def test_fetch_happy_path_unaware_datetime():
 
 def test_unautorized_token_error():
     error = {"error": {"message": "Unauthorized token."}}
-    err_msg = f"Error while fetching {catalog_list_url} from AIBuilder: (401) Unauthorized token."
+    err_msg = (
+        f"Error while fetching {catalog_list_url_safe} from AIBuilder: (401) Unauthorized token."
+    )
     fetched_resources = []
     with responses.RequestsMock() as mocked_requests:
         mocked_requests.add(responses.GET, catalog_list_url, json=error, status=401)
@@ -119,7 +136,9 @@ def test_unautorized_token_error():
 
 def test_catalog_list_http_error():
     error = {"error": {"message": "HTTP Error."}}
-    err_msg = f"Error while fetching {catalog_list_url} from AIBuilder: (500) Internal Server Error"
+    err_msg = (
+        f"Error while fetching {catalog_list_url_safe} from AIBuilder: (500) Internal Server Error"
+    )
     fetched_resources = []
     with responses.RequestsMock() as mocked_requests:
         mocked_requests.add(responses.GET, catalog_list_url, json=error, status=500)
@@ -175,9 +194,7 @@ def test_empty_catalog_list():
 def test_catalog_solutions_http_error():
     catalog_list_path = os.path.join(test_resources_path, "catalog_list.json")
     error = {"error": {"message": "HTTP Error."}}
-    err_msg = (
-        f"Error while fetching {catalog_solutions_url} from AIBuilder: (500) Internal Server Error"
-    )
+    err_msg = f"Error while fetching {catalog_solutions_url_safe} from AIBuilder: (500) Internal Server Error"
     fetched_resources = []
     with responses.RequestsMock() as mocked_requests:
         with open(catalog_list_path, "r") as f:
@@ -244,7 +261,9 @@ def test_solution_http_error():
     catalog_list_path = os.path.join(test_resources_path, "catalog_list.json")
     catalog_solutions_path = os.path.join(test_resources_path, "catalog_solutions.json")
     error = {"error": {"message": "HTTP Error."}}
-    err_msg = f"Error while fetching {solution_1_url} from AIBuilder: (500) Internal Server Error"
+    err_msg = (
+        f"Error while fetching {solution_1_url_safe} from AIBuilder: (500) Internal Server Error"
+    )
     solution_2_path = os.path.join(test_resources_path, "solution_2.json")
     fetched_resources = []
     with responses.RequestsMock() as mocked_requests:
@@ -275,6 +294,10 @@ def test_solution_http_error():
     assert resource.resource.platform_resource_identifier == "2"
     assert resource.resource.name == "Mocking Full Solution 2"
     assert resource.resource.date_published == mocked_datetime_from
+    assert resource.resource.version == "1.0.0"
+    assert resource.resource.same_as == f"{API_URL}/get_solution?fullId=2"
+    assert len(resource.resource.distribution) == 1
+    assert resource.resource.distribution[0].name == "Mocking artifact 2"
     assert resource.resource.description == Text(plain="The mocked full solution 2.")
     assert set(resource.resource.keyword) == {"Mocked tag 2."}
     assert resource.resource.is_accessible_for_free
@@ -315,6 +338,10 @@ def test_solution_format_error():
     assert resource.resource.platform_resource_identifier == "2"
     assert resource.resource.name == "Mocking Full Solution 2"
     assert resource.resource.date_published == mocked_datetime_from
+    assert resource.resource.version == "1.0.0"
+    assert resource.resource.same_as == f"{API_URL}/get_solution?fullId=2"
+    assert len(resource.resource.distribution) == 1
+    assert resource.resource.distribution[0].name == "Mocking artifact 2"
     assert resource.resource.description == Text(plain="The mocked full solution 2.")
     assert set(resource.resource.keyword) == {"Mocked tag 2."}
     assert resource.resource.is_accessible_for_free
@@ -356,6 +383,10 @@ def test_solution_last_modified_exception():
     assert resource.resource.platform_resource_identifier == "2"
     assert resource.resource.name == "Mocking Full Solution 2"
     assert resource.resource.date_published == mocked_datetime_from
+    assert resource.resource.version == "1.0.0"
+    assert resource.resource.same_as == f"{API_URL}/get_solution?fullId=2"
+    assert len(resource.resource.distribution) == 1
+    assert resource.resource.distribution[0].name == "Mocking artifact 2"
     assert resource.resource.description == Text(plain="The mocked full solution 2.")
     assert set(resource.resource.keyword) == {"Mocked tag 2."}
     assert resource.resource.is_accessible_for_free
