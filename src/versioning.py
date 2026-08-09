@@ -111,6 +111,15 @@ def add_version_to_openapi(versioned_api: FastAPI):  # noqa: C901
         if versioned_api.openapi_schema:
             return versioned_api.openapi_schema
         schema = versioned_api._openapi()
+        info = schema.setdefault("info", {})
+        last_modified = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
+        info["x-lastModified"] = last_modified
+        info["description"] = (
+        f'{info.get("description","")}'
+        f'<br/><b>Last modified:</b> {last_modified}'
+)
+        # optional, if you want both fields:
+        info["x-releaseDate"] = info["x-lastModified"]
 
         if root_path:
             schema["servers"] = [{"url": root_path}]
