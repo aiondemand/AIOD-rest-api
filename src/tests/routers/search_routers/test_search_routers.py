@@ -1,6 +1,5 @@
 import json
 from http import HTTPStatus
-from typing import Sequence
 from unittest.mock import Mock
 
 import pytest
@@ -44,7 +43,7 @@ def test_search_happy_path_get_all(client: TestClient, mocked_privileged_token: 
 
     response = client.post("/events", json=body, headers={"Authorization": "Fake token"})
     response.raise_for_status()
-    identifier = response.json()['identifier']
+    identifier = response.json()["identifier"]
     mock_elasticsearch(filename_mock="event_search.json", identifier=identifier)
 
     search_service = "/search/events"
@@ -143,6 +142,19 @@ def test_search_bad_offset(client: TestClient, search_router):
             "type": "value_error.number.not_ge",
         }
     ]
+
+
+@pytest.mark.parametrize("search_router", sr.router_list)
+def test_search_sort_by_date_modified(client: TestClient, search_router):
+    mock_elasticsearch(filename_mock=f"{search_router.es_index}_search.json")
+
+    search_service = f"/search/{search_router.resource_name_plural}"
+    params = {"search_query": "description", "sort_by_date_modified": True}
+    response = client.get(search_service, params=params)
+
+    assert response.status_code == 200, response.json()
+    _, kwargs = ElasticsearchSingleton().client.search.call_args
+    assert kwargs["sort"] == {"date_modified": "desc"}
 
 
 def mock_elasticsearch(filename_mock: str, identifier: str = ""):
