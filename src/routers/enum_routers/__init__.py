@@ -14,6 +14,4 @@ __exclusion_list = tuple(
 __named_relations = sorted(non_abstract_subclasses(NamedRelation), key=lambda n: n.__tablename__)
 __enum_relations = (n for n in __named_relations if n.__tablename__ not in __exclusion_list)
 
-router_list: list[EnumRouter] = [EnumRouter(n) for n in __enum_relations] + [
-    TaxonomyRouter(n) for n in __taxonomy_relations
-]
+router_list: list[TaxonomyRouter] = [TaxonomyRouter(n) for n in __taxonomy_relations]
