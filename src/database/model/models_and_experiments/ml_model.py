@@ -26,6 +26,12 @@ class MLModelBase(AIAssetBase):
         schema_extra={"example": "https://doi.org/10.1000/182"},
     )
 
+    training_status: str | None = Field(
+            description="The current training status of the machine learning model.",
+            max_length=SHORT,
+            default=None,
+            schema_extra={"example": "trained"},
+        )
 
 class MLModel(MLModelBase, AIAsset, table=True):  # type: ignore [call-arg]
     __tablename__ = "ml_model"
