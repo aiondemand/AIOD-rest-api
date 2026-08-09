@@ -35,7 +35,6 @@ def test_happy_path(
     body["start_date"] = "2021-02-02T15:15:00"
     body["end_date"] = "2021-02-03T15:15:00"
     body["total_cost_euros"] = 10000000.53
-    body["funder"] = [organisation.identifier]
     body["participant"] = [organisation.identifier]
     body["coordinator"] = organisation.identifier
     body["produced"] = [dataset.identifier]
@@ -56,7 +55,6 @@ def test_happy_path(
     assert response_json["start_date"] == "2021-02-02T15:15:00"
     assert response_json["end_date"] == "2021-02-03T15:15:00"
     assert response_json["total_cost_euros"] == 10000000.53
-    assert response_json["funder"] == [organisation.identifier]
     assert response_json["participant"] == [organisation.identifier]
     assert response_json["coordinator"] == organisation.identifier
     assert response_json["produced"] == [dataset.identifier]
@@ -65,7 +63,6 @@ def test_happy_path(
     assert response_json["subtitle"] == subtitle
 
     # Cleanup, so that all resources can be deleted in the teardown
-    body["funder"] = []
     body["participant"] = []
     body["coordinator"] = None
     body["produced"] = []
