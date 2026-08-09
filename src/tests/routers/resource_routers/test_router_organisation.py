@@ -6,6 +6,8 @@ from starlette.testclient import TestClient
 
 from database.model.agent.contact import Contact
 from database.model.agent.organisation import Organisation, Turnover,NumberOfEmployees
+from database.model.ai_asset.solution import Solution
+from database.model.ai_asset.approach import Approach
 from database.session import DbSession
 
 import pytest
@@ -34,6 +36,22 @@ def with_organisation_taxonomies():
             [
                 Turnover(name=value,definition="", official=True, children=[])
                 for value in STANDARD_TURNOVER_VALUES
+            ],
+            session
+        )
+        synchronize(
+            Solution,
+            [
+                Solution(name="machine learning model", definition="A trained ML model", official=True, children=[]),
+                Solution(name="data processing pipeline", definition="Data transformation pipeline", official=True, children=[]),
+            ],
+            session
+        )
+        synchronize(
+            Approach,
+            [
+                Approach(name="deep learning theory", definition="Theoretical foundations of deep learning", official=True, children=[]),
+                Approach(name="representation learning", definition="Learning data representations", official=True, children=[]),
             ],
             session
         )
