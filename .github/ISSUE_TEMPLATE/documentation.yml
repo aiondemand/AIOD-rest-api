@@ -1,0 +1,156 @@
+name: 📚 Documentation Improvement
+description: Suggest improvements or report issues with documentation
+title: "[Docs]: "
+labels: ["documentation", "triage"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for helping improve AIOD documentation! Clear documentation is essential for a great developer experience.
+
+  - type: dropdown
+    id: doc-type
+    attributes:
+      label: Documentation Type
+      description: Which type of documentation needs improvement?
+      options:
+        - API Reference/Endpoints
+        - Getting Started Guide
+        - Installation/Setup
+        - Authentication Guide
+        - Developer Documentation
+        - User Guide
+        - Code Examples
+        - README
+        - Comments in Code
+        - Configuration Guide
+        - Architecture/Design Docs
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: issue-type
+    attributes:
+      label: Issue Type
+      description: What kind of documentation issue is this?
+      options:
+        - Missing Documentation
+        - Incorrect/Outdated Information
+        - Unclear/Confusing Explanation
+        - Broken Links
+        - Typo/Grammar
+        - Missing Code Example
+        - Incomplete Information
+        - Better Organization Needed
+        - Translation Issue
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: location
+    attributes:
+      label: Documentation Location
+      description: Where is the documentation that needs improvement?
+      placeholder: e.g., docs/developer/authentication.md, README.md, API endpoint docs
+    validations:
+      required: true
+
+  - type: textarea
+    id: current-content
+    attributes:
+      label: Current Content
+      description: Quote or describe the current documentation that needs improvement
+      placeholder: |
+        Current documentation states...
+        Or: This section is currently missing...
+
+  - type: textarea
+    id: issue-description
+    attributes:
+      label: Issue Description
+      description: Describe what's wrong or missing with the current documentation
+      placeholder: Explain what needs to be improved and why...
+    validations:
+      required: true
+
+  - type: textarea
+    id: suggested-improvement
+    attributes:
+      label: Suggested Improvement
+      description: How should the documentation be improved?
+      placeholder: |
+        Provide your suggested changes, corrections, or additions...
+        Include code examples if applicable...
+    validations:
+      required: true
+
+  - type: textarea
+    id: example-content
+    attributes:
+      label: Proposed Content (Optional)
+      description: If you have draft content or examples, provide them here
+      placeholder: |
+        Your proposed documentation text...
+        ```python
+        # Code example if applicable
+        ```
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Impact/Priority
+      description: How important is this documentation improvement?
+      options:
+        - High - Critical for users/developers
+        - Medium - Improves understanding significantly
+        - Low - Minor improvement
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: affected-audience
+    attributes:
+      label: Affected Audience
+      description: Who would benefit from this documentation improvement?
+      options:
+        - label: New users/contributors
+        - label: API consumers/developers
+        - label: System administrators/deployers
+        - label: Contributors/maintainers
+        - label: General public/researchers
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contribution Willingness
+      description: Would you like to contribute the fix?
+      options:
+        - label: I would be willing to submit a pull request with the documentation changes
+        - label: I can help review the updated documentation
+        - label: I can provide technical expertise/validation
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: |
+        Any additional information:
+        - Related documentation pages
+        - Screenshots
+        - User feedback that prompted this
+        - External references
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-submission Checklist
+      description: Please confirm the following
+      options:
+        - label: I have checked that this documentation issue hasn't been reported already
+          required: true
+        - label: I have provided specific location and clear description
+          required: true

@@ -1,0 +1,14 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 GitHub Discussions
+    url: https://github.com/aiondemand/AIOD-rest-api/discussions
+    about: Ask questions, share ideas, and discuss with the community
+  - name: 📖 Documentation
+    url: https://github.com/aiondemand/AIOD-rest-api/tree/develop/docs
+    about: Browse the complete documentation
+  - name: 🌐 AIOD Platform
+    url: https://www.ai4europe.eu/
+    about: Visit the AI on Demand platform
+  - name: 🚀 Contributing Guide
+    url: https://github.com/aiondemand/AIOD-rest-api/blob/develop/docs/contributing.md
+    about: Learn how to contribute to the project
