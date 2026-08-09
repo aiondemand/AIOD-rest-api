@@ -58,6 +58,10 @@ class MLModel(MLModelBase, AIAsset, table=True):  # type: ignore [call-arg]
         )
 
 
+# Complete the uses_model deserializer for Experiment, which cannot be set in experiment.py
+# due to a circular import (MLModel imports Experiment and vice versa).
+Experiment.RelationshipConfig.uses_model.deserializer = FindByIdentifierDeserializerList(MLModel)
+
 ml_model_versions = VersionedResourceCollection(
     {
         Version.V2: VersionedResource(MLModel),

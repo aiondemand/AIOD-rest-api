@@ -1,13 +1,23 @@
+from typing import TYPE_CHECKING
+
 from sqlmodel import Field, Relationship
 
 from database.model.ai_asset.ai_asset import AIAssetBase, AIAsset
+from database.model.dataset.dataset import Dataset
 from database.model.field_length import SHORT, LONG
 from database.model.helper_functions import many_to_many_link_factory
 from database.model.models_and_experiments.badge import Badge
 from database.model.models_and_experiments.runnable_distribution import RunnableDistribution
 from database.model.relationships import ManyToMany, OneToMany
-from database.model.serializers import AttributeSerializer, FindByNameDeserializerList
+from database.model.serializers import (
+    AttributeSerializer,
+    FindByIdentifierDeserializerList,
+    FindByNameDeserializerList,
+)
 from versioning import Version, VersionedResource, VersionedResourceCollection
+
+if TYPE_CHECKING:
+    from database.model.models_and_experiments.ml_model import MLModel
 
 
 class ExperimentBase(AIAssetBase):
@@ -51,6 +61,24 @@ class Experiment(ExperimentBase, AIAsset, table=True):  # type: ignore [call-arg
             "experiment", Badge.__tablename__, from_identifier_type=str
         ),
     )
+    uses_model: list["MLModel"] = Relationship(
+        link_model=many_to_many_link_factory(
+            "experiment",
+            "ml_model",
+            table_prefix="uses_model",
+            from_identifier_type=str,
+            to_identifier_type=str,
+        ),
+    )
+    uses_dataset: list[Dataset] = Relationship(
+        link_model=many_to_many_link_factory(
+            "experiment",
+            Dataset.__tablename__,
+            table_prefix="uses_dataset",
+            from_identifier_type=str,
+            to_identifier_type=str,
+        ),
+    )
 
     class RelationshipConfig(AIAsset.RelationshipConfig):
         badge: list[str] = ManyToMany(
@@ -61,6 +89,19 @@ class Experiment(ExperimentBase, AIAsset, table=True):  # type: ignore [call-arg
             example=["ACM Artifacts Evaluated - Reusable"],
         )
         distribution: list[RunnableDistribution] = OneToMany(default_factory_pydantic=list)
+        uses_model: list[str] = ManyToMany(
+            description="ML models used during the execution of this experiment.",
+            _serializer=AttributeSerializer("identifier"),
+            default_factory_pydantic=list,
+            example=[],
+        )
+        uses_dataset: list[str] = ManyToMany(
+            description="Datasets used for the execution of the experiment.",
+            _serializer=AttributeSerializer("identifier"),
+            deserializer=FindByIdentifierDeserializerList(Dataset),
+            default_factory_pydantic=list,
+            example=[],
+        )
 
 
 experiment_versions = VersionedResourceCollection(
