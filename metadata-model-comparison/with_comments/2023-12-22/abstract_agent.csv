@@ -1,0 +1,4 @@
+defined_on,name,comments,type_dmkr,type_impl,array_dmkr,array_impl,required_dmkr,required_impl,description_dmkr,description_impl,extra_impl
+Agent,email,We removed this. We now have contact_details both on Organisation and on Person,String,,False,,False,,The email address of the entity.,,
+Agent,telephone,We removed this. We now have contact_details both on Organisation and on Person,String,,True,,False,,The telephone number of the agent.,,
+,agent_identifier,TODO: add DMKR,,integer,,False,,False,,,

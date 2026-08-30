@@ -1,0 +1,1390 @@
+{
+  "entities": [
+    {
+      "name": "AIoDConcept",
+      "description": "The top level entity of the model",
+      "parent": "",
+      "properties": [
+        {
+          "name": "identifier",
+          "type": "URL",
+          "cardinality": "1",
+          "source": "aiod",
+          "description": ""
+        },
+        {
+          "name": "relevant_links",
+          "type": "URL",
+          "cardinality": "n*",
+          "source": "",
+          "description": ""
+        }
+      ]
+    },
+    {
+      "name": "AIoDEntry",
+      "description": "",
+      "parent": "",
+      "properties": [
+        {
+          "name": "platform",
+          "type": "String",
+          "cardinality": "n*",
+          "source": "aiod",
+          "description": "The platform from which this asset originates. For instance HuggingFace or Zenodo."
+        },
+        {
+          "name": "platformIdentifier",
+          "type": "String",
+          "cardinality": "n*",
+          "source": "aiod",
+          "description": "The identifier used to denote this asset in its originating platform."
+        },
+        {
+          "name": "editor",
+          "type": "Person",
+          "cardinality": "n+",
+          "source": "schema.org",
+          "description": "The person responsible for creating and maintaining the entry."
+        },
+        {
+          "name": "entryCreated",
+          "type": "Datetime",
+          "cardinality": "0:1",
+          "source": "schema.org",
+          "description": "The datetime on which this resource was first added to the AIoD platform."
+        },
+        {
+          "name": "entryPublished",
+          "type": "Datetime",
+          "cardinality": "0:1",
+          "source": "schema.org",
+          "description": "The datetime on which this resource was first published on any platform - not necessarily on AIoD."
+        },
+        {
+          "name": "dateModified",
+          "type": "Datetime",
+          "cardinality": "0:1",
+          "source": "schema.org",
+          "description": "Last datetime that the metadata of this resource was updated."
+        },
+        {
+          "name": "status",
+          "type": "String",
+          "cardinality": "1",
+          "source": "aiod",
+          "description": "Status of the entry (published, draft, rejected)"
+        },
+        {
+          "name": "body",
+          "type": "Object",
+          "cardinality": "0:1",
+          "source": "aiod",
+          "description": "The main body of the AIoD entry for a resource"
+        }
+      ]
+    },
+    {
+      "name": "AIResource",
+      "description": "A source of information, guidance or research and development assets for AI",
+      "parent": "AIoDConcept",
+      "properties": [
+        {
+          "name": "name",
+          "type": "String",
+          "cardinality": "1",
+          "source": "schema.org",
+          "description": "A name given to the resource"
+        },
+        {
+          "name": "alternateName",
+          "type": "String",
+          "cardinality": "0*",
+          "source": "schema.org",
+          "description": "An alternative name commonly used for the resource in place of its name"
+        },
+        {
+          "name": "description",
+          "type": "String",
+          "cardinality": "0:1",
+          "source": "schema.org",
+          "description": "A usually short informative text on the resource"
+        },
+        {
+          "name": "keyword",
+          "type": "String",
+          "cardinality": "0*",
+          "source": "aiod",
+          "description": "terms or phrases providing additional context for the resource."
+        },
+        {
+          "name": "industrialSector",
+          "type": "ApplicationArea",
+          "cardinality": "0*",
+          "source": "aiod",
+          "description": "An industrial sector where a resource is or can be of use (possibly in the context of a larger framework or initiative)."
+        },
+        {
+          "name": "researchArea",
+          "type": "ResearchArea",
+          "cardinality": "0*",
+          "source": "aiod",
+          "description": "A research area under which the research problems remedied by the resource fall"
+        },
+        {
+          "name": "scientificDomain",
+          "type": "ScientificDomain",
+          "cardinality": "0*",
+          "source": "aiod",
+          "description": "A scientific domain where the activities, operations or outcomes of the resource are applicable."
+        },
+        {
+          "name": "documentedIn",
+          "type": "KnowledgeAsset",
+          "cardinality": "0*",
+          "source": "aiod",
+          "description": "A Knowledge Asset describing and documenting the given resource."
+        },
+        {
+          "name": "image",
+          "type": "Multimedia",
+          "cardinality": "0:1",
+          "source": "schema.org",
+          "description": "An image depicting or associated with the resource"
+        },
+        {
+          "name": "contact",
+          "type": "Person",
+          "cardinality": "0*",
+          "source": "aiod",
+          "description": "A contact person for acquiring information on the resource."
+        },
+        {
+          "name": "location",
+          "type": "Location",
+          "cardinality": "0*",
+          "source": "aiod",
+          "description": "A geographical specification of where the resource resides."
+        },
+        {
+          "name": "sameAs",
+          "type": "URL",
+          "cardinality": "0*",
+          "source": "schema.org",
+          "description": "A link to a web location with information on the resource."
+        },
+        {
+          "name": "isPartOf",
+          "type": "AIResource",
+          "cardinality": "0*",
+          "source": "schema.org",
+          "description": "A resource that includes this resource."
+        },
+        {
+          "name": "hasPart",
+          "type": "AIResource",
+          "cardinality": "0*",
+          "source": "schema.org",
+          "description": "A resource that is included as a part/component of this resource."
+        }
+      ]
+    },
+    {
+      "name": "AIAsset",
+      "description": "An accessible and usable asset pertaining to AI research and applications",
+      "parent": "AIResource",
+      "properties": [
+        {
+          "name": "distribution",
+          "type": "Distribution",
+          "cardinality": "0*",
+          "source": "aiod",
+          "description": "A Distribution of the AI Asset"
+        },
+        {
+          "name": "version",
+          "type": "String",
+          "cardinality": "0:1",
+          "source": "aiod",
+          "description": ""
+        },
+        {
+          "name": "citation",
+          "type": "URL/Publication",
+          "cardinality": "0*",
+          "source": "schema.org",
+          "description": "A bibliographic reference for the AI asset."
+        },
+        {
+          "name": "license",
+          "type": "URL",
+          "cardinality": "1",
+          "source": "dc-terms",
+          "description": "A legal document giving official permission to do something with the resource."
+        },
+        {
+          "name": "creator",
+          "type": "Agent",
+          "cardinality": "0*",
+          "source": "dc-terms",
+          "description": "An entity responsible for making the AI asset."
+        },
+        {
+          "name": "dateCreated",
+          "type": "datetime",
+          "cardinality": "0:1",
+          "source": "schema.org",
+          "description": "The date of creation for the AI asset."
+        },
+        {
+          "name": "datePublished",
+          "type": "datetime",
+          "cardinality": "0:1",
+          "source": "schema.org",
+          "description": "The date of publication (broader availability) for the AI asset."
+        }
+      ]
+    },
+    {
+      "name": "Dataset",
+      "description": "A collection of data, published or curated by a specific agency",
+      "parent": "AIAsset",
+      "properties": [
+        {
+          "name": "funder",
+          "type": "Agent",
+          "cardinality": "0*",
+          "source": "https://schema.org/CreativeWork",
+          "description": ""
+        },
+        {
+          "name": "issn",
+          "type": "String",
+          "cardinality": "0:1",
+          "source": "https://schema.org/Dataset",
+          "description": "The International Standard Serial Number (ISSN) that identifies this serial publication. You can repeat this property to identify different formats of, or the linking ISSN (ISSN-L) for, this serial publication."
+        },
+        {
+          "name": "measurementTechnique",
+          "type": "String",
+          "cardinality": "0:1",
+          "source": "https://schema.org/Dataset",
+          "description": "The technique, technology, or methodology used in a dataset, which can correspond to the variable(s) described in variableMeasured."
+        },
+        {
+          "name": "size",
+          "type": "Size",
+          "cardinality": "0:1",
+          "source": "aiod",
+          "description": "The size of the Dataset in the unit specified by the associated Size entity."
+        },
+        {
+          "name": "spatialCoverage",
+          "type": "Location",
+          "cardinality": "0:1",
+          "source": "https://schema.org/CreativeWork",
+          "description": "You can provide a single point that describes the spatial aspect of the dataset. Only include this property if the dataset has a spatial dimension. For example, a single point where all the measurements were collected, or the coordinates of a bounding box for an area."
+        },
+        {
+          "name": "temporalCoverage",
+          "type": "String",
+          "cardinality": "0:1",
+          "source": "https://schema.org/CreativeWork",
+          "description": "The temporalCoverage of a CreativeWork indicates the period that the content applies to, i.e. that it describes, either as a DateTime or as a textual string indicating a time period in ISO 8601 time interval format. In the case of a Dataset it will typically indicate the relevant time period in a precise notation (e.g. for a 2011 census dataset, the year 2011 would be written 2011/2012)."
+        },
+        {
+          "name": "variableMeasured",
+          "type": "String",
+          "cardinality": "0:1",
+          "source": "https://schema.org/Dataset",
+          "description": "The variable that this dataset measures. For example, “temperature” or “pressure”."
+        }
+      ]
+    },
+    {
+      "name": "MLModel",
+      "description": "A machine learning model.",
+      "parent": "AIAsset",
+      "properties": [
+        {
+          "name": "pid",
+          "type": "URL",
+          "cardinality": "0*",
+          "source": "",
+          "description": "A permanent identifier for the model."
+        },
+        {
+          "name": "compilationProcess",
+          "type": "URL",
+          "cardinality": "",
+          "source": "",
+          "description": ""
+        },
+        {
+          "name": "compilationProcessDesc",
+          "type": "String",
+          "cardinality": "",
+          "source": "",
+          "description": ""
+        },
+        {
+          "name": "compilationTimeSec",
+          "type": "decimal",
+          "cardinality": "",
+          "source": "",
+          "description": ""
+        },
+        {
+          "name": "deploymentProcess",
+          "type": "URL",
+          "cardinality": "",
+          "source": "",
+          "description": ""
+        },
+        {
+          "name": "deploymentProcessDesc",
+          "type": "String",
+          "cardinality": "",
+          "source": "",
+          "description": ""
+        },
+        {
+          "name": "deploymentTimeSec",
+          "type": "decimal",
+          "cardinality": "",
+          "source": "",
+          "description": ""
+        },
+        {
+          "name": "hasReproducibilityExperiment",
+          "type": "Experiment",
+          "cardinality": "0:1",
+          "source": "",
+          "description": ""
+        },
+        {
+          "name": "experimentTimeMSec",
+          "type": "integer",
+          "cardinality": "0:1",
+          "source": "",
+          "description": "The time (in msec) the experiment takes to be executed."
+        },
+        {
+          "name": "notes",
+          "type": "String",
+          "cardinality": "",
+          "source": "",
+          "description": ""
+        },
+        {
+          "name": "lastUpdate",
+          "type": "date",
+          "cardinality": "",
+          "source": "",
+          "description": ""
+        },
+        {
+          "name": "url",
+          "type": "String",
+          "cardinality": "",
+          "source": "",
+          "description": ""
+        },
+        {
+          "name": "type",
+          "type": "String",
+          "cardinality": "",
+          "source": "",
+          "description": ""
+        }
+      ]
+    },
+    {
+      "name": "Experiment",
+      "description": "A machine learning model.",
+      "parent": "AIAsset",
+      "properties": [
+        {
+          "name": "pid",
+          "type": "URL",
+          "cardinality": "0*",
+          "source": "",
+          "description": "A permanent identifier for the model."
+        },
+        {
+          "name": "usesModelDistribution",
+          "type": "ModelDistribution",
+          "cardinality": "0*",
+          "source": "",
+          "description": ""
+        },
+        {
+          "name": "usesDataDownload",
+          "type": "DataDownload",
+          "cardinality": "0*",
+          "source": "",
+          "description": ""
+        },
+        {
+          "name": "compilationProcess",
+          "type": "URL",
+          "cardinality": "",
+          "source": "",
+          "description": ""
+        },
+        {
+          "name": "compilationProcessDesc",
+          "type": "String",
+          "cardinality": "",
+          "source": "",
+          "description": ""
+        },
+        {
+          "name": "compilationTimeSec",
+          "type": "String",
+          "cardinality": "",
+          "source": "",
+          "description": ""
+        },
+        {
+          "name": "deploymentProcess",
+          "type": "URL",
+          "cardinality": "",
+          "source": "",
+          "description": ""
+        },
+        {
+          "name": "deploymentProcessDesc",
+          "type": "Experiment",
+          "cardinality": "0:1",
+          "source": "",
+          "description": ""
+        },
+        {
+          "name": "deploymentTimeSec",
+          "type": "integer",
+          "cardinality": "0:1",
+          "source": "",
+          "description": ""
+        },
+        {
+          "name": "experimentalWorkflow",
+          "type": "String",
+          "cardinality": "",
+          "source": "",
+          "description": "A description of the overall workflow of the experiment."
+        },
+        {
+          "name": "exemplaryExecutionSettings",
+          "type": "String",
+          "cardinality": "",
+          "source": "",
+          "description": "A human-readable description of the settings under which the experiment was executed to retrieve the included times."
+        },
+        {
+          "name": "executionTimeEstimateSec",
+          "type": "decimal",
+          "cardinality": "",
+          "source": "",
+          "description": "The estimate of time needed for the execution under the conditions specified via the exemplaryExecutionSettings property."
+        },
+        {
+          "name": "reproducibilityExplanation",
+          "type": "String",
+          "cardinality": "0:1",
+          "source": "",
+          "description": "A description on how the output of the experiment match the experiments in the paper."
+        },
+        {
+          "name": "badge",
+          "type": "URL",
+          "cardinality": "0*",
+          "source": "",
+          "description": "A reproducibility badge associated with the Experiment."
+        }
+      ]
+    },
+    {
+      "name": "Distribution",
+      "description": "A specific form of packaging and means of exposure and availability for an AI Asset.",
+      "parent": "AIResource",
+      "properties": [
+        {
+          "name": "documentedIn",
+          "type": "KnowledgeAsset",
+          "cardinality": "0*",
+          "source": "aiod",
+          "description": "A Knowledge Asset describing and documenting the given Distribution."
+        },
+        {
+          "name": "technologyReadinessLevel",
+          "type": "integer",
+          "cardinality": "0:1",
+          "source": "aiod",
+          "description": "The technology readiness level (TRL) of the distribution, following the relevant EC definitions."
+        },
+        {
+          "name": "version",
+          "type": "String",
+          "cardinality": "0:1",
+          "source": "aiod",
+          "description": ""
+        },
+        {
+          "name": "dateCreated",
+          "type": "datetime",
+          "cardinality": "0:1",
+          "source": "schema.org",
+          "description": ""
+        },
+        {
+          "name": "dateModified",
+          "type": "datetime",
+          "cardinality": "0:1",
+          "source": "schema.org",
+          "description": ""
+        },
+        {
+          "name": "datePublished",
+          "type": "datetime",
+          "cardinality": "0:1",
+          "source": "schema.org",
+          "description": ""
+        },
+        {
+          "name": "contentURL",
+          "type": "URL",
+          "cardinality": "1",
+          "source": "",
+          "description": "Actual bytes of the media object, for example the image file or video file."
+        },
+        {
+          "name": "contentSizeKb",
+          "type": "integer",
+          "cardinality": "0:1",
+          "source": "",
+          "description": "Full size in kilobytes"
+        },
+        {
+          "name": "encodingFormat",
+          "type": "String",
+          "cardinality": "1",
+          "source": "schema.org",
+          "description": "Media type typically expressed using a MIME format, e.g. application/zip for a SoftwareApplication binary, audio/mpeg for .mp3 etc."
+        },
+        {
+          "name": "checksum",
+          "type": "String",
+          "cardinality": "0:1",
+          "source": "",
+          "description": ""
+        },
+        {
+          "name": "checksumType",
+          "type": "String",
+          "cardinality": "0:1",
+          "source": "",
+          "description": ""
+        },
+        {
+          "name": "hasComputationalRequirement",
+          "type": "ComputationalRequirement",
+          "cardinality": "0:1",
+          "source": "aiod",
+          "description": "A set of requirements for compute environment/storage/processing that the distribution needs in order to function. This will allow its association with Computational Assets covering its requirements."
+        }
+      ]
+    },
+    {
+      "name": "DataDownload",
+      "description": "A distribution of a dataset as a downloadable file or file collection.",
+      "parent": "Distribution",
+      "properties": [
+      ]
+    },
+    {
+      "name": "ComputationalAsset",
+      "description": "An AI Asset that constitutes or provides access to computational resources for processing or storage.",
+      "parent": "AIAsset",
+      "properties": [
+        {
+          "name": "creationTime",
+          "type": "datetime",
+          "cardinality": "0:1",
+          "source": "GLUE 2.1",
+          "description": "Timestamp describing when the entity instance was generated."
+        },
+        {
+          "name": "validity",
+          "type": "integer",
+          "cardinality": "0:1",
+          "source": "GLUE 2.1",
+          "description": "The duration (in seconds) after CreationTime that the information presented in the Entity SHOULD be considered relevant. After that period has elapsed, the information SHOULD NOT be considered relevant."
+        },
+        {
+          "name": "otherInfo",
+          "type": "String",
+          "cardinality": "0*",
+          "source": "GLUE 2.1",
+          "description": "Placeholder to publish info that does not fit in any other attribute. Free-form string, comma-separated tags, (name, value ) pair are all examples of valid syntax."
+        },
+        {
+          "name": "capability",
+          "type": "Capability",
+          "cardinality": "0*",
+          "source": "GLUE 2.1",
+          "description": "The provided capability according to the Open Grid Service Architecture (OGSA) architecture [OGF-GFD80] (this is the union of all values assigned to the capability attribute of the endpoints part of this service)."
+        },
+        {
+          "name": "type",
+          "type": "ServiceType",
+          "cardinality": "1",
+          "source": "GLUE 2.1",
+          "description": "The type of service according to a namespace-based classification (the namespace MAY be related to a middleware name, an organization or other concepts; org.ogf.glue is reserved for the OGF GLUE Working Group)."
+        },
+        {
+          "name": "qualityLevel",
+          "type": "QualityLevel",
+          "cardinality": "1",
+          "source": "GLUE 2.1",
+          "description": "Maturity of the service in terms of quality of the software components."
+        },
+        {
+          "name": "statusInfo",
+          "type": "URL",
+          "cardinality": "0*",
+          "source": "GLUE 2.1",
+          "description": "Web page providing additional information like monitoring aspects."
+        },
+        {
+          "name": "complexity",
+          "type": "String",
+          "cardinality": "0:1",
+          "source": "GLUE 2.1",
+          "description": "Human-readable summary description of the complexity in terms of the number of endpoint types, shares and resources. The syntax should be: endpointType=X, share=Y, resource=Z."
+        },
+        {
+          "name": "hasEndpoint",
+          "type": "Endpoint",
+          "cardinality": "0*",
+          "source": "GLUE 2.1",
+          "description": "A computing service exposes zero or more computing endpoints."
+        },
+        {
+          "name": "hasShare",
+          "type": "URL",
+          "cardinality": "0*",
+          "source": "GLUE 2.1",
+          "description": "A computing service offers zero or more computing shares."
+        },
+        {
+          "name": "managedBy",
+          "type": "URL",
+          "cardinality": "0*",
+          "source": "GLUE 2.1",
+          "description": "A computing service offers zero or more computing managers."
+        },
+        {
+          "name": "location",
+          "type": "Location",
+          "cardinality": "0:1",
+          "source": "GLUE 2.1",
+          "description": "A service is primary located at a location."
+        },
+        {
+          "name": "service",
+          "type": "URL",
+          "cardinality": "0*",
+          "source": "GLUE 2.1",
+          "description": "A service is related to zero or more services."
+        }
+      ]
+    },
+    {
+      "name": "Knowledgeasset",
+      "description": "An AI Asset used as an information item for other entities like assets and scientific areas.",
+      "parent": "AIAsset",
+      "properties": [
+        {
+          "name": "documents",
+          "type": "AIAsset",
+          "cardinality": "0*",
+          "source": "aiod",
+          "description": "An AI asset for which the Knowledge Asset acts as an information source."
+        }
+      ]
+    },
+    {
+      "name": "Publication",
+      "description": "A scientific publication.",
+      "parent": "KnowledgeAsset",
+      "properties": [
+        {
+          "name": "pid",
+          "type": "URL",
+          "cardinality": "0:1",
+          "source": "fabio",
+          "description": "A Permanent Identifier (e.g. DOI) for the entity."
+        },
+        {
+          "name": "hasISBN",
+          "type": "String",
+          "cardinality": "0:1",
+          "source": "fabio",
+          "description": "The International Standard Book Number, ISBN, used to identify published books or, more rarely, journal issues."
+        },
+        {
+          "name": "hasISSN",
+          "type": "String",
+          "cardinality": "0:1",
+          "source": "fabio",
+          "description": "The International Standard Serial Number, ISSN, an identifer for serial publications."
+        },
+        {
+          "name": "type",
+          "type": "controlled list",
+          "cardinality": "1",
+          "source": "fabio",
+          "description": "Subclasses of the expression class (fabio)."
+        }
+      ]
+    },
+    {
+      "name": "Agent",
+      "description": "The direct performer or driver of the action (animate or inanimate) - expected to be person or organisation.",
+      "parent": "AIResource",
+      "properties": [
+        {
+          "name": "email",
+          "type": "String",
+          "cardinality": "1*",
+          "source": "schema.org",
+          "description": "The email address of the entity."
+        },
+        {
+          "name": "telephone",
+          "type": "String",
+          "cardinality": "0*",
+          "source": "schema.org",
+          "description": "The telephone number of the agent."
+        }
+      ]
+    },
+    {
+      "name": "Organisation",
+      "description": "An organized and legally acknowledged group of people, with a specific structure.",
+      "parent": "Agent",
+      "properties": [
+        {
+          "name": "dateFounded",
+          "type": "datetime",
+          "cardinality": "0:1",
+          "source": "schema.org",
+          "description": "The date the organisation was founded."
+        },
+        {
+          "name": "legalName",
+          "type": "String",
+          "cardinality": "0:1",
+          "source": "schema.org",
+          "description": "The official legal name of the organisation."
+        },
+        {
+          "name": "member",
+          "type": "Agent",
+          "cardinality": "0*",
+          "source": "schema.org",
+          "description": "A member of this organization."
+        },
+        {
+          "name": "type",
+          "type": "OrganisationType",
+          "cardinality": "1",
+          "source": "aiod",
+          "description": "Association, Centre, Company, Education Institution, Research Institution."
+        },
+        {
+          "name": "aiRelevance",
+          "type": "String",
+          "cardinality": "0:1",
+          "source": "aiod",
+          "description": "A description of the association and positioning of the organisation with the broader European AI ecosystem."
+        }
+      ]
+    },
+    {
+      "name": "Person",
+      "description": "A human being.",
+      "parent": "Agent",
+      "properties": [
+        {
+          "name": "knowsAbout",
+          "type": "String",
+          "cardinality": "0*",
+          "source": "schema.org",
+          "description": "Having expertise on this topic."
+        },
+        {
+          "name": "memberOf",
+          "type": "Organisation",
+          "cardinality": "0*",
+          "source": "schema.org",
+          "description": "The official legal name of the organisation."
+        },
+        {
+          "name": "languages",
+          "type": "String",
+          "cardinality": "0*",
+          "source": "??",
+          "description": ""
+        }
+      ]
+    },
+    {
+      "name": "Event",
+      "description": "An event happening at a certain time and location, with a specific scope.",
+      "parent": "AIResource",
+      "properties": [
+        {
+          "name": "startDate",
+          "type": "datetime",
+          "cardinality": "1",
+          "source": "schema.org",
+          "description": "The start date and time of the event, formatted as a string using the ISO 8601 date-time format."
+        },
+        {
+          "name": "endDate",
+          "type": "datetime",
+          "cardinality": "1",
+          "source": "schema.org",
+          "description": "The end date and time of the event, formatted as a string using the ISO 8601 date-time format."
+        },
+        {
+          "name": "organizer",
+          "type": "Agent",
+          "cardinality": "1",
+          "source": "schema.org",
+          "description": "The organisation responsible for organizing the event."
+        },
+        {
+          "name": "performer",
+          "type": "Agent",
+          "cardinality": "1*",
+          "source": "schema.org",
+          "description": "The person or organisation that is participating with some capacity at the event."
+        },
+        {
+          "name": "duration",
+          "type": "Size",
+          "cardinality": "",
+          "source": "schema.org",
+          "description": "The duration of the event."
+        },
+        {
+          "name": "eventStatus",
+          "type": "EventStatusType",
+          "cardinality": "0:1",
+          "source": "schema.org",
+          "description": "Can be scheduled, rescheduled, postponed, cancelled, moved online."
+        },
+        {
+          "name": "eventMode",
+          "type": "EventAttendanceModeEnumeration",
+          "cardinality": "0:1",
+          "source": "schema.org",
+          "description": "Can be offline, online, hybrid."
+        },
+        {
+          "name": "asset",
+          "type": "AIAsset",
+          "cardinality": "0*",
+          "source": "aiod",
+          "description": "AI Assets used or referenced in the context of the Event."
+        },
+        {
+          "name": "project",
+          "type": "Project",
+          "cardinality": "0*",
+          "source": "aiod",
+          "description": "A Project under which the Event is organised."
+        },
+        {
+          "name": "image",
+          "type": "Multimedia",
+          "cardinality": "0*",
+          "source": "aiod",
+          "description": "An image gallery."
+        },
+        {
+          "name": "schedule",
+          "type": "String",
+          "cardinality": "0:1",
+          "source": "aiod",
+          "description": "The agenda of the event."
+        },
+        {
+          "name": "registrationLink",
+          "type": "URL",
+          "cardinality": "0:1",
+          "source": "aiod",
+          "description": ""
+        }
+      ]
+    },
+    {
+      "name": "Project",
+      "description": "A contractually defined initiative aimed to achieve specific objectives.",
+      "parent": "AIResource",
+      "properties": [
+        {
+          "name": "startDate",
+          "type": "datetime",
+          "cardinality": "1",
+          "source": "schema.org",
+          "description": "The start date of the project."
+        },
+        {
+          "name": "endDate",
+          "type": "datetime",
+          "cardinality": "1",
+          "source": "schema.org",
+          "description": "The end date of the project."
+        },
+        {
+          "name": "totalCostEuro",
+          "type": "decimal",
+          "cardinality": "1",
+          "source": "aiod",
+          "description": "total budget of the project in euros."
+        },
+        {
+          "name": "coordinator",
+          "type": "Organisation",
+          "cardinality": "1",
+          "source": "aiod",
+          "description": "the coordinating organisation for the project."
+        },
+        {
+          "name": "participant",
+          "type": "Organisation",
+          "cardinality": "0*",
+          "source": "aiod",
+          "description": "member organisations of the project."
+        },
+        {
+          "name": "funder",
+          "type": "Organisation",
+          "cardinality": "1*",
+          "source": "aiod",
+          "description": "the funding organisation for the project."
+        },
+        {
+          "name": "produced",
+          "type": "AIAsset",
+          "cardinality": "0*",
+          "source": "aiod",
+          "description": "An AI asset produced in the context of the project."
+        },
+        {
+          "name": "used",
+          "type": "AIAsset",
+          "cardinality": "0*",
+          "source": "aiod",
+          "description": "An AI asset used in the context of the project."
+        }
+      ]
+    },
+    {
+      "name": "News",
+      "description": "An article (possibly of mixed modality) that reports or summarizes news",
+      "parent": "AIResource",
+      "properties": [
+        {
+          "name": "headline",
+          "type": "String",
+          "cardinality": "1",
+          "source": "schema.org",
+          "description": "A short headline given to the news item."
+        },
+        {
+          "name": "alternativeHeadline",
+          "type": "String",
+          "cardinality": "0:1",
+          "source": "schema.org",
+          "description": "The end date of the project."
+        },
+        {
+          "name": "category",
+          "type": "NewsCategory",
+          "cardinality": "0*",
+          "source": "aiod",
+          "description": "News categories related to this item (e.g Research, Education, Awards, Development, Resources). To be defined as instances of the respective NewsCategory class."
+        },
+        {
+          "name": "status",
+          "type": "String",
+          "cardinality": "1",
+          "source": "aiod",
+          "description": "The publication status of the news item (possible values: draft/published/rejected)."
+        },
+        {
+          "name": "asset",
+          "type": "AIAsset",
+          "cardinality": "0*",
+          "source": "aiod",
+          "description": "AI Assets referenced in the context of the News item."
+        },
+        {
+          "name": "source",
+          "type": "URL",
+          "cardinality": "0:1",
+          "source": "aiod",
+          "description": "The location where the news item was originally published."
+        },
+        {
+          "name": "includesMedia",
+          "type": "Multimedia",
+          "cardinality": "0*",
+          "source": "aiod",
+          "description": "Multimedia content included in the news item."
+        },
+        {
+          "name": "relatedNews",
+          "type": "URL",
+          "cardinality": "0*",
+          "source": "aiod",
+          "description": "A list of news items related to this news item."
+        }
+      ]
+    },
+    {
+      "name": "EducationalResource",
+      "description": "",
+      "parent": "AIResource",
+      "properties": [
+        {
+          "name": "audience",
+          "type": "",
+          "cardinality": "0*",
+          "source": "",
+          "description": "The principal users(s) for which the learning resource was designed. See https://wiki.eoscfuture.eu/display/PUBLIC/B.+v4.00+EOSC+Resource+Profile#B.v4.00EOSCResourceProfile-ResourceTargetUsers."
+        },
+        {
+          "name": "educationalLevel",
+          "type": "String",
+          "cardinality": "0*",
+          "source": "",
+          "description": "advanced, intermediate, beginner."
+        },
+        {
+          "name": "educationalType",
+          "type": "",
+          "cardinality": "",
+          "source": "",
+          "description": "see https://wiki.eoscfuture.eu/display/PUBLIC/EOSC+Training+Resource+Profile+-+Data+Model#EOSCTrainingResourceProfileDataModel-Contentresourcetype."
+        },
+        {
+          "name": "taughtBy",
+          "type": "Person",
+          "cardinality": "0*",
+          "source": "",
+          "description": ""
+        },
+        {
+          "name": "offeredBy",
+          "type": "Organisation",
+          "cardinality": "1*",
+          "source": "",
+          "description": ""
+        },
+        {
+          "name": "complexityLevel",
+          "type": "",
+          "cardinality": "",
+          "source": "",
+          "description": "e.g. foundational, algorithmic,…"
+        },
+        {
+          "name": "expectedOutcome",
+          "type": "String",
+          "cardinality": "0:1",
+          "source": "",
+          "description": ""
+        },
+        {
+          "name": "qualification",
+          "type": "",
+          "cardinality": "0:1",
+          "source": "",
+          "description": "Identification of certification, accreditation or badge obtained with course or learning resource."
+        },
+        {
+          "name": "prerequisiteKnowledgeOf",
+          "type": "ResearchArea",
+          "cardinality": "0*",
+          "source": "",
+          "description": ""
+        },
+        {
+          "name": "aiodClassification",
+          "type": "",
+          "cardinality": "1*",
+          "source": "",
+          "description": ""
+        },
+        {
+          "name": "underClassification",
+          "type": "Classification",
+          "cardinality": "0*",
+          "source": "",
+          "description": ""
+        },
+        {
+          "name": "schedule",
+          "type": "String",
+          "cardinality": "0:1",
+          "source": "",
+          "description": ""
+        },
+        {
+          "name": "enrollmentStartDate",
+          "type": "datetime",
+          "cardinality": "0:1",
+          "source": "",
+          "description": "The date from when applications for enrolling can be applied."
+        },
+        {
+          "name": "enrollmentEndDate",
+          "type": "datetime",
+          "cardinality": "0:1",
+          "source": "",
+          "description": "The final date for which applications for enrolling are accepted."
+        },
+        {
+          "name": "startDate",
+          "type": "datetime",
+          "cardinality": "0:1",
+          "source": "",
+          "description": "When the resource starts running."
+        },
+        {
+          "name": "endDate",
+          "type": "datetime",
+          "cardinality": "0:1",
+          "source": "",
+          "description": "When the resource concludes."
+        },
+        {
+          "name": "duration",
+          "type": "decimal",
+          "cardinality": "0:1",
+          "source": "",
+          "description": "(in hours)"
+        },
+        {
+          "name": "pace",
+          "type": "String",
+          "cardinality": "0:1",
+          "source": "",
+          "description": "full-time, part-time, self-paced"
+        },
+        {
+          "name": "cost",
+          "type": "decimal",
+          "cardinality": "0:1",
+          "source": "",
+          "description": "(currency)"
+        },
+        {
+          "name": "usesResource",
+          "type": "AIResource",
+          "cardinality": "0*",
+          "source": "",
+          "description": ""
+        },
+        {
+          "name": "learningMode",
+          "type": "String",
+          "cardinality": "0:1",
+          "source": "",
+          "description": "online, hybrid, offline"
+        }
+      ]
+    },
+    {
+      "name": "Course",
+      "description": "",
+      "parent": "EducationalResource",
+      "properties": [
+        {
+          "name": "academicLevel",
+          "type": "String",
+          "cardinality": "0:1",
+          "source": "",
+          "description": "undergraduate, graduate, PhD"
+        },
+        {
+          "name": "credits",
+          "type": "integer",
+          "cardinality": "0:1",
+          "source": "",
+          "description": ""
+        }
+      ]
+    },
+    {
+      "name": "Multimedia",
+      "description": "A non-textual digital object, such as video and audio recordings or images.",
+      "parent": "KnowledgeAsset",
+      "properties": [
+        {
+          "name": "mimetype",
+          "type": "String",
+          "cardinality": "0:1",
+          "source": "aiod",
+          "description": "The MIME type for the entity."
+        },
+        {
+          "name": "size",
+          "type": "Size",
+          "cardinality": "0:1",
+          "source": "aiod",
+          "description": "The size of the entity."
+        },
+        {
+          "name": "copyright",
+          "type": "String",
+          "cardinality": "0:1",
+          "source": "aiod",
+          "description": "A copyright notice for the entity."
+        },
+        {
+          "name": "alternativeText",
+          "type": "String",
+          "cardinality": "0:1",
+          "source": "aiod",
+          "description": "A textual description accompanying the entity for accessibility reasons."
+        }
+      ]
+    },
+    {
+      "name": "Expertise",
+      "description": "An area of knowledge",
+      "parent": "AIResource",
+      "properties": [
+      ]
+    },
+    {
+      "name": "ApplicationArea",
+      "description": "A knowledge domain where AI assets can be used",
+      "parent": "Expertise",
+      "properties": [
+      ]
+    },
+    {
+      "name": "ResearchArea",
+      "description": "The AI research area to which an Asset pertains",
+      "parent": "Expertise",
+      "properties": [
+      ]
+    },
+    {
+      "name": "ScientificDomain",
+      "description": "",
+      "parent": "Expertise",
+      "properties": [
+      ]
+    },
+    {
+      "name": "NewsCategory",
+      "description": "A categorisation of news items in the AIoD platform",
+      "parent": "AIoDConcept",
+      "properties": [
+      ]
+    },
+    {
+      "name": "Location",
+      "description": "A spatial region or named place.",
+      "parent": "AIoDConcept",
+      "properties": [
+        {
+          "name": "country",
+          "type": "Country",
+          "cardinality": "0:1",
+          "source": "",
+          "description": ""
+        },
+        {
+          "name": "region",
+          "type": "String",
+          "cardinality": "0:1",
+          "source": "",
+          "description": ""
+        },
+        {
+          "name": "city",
+          "type": "String",
+          "cardinality": "0:1",
+          "source": "",
+          "description": ""
+        },
+        {
+          "name": "address",
+          "type": "String",
+          "cardinality": "0:1",
+          "source": "",
+          "description": ""
+        },
+        {
+          "name": "longitude",
+          "type": "decimal",
+          "cardinality": "0:1",
+          "source": "",
+          "description": ""
+        },
+        {
+          "name": "latitude",
+          "type": "decimal",
+          "cardinality": "0:1",
+          "source": "",
+          "description": ""
+        },
+        {
+          "name": "elevationMetres",
+          "type": "decimal",
+          "cardinality": "0:1",
+          "source": "",
+          "description": ""
+        },
+        {
+          "name": "sameAs",
+          "type": "URL",
+          "cardinality": "0:1",
+          "source": "",
+          "description": ""
+        }
+      ]
+    },
+    {
+      "name": "Size",
+      "description": "The extent of an entity relative to a specified unit",
+      "parent": "AIoDConcept",
+      "properties": [
+        {
+          "name": "value",
+          "type": "decimal",
+          "cardinality": "1",
+          "source": "",
+          "description": ""
+        },
+        {
+          "name": "unit",
+          "type": "String",
+          "cardinality": "0:1",
+          "source": "",
+          "description": ""
+        }
+      ]
+    }
+  ]
+}
