@@ -18,6 +18,7 @@ performs a separate authorization request. The only downside is the overhead of 
 keycloak requests - if that becomes prohibitive in the future, we should reevaluate this design.
 """
 
+import asyncio
 import dataclasses
 import functools
 import logging
@@ -122,7 +123,10 @@ async def _get_user(token) -> KeycloakUser:
         token = token.replace("Bearer ", "")
         # query the authorization server to determine the active state of this token and to
         # determine meta-information.
-        userinfo = keycloak_openid.introspect(token)
+        # NOTE: python-keycloak's introspect() is synchronous (uses requests). Run it in the
+        # thread-pool executor so it does not block the asyncio event loop.
+        loop = asyncio.get_running_loop()
+        userinfo = await loop.run_in_executor(None, keycloak_openid.introspect, token)
         if not userinfo.get("active", False):
             logging.error("Invalid userinfo or inactive user.")
             raise InvalidUserError("Invalid userinfo or inactive user")  # caught below
