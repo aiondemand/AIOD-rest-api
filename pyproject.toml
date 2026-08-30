@@ -21,7 +21,7 @@ dependencies = [
     "uvicorn==0.25.0",
     "requests==2.32.3",
     "mysqlclient==2.2.4",
-    "oic==1.6.0",
+    "oic==1.7.0",
     "python-keycloak==3.7.0",
     "pydantic<2",
     "python-dotenv==1.0.1",
