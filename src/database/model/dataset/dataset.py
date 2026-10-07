@@ -44,6 +44,20 @@ class DatasetBase(AIAssetBase):
         schema_extra={"example": "2011/2012"},
         default=None,
     )
+    pid: str | None = Field(
+        description="A persistent identifier assigned to the dataset, for example a digital object "
+        "identifier (DOI). Ideally a url.",
+        max_length=SHORT,
+        default=None,
+        schema_extra={"example": "https://doi.org/10.1000/182"},
+    )
+    variable_measured: str | None = Field(
+        description="The variable that this dataset measures. For example, 'temperature' or "
+        "'pressure'.",
+        max_length=NORMAL,
+        default=None,
+        schema_extra={"example": "temperature"},
+    )
 
 
 class Dataset(DatasetBase, AIAsset, table=True):  # type: ignore [call-arg]
