@@ -108,12 +108,16 @@ def test_privacy_for_ai4europe_cms(
         assert person_dict["given_name"] == "******"
         assert person_dict["surname"] == "******"
 
+    original_introspect = keycloak_openid.introspect
     keycloak_openid.introspect = AI4EUROPE_CMS_TOKEN
-    response = client.get(endpoint, headers=headers)
-    response_json = response.json()
-    response_json = [response_json] if isinstance(response_json, dict) else response_json
-    assert response.status_code == 200, response_json
-    for person_dict in response_json:
-        assert person_dict["name"] == "Joe Doe"
-        assert person_dict["given_name"] == "Joe"
-        assert person_dict["surname"] == "Doe"
+    try:
+        response = client.get(endpoint, headers=headers)
+        response_json = response.json()
+        response_json = [response_json] if isinstance(response_json, dict) else response_json
+        assert response.status_code == 200, response_json
+        for person_dict in response_json:
+            assert person_dict["name"] == "Joe Doe"
+            assert person_dict["given_name"] == "Joe"
+            assert person_dict["surname"] == "Doe"
+    finally:
+        keycloak_openid.introspect = original_introspect

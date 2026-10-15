@@ -231,17 +231,22 @@ def test_email_privacy_for_ai4europe_cms(
     assert len(response_json) > 0, response_json
     assert response_json["email"] == ["******"]
 
+    original_introspect = keycloak_openid.introspect
     keycloak_openid.introspect = AI4EUROPE_CMS_TOKEN
+    try:
 
-    response = client.get(endpoint, headers=headers)
-    response_json = response.json()
-    if isinstance(response_json, list):
-        response_json = response_json[0]
+        response = client.get(endpoint, headers=headers)
+        response_json = response.json()
+        if isinstance(response_json, list):
+            response_json = response_json[0]
 
-    assert response.status_code == 200, response_json
-    assert len(response_json) > 0, response_json
-    assert response_json["email"] == ["fake@email.com", "fake2@email.com"]
+        assert response.status_code == 200, response_json
+        assert len(response_json) > 0, response_json
+        assert response_json["email"] == ["fake@email.com", "fake2@email.com"]
 
+
+    finally:
+        keycloak_openid.introspect = original_introspect
 
 def test_empty_country(client: TestClient, body_asset: dict, auto_publish: None):
     body = copy.deepcopy(body_asset)

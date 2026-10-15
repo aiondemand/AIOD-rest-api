@@ -174,7 +174,7 @@ def _keycloak_mock(request_mock: responses.RequestsMock) -> None:
     )
     request_mock.add(
         responses.GET,
-        "http://keycloak:8080/aiod-auth/admin/realms/aiod/users?username=Alice&max=1&exact=True",
+        "http://keycloak:8080/aiod-auth/admin/realms/aiod/users?username=alice&max=1&exact=True",
         json=alice_response,
     )
     request_mock.add(
