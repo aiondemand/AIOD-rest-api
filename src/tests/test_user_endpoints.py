@@ -1,7 +1,9 @@
+import json
 from http import HTTPStatus
 from typing import Callable
 
 import pytest
+import responses
 from starlette.testclient import TestClient
 
 from database.authorization import set_permission, PermissionType, register_user
@@ -9,7 +11,15 @@ from database.model.knowledge_asset.publication import Publication
 from database.model.concept.aiod_entry import EntryStatus
 from database.session import DbSession
 from database.model.agent.organisation import Organisation
-from tests.testutils.users import register_asset, logged_in_user, ALICE, BOB
+from authentication import ADMIN_ROLE
+from tests.testutils.paths import path_test_resources
+from tests.testutils.users import (
+    register_asset,
+    logged_in_user,
+    kc_user_with_roles,
+    ALICE,
+    BOB,
+)
 from tests.testutils.default_instances import publication_factory, publication
 from versioning import Version
 
@@ -145,3 +155,80 @@ def test_my_resources_limit_default_in_latest(client: TestClient, publication_fa
         response = client.get("/user/resources", headers={"Authorization": "fake token"})
         assert response.status_code == HTTPStatus.OK
         assert len(response.json()["publication"]) == 10, "Set limit should be respected"
+
+
+def _keycloak_mock(request_mock: responses.RequestsMock) -> None:
+    """Mock the Keycloak admin calls needed to look up Alice by name and by sub."""
+    cached_api_token = path_test_resources() / "authentication" / "admin_connect.json"
+    with cached_api_token.open("r") as f:
+        connect_response = json.load(f)
+
+    cached_user_response = path_test_resources() / "authentication" / "query_alice.json"
+    with cached_user_response.open("r") as f:
+        alice_response = json.load(f)
+
+    request_mock.add(
+        responses.POST,
+        "http://keycloak:8080/aiod-auth/realms/aiod/protocol/openid-connect/token",
+        json=connect_response,
+    )
+    request_mock.add(
+        responses.GET,
+        "http://keycloak:8080/aiod-auth/admin/realms/aiod/users?username=Alice&max=1&exact=True",
+        json=alice_response,
+    )
+    request_mock.add(
+        responses.GET,
+        f"http://keycloak:8080/aiod-auth/admin/realms/aiod/users/{ALICE._subject_identifier}",
+        json=alice_response[0],
+    )
+
+
+@pytest.mark.parametrize("user", [ALICE.name, ALICE._subject_identifier])
+def test_other_user_resources_as_admin(client: TestClient, publication_factory: Callable[[], Publication], user: str) -> None:
+    register_asset(publication_factory(), owner=ALICE, status=EntryStatus.DRAFT)
+    register_asset(publication_factory(), owner=ALICE, status=EntryStatus.PUBLISHED)
+    register_asset(publication_factory(), owner=BOB, status=EntryStatus.PUBLISHED)
+
+    with responses.RequestsMock(assert_all_requests_are_fired=False) as request_mock:
+        _keycloak_mock(request_mock)
+        with logged_in_user(kc_user_with_roles(ADMIN_ROLE)):
+            response = client.get(f"/user/{user}/resources", headers={"Authorization": "fake token"})
+
+    assert response.status_code == HTTPStatus.OK, response.json()
+    msg = "An admin should see the assets of the requested user only, drafts included."
+    assert len(response.json()["publication"]) == 2, msg
+
+
+def test_other_user_resources_forbidden_for_non_admin(client: TestClient, publication: Publication) -> None:
+    register_asset(publication, owner=ALICE, status=EntryStatus.PUBLISHED)
+    with logged_in_user(BOB):
+        response = client.get(f"/user/{ALICE.name}/resources", headers={"Authorization": "fake token"})
+    assert response.status_code == HTTPStatus.FORBIDDEN
+
+
+def test_other_user_resources_must_be_authorized(client: TestClient) -> None:
+    response = client.get(f"/user/{ALICE.name}/resources")
+    assert response.status_code == HTTPStatus.UNAUTHORIZED
+
+
+def test_other_user_resources_unknown_user(client: TestClient) -> None:
+    cached_api_token = path_test_resources() / "authentication" / "admin_connect.json"
+    with cached_api_token.open("r") as f:
+        connect_response = json.load(f)
+
+    with responses.RequestsMock(assert_all_requests_are_fired=False) as request_mock:
+        request_mock.add(
+            responses.POST,
+            "http://keycloak:8080/aiod-auth/realms/aiod/protocol/openid-connect/token",
+            json=connect_response,
+        )
+        request_mock.add(
+            responses.GET,
+            "http://keycloak:8080/aiod-auth/admin/realms/aiod/users?username=nobody&max=1&exact=True",
+            json=[],
+        )
+        with logged_in_user(kc_user_with_roles(ADMIN_ROLE)):
+            response = client.get("/user/nobody/resources", headers={"Authorization": "fake token"})
+
+    assert response.status_code == HTTPStatus.NOT_FOUND

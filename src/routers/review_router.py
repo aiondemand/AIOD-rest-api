@@ -81,6 +81,7 @@ def create(url_prefix: str, version: Version) -> APIRouter:
             identifier=submission.identifier,
             request_date=submission.request_date,
             comment=submission.comment,
+            requestee_identifier=submission.requestee_identifier,
             reviews=submission.reviews,
             assets=deserialized_assets,
         )

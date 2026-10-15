@@ -1,6 +1,8 @@
+import re
+from http import HTTPStatus
 from typing import List
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, Path
 from pydantic import create_model, Field
 from sqlalchemy import select
 from sqlmodel import Session
@@ -8,7 +10,12 @@ from sqlmodel import Session
 from dependencies.pagination import PaginationParams
 from dependencies.sorting import SortingParams, SortDirection, Sort
 from routers.resource_routers import versioned_routers
-from authentication import KeycloakUser, get_user_or_raise
+from authentication import (
+    KeycloakUser,
+    get_user_by_sub,
+    get_user_by_username,
+    get_user_or_raise,
+)
 from database.authorization import Permission, PermissionType
 from database.session import get_session
 from database.model.concept.aiod_entry import AIoDEntryORM
@@ -53,6 +60,45 @@ def create(url_prefix: str, version: Version) -> APIRouter:
         user: KeycloakUser = Depends(get_user_or_raise),  # noqa: B008
         session: Session = Depends(get_session),  # noqa: B008
     ) -> dict[str, list[AIoDConcept]]:
+        return _resources_response(user, session, pagination, sorting)
+
+    @router.get(
+        "/user/{user}/resources",
+        description="Return all assets for which the given user has administrator rights. "
+        "The user can be identified by their username or subject identifier. "
+        "Requires platform administrator rights.",
+        tags=["User"],
+        response_model=Catalogue,
+    )
+    def get_versioned_resources_of_other_user(
+        pagination: PaginationParams,
+        sorting: SortingParams,
+        user: str = Path(  # noqa: B008
+            description="The username or subject identifier of the user.",
+            examples=["jsmith01", "4a80f256-3928-4cfa-ba66-5e22bb36fc01"],
+        ),
+        current_user: KeycloakUser = Depends(get_user_or_raise),  # noqa: B008
+        session: Session = Depends(get_session),  # noqa: B008
+    ) -> dict[str, list[AIoDConcept]]:
+        if not current_user.is_admin:
+            raise HTTPException(
+                status_code=HTTPStatus.FORBIDDEN,
+                detail="You are not allowed to see the resources of other users.",
+            )
+        other = _resolve_user(user)
+        if other is None:
+            raise HTTPException(
+                status_code=HTTPStatus.NOT_FOUND,
+                detail=f"User with name {user!r} not found.",
+            )
+        return _resources_response(other, session, pagination, sorting)
+
+    def _resources_response(
+        user: KeycloakUser,
+        session: Session,
+        pagination: PaginationParams,
+        sorting: SortingParams,
+    ) -> dict[str, list[AIoDConcept]]:
         limit: int | None = pagination.limit
         if limit == 10 and version == Version.V2:
             limit = None
@@ -82,6 +128,17 @@ def create(url_prefix: str, version: Version) -> APIRouter:
         }
 
     return router
+
+
+# A Keycloak subject identifier (uuid), as opposed to a username.
+_SUB_PATTERN = r"\S{8}(-\S{4}){3}-\S{12}"
+
+
+def _resolve_user(user: str) -> KeycloakUser | None:
+    """Look up a user by their subject identifier, or by their username."""
+    if re.match(_SUB_PATTERN, user):
+        return get_user_by_sub(user)
+    return get_user_by_username(user)
 
 
 def _get_resources_for_user(

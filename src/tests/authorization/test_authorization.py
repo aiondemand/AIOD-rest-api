@@ -149,7 +149,7 @@ def test_user_can_submit_draft_for_review_v2(comment, client, publication):
         assert queue.status_code == HTTPStatus.OK, queue.json()
         assert len(queue.json()) == 1, "A successful request should result in a submission."
         [sub] = queue.json()
-        assert "requestee_identifier" not in sub, "Submissions should not review who submitted."
+        assert sub["requestee_identifier"] == ALICE._subject_identifier
         assert sub["comment"] == (comment if comment else ""), "Comment should be stored."
 
 
@@ -174,7 +174,7 @@ def test_user_can_submit_draft_for_review(comment, client, publication):
         assert queue.status_code == HTTPStatus.OK, queue.json()
         assert len(queue.json()) == 1, "A successful request should result in a submission."
         [sub] = queue.json()
-        assert "requestee_identifier" not in sub, "Submissions should not review who submitted."
+        assert sub["requestee_identifier"] == ALICE._subject_identifier
         assert sub["comment"] == (comment if comment else ""), "Comment should be stored."
 
 
@@ -265,6 +265,7 @@ def test_get_submission_by_id(client, publication):
         assert submission_dict == {
             "identifier": 1,
             "comment": "",
+            "requestee_identifier": ALICE._subject_identifier,
         }
         assert reviews == [
             {

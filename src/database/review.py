@@ -92,6 +92,14 @@ class SubmissionBase(SQLModel):
         default="",
         schema_extra={"example": "'IA' is not a typo, it's for L'intelligence artificielle."},
     )
+    # We do not want the review to be deleted when the original requestee is deleted,
+    # there could be e.g., shared ownership in which case the review data should be preserved.
+    requestee_identifier: str | None = Field(
+        default=None,
+        foreign_key="user.subject_identifier",
+        ondelete="SET NULL",
+        description="Keycloak user id (sub) of the user who submitted the assets.",
+    )
 
 
 class AssetReview(SQLModel, table=True):  # type: ignore[call-arg]
@@ -109,12 +117,6 @@ class AssetReview(SQLModel, table=True):  # type: ignore[call-arg]
 
 class Submission(SubmissionBase, table=True):  # type: ignore [call-arg]
     __tablename__ = "submission"
-    # We do not want the review to be deleted when the original requestee is deleted,
-    # there could be e.g., shared ownership in which case the review data should be preserved.
-    requestee_identifier: str | None = Field(
-        foreign_key="user.subject_identifier",
-        ondelete="SET NULL",
-    )
 
     reviews: list[Review] = Relationship(back_populates="submission")
     _assets: list[AssetReview] = Relationship()

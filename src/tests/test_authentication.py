@@ -71,6 +71,23 @@ async def test_unauthenticated():
 
 
 @pytest.mark.asyncio
+async def test_federated_user_without_username():
+    """EGI Check-in tokens often omit username; authorization_test must still return a name."""
+    keycloak_openid.introspect = Mock(
+        return_value={
+            "active": True,
+            "sub": "egi-user-sub",
+            "preferred_username": "someone@example.org",
+            "username": None,
+            "realm_access": {"roles": ["default-roles-aiod"]},
+        }
+    )
+    user = await get_user_or_raise(token="Bearer mocked")
+    assert user.name == "someone@example.org"
+    assert user._subject_identifier == "egi-user-sub"
+
+
+@pytest.mark.asyncio
 async def test_keycloak_error(mocked_token: Mock):
     """
     On any problem, keycloak_openid.introspect raises an error.

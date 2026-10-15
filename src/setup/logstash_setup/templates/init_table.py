@@ -4,7 +4,7 @@ input {
   jdbc {
     jdbc_driver_library => "/usr/share/logstash/mysql-connector-j.jar"
     jdbc_driver_class => "com.mysql.jdbc.Driver"
-    jdbc_connection_string => "jdbc:mysql://sqlserver:3306/aiod"
+    jdbc_connection_string => "jdbc:mysql://aiod-metadata-catalogue-mysql-svc:3306/aiod"
     jdbc_user => "{{db_user}}"
     jdbc_password => "{{db_pass}}"
     clean_run => true

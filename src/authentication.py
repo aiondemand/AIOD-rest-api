@@ -127,7 +127,7 @@ async def _get_user(token) -> KeycloakUser:
             logging.error("Invalid userinfo or inactive user.")
             raise InvalidUserError("Invalid userinfo or inactive user")  # caught below
         return KeycloakUser(
-            name=userinfo["username"],
+            name=_display_name(userinfo),
             roles=set(userinfo.get("realm_access", {}).get("roles", [])),
             _subject_identifier=userinfo["sub"],
         )
@@ -196,10 +196,15 @@ def get_user_by_sub(sub: str) -> KeycloakUser | None:
             return None
         raise
     return KeycloakUser(
-        name=user.get("username"),
+        name=_display_name(user),
         roles=set(),  # Not included with the call
         _subject_identifier=user.get("id"),
     )
+
+
+def _display_name(userinfo: dict) -> str:
+    """EGI-federated users often have no `username` on introspect; fall back."""
+    return userinfo.get("username") or userinfo.get("preferred_username") or userinfo["sub"]
 
 
 class InvalidUserError(Exception):
