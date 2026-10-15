@@ -1157,8 +1157,8 @@ Here are examples on how to configure a proxy with the <code>/aiod</code> prefix
 <div class="highlight"><pre><span></span><code>&lt;Location /aiod&gt;
    ProxyPass http://localhost:8009
    ProxypassReverse http://localhost:8009
-   RequestHeader set X-Forwarded-Prefix &quot;/aiod&quot;
-   RequestHeader set X-Forwarded-Proto &quot;https&quot;
+   RequestHeader set X-Forwarded-Prefix "/aiod"
+   RequestHeader set X-Forwarded-Proto "https"
 &lt;/Location&gt;
 </code></pre></div>
 </div>
@@ -1167,7 +1167,7 @@ Here are examples on how to configure a proxy with the <code>/aiod</code> prefix
     location /aiod/ {
         proxy_pass http://app:8000/;
         proxy_set_header X-Forwarded-Proto https;
-        proxy_set_header X-Forwarded-Prefix &quot;/aiod&quot;;
+        proxy_set_header X-Forwarded-Prefix "/aiod";
     }
 }
 </code></pre></div>

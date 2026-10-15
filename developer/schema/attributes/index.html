@@ -1299,10 +1299,10 @@ This page details how to change attributes on existing metadata types.</p>
 <p>Here is an example of the code that defines the <code>start_date</code> attribute of the <code>Event</code> class:
 <div class="highlight"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">EventBase</span><span class="p">(</span><span class="n">AIResourceBase</span><span class="p">):</span>
     <span class="n">start_date</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
-        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The start date and time of the event, formatted using the ISO 8601 date-time &quot;</span>
-        <span class="s2">&quot;format.&quot;</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">"The start date and time of the event, formatted using the ISO 8601 date-time "</span>
+        <span class="s2">"format."</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">schema_extra</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;example&quot;</span><span class="p">:</span> <span class="s2">&quot;2021-02-03T15:15:00&quot;</span><span class="p">},</span>
+        <span class="n">schema_extra</span><span class="o">=</span><span class="p">{</span><span class="s2">"example"</span><span class="p">:</span> <span class="s2">"2021-02-03T15:15:00"</span><span class="p">},</span>
     <span class="p">)</span>
 </code></pre></div>
 Let's unpack this statement.
@@ -1342,7 +1342,7 @@ In that case, it's probably smart to go one bigger: 256 characters (<code>NORMAL
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">database.model.field_length</span><span class="w"> </span><span class="kn">import</span> <span class="n">NORMAL</span>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">Event</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
-    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="n">NORMAL</span><span class="p">,</span> <span class="n">schema_extra</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;example&quot;</span><span class="p">:</span> <span class="s2">&quot;The name of this event.&quot;</span><span class="p">})</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="n">NORMAL</span><span class="p">,</span> <span class="n">schema_extra</span><span class="o">=</span><span class="p">{</span><span class="s2">"example"</span><span class="p">:</span> <span class="s2">"The name of this event."</span><span class="p">})</span>
 </code></pre></div>
 </details>
 </details>
@@ -1367,25 +1367,25 @@ Below, you'll find some examples.</p>
 <div class="tabbed-block">
 <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">upgrade</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="n">op</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span>
-        <span class="n">table_name</span><span class="o">=</span><span class="s2">&quot;news&quot;</span><span class="p">,</span>
-        <span class="n">column</span><span class="o">=</span><span class="n">Column</span><span class="p">(</span><span class="s2">&quot;source&quot;</span><span class="p">,</span> <span class="n">String</span><span class="p">(</span><span class="n">LONG</span><span class="p">),</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+        <span class="n">table_name</span><span class="o">=</span><span class="s2">"news"</span><span class="p">,</span>
+        <span class="n">column</span><span class="o">=</span><span class="n">Column</span><span class="p">(</span><span class="s2">"source"</span><span class="p">,</span> <span class="n">String</span><span class="p">(</span><span class="n">LONG</span><span class="p">),</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
     <span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">downgrade</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="n">op</span><span class="o">.</span><span class="n">drop_column</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="s2">&quot;news&quot;</span><span class="p">,</span> <span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;source&quot;</span><span class="p">)</span>
+    <span class="n">op</span><span class="o">.</span><span class="n">drop_column</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="s2">"news"</span><span class="p">,</span> <span class="n">column_name</span><span class="o">=</span><span class="s2">"source"</span><span class="p">)</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
 <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">upgrade</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="n">op</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span>
-        <span class="n">table_name</span><span class="o">=</span><span class="s2">&quot;event&quot;</span><span class="p">,</span>
-        <span class="n">column</span><span class="o">=</span><span class="n">Column</span><span class="p">(</span><span class="s2">&quot;max_participants&quot;</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+        <span class="n">table_name</span><span class="o">=</span><span class="s2">"event"</span><span class="p">,</span>
+        <span class="n">column</span><span class="o">=</span><span class="n">Column</span><span class="p">(</span><span class="s2">"max_participants"</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
     <span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">downgrade</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="n">op</span><span class="o">.</span><span class="n">drop_column</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="s2">&quot;event&quot;</span><span class="p">,</span> <span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;max_participants&quot;</span><span class="p">)</span>
+    <span class="n">op</span><span class="o">.</span><span class="n">drop_column</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="s2">"event"</span><span class="p">,</span> <span class="n">column_name</span><span class="o">=</span><span class="s2">"max_participants"</span><span class="p">)</span>
 </code></pre></div>
 </div>
 </div>

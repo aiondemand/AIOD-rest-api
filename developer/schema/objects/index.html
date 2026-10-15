@@ -1539,10 +1539,10 @@ the fields that are not dependent on a separate table:</p>
 <span class="k">class</span><span class="w"> </span><span class="nc">ExampleBase</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
     <span class="c1"># Required fields</span>
     <span class="n">unique_field</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                              <span class="n">schema_extra</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;example&quot;</span><span class="p">:</span> <span class="s2">&quot;Used for Swagger documentation.&quot;</span><span class="p">})</span>
-    <span class="n">string_field</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">5000</span><span class="p">,</span> <span class="n">schema_extra</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;example&quot;</span><span class="p">:</span> <span class="s2">&quot;A description.&quot;</span><span class="p">})</span>
+                              <span class="n">schema_extra</span><span class="o">=</span><span class="p">{</span><span class="s2">"example"</span><span class="p">:</span> <span class="s2">"Used for Swagger documentation."</span><span class="p">})</span>
+    <span class="n">string_field</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">5000</span><span class="p">,</span> <span class="n">schema_extra</span><span class="o">=</span><span class="p">{</span><span class="s2">"example"</span><span class="p">:</span> <span class="s2">"A description."</span><span class="p">})</span>
     <span class="c1"># Recommended fields</span>
-    <span class="n">int_field</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">schema_extra</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;example&quot;</span><span class="p">:</span> <span class="mi">22</span><span class="p">})</span>
+    <span class="n">int_field</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">schema_extra</span><span class="o">=</span><span class="p">{</span><span class="s2">"example"</span><span class="p">:</span> <span class="mi">22</span><span class="p">})</span>
 </code></pre></div>
 <p>We probably need some separate tables as well. For instance for "enum" types: where we store the
 possible string values in a separate table. We put these in separate file, either
@@ -1559,11 +1559,11 @@ possible string values in a separate table. We put these in separate file, eithe
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">ExampleEnum</span><span class="p">(</span><span class="n">NamedRelation</span><span class="p">,</span> <span class="n">table</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>  <span class="c1"># type: ignore [call-arg]</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;An example of an enum stored in a separate table&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""An example of an enum stored in a separate table"""</span>
 
-    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">&quot;example_enum&quot;</span>  <span class="c1"># singular, so not &quot;example_enums&quot;</span>
+    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">"example_enum"</span>  <span class="c1"># singular, so not "example_enums"</span>
 
-    <span class="n">examples</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="s2">&quot;Example&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Relationship</span><span class="p">(</span><span class="n">back_populates</span><span class="o">=</span><span class="s2">&quot;license&quot;</span><span class="p">)</span>
+    <span class="n">examples</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="s2">"Example"</span><span class="p">]</span> <span class="o">=</span> <span class="n">Relationship</span><span class="p">(</span><span class="n">back_populates</span><span class="o">=</span><span class="s2">"license"</span><span class="p">)</span>
 </code></pre></div>
 <p>Next we create the <code>Example</code> in <code>src/database/model/example/example.py</code>, inheriting from
 <code>ExampleBase</code>.</p>
@@ -1576,19 +1576,19 @@ possible string values in a separate table. We put these in separate file, eithe
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">Example</span><span class="p">(</span><span class="n">ExampleBase</span><span class="p">,</span> <span class="n">table</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>  <span class="c1"># type: ignore [call-arg]</span>
-    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">&quot;example&quot;</span>
+    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">"example"</span>
 
-    <span class="n">identifier</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">foreign_key</span><span class="o">=</span><span class="s2">&quot;ai_asset.identifier&quot;</span><span class="p">)</span>
+    <span class="n">identifier</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">foreign_key</span><span class="o">=</span><span class="s2">"ai_asset.identifier"</span><span class="p">)</span>
 
-    <span class="n">example_enum_identifier</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">foreign_key</span><span class="o">=</span><span class="s2">&quot;example_enum.identifier&quot;</span><span class="p">)</span>
-    <span class="n">example_enum</span><span class="p">:</span> <span class="n">ExampleEnum</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Relationship</span><span class="p">(</span><span class="n">back_populates</span><span class="o">=</span><span class="s2">&quot;examples&quot;</span><span class="p">)</span>
+    <span class="n">example_enum_identifier</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">foreign_key</span><span class="o">=</span><span class="s2">"example_enum.identifier"</span><span class="p">)</span>
+    <span class="n">example_enum</span><span class="p">:</span> <span class="n">ExampleEnum</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Relationship</span><span class="p">(</span><span class="n">back_populates</span><span class="o">=</span><span class="s2">"examples"</span><span class="p">)</span>
 
     <span class="k">class</span><span class="w"> </span><span class="nc">RelationshipConfig</span><span class="p">:</span>  <span class="c1"># This is AIoD-specific code, used to go from Pydantic to SqlAlchemy</span>
         <span class="n">example_enum</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">ManyToOne</span><span class="p">(</span>
-            <span class="n">identifier_name</span><span class="o">=</span><span class="s2">&quot;example_enum_identifier&quot;</span><span class="p">,</span>
-            <span class="n">_serializer</span><span class="o">=</span><span class="n">AttributeSerializer</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">),</span>  <span class="c1"># code to serialize ORM to Pydantic</span>
+            <span class="n">identifier_name</span><span class="o">=</span><span class="s2">"example_enum_identifier"</span><span class="p">,</span>
+            <span class="n">_serializer</span><span class="o">=</span><span class="n">AttributeSerializer</span><span class="p">(</span><span class="s2">"name"</span><span class="p">),</span>  <span class="c1"># code to serialize ORM to Pydantic</span>
             <span class="n">deserializer</span><span class="o">=</span><span class="n">FindByNameDeserializer</span><span class="p">(</span><span class="n">ExampleEnum</span><span class="p">),</span>  <span class="c1"># deserialize Pydantic to ORM</span>
-            <span class="n">example</span><span class="o">=</span><span class="s2">&quot;An example string value&quot;</span><span class="p">,</span>
+            <span class="n">example</span><span class="o">=</span><span class="s2">"An example string value"</span><span class="p">,</span>
         <span class="p">)</span>
 </code></pre></div>
 <h3 id="types-of-relations">Types of relations</h3>
@@ -1607,15 +1607,15 @@ together. Example: <code>Dataset.alternate_name</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Example</span><span class="p">(</span><span class="n">ExampleBase</span><span class="p">,</span> <span class="n">table</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>  <span class="c1"># type: ignore [call-arg]</span>
     <span class="c1"># [...]</span>
     <span class="n">example_enums</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ExampleEnum</span><span class="p">]</span> <span class="o">=</span> <span class="n">Relationship</span><span class="p">(</span>
-        <span class="n">back_populates</span><span class="o">=</span><span class="s2">&quot;examples&quot;</span><span class="p">,</span>
-        <span class="n">link_model</span><span class="o">=</span><span class="n">many_to_many_link_factory</span><span class="p">(</span><span class="s2">&quot;example&quot;</span><span class="p">,</span> <span class="n">ExampleEnum</span><span class="o">.</span><span class="n">__tablename__</span><span class="p">)</span>
+        <span class="n">back_populates</span><span class="o">=</span><span class="s2">"examples"</span><span class="p">,</span>
+        <span class="n">link_model</span><span class="o">=</span><span class="n">many_to_many_link_factory</span><span class="p">(</span><span class="s2">"example"</span><span class="p">,</span> <span class="n">ExampleEnum</span><span class="o">.</span><span class="n">__tablename__</span><span class="p">)</span>
     <span class="p">)</span>
 
     <span class="k">class</span><span class="w"> </span><span class="nc">RelationshipConfig</span><span class="p">:</span>
         <span class="c1"># [...]</span>
         <span class="n">alternate_names</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">ManyToMany</span><span class="p">(</span>
-            <span class="n">example</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;alias 1&quot;</span><span class="p">,</span> <span class="s2">&quot;alias 2&quot;</span><span class="p">],</span>
-            <span class="n">serializer</span><span class="o">=</span><span class="n">AttributeSerializer</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">),</span>
+            <span class="n">example</span><span class="o">=</span><span class="p">[</span><span class="s2">"alias 1"</span><span class="p">,</span> <span class="s2">"alias 2"</span><span class="p">],</span>
+            <span class="n">serializer</span><span class="o">=</span><span class="n">AttributeSerializer</span><span class="p">(</span><span class="s2">"name"</span><span class="p">),</span>
             <span class="n">deserializer</span><span class="o">=</span><span class="n">FindByNameDeserializerList</span><span class="p">(</span><span class="n">ExampleEnum</span><span class="p">),</span>
         <span class="p">)</span>
 </code></pre></div></p>
@@ -1634,9 +1634,9 @@ how those triggers can be configured.</p>
 separate class. We then have to define the separate ORM and logic classes ourselves. Let's say
 we want to describe this for our Example class:</p>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;string_value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;foo&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;nested&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;foo&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;bar&quot;</span>
+<span class="w">  </span><span class="nt">"string_value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"foo"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"nested"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"foo"</span><span class="p">:</span><span class="w"> </span><span class="s2">"bar"</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -1650,16 +1650,16 @@ we want to describe this for our Example class:</p>
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">NestedBase</span><span class="p">(</span><span class="n">SQLModel</span><span class="p">):</span>
-    <span class="n">foo</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">schema_extra</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;example&quot;</span><span class="p">:</span> <span class="s2">&quot;Bar&quot;</span><span class="p">})</span>
+    <span class="n">foo</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">schema_extra</span><span class="o">=</span><span class="p">{</span><span class="s2">"example"</span><span class="p">:</span> <span class="s2">"Bar"</span><span class="p">})</span>
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">NestedORM</span><span class="p">(</span><span class="n">NestedBase</span><span class="p">,</span> <span class="n">table</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>  <span class="c1"># type: ignore [call-arg]</span>
-    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">&quot;nested&quot;</span>
+    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">"nested"</span>
 
     <span class="n">identifier</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="n">example_identifier</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">foreign_key</span><span class="o">=</span><span class="s2">&quot;example.identifier&quot;</span><span class="p">)</span>
-    <span class="n">example</span><span class="p">:</span> <span class="s2">&quot;Example&quot;</span> <span class="o">=</span> <span class="n">Relationship</span><span class="p">(</span><span class="n">back_populates</span><span class="o">=</span><span class="s2">&quot;nested&quot;</span><span class="p">)</span>
+    <span class="n">example_identifier</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">foreign_key</span><span class="o">=</span><span class="s2">"example.identifier"</span><span class="p">)</span>
+    <span class="n">example</span><span class="p">:</span> <span class="s2">"Example"</span> <span class="o">=</span> <span class="n">Relationship</span><span class="p">(</span><span class="n">back_populates</span><span class="o">=</span><span class="s2">"nested"</span><span class="p">)</span>
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">Nested</span><span class="p">(</span><span class="n">NestedBase</span><span class="p">):</span>
@@ -1668,7 +1668,7 @@ we want to describe this for our Example class:</p>
 <p>We can then add this to our <code>Example</code> model:</p>
 <div class="highlight"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Example</span><span class="p">(</span><span class="n">ExampleBase</span><span class="p">,</span> <span class="n">table</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>  <span class="c1"># type: ignore [call-arg]</span>
     <span class="c1"># [...]</span>
-    <span class="n">nested</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">NestedORM</span><span class="p">]</span> <span class="o">=</span> <span class="n">Relationship</span><span class="p">(</span><span class="n">sa_relationship_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;cascade&quot;</span><span class="p">:</span> <span class="s2">&quot;all, delete&quot;</span><span class="p">})</span>
+    <span class="n">nested</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">NestedORM</span><span class="p">]</span> <span class="o">=</span> <span class="n">Relationship</span><span class="p">(</span><span class="n">sa_relationship_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">"cascade"</span><span class="p">:</span> <span class="s2">"all, delete"</span><span class="p">})</span>
 
     <span class="k">class</span><span class="w"> </span><span class="nc">RelationshipConfig</span><span class="p">:</span>
         <span class="c1"># [...]</span>
@@ -1689,11 +1689,11 @@ we want to describe this for our Example class:</p>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">resource_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s2">&quot;example&quot;</span>
+        <span class="k">return</span> <span class="s2">"example"</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">resource_name_plural</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s2">&quot;examples&quot;</span>
+        <span class="k">return</span> <span class="s2">"examples"</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">resource_class</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="n">Example</span><span class="p">]:</span>

@@ -1185,7 +1185,7 @@ of their usage in this project in the admonitions below.</p>
 <details class="info">
 <summary>FastAPI</summary>
 <p>FastAPI allows us to easily construct REST API paths on our web server. For example:
-<div class="highlight"><pre><span></span><code><span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/datasets/</span><span class="si">{identifier}</span><span class="s2">&quot;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"/datasets/</span><span class="si">{identifier}</span><span class="s2">"</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_dataset</span><span class="p">(</span><span class="n">identifier</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="n">Depends</span><span class="p">(</span><span class="n">user_or_raise</span><span class="p">))</span> <span class="o">-&gt;</span> <span class="n">Dataset</span><span class="p">:</span>
     <span class="o">...</span> <span class="c1"># fetch a dataset</span>
     <span class="k">return</span> <span class="n">dataset</span>
@@ -1210,7 +1210,7 @@ type hints at runtime, e.g., the code below is fine and runs without errors:</p>
 <span class="k">class</span><span class="w"> </span><span class="nc">Foo</span><span class="p">:</span>
     <span class="n">x</span><span class="p">:</span> <span class="nb">int</span>
 
-<span class="n">bar</span> <span class="o">=</span> <span class="n">Foo</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s2">&quot;This is a string, not an integer.&quot;</span><span class="p">)</span>
+<span class="n">bar</span> <span class="o">=</span> <span class="n">Foo</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s2">"This is a string, not an integer."</span><span class="p">)</span>
 </code></pre></div>
 <p>Using Pydantic's <code>BaseModel</code>, typehints are used to validate data at runtime, raising
 an error if the data value does not adhere to the constraints of the type. For example,
@@ -1220,7 +1220,7 @@ the code below raises a <code>ValidationError</code>:</p>
 <span class="k">class</span><span class="w"> </span><span class="nc">Foo</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
     <span class="n">x</span><span class="p">:</span> <span class="nb">int</span>
 
-<span class="n">bar</span> <span class="o">=</span> <span class="n">Foo</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s2">&quot;This is a string, not an integer.&quot;</span><span class="p">)</span>
+<span class="n">bar</span> <span class="o">=</span> <span class="n">Foo</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s2">"This is a string, not an integer."</span><span class="p">)</span>
 </code></pre></div>
 <p>Using Pydantic, we can annotate our classes, such that FastAPI knows how to validate
 the input data on requests. For example, to ensure a metadata asset uploaded by a user
@@ -1236,11 +1236,11 @@ auto-generated docs.</p>
 <p>SQLAlchemy allows us to define tables in our database through Python code, query it, and
 load it into Python objects with it's object-relational mapping (ORM) layer.
 This allows us to write something like:</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># DbSession is a function defined by the metadata catalogue to ensure only one &#39;engine&#39;</span>
+<div class="highlight"><pre><span></span><code><span class="c1"># DbSession is a function defined by the metadata catalogue to ensure only one 'engine'</span>
 <span class="c1"># gets created, but simply returns an SQLAlchemy session object.</span>
 <span class="k">with</span> <span class="n">DbSession</span><span class="p">()</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
     <span class="n">dataset</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">identifier</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;We loaded dataset </span><span class="si">{</span><span class="n">dataset</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> from the database!&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"We loaded dataset </span><span class="si">{</span><span class="n">dataset</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> from the database!"</span><span class="p">)</span>
 </code></pre></div>
 </details>
 <details class="info">
@@ -1253,12 +1253,12 @@ This is useful, since they are often updated in sync (e.g.,
 an attribute gets added to a model, we also need to add a column to the respective table).
 For example:</p>
 <div class="highlight"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Foo</span><span class="p">(</span><span class="n">SQLModel</span><span class="p">,</span> <span class="n">table</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>  <span class="c1"># Note the inheritance from SQLModle</span>
-    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">&quot;foo&quot;</span>  <span class="c1"># Give a custom name to the database table for this type</span>
+    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">"foo"</span>  <span class="c1"># Give a custom name to the database table for this type</span>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
         <span class="n">max_length</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The name of this foo.&quot;</span><span class="p">,</span>
-        <span class="n">schema_extra</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;example&quot;</span><span class="p">:</span> <span class="s2">&quot;Alecia Bobbus&quot;</span><span class="p">},</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">"The name of this foo."</span><span class="p">,</span>
+        <span class="n">schema_extra</span><span class="o">=</span><span class="p">{</span><span class="s2">"example"</span><span class="p">:</span> <span class="s2">"Alecia Bobbus"</span><span class="p">},</span>
     <span class="p">)</span>
 </code></pre></div>
 <p>The <code>Foo</code> object can now be used directly with <code>SQLAlchemy</code> as it is mapped to the "foo" table.

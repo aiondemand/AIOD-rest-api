@@ -1396,12 +1396,12 @@ It also avoids requiring the user to learn the Elastic Search query format.</p>
 Simply inherit from the base <code>SearchRouter</code> class defined in <code>src/routers/search_router.py</code> and define a few properties:</p>
 <p><div class="highlight"><pre><span></span><code>    <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">es_index</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s2">&quot;case_study&quot;</span>
+        <span class="k">return</span> <span class="s2">"case_study"</span>
 </code></pre></div>
 The <code>es_index</code> property defines the name of the index. It is how it is known by Elasic Search, and should match the name of the table in the database.</p>
 <div class="highlight"><pre><span></span><code>    <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">resource_name_plural</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s2">&quot;case_studies&quot;</span>
+        <span class="k">return</span> <span class="s2">"case_studies"</span>
 </code></pre></div>
 <p>The <code>resource_name_plural</code> is used to define the path of the REST API endpoint, e.g.: <code>api.aiod.eu/search/case_studies</code>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@property</span>
@@ -1411,17 +1411,17 @@ The <code>es_index</code> property defines the name of the index. It is how it i
 <p>The <code>resource_class</code> property contains a direct reference to the object it indexes, which is used when returning expanded responses from the ES query ("get all").</p>
 <div class="highlight"><pre><span></span><code>    <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">extra_indexed_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;headline&quot;</span><span class="p">,</span> <span class="s2">&quot;alternative_headline&quot;</span><span class="p">}</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">"headline"</span><span class="p">,</span> <span class="s2">"alternative_headline"</span><span class="p">}</span>
 </code></pre></div>
 <p>The <code>extra_indexed_fields</code> property contains the fields of the entity that should be included in the index other than the <code>global_indexed_fields</code> found in the <code>SearchRouter</code> class.</p>
 <p><div class="highlight"><pre><span></span><code>    <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">linked_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="k">return</span> <span class="p">{</span>
-            <span class="s2">&quot;alternate_name&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;application_area&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;industrial_sector&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;research_area&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;scientific_domain&quot;</span><span class="p">,</span>
+            <span class="s2">"alternate_name"</span><span class="p">,</span>
+            <span class="s2">"application_area"</span><span class="p">,</span>
+            <span class="s2">"industrial_sector"</span><span class="p">,</span>
+            <span class="s2">"research_area"</span><span class="p">,</span>
+            <span class="s2">"scientific_domain"</span><span class="p">,</span>
         <span class="p">}</span>
 </code></pre></div>
 The <code>linked_fields</code> property contains the fields of the entity which refer to external tables and should be included in the index.</p>

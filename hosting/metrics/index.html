@@ -1445,8 +1445,8 @@
 </li>
 </ul>
 <div class="highlight"><pre><span></span><code><span class="p">[</span>
-<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;asset_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;data_p7v02a70CbBGKk29T8przBjf&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;hits&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">42</span><span class="w"> </span><span class="p">},</span>
-<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;asset_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;data_g8912mLHg8i2hsJblKu6G78i&quot;</span><span class="p">,</span><span class="w">   </span><span class="nt">&quot;hits&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">17</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nt">"asset_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"data_p7v02a70CbBGKk29T8przBjf"</span><span class="p">,</span><span class="w"> </span><span class="nt">"hits"</span><span class="p">:</span><span class="w"> </span><span class="mi">42</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nt">"asset_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"data_g8912mLHg8i2hsJblKu6G78i"</span><span class="p">,</span><span class="w">   </span><span class="nt">"hits"</span><span class="p">:</span><span class="w"> </span><span class="mi">17</span><span class="w"> </span><span class="p">}</span>
 <span class="p">]</span>
 </code></pre></div>
 <ul>
@@ -1497,7 +1497,7 @@ curl<span class="w"> </span>-s<span class="w"> </span>http://localhost:8000/data
 curl<span class="w"> </span>-s<span class="w"> </span>http://localhost:8000/v2/models/bert<span class="w">      </span>&gt;/dev/null
 </code></pre></div>
 <p>Check top assets (datasets):</p>
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-s<span class="w"> </span><span class="s2">&quot;http://localhost:8000/stats/top/datasets?limit=5&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>.
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-s<span class="w"> </span><span class="s2">"http://localhost:8000/stats/top/datasets?limit=5"</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>.
 </code></pre></div>
 <hr />
 <h2 id="grafana-quick-setup">Grafana: quick setup</h2>
@@ -1530,13 +1530,13 @@ curl<span class="w"> </span>-s<span class="w"> </span>http://localhost:8000/v2/m
 <span class="o">)</span>
 
 <span class="c1"># Error rate (4xx/5xx) per endpoint</span>
-<span class="k">sum</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="o">(</span><span class="nv">handler</span><span class="o">)</span><span class="w"> </span><span class="o">(</span><span class="kr">rate</span><span class="o">(</span><span class="nv">http_requests_total</span><span class="p">{</span><span class="nl">status</span><span class="o">=~</span><span class="p">&quot;</span><span class="s">4..|5..</span><span class="p">&quot;}[</span><span class="s">5m</span><span class="p">]</span><span class="o">))</span>
+<span class="k">sum</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="o">(</span><span class="nv">handler</span><span class="o">)</span><span class="w"> </span><span class="o">(</span><span class="kr">rate</span><span class="o">(</span><span class="nv">http_requests_total</span><span class="p">{</span><span class="nl">status</span><span class="o">=~</span><span class="p">"</span><span class="s">4..|5..</span><span class="p">"}[</span><span class="s">5m</span><span class="p">]</span><span class="o">))</span>
 </code></pre></div>
 <p><strong>MySQL (popularity examples):</strong></p>
 <div class="highlight"><pre><span></span><code><span class="c1">-- Top datasets (all time)</span>
 <span class="k">SELECT</span><span class="w"> </span><span class="n">asset_id</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">asset</span><span class="p">,</span><span class="w"> </span><span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">hits</span>
 <span class="k">FROM</span><span class="w"> </span><span class="n">asset_access_log</span>
-<span class="k">WHERE</span><span class="w"> </span><span class="n">resource_type</span><span class="o">=</span><span class="s1">&#39;datasets&#39;</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">status</span><span class="o">=</span><span class="mi">200</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">resource_type</span><span class="o">=</span><span class="s1">'datasets'</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">status</span><span class="o">=</span><span class="mi">200</span>
 <span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">asset</span>
 <span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">hits</span><span class="w"> </span><span class="k">DESC</span>
 <span class="k">LIMIT</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span>

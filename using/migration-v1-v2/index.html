@@ -1463,12 +1463,12 @@ If you do not store identifiers, you can safely ignore this section.</p>
 </div>
 <p>When you fetch assets on the metadata catalogue, you will find multiple identifiers in their descriptions, for example:</p>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;platform&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;huggingface&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;platform_resource_identifier&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;621ffdd236468d709f181d6f&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;bigIR/ar_cov19&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;ai_asset_identifier&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">53</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;ai_resource_identifier&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">63</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;identifier&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">24</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"platform"</span><span class="p">:</span><span class="w"> </span><span class="s2">"huggingface"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"platform_resource_identifier"</span><span class="p">:</span><span class="w"> </span><span class="s2">"621ffdd236468d709f181d6f"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"bigIR/ar_cov19"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"ai_asset_identifier"</span><span class="p">:</span><span class="w"> </span><span class="mi">53</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"ai_resource_identifier"</span><span class="p">:</span><span class="w"> </span><span class="mi">63</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"identifier"</span><span class="p">:</span><span class="w"> </span><span class="mi">24</span><span class="p">,</span>
 <span class="w">     </span><span class="err">…</span>
 <span class="w">  </span><span class="p">},</span>
 </code></pre></div>
@@ -1479,12 +1479,12 @@ However, depending on the nature of the relationship, you would need to use a di
 This is error-prone and may lead to users accidentally linking the wrong assets.</p>
 <p>To address this issue, we are unifying the identifiers to make sure that every asset in the metadata catalogue has one single unique identifier for the AI-on-Demand platform. For example:</p>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;platform&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;huggingface&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;platform_resource_identifier&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;621ffdd236468d709f181d6f&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;bigIR/ar_cov19&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;ai_asset_identifier&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">63</span><span class="p">,</span><span class="w">    </span><span class="err">#</span><span class="w"> </span><span class="err">i</span><span class="kc">nstea</span><span class="err">d</span><span class="w"> </span><span class="err">o</span><span class="kc">f</span><span class="w"> </span><span class="mi">53</span>
-<span class="w">    </span><span class="nt">&quot;ai_resource_identifier&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">63</span><span class="p">,</span><span class="w"> </span><span class="err">#</span><span class="w"> </span><span class="err">remai</span><span class="kc">ne</span><span class="err">d</span><span class="w"> </span><span class="kc">t</span><span class="err">he</span><span class="w"> </span><span class="err">same</span>
-<span class="w">    </span><span class="nt">&quot;identifier&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">63</span><span class="p">,</span><span class="w">             </span><span class="err">#</span><span class="w"> </span><span class="err">i</span><span class="kc">nstea</span><span class="err">d</span><span class="w"> </span><span class="err">o</span><span class="kc">f</span><span class="w"> </span><span class="mi">24</span>
+<span class="w">    </span><span class="nt">"platform"</span><span class="p">:</span><span class="w"> </span><span class="s2">"huggingface"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"platform_resource_identifier"</span><span class="p">:</span><span class="w"> </span><span class="s2">"621ffdd236468d709f181d6f"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"bigIR/ar_cov19"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"ai_asset_identifier"</span><span class="p">:</span><span class="w"> </span><span class="mi">63</span><span class="p">,</span><span class="w">    </span><span class="err">#</span><span class="w"> </span><span class="err">i</span><span class="kc">nstea</span><span class="err">d</span><span class="w"> </span><span class="err">o</span><span class="kc">f</span><span class="w"> </span><span class="mi">53</span>
+<span class="w">    </span><span class="nt">"ai_resource_identifier"</span><span class="p">:</span><span class="w"> </span><span class="mi">63</span><span class="p">,</span><span class="w"> </span><span class="err">#</span><span class="w"> </span><span class="err">remai</span><span class="kc">ne</span><span class="err">d</span><span class="w"> </span><span class="kc">t</span><span class="err">he</span><span class="w"> </span><span class="err">same</span>
+<span class="w">    </span><span class="nt">"identifier"</span><span class="p">:</span><span class="w"> </span><span class="mi">63</span><span class="p">,</span><span class="w">             </span><span class="err">#</span><span class="w"> </span><span class="err">i</span><span class="kc">nstea</span><span class="err">d</span><span class="w"> </span><span class="err">o</span><span class="kc">f</span><span class="w"> </span><span class="mi">24</span>
 <span class="w">     </span><span class="err">…</span>
 <span class="w">  </span><span class="p">},</span>
 </code></pre></div>

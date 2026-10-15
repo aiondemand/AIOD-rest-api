@@ -1255,15 +1255,15 @@ Generally, these are <code>GET</code> requests when retrieving data, <code>PUT</
 <div class="tabbed-block">
 <p>This example uses the <a href="https://requests.readthedocs.io/en/latest/"><code>requests</code></a> library to list datasets.</p>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
-<span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;https://api.aiod.eu/datasets/v1?schema=aiod&amp;offset=0&amp;limit=10&quot;</span><span class="p">)</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"https://api.aiod.eu/datasets/v1?schema=aiod&amp;offset=0&amp;limit=10"</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">())</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
 <p>This example uses <a href="https://curl.se/">curl</a> to retrieve data from the command line.</p>
-<div class="highlight"><pre><span></span><code>curl -X &#39;GET&#39; \
-&#39;https://api.aiod.eu/datasets/v1?schema=aiod&amp;offset=0&amp;limit=10&#39; \
--H &#39;accept: application/json&#39;
+<div class="highlight"><pre><span></span><code>curl -X 'GET' \
+'https://api.aiod.eu/datasets/v1?schema=aiod&amp;offset=0&amp;limit=10' \
+-H 'accept: application/json'
 </code></pre></div>
 </div>
 </div>
@@ -1300,9 +1300,9 @@ and can execute a call directly on the API:</p>
 <p><img alt="The Swagger documentation allows you to directly query the REST API from your browser." src="../media/swagger.webp" /></p>
 <p>Click the <code>Try it out</code> button to be able to modify the parameter values and then click the <code>execute</code> button to make the request directly from the documentation page.
 Under <code>response</code> you will also see an example on how to make the request through the command line using <code>curl</code>, e.g.:</p>
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span><span class="s1">&#39;GET&#39;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span><span class="s1">&#39;https://api.aiod.eu/datasets/v1?schema=aiod&amp;offset=0&amp;limit=10&#39;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;accept: application/json&#39;</span>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span><span class="s1">'GET'</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="s1">'https://api.aiod.eu/datasets/v1?schema=aiod&amp;offset=0&amp;limit=10'</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s1">'accept: application/json'</span>
 </code></pre></div>
 <p>Below the example, you will find a section <code>Server Response</code> which displays the actual response from the service (if you clicked <code>execute</code>).
 Normally, this should look similar to the image below; a <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Status">HTTP Status Code</a>,
@@ -1337,9 +1337,9 @@ especially with respect to documentation of the expected responses and the schem
 To see examples, simply expand the endpoint's documentation and click <code>Try it out</code>, fill in any parameters, and click <code>Execute</code>.
 The query will be executed, but it will also generate a <code>curl</code> command which matches the query.</p>
 <p>For example, listing the first 10 datasets:</p>
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span><span class="s1">&#39;GET&#39;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span><span class="s1">&#39;http://api.aiod.eu/datasets/v1?schema=aiod&amp;offset=0&amp;limit=10&#39;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;accept: application/json&#39;</span>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span><span class="s1">'GET'</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="s1">'http://api.aiod.eu/datasets/v1?schema=aiod&amp;offset=0&amp;limit=10'</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s1">'accept: application/json'</span>
 </code></pre></div>
 
 

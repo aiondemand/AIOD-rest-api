@@ -1391,21 +1391,21 @@ When using the <code>./scripts/up.sh</code> script to launch your services, thes
 <div class="highlight"><pre><span></span><code><span class="c1"># Configures the REST API</span>
 <span class="c1"># TODO: refactor configuration (https://github.com/aiondemand/AIOD-rest-api/issues/82)</span>
 
-<span class="n">domain</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;https://api.aiod.eu/&quot;</span>
+<span class="n">domain</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"https://api.aiod.eu/"</span>
 
 <span class="k">[configuration]</span>
 <span class="c1"># paths to other configuration files, relative to this file</span>
-<span class="n">versions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;versions.toml&quot;</span>
+<span class="n">versions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"versions.toml"</span>
 
 <span class="c1"># Information on which database to connect to</span>
 <span class="k">[database]</span>
-<span class="n">host</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;sqlserver&quot;</span>
+<span class="n">host</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"sqlserver"</span>
 <span class="n">port</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3306</span>
-<span class="n">database</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;aiod&quot;</span>
-<span class="n">username</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;root&quot;</span>
-<span class="n">password</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;ok&quot;</span>
+<span class="n">database</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"aiod"</span>
+<span class="n">username</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"root"</span>
+<span class="n">password</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"ok"</span>
 
-<span class="c1"># One of: &#39;never&#39;, &#39;if-absent&#39;, or &#39;drop-then-build&#39;</span>
+<span class="c1"># One of: 'never', 'if-absent', or 'drop-then-build'</span>
 <span class="c1"># Determines if the database is created:</span>
 <span class="c1">#    - never:</span>
 <span class="c1">#        *never* creates the database, not even if there does not exist one yet.</span>
@@ -1416,25 +1416,25 @@ When using the <code>./scripts/up.sh</code> script to launch your services, thes
 <span class="c1">#    - drop-then-build:</span>
 <span class="c1">#        Drops the database on startup to recreate it from scratch.</span>
 <span class="c1">#        THIS REMOVES ALL DATA PERMANENTLY. NO RECOVERY POSSIBLE.</span>
-<span class="n">build_database</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;if-absent&quot;</span>
+<span class="n">build_database</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"if-absent"</span>
 
 <span class="c1"># Additional options for development</span>
 <span class="k">[dev]</span>
 <span class="n">reload</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span>
 <span class="n">request_timeout</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10</span><span class="w">  </span><span class="c1"># seconds</span>
-<span class="n">log_level</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;INFO&quot;</span><span class="w">  </span><span class="c1"># Python log levels: https://docs.python.org/3/library/logging.html#logging-levels</span>
+<span class="n">log_level</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"INFO"</span><span class="w">  </span><span class="c1"># Python log levels: https://docs.python.org/3/library/logging.html#logging-levels</span>
 <span class="n">disable_reviews</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span><span class="w">  </span><span class="c1"># set to true to automatically publish submissions</span>
-<span class="n">url_prefix</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;&quot;</span>
-<span class="n">taxonomy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="w">  </span><span class="c1"># Set to a JSON file containing a taxonomy to put into the database on startup</span>
+<span class="n">url_prefix</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">""</span>
+<span class="n">taxonomy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">""</span><span class="w">  </span><span class="c1"># Set to a JSON file containing a taxonomy to put into the database on startup</span>
 
 <span class="c1"># Authentication and authorization</span>
 <span class="k">[keycloak]</span>
-<span class="n">server_url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;http://keycloak:8080/aiod-auth/&quot;</span>
-<span class="n">realm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;aiod&quot;</span>
-<span class="n">client_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;aiod-api&quot;</span><span class="w">  </span><span class="c1"># a private client, used by the backend</span>
-<span class="n">client_id_swagger</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;aiod-api-swagger&quot;</span><span class="w">  </span><span class="c1"># a public client, used by the Swagger Frontend</span>
-<span class="n">openid_connect_url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;http://localhost/aiod-auth/realms/aiod/.well-known/openid-configuration&quot;</span>
-<span class="n">scopes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;openid profile roles&quot;</span>
+<span class="n">server_url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"http://keycloak:8080/aiod-auth/"</span>
+<span class="n">realm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"aiod"</span>
+<span class="n">client_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"aiod-api"</span><span class="w">  </span><span class="c1"># a private client, used by the backend</span>
+<span class="n">client_id_swagger</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"aiod-api-swagger"</span><span class="w">  </span><span class="c1"># a public client, used by the Swagger Frontend</span>
+<span class="n">openid_connect_url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"http://localhost/aiod-auth/realms/aiod/.well-known/openid-configuration"</span>
+<span class="n">scopes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"openid profile roles"</span>
 
 <span class="c1"># Rate limiting configuration</span>
 <span class="k">[rate_limits]</span>
@@ -1446,7 +1446,7 @@ When using the <code>./scripts/up.sh</code> script to launch your services, thes
 </div>
 <div class="tabbed-block">
 <div class="highlight"><pre><span></span><code># DEV
-# Override USE_LOCAL_DEV to &quot;true&quot; to automatically mount your
+# Override USE_LOCAL_DEV to "true" to automatically mount your
 # source code to the containers when using `scripts/up.sh`.
 USE_LOCAL_DEV=
 
@@ -1460,7 +1460,7 @@ MYSQL_ROOT_PASSWORD=ok
 HOSTNAME=localhost
 KEYCLOAK_ADMIN=admin
 KEYCLOAK_ADMIN_PASSWORD=password
-KEYCLOAK_CLIENT_SECRET=&quot;QJiOGn09eCEfnqAmcPP2l4vMU8grlmVQ&quot;
+KEYCLOAK_CLIENT_SECRET="QJiOGn09eCEfnqAmcPP2l4vMU8grlmVQ"
 REDIRECT_URIS=http://${HOSTNAME}/docs/oauth2-redirect
 POST_LOGOUT_REDIRECT_URIS=http://${HOSTNAME}/aiod-auth/realms/aiod/protocol/openid-connect/logout
 AIOD_KEYCLOAK_PORT=8080
@@ -1470,18 +1470,18 @@ ADMIN_ROLE_NAME=admin_aiod_resources
 EGICHECKINALIAS=
 
 #AIBUILDER
-AIBUILDER_API_TOKEN=&quot;&quot;
+AIBUILDER_API_TOKEN=""
 
 #ELASTICSEARCH
 ES_USER=elastic
 ES_PASSWORD=changeme
 ES_DISCOVERY_TYPE=single-node
-ES_JAVA_OPTS=&quot;-Xmx256m -Xms256m&quot;
+ES_JAVA_OPTS="-Xmx256m -Xms256m"
 AIOD_ES_HTTP_PORT=9200
 AIOD_ES_TRANSPORT_PORT=9300
 
 #LOGSTASH
-LS_JAVA_OPTS=&quot;-Xmx256m -Xms256m&quot;
+LS_JAVA_OPTS="-Xmx256m -Xms256m"
 AIOD_LOGSTASH_BEATS_PORT=5044
 AIOD_LOGSTASH_PORT=5001
 AIOD_LOGSTASH_API_PORT=9600

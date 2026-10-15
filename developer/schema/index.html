@@ -1285,7 +1285,7 @@ Now we have a database state we want to restore easily, so we create a back up:
 </code></pre></div>
 you can now checkout your branch (<code>git checkout &lt;branch&gt;</code>) and test the migration.
 It's now easy to restore state with the backup:
-<div class="highlight"><pre><span></span><code>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>sqlserver<span class="w"> </span>mysql<span class="w"> </span>-uroot<span class="w"> </span>-pok<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;drop database aiod; create database aiod;&quot;</span><span class="p">;</span><span class="w"> </span>./scripts/mysql_restore.sh
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>sqlserver<span class="w"> </span>mysql<span class="w"> </span>-uroot<span class="w"> </span>-pok<span class="w"> </span>-e<span class="w"> </span><span class="s2">"drop database aiod; create database aiod;"</span><span class="p">;</span><span class="w"> </span>./scripts/mysql_restore.sh
 </code></pre></div>
 and run the migration script as normal.</p>
 <h4 id="a-note-on-identifiers">A Note on Identifiers</h4>

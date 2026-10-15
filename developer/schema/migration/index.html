@@ -1359,7 +1359,7 @@ For example, to find out what revision <code>develop</code> is on:</p>
 <div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>-v<span class="w"> </span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>/alembic:/alembic<span class="w">  </span>-v<span class="w"> </span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>/src:/app<span class="w"> </span>-it<span class="w"> </span>--network<span class="w"> </span>aiod-rest-api_default<span class="w"> </span>--entrypoint<span class="o">=</span>/bin/bash<span class="w">  </span>aiod-migration
 </code></pre></div>
 <p>Then follow regular <code>alembic</code> steps:
-<div class="highlight"><pre><span></span><code>alembic<span class="w"> </span>revision<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;revision message&quot;</span>
+<div class="highlight"><pre><span></span><code>alembic<span class="w"> </span>revision<span class="w"> </span>-m<span class="w"> </span><span class="s2">"revision message"</span>
 </code></pre></div>
 Then edit the generated file (note that it should also exist on your host machine, so you might prefer to edit it there).</p>
 <p>Note that working from a docker container is not strictly necessary, but it helps set up the PYTHONPATH correctly, so that you can import from the <code>src</code> directory.</p>

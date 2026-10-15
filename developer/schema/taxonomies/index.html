@@ -1274,7 +1274,7 @@ Then invoke docker compose with the "taxonomy" profile. The script will then:</p
 <h2 id="development-taxonomy">Development Taxonomy</h2>
 <p>When using the development configuration, you put a file in the <code>${DATA_PATH}/taxonomies</code> directory and point to it from the API configuration file (<code>config.override.toml</code>), where <code>${DATA_PATH}/taxonomies</code> will be mounted as <code>/data/taxonomies</code>. For example, with <code>DATA_PATH=./data</code> and <code>./data/taxonomies/example_taxonomies.json</code> present:</p>
 <div class="highlight"><pre><span></span><code><span class="k">[dev]</span>
-<span class="n">taxonomy</span><span class="o">=</span><span class="s2">&quot;/data/taxonomies/example_taxonomies.json&quot;</span>
+<span class="n">taxonomy</span><span class="o">=</span><span class="s2">"/data/taxonomies/example_taxonomies.json"</span>
 </code></pre></div>
 <p>It is not intended to use this in production, since it might result in accidentally overwriting the taxonomies.
 In production, use the <code>taxonomy</code> service discussed above.</p>
