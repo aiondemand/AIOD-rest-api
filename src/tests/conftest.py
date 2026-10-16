@@ -3,22 +3,23 @@ pytest_plugins = ["tests.testutils.default_instances", "tests.testutils.default_
 
 def pytest_generate_tests(metafunc):
     from versioning import Version
+
     # We want to automatically test endpoints on all supported versions,
     # and allow version-specific tests to be written using a
     # @pytest.mark.versions("vX") marker
     if "client" in metafunc.fixturenames:
         default_versions = (Version.LATEST, Version.V3)
-        version_marker = next((m for m in metafunc.definition.own_markers if m.name == "versions"), None)
+        version_marker = next(
+            (m for m in metafunc.definition.own_markers if m.name == "versions"), None
+        )
         selected_versions = version_marker.args if version_marker else default_versions
 
         # If version is set through the command line, only use that for testing.
         versions_to_include = list(Version)
         if cmd_line_versions := metafunc.config.getoption("versions"):
             versions_to_include = [Version(v) for v in cmd_line_versions]
-        versions = set(selected_versions).intersection(set(versions_to_include))
-        metafunc.parametrize(
-            "client", versions, indirect=True
-        )
+        versions = sorted(set(selected_versions).intersection(set(versions_to_include)))
+        metafunc.parametrize("client", versions, indirect=True)
 
 
 def pytest_addoption(parser):
