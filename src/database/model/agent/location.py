@@ -82,6 +82,12 @@ class AddressBase(SQLModel):
         max_length=NORMAL,
         schema_extra={"example": "Wetstraat 170, 1040 Brussel"},
     )
+    number: str | None = Field(
+        description="The house or building number of the address.",
+        default=None,
+        max_length=NORMAL,
+        schema_extra={"example": "170"},
+    )
 
 
 class AddressORM(AddressBase, table=True):  # type: ignore [call-arg]
