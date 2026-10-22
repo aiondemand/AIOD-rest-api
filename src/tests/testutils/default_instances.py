@@ -15,9 +15,12 @@ from sqlalchemy.engine import Engine
 from database.model.agent.contact import Contact
 from database.model.agent.organisation import Organisation
 from database.model.agent.person import Person
+from database.model.case_study.case_study import CaseStudy
 from database.model.dataset.dataset import Dataset
+from database.model.event.event import Event
 from database.model.knowledge_asset.publication import Publication
 from database.model.models_and_experiments.experiment import Experiment
+from database.model.news.news import News
 from database.model.platform.platform import Platform
 from database.model.resource_read_and_create import resource_create
 from database.model.serializers import deserialize_resource_relationships
@@ -143,6 +146,21 @@ def experiment(body_asset: dict) -> Experiment:
 @pytest.fixture
 def project(body_asset: dict) -> Project:
     return _create_class_with_body(Project, body_asset)
+
+@pytest.fixture
+def case_study(body_asset: dict) -> CaseStudy:
+    return _create_class_with_body(CaseStudy, body_asset)
+
+@pytest.fixture
+def event(body_asset: dict) -> Event:
+    body = copy.deepcopy(body_asset)
+    body["start_date"] = "2021-02-03T15:15:00"
+    return _create_class_with_body(Event, body)
+
+@pytest.fixture
+def news(body_asset: dict) -> News:
+    return _create_class_with_body(News, body_asset)
+
 
 
 @pytest.fixture

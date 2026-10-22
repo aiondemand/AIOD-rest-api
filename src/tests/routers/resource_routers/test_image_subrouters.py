@@ -10,12 +10,13 @@ from routers.resource_routers.organisation_router import ALLOWED_IMAGE_TYPES
 
 
 @pytest.fixture(params=[
-    "organisation", "project",
+    "organisation", "project", "case_study", "event", "news",
 ])
 def resource_pair(request):
     resource_name = request.param
     resource = request.getfixturevalue(request.param)
-    return resource_name, resource
+    plural_name = "case_studies" if resource_name == "case_study" else ("news" if resource_name == "news" else f"{resource_name}s")
+    return plural_name, resource
 
 
 def test_post_image(
@@ -30,7 +31,7 @@ def test_post_image(
 
     with logged_in_user():
         response = client.post(
-            f"/{name}s/{identifier}/image",
+            f"/{name}/{identifier}/image",
             params={"name": "logo"},
             files={"file": ("logo.png", fake_image, "image/png")},
             headers={"Authorization": "Fake token"},
@@ -50,7 +51,7 @@ def test_post_image_too_large(
 
     with logged_in_user():
         response = client.post(
-            f"/{name}s/{identifier}/image",
+            f"/{name}/{identifier}/image",
             params={"name": "big_logo"},
             files={"file": ("big_logo.png", large_image, "image/png")},
             headers={"Authorization": "Fake token"},
@@ -67,7 +68,7 @@ def test_post_image_incorrect_type(client: TestClient, resource_pair):
 
     with logged_in_user():
         response = client.post(
-            f"/{name}s/{identifier}/image",
+            f"/{name}/{identifier}/image",
             params={"name": "wrong_logo_type"},
             files={"file": ("wrong_logo_type.pdf", pdf_data, "application/pdf")},
             headers={"Authorization": "Fake token"},
@@ -89,14 +90,14 @@ def test_put_image(
 
     with logged_in_user():
         response = client.post(
-            f"/{name}s/{identifier}/image",
+            f"/{name}/{identifier}/image",
             params={"name": "logo"},
             files={"file": ("logo.png", fake_image, "image/png")},
             headers={"Authorization": "Fake token"},
         )
 
         response = client.put(
-            f"/{name}s/{identifier}/image",
+            f"/{name}/{identifier}/image",
             params={"name": "logo"},
             files={"file": ("logo.png", fake_image, "image/png")},
             headers={"Authorization": "Fake token"},
@@ -117,7 +118,7 @@ def test_put_image_non_existent(
     with logged_in_user():
 
         response = client.put(
-            f"/{name}s/{identifier}/image",
+            f"/{name}/{identifier}/image",
             params={"name": "LOGO"},
             files={"file": ("logo.png", fake_image, "image/png")},
             headers={"Authorization": "Fake token"},
@@ -136,7 +137,7 @@ def test_get_with_and_without_image(client: TestClient, resource_pair, get_image
 
     with logged_in_user():
         response = client.post(
-            f"/{name}s/{identifier}/image",
+            f"/{name}/{identifier}/image",
             params={"name": "logo"},
             files={"file": ("logo.png", fake_image, "image/png")},
             headers={"Authorization": "Fake token"},
@@ -144,7 +145,7 @@ def test_get_with_and_without_image(client: TestClient, resource_pair, get_image
 
     assert response.status_code == HTTPStatus.OK, response.json()
 
-    response = client.get(f"/{name}s/{identifier}?get_image={str(get_image).lower()}")
+    response = client.get(f"/{name}/{identifier}?get_image={str(get_image).lower()}")
     assert response.status_code == HTTPStatus.OK
 
     response = response.json()
@@ -169,7 +170,7 @@ def test_get_image(
 
     with logged_in_user():
         response = client.post(
-            f"/{name}s/{identifier}/image",
+            f"/{name}/{identifier}/image",
             params={"name": "logo"},
             files={"file": ("logo.png", fake_image, "image/png")},
             headers={"Authorization": "Fake token"},
@@ -177,7 +178,7 @@ def test_get_image(
 
 
     response = client.get(
-        f"/{name}s/{identifier}/image"
+        f"/{name}/{identifier}/image"
     )
     assert response.status_code == HTTPStatus.OK
     response = response.json()
@@ -193,7 +194,7 @@ def test_get_image_non_existent(
     name, resource = resource_pair
     identifier = register_asset(resource)
     response = client.get(
-        f"/{name}s/{identifier}/image"
+        f"/{name}/{identifier}/image"
     )
     assert response.status_code == HTTPStatus.OK
     assert response.json() == []
@@ -209,21 +210,21 @@ def test_delete_image(
 
     with logged_in_user():
         response = client.post(
-            f"/{name}s/{identifier}/image",
+            f"/{name}/{identifier}/image",
             params={"name": "logo"},
             files={"file": ("logo.png", fake_image, "image/png")},
             headers={"Authorization": "Fake token"},
         )
 
         response = client.delete(
-            f"/{name}s/{identifier}/image",
+            f"/{name}/{identifier}/image",
             params={"name": "logo"},
             headers={"Authorization": "Fake token"},
         )
         assert response.status_code == HTTPStatus.OK
 
         second_delete_response = client.delete(
-            f"/{name}s/{identifier}/image",
+            f"/{name}/{identifier}/image",
             params={"name": "logo"},
             headers={"Authorization": "Fake token"},
         )
@@ -244,7 +245,7 @@ def test_put_without_media_keeps_media(
 
     with logged_in_user():
         response = client.post(
-            f"/{name}s/{identifier}/image",
+            f"/{name}/{identifier}/image",
             params={"name": "logo"},
             files={"file": ("logo.png", fake_image, "image/png")},
             headers={"Authorization": "Fake token"},
@@ -253,13 +254,13 @@ def test_put_without_media_keeps_media(
 
         resource.name = "new name"
         response = client.put(
-            f"/{name}s/{identifier}",
+            f"/{name}/{identifier}",
             json=jsonable_encoder(resource.dict()),
             headers={"Authorization": "Fake token"},
         )
         assert response.status_code == HTTPStatus.OK, response.json()
         response = client.get(
-            f"/{name}s/{identifier}",
+            f"/{name}/{identifier}",
             headers={"Authorization": "Fake token"},
         )
         assert response.status_code == HTTPStatus.OK, response.json()
@@ -280,7 +281,7 @@ def test_put_with_media_keeps_media_if_no_new_binary(
 
     with logged_in_user():
         response = client.post(
-            f"/{name}s/{identifier}/image",
+            f"/{name}/{identifier}/image",
             params={"name": "logo"},
             files={"file": ("logo.png", fake_image, "image/png")},
             headers={"Authorization": "Fake token"},
@@ -288,7 +289,7 @@ def test_put_with_media_keeps_media_if_no_new_binary(
         assert response.status_code == HTTPStatus.OK, response.json()
 
         response = client.get(
-            f"/{name}s/{identifier}?get_image=true",
+            f"/{name}/{identifier}?get_image=true",
             headers={"Authorization": "Fake token"},
         )
         org = response.json()
@@ -297,7 +298,7 @@ def test_put_with_media_keeps_media_if_no_new_binary(
             {"name": "foo", "binary_blob": "bar="},
         )
         response = client.put(
-            f"/{name}s/{identifier}",
+            f"/{name}/{identifier}",
             json=org,
             headers={"Authorization": "Fake token"},
         )
@@ -305,7 +306,7 @@ def test_put_with_media_keeps_media_if_no_new_binary(
 
         org["media"].pop()
         response = client.put(
-            f"/{name}s/{identifier}",
+            f"/{name}/{identifier}",
             json=org,
             headers={"Authorization": "Fake token"},
         )
