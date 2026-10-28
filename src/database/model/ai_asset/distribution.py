@@ -5,6 +5,7 @@ from typing import Type
 from fastapi.encoders import jsonable_encoder
 from pydantic import create_model, validator
 from sqlalchemy import Column, ForeignKey, LargeBinary
+from sqlalchemy.dialects import mysql
 from sqlmodel import Field
 
 from database.model.concept.concept import AIoDConceptBase
@@ -61,7 +62,9 @@ class DistributionBase(AIoDConceptBase):
             "You may not set this property directly, set it indirectly through dedicated "
             "endpoints such as /organisations/{identifier}/image instead."
         ),
-        sa_column=Column(LargeBinary),
+        # On MySQL, LargeBinary is a BLOB of at most 65,535 bytes. The image endpoints accept up
+        # to 1 MiB, so MySQL gets a MEDIUMBLOB (up to 16 MiB).
+        sa_column=Column(LargeBinary().with_variant(mysql.MEDIUMBLOB(), "mysql")),
     )
 
     @validator("binary_blob", pre=True, always=True)
