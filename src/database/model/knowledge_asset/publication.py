@@ -24,6 +24,13 @@ class PublicationBase(KnowledgeAssetBase):
         schema_extra={"example": "http://dx.doi.org/10.1093/ajae/aaq063"},
         default=None,
     )
+    pid: str | None = Field(
+        description="A permanent identifier for the publication, for example a digital object "
+        "identifier (DOI). Ideally a url.",
+        max_length=NORMAL,
+        default=None,
+        schema_extra={"example": "https://doi.org/10.1093/ajae/aaq063"},
+    )
     isbn: str | None = Field(
         description="The International Standard Book Number, ISBN, used to identify published "
         "books or, more rarely, journal issues.",
