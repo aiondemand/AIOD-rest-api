@@ -19,7 +19,7 @@ You can help improve our documentation by correcting mistakes, such as typos, ad
 or even adding new sections. For small changes, documentation can be edited directly on GitHub by
 finding the related markdown file and clicking the pencil icon in the top-right corner (✐).
 
-If you intend to make bigger changes, please first open a new issue the documents the suggested change.
+If you intend to make bigger changes, please first open a new issue that documents the suggested change.
 That way, we can give you feedback before you write, and verify that it is actually a change we would be interested in adopting.
 For big changes, we also recommend you to follow the instructions on ["Setting up a development environment"](#setting-up-a-development-environment)
 so that you can render the changed documentation locally.
@@ -36,7 +36,7 @@ section for more information on how to get started.
 
 ## Helping people on GitHub
 Helping people on the [GitHub issue tracker](https://github.com/aiondemand/AIOD-rest-api/issues) just requires a GitHub account.
-You can help by people by answering their questions, or weighing in on discussions.
+You can help people by answering their questions, or weighing in on discussions.
 Even if you do not have an answer, you can verify that you can reproduce the behavior they report or
 ask clarifying questions to make their bug report better (see also ["Reporting Bugs"](#reporting-bugs)).
 This helps the core contributors resolve the issue with more ease and is hugely appreciated.
@@ -59,7 +59,7 @@ Without it, it may be very hard for contributors to solve the issue (or may not 
 ### Cloning
 First, make sure you can get the local metadata catalogue up and running by following the ["Hosting" instructions](hosting/index.md).
 During the installation step, use `git` to clone the repository.
-If you have write access to this repository, you can follow the instruction as-is.
+If you have write access to this repository, you can follow the instructions as-is.
 If you do not have write access to this repository, you must [fork it](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo).
 After forking the repository, your clone command will be (substituting `USERNAME` for your GitHub username):
 
@@ -68,7 +68,7 @@ git clone https://github.com/USERNAME/AIOD-rest-api.git
 ```
 
 ### Installing Dependencies
-Always make sure to install your dependencies in a local environment, for example with the built in `venv` module:
+Always make sure to install your dependencies in a local environment, for example with the built-in `venv` module:
 
 ```commandline
 python -m venv venv
@@ -86,7 +86,7 @@ build documentation and run tests locally.
 
 ### Configuration
 
-It is also generally useful to set add an `override.env` file to the project's root directory with
+It is also generally useful to add an `override.env` file to the project's root directory with
 the line `USE_LOCAL_DEV=true` added. This will allow utility scripts `./scripts/up.sh` and `./scripts/down.sh`
 to start docker containers in a way that reflects local changes.
 
@@ -95,7 +95,7 @@ Finally, configure your [pre-commit](https://pre-commit.com) hooks using `pre-co
 This will install some hooks to run before a commit can be made, these hooks will run various checks such as a code formatter, linter, file validation, and unit tests.
 These hooks help make sure formatting is more homogeneous across the project, and that no breaking changes are accidentally committed.
 
-## Making a Code Changes
+## Making a Code Change
 See the ["Developer Documentation"](developer/index.md) for the technical documentation of this project.
 More to be added.
 
