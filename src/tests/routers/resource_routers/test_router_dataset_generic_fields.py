@@ -6,7 +6,6 @@ from http import HTTPStatus
 from unittest.mock import Mock
 
 import dateutil.parser
-import pytest
 import pytz
 from sqlalchemy import delete
 from sqlmodel import select
@@ -56,7 +55,7 @@ def test_happy_path(
     with logged_in_user():
         response = client.post("/datasets", json=body, headers={"Authorization": "Fake token"})
     assert response.status_code == 200, response.json()
-    identifier = response.json()['identifier']
+    identifier = response.json()["identifier"]
 
     response = client.get(f"/datasets/{identifier}")
     assert response.status_code == 200, response.json()
@@ -128,7 +127,9 @@ def test_happy_path(
     time.sleep(0.15)
     datetime_update_request = datetime.now(pytz.utc)
     with logged_in_user():
-        response = client.put(f"/datasets/{identifier}", json=body, headers={"Authorization": "Fake token"})
+        response = client.put(
+            f"/datasets/{identifier}", json=body, headers={"Authorization": "Fake token"}
+        )
     assert response.status_code == 200, response.json()
 
     response = client.get(f"/datasets/{identifier}")
@@ -189,11 +190,11 @@ def test_post_duplicate_named_relations(
 
     post_news = partial(client.post, "/news", headers={"Authorization": "Fake token"})
     identifiers = []
-    with (logged_in_user()):
+    with logged_in_user():
         for body in [body1, body2, body3, body4]:
             response = post_news(json=body)
             assert response.status_code == HTTPStatus.OK
-            identifiers.append(response.json()['identifier'])
+            identifiers.append(response.json()["identifier"])
 
     response = client.get(f"/news/{identifiers[1]}")
     assert response.status_code == HTTPStatus.OK, response.json()
@@ -249,7 +250,7 @@ def test_post_editors(
     with logged_in_user():
         for i in range(1, 4):
             response = client.post("/persons", json={"name": str(i)}, headers=headers)
-            identifiers.append(response.json()['identifier'])
+            identifiers.append(response.json()["identifier"])
 
     def assert_editors_are_stored(id_: str, *editors: int):
         body = {
@@ -276,7 +277,7 @@ def test_create_aiod_entry(client: TestClient, auto_publish):
         response = client.post("/news", json=body, headers={"Authorization": "Fake token"})
     end = datetime.now(pytz.utc)
     assert response.status_code == 200, response.json()
-    identifier = response.json()['identifier']
+    identifier = response.json()["identifier"]
     response = client.get(f"/news/{identifier}")
     resource_json = response.json()
 
@@ -305,10 +306,12 @@ def test_update_aiod_entry(
     response = client.post("/news", json=body, headers={"Authorization": "Fake token"})
     end = datetime.now(pytz.utc)
     assert response.status_code == 200, response.json()
-    identifier = response.json()['identifier']
+    identifier = response.json()["identifier"]
 
     put_body = {"name": "news", "aiod_entry": {"editor": [person.identifier]}}
-    response = client.put(f"/news/{identifier}", json=put_body, headers={"Authorization": "Fake token"})
+    response = client.put(
+        f"/news/{identifier}", json=put_body, headers={"Authorization": "Fake token"}
+    )
     assert response.status_code == 200, response.json()
 
     response = client.get(f"/news/{identifier}")
@@ -341,16 +344,20 @@ def test_update_distribution(client: TestClient, mocked_privileged_token: Mock, 
     body = {"name": "dataset", "distribution": [{"content_url": "url"}]}
     response = client.post("/datasets", json=body, headers={"Authorization": "Fake token"})
     assert response.status_code == 200, response.json()
-    identifier = response.json()['identifier']
+    identifier = response.json()["identifier"]
     assert_distributions(client, identifier, "url")
 
     body = {"name": "dataset", "distribution": [{"content_url": "url2"}, {"content_url": "test"}]}
-    response = client.put(f"/datasets/{identifier}", json=body, headers={"Authorization": "Fake token"})
+    response = client.put(
+        f"/datasets/{identifier}", json=body, headers={"Authorization": "Fake token"}
+    )
     assert response.status_code == 200, response.json()
     assert_distributions(client, identifier, "url2", "test")
 
     body = {"name": "dataset", "distribution": [{"content_url": "url"}]}
-    response = client.put(f"/datasets/{identifier}", json=body, headers={"Authorization": "Fake token"})
+    response = client.put(
+        f"/datasets/{identifier}", json=body, headers={"Authorization": "Fake token"}
+    )
     assert response.status_code == 200, response.json()
     assert_distributions(client, identifier, "url")
 
@@ -389,13 +396,18 @@ def test_relations_between_resources(
         session.commit()
         session.refresh(dataset)
 
-    body = {"name": "news", "has_part": [dataset.identifier], "is_part_of": [publication.identifier], "relevant_resource": [organisation.identifier]}
+    body = {
+        "name": "news",
+        "has_part": [dataset.identifier],
+        "is_part_of": [publication.identifier],
+        "relevant_resource": [organisation.identifier],
+    }
     response = client.post("/news", json=body, headers={"Authorization": "Fake token"})
     assert response.status_code == 200, response.json()
     identifier = response.json()["identifier"]
     assert_relations(client, dataset.identifier, "datasets", is_part_of=[identifier])
     assert_relations(client, publication.identifier, "publications", has_part=[identifier])
-    assert_relations(client, organisation.identifier,"organisations", relevant_to=[identifier])
+    assert_relations(client, organisation.identifier, "organisations", relevant_to=[identifier])
 
     body = {
         "name": "news",
@@ -420,7 +432,9 @@ def test_relations_between_resources(
     assert response.status_code == 200, response.json()
     assert_relations(client, dataset.identifier, "datasets", relevant_to=[identifier])
     assert_relations(client, publication.identifier, "publications", relevant_to=[identifier])
-    assert_relations(client, organisation.identifier, "organisations", relevant_resource=[identifier])
+    assert_relations(
+        client, organisation.identifier, "organisations", relevant_resource=[identifier]
+    )
 
     body = {"name": "news", "has_part": [], "is_part_of": [], "relevant_resource": []}
     response = client.put(f"/news/{identifier}", json=body, headers={"Authorization": "Fake token"})
@@ -429,6 +443,6 @@ def test_relations_between_resources(
         session.exec(delete(News))  # hard delete
         session.commit()
     assert response.status_code == 200, response.json()
-    assert_relations(client,dataset.identifier, "datasets")
-    assert_relations(client,publication.identifier, "publications")
+    assert_relations(client, dataset.identifier, "datasets")
+    assert_relations(client, publication.identifier, "publications")
     assert_relations(client, organisation.identifier, "organisations")
