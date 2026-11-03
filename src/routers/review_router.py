@@ -4,7 +4,7 @@ from routers.resource_routers import versioned_routers
 from http import HTTPStatus
 from typing import Sequence, Literal, cast, Any
 
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Query
 from sqlmodel import select, Session
 from starlette import status
 
@@ -46,6 +46,7 @@ def create(url_prefix: str, version: Version) -> APIRouter:
     )
     def get_submission(
         identifier: int,
+        get_image: bool = Query(False, description="Include image bytes in response?"),
         user: KeycloakUser = Depends(get_user_or_raise),  # noqa: B008
         session: Session = Depends(get_session),  # noqa: B008
     ) -> Any:
@@ -76,6 +77,12 @@ def create(url_prefix: str, version: Version) -> APIRouter:
                 deserialized_assets.append(converter(asset))
             else:
                 deserialized_assets.append(asset)
+
+        # REMOVE IMAGE BYTES UNLESS REQUESTED
+        if not get_image:
+            for asset in deserialized_assets:
+                for media in getattr(asset, "media", None) or []:
+                    media.binary_blob = None
 
         return SubmissionView(
             identifier=submission.identifier,
@@ -168,7 +175,7 @@ def list_submissions(
 
 def _submit_resource(
     submission: SubmissionCreate,
-    user: KeycloakUser = Depends(get_user_or_raise),
+    user: KeycloakUser = Depends(get_user_or_raise),  # noqa: B008
     _rate_check: None = Depends(check_submission_rate_limit),
 ):
     id_to_type = {
