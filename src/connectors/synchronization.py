@@ -98,7 +98,6 @@ def save_to_database(
     try:
         if isinstance(item, ResourceWithRelations):
             resource_create_instance = item.resource
-            _create_or_fetch_related_objects(session, item)
         else:
             resource_create_instance = item
         existing = _get_existing_resource(
@@ -106,6 +105,10 @@ def save_to_database(
         )
         # TODO: if not None, update (https://github.com/aiondemand/AIOD-rest-api/issues/131)
         if existing is None:
+            # Only after the existence check, otherwise every rerun stores the related resources
+            # again without linking them to anything.
+            if isinstance(item, ResourceWithRelations):
+                _create_or_fetch_related_objects(session, item)
             resource = router.create_resource(session, resource_create_instance, user)
             publish_resource(session, resource)
 
@@ -136,29 +139,32 @@ def _create_or_fetch_related_objects(session: Session, item: ResourceWithRelatio
             resources = related_resource_or_list
         identifiers = []
         for resource in resources:
+            # Get the router of this resource. The difficulty is, that the resource will be a
+            # ResourceCreate (e.g. a ContactCreate). So we search for the router for which the
+            # resource name starts with the resource-create-name
+            resource_create_str = type(resource).__name__  # E.g. ContactCreate
+            (router,) = [
+                router
+                for router in resource_routers.versioned_routers[Version.LATEST]
+                if router is not None
+                and resource_create_str.startswith(router.resource_class.__name__)
+                # E.g. "ContactCreate".startswith("Contact")
+            ]
+            existing = None
             if (
                 resource.platform is not None
                 and resource.platform != PlatformName.aiod
                 and resource.platform_resource_identifier is not None
             ):
-                # Get the router of this resource. The difficulty is, that the resource will be a
-                # ResourceRead (e.g. a DatasetRead). So we search for the router for which the
-                # resource name starts with the research-read-name
-
-                resource_read_str = type(resource).__name__  # E.g. DatasetRead
-                (router,) = [
-                    router
-                    for router in resource_routers.router_list
-                    if resource_read_str.startswith(router.resource_class.__name__)
-                    # E.g. "DatasetRead".startswith("Dataset")
-                ]
                 existing = _get_existing_resource(session, resource, router.resource_class)
-                if existing is None:
-                    created_resource = router.create_resource(session, resource)
-                    publish_resource(session, created_resource)
-                    identifiers.append(created_resource.identifier)
-                else:
-                    identifiers.append(existing.identifier)
+            if existing is None:
+                # Without a platform identifier (e.g., a creator that only has a name) there is
+                # nothing to match on, so a new resource is stored.
+                created_resource = router.create_resource(session, resource)
+                publish_resource(session, created_resource)
+                identifiers.append(created_resource.identifier)
+            else:
+                identifiers.append(existing.identifier)
 
         if isinstance(related_resource_or_list, AIoDConcept):
             (id_,) = identifiers
