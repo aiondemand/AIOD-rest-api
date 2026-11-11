@@ -587,9 +587,7 @@ class ResourceRouter(abc.ABC):
                         session, self.resource_class, resource, resource_create_instance, user
                     )
                     if hasattr(resource, "aiod_entry"):
-                        resource.aiod_entry.date_modified = datetime.datetime.now(
-                            datetime.UTC
-                        )
+                        resource.aiod_entry.date_modified = datetime.datetime.now(datetime.UTC)
                     try:
                         session.merge(resource)
                         session.commit()
