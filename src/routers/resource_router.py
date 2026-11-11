@@ -24,7 +24,7 @@ from database.model.concept.concept import AIoDConcept
 from database.model.platform.platform import Platform
 from database.model.platform.platform_names import PlatformName
 from database.model.serializers import deserialize_resource_relationships
-from database.review import Submission, SubmissionCreateV2, AssetReview
+from database.review import Submission, SubmissionCreateV2, AssetReview, Review
 from database.session import DbSession
 from dependencies.filtering import ResourceFilters, ResourceFiltersParams
 from dependencies.pagination import Pagination, PaginationParams
@@ -587,9 +587,7 @@ class ResourceRouter(abc.ABC):
                         session, self.resource_class, resource, resource_create_instance, user
                     )
                     if hasattr(resource, "aiod_entry"):
-                        resource.aiod_entry.date_modified = datetime.datetime.now(
-                            datetime.UTC
-                        )
+                        resource.aiod_entry.date_modified = datetime.datetime.now(datetime.UTC)
                     try:
                         session.merge(resource)
                         session.commit()
@@ -627,8 +625,15 @@ class ResourceRouter(abc.ABC):
                             detail=f"You do not have permission to delete {self.resource_name_plural}.",  # noqa: E501
                         )
                     if resource.aiod_entry.status == EntryStatus.SUBMITTED:
+                        # A pending submission has no review, as in review_router.py.
+                        has_review = (
+                            select(1)
+                            .where(AssetReview.review_identifier == Review.submission_identifier)
+                            .exists()
+                        )
                         query = select(AssetReview.review_identifier).where(
-                            AssetReview.aiod_entry_identifier == resource.aiod_entry.identifier
+                            AssetReview.aiod_entry_identifier == resource.aiod_entry.identifier,
+                            ~has_review,
                         )
                         submission_id = session.scalars(query).first()
                         msg = "This asset is part of an active review submission"
