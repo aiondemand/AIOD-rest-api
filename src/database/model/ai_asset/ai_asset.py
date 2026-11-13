@@ -7,8 +7,10 @@ from sqlalchemy import ForeignKey
 from sqlmodel import Field, Relationship
 
 from database.model.ai_asset.ai_asset_table import AIAssetTable
+from database.model.ai_asset.approach import Approach
 from database.model.ai_asset.distribution import Distribution, distribution_factory
 from database.model.ai_asset.license import License
+from database.model.ai_asset.solution import Solution
 from database.model.ai_resource.resource import AIResourceBase, AIResource
 from database.identifiers import IDENTIFIER_TYPE
 from database.model.field_length import NORMAL, IDENTIFIER_LENGTH
@@ -20,6 +22,7 @@ from database.model.relationships import OneToMany, ManyToOne, ManyToMany, OneTo
 from database.model.serializers import (
     AttributeSerializer,
     FindByNameDeserializer,
+    FindByNameDeserializerList,
     CastDeserializerList,
 )
 
@@ -37,6 +40,18 @@ class AIAssetBase(AIResourceBase, metaclass=abc.ABCMeta):
         default=None,
         schema_extra={"example": "1.1.0"},
     )
+    pricing_info: str | None = Field(
+        description="Information about the pricing model or cost structure for accessing this asset.",
+        max_length=NORMAL,
+        default=None,
+        schema_extra={"example": "Free for academic use, €50/month for commercial use"},
+    )
+    applies_to: str | None = Field(
+        description="The context or domain where this asset can be applied.",
+        max_length=NORMAL,
+        default=None,
+        schema_extra={"example": "Computer vision tasks, natural language processing"},
+    )
 
 
 class AIAsset(AIAssetBase, AIResource, metaclass=abc.ABCMeta):
@@ -53,6 +68,9 @@ class AIAsset(AIAssetBase, AIResource, metaclass=abc.ABCMeta):
     distribution: list = Relationship(sa_relationship_kwargs={"cascade": "all, delete"})
     license_identifier: int | None = Field(foreign_key=License.__tablename__ + ".identifier")
     license: Optional[License] = Relationship()  # type: ignore[valid-type]
+
+    solution: list[Solution] = Relationship()  # type: ignore[valid-type]
+    approach: list[Approach] = Relationship()  # type: ignore[valid-type]
 
     def __init_subclass__(cls):
         """
@@ -88,6 +106,20 @@ class AIAsset(AIAssetBase, AIResource, metaclass=abc.ABCMeta):
             default_factory_pydantic=list,
             example=[],
         )
+        solution: list[str] = ManyToMany(
+            description="The solution categories or types that this asset implements or provides.",
+            _serializer=AttributeSerializer("name"),
+            deserializer=FindByNameDeserializerList(Solution),
+            default_factory_pydantic=list,
+            example=["machine learning model", "data processing pipeline"],
+        )
+        approach: list[str] = ManyToMany(
+            description="The methodological approaches or techniques employed by this asset.",
+            _serializer=AttributeSerializer("name"),
+            deserializer=FindByNameDeserializerList(Approach),
+            default_factory_pydantic=list,
+            example=["deep learning theory", "representation learning"],
+        )
 
     @classmethod
     def update_relationships_asset(cls, relationships: dict):
@@ -111,6 +143,23 @@ class AIAsset(AIAssetBase, AIResource, metaclass=abc.ABCMeta):
             from_identifier_type=str,
             to_identifier_type=str,
         )
+
+        relationships["solution"].link_model = many_to_many_link_factory(
+            table_from=cls.__tablename__,
+            table_to=Solution.__tablename__,
+            table_prefix="solution",
+            from_identifier_type=str,
+            to_identifier_type=int,
+        )
+
+        relationships["approach"].link_model = many_to_many_link_factory(
+            table_from=cls.__tablename__,
+            table_to=Approach.__tablename__,
+            table_prefix="approach",
+            from_identifier_type=str,
+            to_identifier_type=int,
+        )
+
         if cls.__tablename__ == "publication":
 
             def get_identifier():
