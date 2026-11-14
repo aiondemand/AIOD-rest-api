@@ -1,8 +1,10 @@
+import datetime
 from http import HTTPStatus
 from typing import Callable
 from unittest.mock import Mock
 
 import pytest
+from sqlmodel import select
 from starlette.testclient import TestClient
 
 from authentication import KeycloakUser, ADMIN_ROLE
@@ -524,6 +526,32 @@ def test_only_reviewer_can_approve_submission(publication, client):
     response = client.get(f"/publications/{identifier}")
     assert response.status_code == HTTPStatus.OK, response.json()
     assert response.json()["aiod_entry"]["status"] == EntryStatus.PUBLISHED
+
+
+def test_approving_a_submission_updates_date_modified(publication, client):
+    # Search indexing only picks up entries with a newer `date_modified`, so approval must bump it.
+    identifier = register_asset(publication, owner=ALICE, status=EntryStatus.SUBMITTED)
+    _register_user_in_db(REVIEWER)
+    old_date = datetime.datetime(2020, 1, 1)
+    with DbSession() as session:
+        entry = session.scalars(select(Publication)).one().aiod_entry
+        entry.date_modified = old_date
+        session.commit()
+
+    with logged_in_user(REVIEWER):
+        response = client.post(
+            "/reviews",
+            content=str(
+                ReviewCreate(decision=Decision.ACCEPTED, submission_identifier=1, comment="").json()
+            ),
+            headers={"Authorization": "Fake token"},
+        )
+        assert response.status_code == HTTPStatus.OK, response.json()
+
+    response = client.get(f"/publications/{identifier}")
+    assert response.status_code == HTTPStatus.OK, response.json()
+    new_date = datetime.datetime.fromisoformat(response.json()["aiod_entry"]["date_modified"])
+    assert new_date > old_date
 
 
 def test_reviewer_can_reject_submission(publication, client):

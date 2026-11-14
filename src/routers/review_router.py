@@ -1,3 +1,4 @@
+import datetime
 import enum
 from routers.resource_routers import versioned_routers
 
@@ -259,6 +260,9 @@ def _review_resource(
         else:
             new_status = EntryStatus.DRAFT
         aiod_entry.status = new_status
+        if new_status == EntryStatus.PUBLISHED:
+            # Search indexing only picks up entries with a newer `date_modified`.
+            aiod_entry.date_modified = datetime.datetime.now(datetime.UTC)
 
     review = Review(
         reviewer_identifier=user._subject_identifier,
